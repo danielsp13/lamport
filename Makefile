@@ -137,7 +137,7 @@ version_compiler_dependencies:
 # ========================================================================================
 
 # -- Compila el informe tex
-build_tex:
+build_tex: install_tex_dependencies
 	@make -C $(TEX_DIR)
 
 # -- Elimina todos los ficheros generados por el makefile de tex
