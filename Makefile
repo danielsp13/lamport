@@ -18,7 +18,7 @@ SHELL := /bin/bash
 PACKAGE_MANAGER=apt
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
-COMPILER_DEPENDENCIES=gcc
+COMPILER_DEPENDENCIES=gcc flex
 
 # -- Variables referentes a informe tex
 TEX_DIR=docs
@@ -40,6 +40,17 @@ author:
 	@echo " -- Autor: Daniel Pérez Ruiz"
 	@echo " -- Tutor: Carlos Ureña Almagro"
 	@echo " -- Version: 0.0.0"
+
+# -- Muestra las diferentes opciones de Makefile
+help:
+	@echo "-- TAREAS DE MAKEFILE --"
+	@echo "make : *No definido todavia* "
+	@echo "make author : Muestra informacion acerca del TFG (autoria)."
+	@echo "make help : Muestra este menu de opciones."
+	@echo "make install_dependencies : Instala todas las dependencias del proyecto (TeX y compilador)."
+	@echo "make uninstall_dependencies : Desinstala todas las dependencias del proyecto (TeX y compilador)."
+	@echo "make version_dependencies : Muestra la versión de las dependencias instaladas".
+
 
 
 # ========================================================================================
