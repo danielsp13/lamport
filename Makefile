@@ -44,12 +44,12 @@ author:
 # -- Muestra las diferentes opciones de Makefile
 help:
 	@echo "-- TAREAS DE MAKEFILE --"
-	@echo "make : *No definido todavia* "
-	@echo "make author : Muestra informacion acerca del TFG (autoria)."
-	@echo "make help : Muestra este menu de opciones."
-	@echo "make install_dependencies : Instala todas las dependencias del proyecto (TeX y compilador)."
-	@echo "make uninstall_dependencies : Desinstala todas las dependencias del proyecto (TeX y compilador)."
-	@echo "make version_dependencies : Muestra la versión de las dependencias instaladas".
+	@printf "%-30s %s\n" "make" "*No definido todavia*"
+	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
+	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
+	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX y compilador)."
+	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX y compilador)."
+	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 
 
 
