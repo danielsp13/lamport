@@ -16,7 +16,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 
 ****
 
-#### Sintaxis del lenguaje Lamport utilizando la notación BNF {#sintaxis-bnf}
+#### <a name="sintaxis-bnf"></a> Sintaxis del lenguaje Lamport utilizando la notación BNF
 
 ~~~bash
 <program> ::= "program" <identifier> [<declarations>] (<subprogram>)* <process>+
@@ -92,9 +92,9 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <unary-operator> ::= "-" | "not"
 ~~~
 
+****
 
-
-#### Tabla de prioridades de operadores {#prioridad-operadores}
+#### <a name="prioridad-operadores"></a> Tabla de prioridades de operadores
 
 | Precedencia |                 Operador                 |               Descripción                | Asociatividad |
 | :---------: | :--------------------------------------: | :--------------------------------------: | :-----------: |
@@ -106,9 +106,9 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 |      6      |                   and                    |     Conjunción lógica<br />(binario)     |  Izda-a-Dcha  |
 |      7      |                    or                    |     Disyunción lógica<br />(binario)     |  Izda-a-Dcha  |
 
+****
 
-
-#### Tabla de Tokens {#tabla-tokens}
+#### <a name="tabla-tokens"></a> Tabla de Tokens
 
 |    TOKEN    |                     DESCRIPCIÓN INFORMAL                     |                   PATRÓN                   |       EJEMPLO       |
 | :---------: | :----------------------------------------------------------: | :----------------------------------------: | :-----------------: |

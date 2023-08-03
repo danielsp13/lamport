@@ -17,7 +17,7 @@ Se enumeran a continuación los diferentes ejemplos que se han considerado para 
 
 ****
 
-#### Ejemplo de pseudocódigo 1 {#scd-ejemplo1}
+#### <a name="scd-ejemplo1"></a> Ejemplo de pseudocódigo 1 
 
 **Descripción:** Se muestran dos procesos cooperantes en los cuales uno (con rol de productor) genera una secuencia de valores (por ejemplo, valores enteros), y el otro (con rol de consumidor) utiliza cada uno de esos valores.
 
@@ -61,7 +61,7 @@ end
 
 ****
 
-#### Ejemplo de pseudocódigo 2 {#scd-ejemplo2}
+#### <a name="scd-ejemplo2"></a> Ejemplo de pseudocódigo 2 
 
 **Descripción:** Representa un proceso concurrente llamado "P" que realiza dos operaciones secuenciales en la variable entera "x"
 
@@ -81,7 +81,7 @@ coend
 
 ****
 
-#### Ejemplo de pseudocódigo 3 {#scd-ejemplo3}
+#### <a name="scd-ejemplo3"></a> Ejemplo de pseudocódigo 3 
 
 **Descripción:** Representa una sección de código con instrucciones atómicas que realizan operaciones concurrentes en la variable "x".
 
@@ -104,7 +104,7 @@ end
 
 ****
 
-#### Ejemplo de pseudocódigo 4 {#scd-ejemplo4}
+#### <a name="scd-ejemplo4"></a> Ejemplo de pseudocódigo 4 
 
 **Descripción:** Consiste en dos procedimientos (P1 y P2) que se ejecutan de forma concurrente y utilizan construcciones propias de la concurrencia (fork y join).
 
@@ -134,7 +134,7 @@ end;
 
 ****
 
-#### Ejemplo de pseudocódigo 5 {#scd-ejemplo5}
+#### <a name="scd-ejemplo5"></a> Ejemplo de pseudocódigo 5 
 
 **Descripción:** Representa una simulación concurrente de dos procesos, "P1" y "P2", que operan en una variable compartida "x". 
 
@@ -167,7 +167,7 @@ end
 
 ****
 
-#### Ejemplo de pseudocódigo 6 {#scd-ejemplo6}
+#### <a name="scd-ejemplo6"></a> Ejemplo de pseudocódigo 6 
 
 **Descripción:** Proporciona dos procedimientos para ordenar elementos en un rango especificado utilizando el método de burbuja y copiar (sobre un subconjunto de elementos) entre dos arrays de números enteros.
 
