@@ -22,7 +22,7 @@
 
 ### :book: Documentación del proyecto
 
-La documentación de este proyecto está redactada en `LaTeX`, en el directorio `docs/`. Para poder recuperar el informe, es necesario instalar el paquete `texlive` en la distribución donde se clone este repositorio.
+La documentación **completa** de este proyecto está redactada en `LaTeX`, en el directorio `tex/`. Para poder recuperar el informe, es necesario instalar el paquete `texlive` en la distribución donde se clone este repositorio.
 
 En el `Makefile` del proyecto se han definido unas reglas para su construcción (siempre y cuando se encuentre en un sistema basado en Debian, o cualquiera que utilice el gestor de paquetes APT) .
 
@@ -34,7 +34,7 @@ Si desea construir el informe TeX ejecute la siguiente orden:
 $ make build_tex
 ~~~
 
-Esta orden además se encargará de instalar todas las dependencias en el sistema en caso de que no se encuentren. El resultado se encontrará dentro del directorio `docs/`con el nombre de archivo `proyecto.pdf`.
+Esta orden además se encargará de instalar todas las dependencias en el sistema en caso de que no se encuentren. El resultado se encontrará dentro del directorio `tex/`con el nombre de archivo `proyecto.pdf`.
 
 
 
@@ -45,6 +45,11 @@ $ make clean_tex
 ~~~
 
 
+
+Si desea consultar la documentación referente al proceso de construcción del compilador del lenguaje lamport, ésta se encuentra disponible en el directorio `docs/`. Aquí se muestra un listado con todos los apartados de interés:
+
+*  :books: **[Ejemplos de pseudocódigo de SCD](docs/ejemplos_pseudocodigo.md)** : Se muestran los ejemplos utilizados para la definición del lenguaje lamport, extraídos de las transparencias de la asignatura.
+* :detective: **[Análisis de pseudocódigo de SCD](docs/analisis_pseudocodigo.md)** : Se documenta el análisis realizado sobre los ejemplos de código y la información extraída, como la sintaxis del lenguaje, especificación de precedencia de operadores, y tabla de tokens.
 
 ### :shell: Instalación y verificación
 
