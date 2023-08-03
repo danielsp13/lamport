@@ -24,7 +24,7 @@ TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex
 
 # -- Variables referentes a informe tex
-TEX_DIR=docs
+TEX_DIR=tex
 TEX_GEN_FILES='.*\.\(aux\|log\|pdf\|dvi\|toc\|out\|bbl\|blg\|lot\|lof\)'
 
 # -- Variables referentes a copias de seguridad locales
