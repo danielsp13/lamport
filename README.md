@@ -2,27 +2,31 @@
 
 ## *Lamport: Simulador de Sistemas Concurrentes y Distribuidos*
 
-
-
 ### :bust_in_silhouette: Autor: *Daniel Pérez Ruiz*
 
 ### :busts_in_silhouette: Tutor: *Carlos Ureña Almagro*
 
+****
 
+### :card_index_dividers: Contenidos del README
+
+En el siguiente índice se resumen los contenidos principales de este README:
+
+* :question: **[Resumen del proyecto](#lamport-resume)** : Describe los objetivos y el propósito de este proyecto.
+* :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX, así como proporciona enlaces documentación propia del repo.
+* :shell: **[Instalación y verificación](#lamport-install)** : Indica cómo se realiza la gestión de dependencias del proyecto mediante el `Makefile` implementado para ello.
 
 ****
 
-
-
-### :question: Resumen del proyecto
+### :question: <a name="lamport-resume"></a> Resumen del proyecto
 
 :construction:
 
+****
 
+### :book: <a name="lamport-doc"></a> Documentación del proyecto
 
-### :book: Documentación del proyecto
-
-La documentación de este proyecto está redactada en `LaTeX`, en el directorio `docs/`. Para poder recuperar el informe, es necesario instalar el paquete `texlive` en la distribución donde se clone este repositorio.
+La documentación **completa** de este proyecto está redactada en `LaTeX`, en el directorio `tex/`. Para poder recuperar el informe, es necesario instalar el paquete `texlive` en la distribución donde se clone este repositorio.
 
 En el `Makefile` del proyecto se han definido unas reglas para su construcción (siempre y cuando se encuentre en un sistema basado en Debian, o cualquiera que utilice el gestor de paquetes APT) .
 
@@ -34,7 +38,7 @@ Si desea construir el informe TeX ejecute la siguiente orden:
 $ make build_tex
 ~~~
 
-Esta orden además se encargará de instalar todas las dependencias en el sistema en caso de que no se encuentren. El resultado se encontrará dentro del directorio `docs/`con el nombre de archivo `proyecto.pdf`.
+Esta orden además se encargará de instalar todas las dependencias en el sistema en caso de que no se encuentren. El resultado se encontrará dentro del directorio `tex/`con el nombre de archivo `proyecto.pdf`.
 
 
 
@@ -46,7 +50,14 @@ $ make clean_tex
 
 
 
-### :shell: Instalación y verificación
+Si desea consultar la documentación referente al proceso de construcción del compilador del lenguaje lamport, ésta se encuentra disponible en el directorio `docs/`. Aquí se muestra un listado con todos los apartados de interés:
+
+*  :books: **[Ejemplos de pseudocódigo de SCD](docs/ejemplos_pseudocodigo.md)** : Se muestran los ejemplos utilizados para la definición del lenguaje lamport, extraídos de las transparencias de la asignatura.
+* :detective: **[Análisis de pseudocódigo de SCD](docs/analisis_pseudocodigo.md)** : Se documenta el análisis realizado sobre los ejemplos de código y la información extraída, como la sintaxis del lenguaje, especificación de precedencia de operadores, y tabla de tokens.
+
+****
+
+### :shell: <a name="lamport-install"></a> Instalación y verificación de dependencias
 
 En este proyecto hay diferentes bibliotecas y programas que son necesarias para poder construir el compilador adecuadamente. Para ello, se han definido reglas en el `Makefile` que permiten la gestión de dichas dependencias:
 
@@ -104,3 +115,4 @@ $ make version_compiler_dependencies
 
 
 
+****

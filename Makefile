@@ -10,6 +10,9 @@
 # -- Definicion del shell a utilizar
 SHELL := /bin/bash
 
+# -- Designacion de reglas internas
+.PHONY: backup
+
 # ========================================================================================
 # DEFINICION DE VARIABLES
 # ========================================================================================
@@ -18,16 +21,32 @@ SHELL := /bin/bash
 PACKAGE_MANAGER=apt
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
-COMPILER_DEPENDENCIES=gcc
+COMPILER_DEPENDENCIES=gcc flex
 
 # -- Variables referentes a informe tex
-TEX_DIR=docs
+TEX_DIR=tex
 TEX_GEN_FILES='.*\.\(aux\|log\|pdf\|dvi\|toc\|out\|bbl\|blg\|lot\|lof\)'
 
+# -- Variables referentes a copias de seguridad locales
+BACKUP_EXT_FILE = .zip
+BACKUP_NAME = lamport
+BACKUP_FILE = $(BACKUP_NAME)$(BACKUP_EXT_FILE)
+DIR_BACKUP = $(HOME)
 
 # ========================================================================================
 # DEFINICION DE REGLA PRINICPAL (ALL)
 # ========================================================================================
+
+# ========================================================================================
+# DEFINICION DE REGLAS DE GESTION INTERNA
+# ========================================================================================
+
+
+backup:
+	@echo "Generando copia de seguridad..."
+	@rm -f $(DIR_BACKUP)/$(BACKUP_FILE)
+	@zip -r $(DIR_BACKUP)/$(BACKUP_FILE) ./*
+	@echo "Copia de seguridad creada en $(DIR_BACKUP)/$(BACKUP_FILE)"
 
 # ========================================================================================
 # DEFINICION DE OTRAS REGLAS
@@ -40,6 +59,17 @@ author:
 	@echo " -- Autor: Daniel Pérez Ruiz"
 	@echo " -- Tutor: Carlos Ureña Almagro"
 	@echo " -- Version: 0.0.0"
+
+# -- Muestra las diferentes opciones de Makefile
+help:
+	@echo "-- TAREAS DE MAKEFILE --"
+	@printf "%-30s %s\n" "make" "*No definido todavia*"
+	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
+	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
+	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX y compilador)."
+	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX y compilador)."
+	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
+
 
 
 # ========================================================================================
