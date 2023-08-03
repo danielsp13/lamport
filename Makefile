@@ -10,6 +10,9 @@
 # -- Definicion del shell a utilizar
 SHELL := /bin/bash
 
+# -- Designacion de reglas internas
+.PHONY: backup
+
 # ========================================================================================
 # DEFINICION DE VARIABLES
 # ========================================================================================
@@ -24,10 +27,26 @@ COMPILER_DEPENDENCIES=gcc flex
 TEX_DIR=docs
 TEX_GEN_FILES='.*\.\(aux\|log\|pdf\|dvi\|toc\|out\|bbl\|blg\|lot\|lof\)'
 
+# -- Variables referentes a copias de seguridad locales
+BACKUP_EXT_FILE = .zip
+BACKUP_NAME = lamport
+BACKUP_FILE = $(BACKUP_NAME)$(BACKUP_EXT_FILE)
+DIR_BACKUP = $(HOME)
 
 # ========================================================================================
 # DEFINICION DE REGLA PRINICPAL (ALL)
 # ========================================================================================
+
+# ========================================================================================
+# DEFINICION DE REGLAS DE GESTION INTERNA
+# ========================================================================================
+
+
+backup:
+	@echo "Generando copia de seguridad..."
+	@rm -f $(DIR_BACKUP)/$(BACKUP_FILE)
+	@zip -r $(DIR_BACKUP)/$(BACKUP_FILE) ./*
+	@echo "Copia de seguridad creada en $(DIR_BACKUP)/$(BACKUP_FILE)"
 
 # ========================================================================================
 # DEFINICION DE OTRAS REGLAS
