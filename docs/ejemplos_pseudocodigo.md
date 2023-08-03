@@ -8,12 +8,12 @@ En este documento se recopilan algunos ejemplos de resolución en código de pro
 
 Se enumeran a continuación los diferentes ejemplos que se han considerado para el posterior análisis realizado:
 
-* **[Ejemplo 1]({#scd-ejemplo1})** : TEMA 1 - Página 34 (Paradigma del Productor-Consumidor).
-* **[Ejemplo 2]({#scd-ejemplo2})** : TEMA 1 - Página 39 (Prueba simple de programa concurrente).
-* **[Ejemplo 3]({#scd-ejemplo3})** : TEMA 1 - Página 32 (Instrucciones compuestas atómicas).
-* **[Ejemplo 4]({#scd-ejemplo4})** : TEMA 1 - Página 26 (Creación de procesos no estructurada: fork-join)
-* **[Ejemplo 5]({#scd-ejemplo5})** : TEMA 1 - Ejercicio 1 de la relación.
-* **[Ejemplo 6]({#scd-ejemplo6})** : TEMA 1 - Ejercicio 6 de la relación.
+* **[Ejemplo 1](#scd-ejemplo1)** : TEMA 1 - Página 34 (Paradigma del Productor-Consumidor).
+* **[Ejemplo 2](#scd-ejemplo2)** : TEMA 1 - Página 39 (Prueba simple de programa concurrente).
+* **[Ejemplo 3](#scd-ejemplo3)** : TEMA 1 - Página 32 (Instrucciones compuestas atómicas).
+* **[Ejemplo 4](#scd-ejemplo4)** : TEMA 1 - Página 26 (Creación de procesos no estructurada: fork-join)
+* **[Ejemplo 5](#scd-ejemplo5)** : TEMA 1 - Ejercicio 1 de la relación.
+* **[Ejemplo 6](#scd-ejemplo6)** : TEMA 1 - Ejercicio 6 de la relación.
 
 ****
 
@@ -29,23 +29,23 @@ var x : integer; {contiene cada valor producido}
 process Productor;
 var a : integer; {no compartida}
 begin
-	while true do begin
-    	{calcular un valor}
-    	a := ProducirValor();
-        {escribir en mem. compartida}
-        x := a; {sentencia E}
-	end
+  while true do begin
+    {calcular un valor}
+    a := ProducirValor();
+    {escribir en mem. compartida}
+    x := a; {sentencia E}
+  end
 end
 {Proceso consumidor: lee 'x'}
 process Consumidor;
 var b : integer;
 begin
-	while true do begin
-    	{leer de mem. compartida}
-        b := x; {sentencia L}
-        {utilizar el valor leido}
-        UsarValor(b);
-    end
+  while true do begin
+    {leer de mem. compartida}
+    b := x; {sentencia L}
+    {utilizar el valor leido}
+    UsarValor(b);
+  end
 end
 ~~~
 
@@ -71,7 +71,7 @@ end
 process P;
 var x : integer := 0;
 cobegin
-	x = x+1 ; x = x+2;
+  x = x+1 ; x = x+2;
 coend
 ~~~
 
@@ -90,11 +90,11 @@ coend
 ~~~pascal
 {instr. atómicas}
 begin
-	x := 0;
-	cobegin
-		< x := x+1 >
-		< x := x-1 >
-    coend
+  x := 0;
+  cobegin
+    < x := x+1 >
+    < x := x-1 >
+  coend
 end
 ~~~
 
@@ -113,16 +113,16 @@ end
 ~~~pascal
 procedure P1;
 begin
-	A;
-	fork P2;
-	B;
-	join P2;
-	C;
+  A;
+  fork P2;
+  B;
+  join P2;
+  C;
 end
 
 procedure P2;
 begin
-	D;
+  D;
 end;
 ~~~
 
@@ -145,19 +145,19 @@ end;
 var x : integer := 0;
 
 process P1;
-	var i : integer;
+  var i : integer;
 begin
-	for i := 1 to 2 do begin
-		x := x+1;
-    end
+  for i := 1 to 2 do begin
+    x := x+1;
+  end
 end
 
 process P2;
-	var j : integer;
+  var j : integer;
 begin
-	for j := 1 to 2 do begin
-		x := x+1;
-    end
+  for j := 1 to 2 do begin
+    x := x+1;
+  end
 end
 ~~~
 
@@ -177,19 +177,19 @@ end
 var a,b : array[1..2*n] of integer; {n es una constante predefinida}
 
 procedure Sort( s,t : integer );
-	var i,j : integer;
+  var i,j : integer;
 begin
-	for i := s to t do
-		for j := s+1 to t do
-			if a[i] < a[j] then
-				swap(a[i], b[j]);
+  for i := s to t do
+    for j := s+1 to t do
+      if a[i] < a[j] then
+        swap(a[i], b[j]);
 end
 
 procedure Copiar( o,s,t : integer );
-	var d : integer;
+  var d : integer;
 begin
-	for d := 0 to t-s do
-		b[o+d] := a[s+d];
+  for d := 0 to t-s do
+    b[o+d] := a[s+d];
 end
 ~~~
 
