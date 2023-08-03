@@ -2,25 +2,29 @@
 
 ## *Lamport: Simulador de Sistemas Concurrentes y Distribuidos*
 
-
-
 ### :bust_in_silhouette: Autor: *Daniel Pérez Ruiz*
 
 ### :busts_in_silhouette: Tutor: *Carlos Ureña Almagro*
 
+****
 
+### :card_index_dividers: Contenidos del README
+
+En el siguiente índice se resumen los contenidos principales de este README:
+
+* :question: **[Resumen del proyecto](#lamport-resume)** : Describe los objetivos y el propósito de este proyecto.
+* :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX, así como proporciona enlaces documentación propia del repo.
+* :shell: **[Instalación y verificación](#lamport-install)** : Indica cómo se realiza la gestión de dependencias del proyecto mediante el `Makefile` implementado para ello.
 
 ****
 
-
-
-### :question: Resumen del proyecto
+### :question: <a name="lamport-resume"></a> Resumen del proyecto
 
 :construction:
 
+****
 
-
-### :book: Documentación del proyecto
+### :book: <a name="lamport-doc"></a> Documentación del proyecto
 
 La documentación **completa** de este proyecto está redactada en `LaTeX`, en el directorio `tex/`. Para poder recuperar el informe, es necesario instalar el paquete `texlive` en la distribución donde se clone este repositorio.
 
@@ -51,7 +55,9 @@ Si desea consultar la documentación referente al proceso de construcción del c
 *  :books: **[Ejemplos de pseudocódigo de SCD](docs/ejemplos_pseudocodigo.md)** : Se muestran los ejemplos utilizados para la definición del lenguaje lamport, extraídos de las transparencias de la asignatura.
 * :detective: **[Análisis de pseudocódigo de SCD](docs/analisis_pseudocodigo.md)** : Se documenta el análisis realizado sobre los ejemplos de código y la información extraída, como la sintaxis del lenguaje, especificación de precedencia de operadores, y tabla de tokens.
 
-### :shell: Instalación y verificación
+****
+
+### :shell: <a name="lamport-install"></a> Instalación y verificación de dependencias
 
 En este proyecto hay diferentes bibliotecas y programas que son necesarias para poder construir el compilador adecuadamente. Para ello, se han definido reglas en el `Makefile` que permiten la gestión de dichas dependencias:
 
@@ -109,3 +115,4 @@ $ make version_compiler_dependencies
 
 
 
+****
