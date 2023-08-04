@@ -50,6 +50,8 @@ $ make clean_tex
 
 
 
+#### Documentación en Markdown
+
 Si desea consultar la documentación referente al proceso de construcción del compilador del lenguaje lamport, ésta se encuentra disponible en el directorio `docs/`. Aquí se muestra un listado con todos los apartados de interés:
 
 *  :books: **[Ejemplos de pseudocódigo de SCD](docs/ejemplos_pseudocodigo.md)** : Se muestran los ejemplos utilizados para la definición del lenguaje lamport, extraídos de las transparencias de la asignatura.
