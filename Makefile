@@ -22,6 +22,7 @@ PACKAGE_MANAGER=apt
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex
+TEST_DEPENDENCIES=libcmocka-dev
 
 # -- Variables referentes a informe tex
 TEX_DIR=tex
@@ -66,8 +67,8 @@ help:
 	@printf "%-30s %s\n" "make" "*No definido todavia*"
 	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
 	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
-	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX y compilador)."
-	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX y compilador)."
+	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests)."
+	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests)."
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 
 
@@ -77,13 +78,13 @@ help:
 # ========================================================================================
 
 # -- Instala todas las dependencias del proyecto
-install_dependencies: install_tex_dependencies install_compiler_dependencies
+install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies
 
 # -- Desinstala todas las dependencias del proyecto
-uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies
+uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies
 
 # -- Muestra la versión de todas las dependencias del proyecto
-version_dependencies: version_tex_dependencies version_compiler_dependencies
+version_dependencies: version_tex_dependencies version_compiler_dependencies version_tests_dependencies
 
 # ----------------------------------------------------------------------------------------
 
@@ -152,6 +153,43 @@ uninstall_compiler_dependencies:
 version_compiler_dependencies:
 	@echo "Versión instalada de las dependencias para la construcción del compilador:"
 	@$(foreach DEP,$(COMPILER_DEPENDENCIES), \
+        if dpkg -s $(DEP) >/dev/null 2>&1; then \
+            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(DEP): ", $$2}'; \
+        else \
+            echo " ---> $(DEP) NO! se encuentra instalado en el sistema."; \
+        fi; \
+    )
+    
+# ----------------------------------------------------------------------------------------
+
+# -- Instala todas las dependencias relacionadas con los tests del compilador
+install_tests_dependencies:
+	@echo "Instalando dependencias para realizacion de tests sobre compilador..."
+	@$(foreach DEP,$(TEST_DEPENDENCIES), \
+        if ! dpkg -s $(DEP) >/dev/null 2>&1; then \
+            echo " ---> $(DEP) no está instalado. Instalando..."; \
+            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+        else \
+            echo " ---> $(DEP) ya se encuentra instalado en el sistema."; \
+        fi; \
+    )
+	
+# -- Desinstala todas las dependencias relacionadas con el compilador
+uninstall_tests_dependencies:
+	@echo "Desinstalando dependencias para realizacion de tests sobre compilador..."
+	@$(foreach DEP,$(TEST_DEPENDENCIES), \
+        if dpkg -s $(DEP) >/dev/null 2>&1; then \
+        	echo " ---> Desinstalando $(DEP)..."; \
+            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+        else \
+            echo " ---> $(DEP) NO! se encuentra instalado en el sistema."; \
+        fi; \
+    )
+	
+# -- Muestra la versión de todas las dependencias relacionadas con el compilador
+version_tests_dependencies:
+	@echo "Versión instalada de las dependencias para realizacion de tests sobre compilador:"
+	@$(foreach DEP,$(TEST_DEPENDENCIES), \
         if dpkg -s $(DEP) >/dev/null 2>&1; then \
             dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(DEP): ", $$2}'; \
         else \

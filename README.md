@@ -77,6 +77,9 @@ $ make install_tex_dependencies
 
 # Instala dependencias sólo del compilador
 $ make install_compiler_dependencies
+
+# Instala dependencias sólo de tests sobre compilador
+$ make install_tests_dependencies
 ~~~
 
 
@@ -95,6 +98,9 @@ $ make uninstall_tex_dependencies
 
 # Desinstala dependencias sólo del compilador
 $ make uninstall_compiler_dependencies
+
+# Desinstala dependencias sólo de tests sobre compilador
+$ make uninstall_tests_dependencies
 ~~~
 
 
@@ -111,8 +117,11 @@ Otra opción podría ser la comprobación de versiones por separado:
 # Muestra las versiones instaladas de las dependencias de TeX
 $ make version_tex_dependencies
 
-# Muestras las versiones instaladas de las dependencias del compilador
+# Muestra las versiones instaladas de las dependencias del compilador
 $ make version_compiler_dependencies
+
+# Muestra las versiones instaladas de las dependencias de tests sobre compilador
+$ make version_tests_dependencies
 ~~~
 
 
