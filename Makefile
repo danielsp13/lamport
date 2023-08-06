@@ -10,6 +10,36 @@
 # -- Definicion del shell a utilizar
 SHELL := /bin/bash
 
+# -- Deteccion de OS
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Linux)
+	DISTRIBUTION := $(shell cat /etc/os-release | grep -o '^ID=.*' | cut -d= -f2-)
+	# -- Detectar SO Linux (Ubuntu)
+    ifeq ($(DISTRIBUTION), ubuntu)
+        PACKAGE_MANAGER:=apt
+        UPDATE_OPTION:=$(PACKAGE_MANAGER) update
+        INSTALL_OPTION:=$(PACKAGE_MANAGER) install -y
+        REMOVE_OPTION:=$(PACKAGE_MANAGER) remove -y
+        AUTOREMOVE_OPTION:=$(PACKAGE_MANAGER) autoremove -y
+        CHECK_PACKAGES_V1=dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'
+        CHECK_PACKAGES_V2=dpkg -s $(DEP) >/dev/null 2>&1
+        
+        TEST_CMOCKA=libcmocka-dev cppcheck
+    # -- Detectar SO Linux (Alpine)
+    else ifeq ($(DISTRIBUTION), alpine)
+        PACKAGE_MANAGER:=apk
+        UPDATE_OPTION:=$(PACKAGE_MANAGER) update
+        INSTALL_OPTION:=$(PACKAGE_MANAGER) add --no-cache
+        REMOVE_OPTION:=$(PACKAGE_MANAGER) remove
+        AUTOREMOVE_OPTION:=$(PACKAGE_MANAGER) autoremove
+        CHECK_PACKAGES_V1=apk info -e $(DEP) > /dev/null 2>&1
+        CHECK_PACKAGES_V2=apk info -e $(DEP) > /dev/null 2>&1
+        
+        TEST_CMOCKA=cmocka-dev 
+    endif
+endif
+
 # -- Designacion de reglas internas
 .PHONY: backup build_bin_dir
 
@@ -18,13 +48,12 @@ SHELL := /bin/bash
 # ========================================================================================
 
 # -- Variables referentes a las dependencias del proyecto
-PACKAGE_MANAGER=apt
 DPKG_ARCHITECTURE=`dpkg --print-architecture`
 VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex
-TEST_DEPENDENCIES=libcmocka-dev cppcheck
+TEST_DEPENDENCIES=$(TEST_CMOCKA) cppcheck
 VIRTUALENV_DEPENDENCIES=docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 PREVIOUS_DOCKER_DEPENDENCIES=ca-certificates curl gnupg
 
@@ -55,11 +84,13 @@ LINTER = cppcheck
 INDEX_FILES=dummy
 TEST_PREFIX = test_
 
-
 # -- Variables de extensiones
 SOURCE_EXT = .c
 HEADER_EXT = .h
 TEST_EXT = .c
+
+# -- Variables de entorno virtual
+DOCKER_IMAGE=danielsp13/lamport
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -77,11 +108,7 @@ COLOR_RESET_BOLD := $(COLOR_RESET)$(COLOR_BOLD)
 
 # -- Elimina todos los ficheros que se hayan generado usando el Makefile
 clean: clean_tex clean_tests
-	@if [ -z "$(wildcard $(BIN_DIR)/*)" ]; then \
-		echo; echo "$(COLOR_BLUE)Eliminando directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_BLUE)...$(COLOR_RESET)"; \
-		rmdir $(BIN_DIR) 2>/dev/null || true; \
-		echo "$(COLOR_GREEN)Directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_GREEN) eliminado correctamente!"; \
-	fi
+	@make -s clean_bin_dir
 		
 
 # ========================================================================================
@@ -96,6 +123,13 @@ backup:
 	
 build_bin_dir:
 	@mkdir -p $(BIN_DIR)
+	
+clean_bin_dir:
+	@if [ -z "$(wildcard $(BIN_DIR)/*)" ]; then \
+		echo; echo "$(COLOR_BLUE)Eliminando directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_BLUE)...$(COLOR_RESET)"; \
+		rmdir $(BIN_DIR) 2>/dev/null || true; \
+		echo "$(COLOR_GREEN)Directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_GREEN) eliminado correctamente!$(COLOR_RESET)"; \
+	fi
 
 # ========================================================================================
 # DEFINICION DE OTRAS REGLAS
@@ -120,6 +154,7 @@ help:
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
 	@printf "%-30s %s\n" "make test" "Compila y ejecuta los tests sobre los fuentes del proyecto."
+	@printf "%-30s %s\n" "make run_docker" "Ejecuta y realiza el testeo de fuentes en el contenedor docker."
 	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 
 
@@ -142,11 +177,11 @@ version_dependencies: version_tex_dependencies version_compiler_dependencies ver
 install_tex_dependencies:
 	@echo "$(COLOR_BLUE)Instalando dependencias TeX del proyecto...$(COLOR_RESET)"
 	@$(foreach DEP,$(TEX_DEPENDENCIES), \
-        if ! dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii' ; then \
+        if ! $(CHECK_PACKAGES_V1) ; then \
             echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+            sudo $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) install $(DEP); \
         else \
-            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
+            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) ya se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
 	
@@ -154,9 +189,9 @@ install_tex_dependencies:
 uninstall_tex_dependencies:
 	@echo "$(COLOR_BLUE)Desinstalando dependencias TeX del proyecto...$(COLOR_RESET)"
 	@$(foreach DEP,$(TEX_DEPENDENCIES), \
-        if dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'; then \
+        if $(CHECK_PACKAGES_V2); then \
         	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)$(COLOR_RESET)...$(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+            sudo $(REMOVE_OPTION) $(DEP) && sudo $(AUTOREMOVE_OPTION); \
         else \
             echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
@@ -166,7 +201,7 @@ uninstall_tex_dependencies:
 version_tex_dependencies:
 	@echo "$(COLOR_BLUE)Versión instalada de las dependencias TeX del proyecto:$(COLOR_RESET)"
 	@$(foreach DEP,$(TEX_DEPENDENCIES), \
-        if dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'; then \
+        if $(CHECK_PACKAGES_V1); then \
             dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
         else \
             echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
@@ -179,11 +214,11 @@ version_tex_dependencies:
 install_compiler_dependencies:
 	@echo "$(COLOR_BLUE)Instalando dependencias para la construcción del compilador...$(COLOR_RESET)"
 	@$(foreach DEP,$(COMPILER_DEPENDENCIES), \
-        if ! dpkg -s $(DEP) >/dev/null 2>&1; then \
+        if ! $(CHECK_PACKAGES_V2); then \
             echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+            sudo $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) $(DEP); \
         else \
-            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
+            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) ya se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
 	
@@ -191,9 +226,9 @@ install_compiler_dependencies:
 uninstall_compiler_dependencies:
 	@echo "$(COLOR_BLUE)Desinstalando dependencias para la construcción del compilador...$(COLOR_RESET)"
 	@$(foreach DEP,$(COMPILER_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
+        if $(CHECK_PACKAGES_V2); then \
         	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)...$(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+            sudo $(REMOVE_OPTION) $(DEP) && sudo $(AUTOREMOVE_OPTION); \
         else \
             echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
@@ -203,7 +238,7 @@ uninstall_compiler_dependencies:
 version_compiler_dependencies:
 	@echo "$(COLOR_BLUE)Versión instalada de las dependencias para la construcción del compilador:$(COLOR_RESET)"
 	@$(foreach DEP,$(COMPILER_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
+        if $(CHECK_PACKAGES_V2); then \
             dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
         else \
             echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
@@ -216,9 +251,9 @@ version_compiler_dependencies:
 install_tests_dependencies:
 	@echo "$(COLOR_BLUE)Instalando dependencias para realizacion de tests sobre compilador...$(COLOR_RESET)"
 	@$(foreach DEP,$(TEST_DEPENDENCIES), \
-        if ! dpkg -s $(DEP) >/dev/null 2>&1; then \
+        if ! $(CHECK_PACKAGES_V2); then \
             echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+            sudo $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) $(DEP); \
         else \
             echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
         fi; \
@@ -228,9 +263,9 @@ install_tests_dependencies:
 uninstall_tests_dependencies:
 	@echo "$(COLOR_BLUE)Desinstalando dependencias para realizacion de tests sobre compilador...$(COLOR_RESET)"
 	@$(foreach DEP,$(TEST_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
+        if $(CHECK_PACKAGES_V2); then \
         	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)$(COLOR_RESET)...$(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+            sudo $(REMOVE_OPTION) $(DEP) && sudo $(AUTOREMOVE_OPTION); \
         else \
             echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
@@ -240,7 +275,7 @@ uninstall_tests_dependencies:
 version_tests_dependencies:
 	@echo "$(COLOR_BLUE)Versión instalada de las dependencias para realizacion de tests sobre compilador:$(COLOR_RESET)"
 	@$(foreach DEP,$(TEST_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
+        if $(CHECK_PACKAGES_V2); then \
             dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
         else \
             echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
@@ -253,9 +288,9 @@ version_tests_dependencies:
 install_virtualenv_dependencies:
 	@echo "$(COLOR_BLUE)Instalando repositorio de $(COLOR_PURPLE)Docker$(COLOR_BLUE) en el sistema...$(COLOR_RESET)"
 	@$(foreach DEP,$(PREVIOUS_DOCKER_DEPENDENCIES), \
-        if ! dpkg -s $(DEP) >/dev/null 2>&1; then \
+        if ! $(CHECK_PACKAGES_V2); then \
             echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+            $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) -y $(DEP); \
         else \
             echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
         fi; \
@@ -270,9 +305,9 @@ install_virtualenv_dependencies:
 
 	@echo "$(COLOR_BLUE)Instalando dependencias para para gestion de contenedores virtuales...$(COLOR_RESET)"
 	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
-        if ! dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'; then \
+        if ! $(CHECK_PACKAGES_V1); then \
             echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+            $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) $(DEP); \
         else \
             echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
         fi; \
@@ -282,9 +317,9 @@ install_virtualenv_dependencies:
 uninstall_virtualenv_dependencies:
 	@echo "$(COLOR_BLUE)Desinstalando dependencias para gestion de contenedores virtuales...$(COLOR_RESET)"
 	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
-        if dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'; then \
+        if $(CHECK_PACKAGES_V1); then \
         	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)$(COLOR_RESET)...$(COLOR_RESET)"; \
-            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+            sudo $(REMOVE_OPTION) $(DEP) && sudo $(AUTOREMOVE_OPTION); \
         else \
             echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
@@ -294,7 +329,7 @@ uninstall_virtualenv_dependencies:
 version_virtualenv_dependencies:
 	@echo "$(COLOR_BLUE)Versión instalada de las dependencias para gestion de contenedores virtuales:$(COLOR_RESET)"
 	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
+        if $(CHECK_PACKAGES_V2); then \
             dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
         else \
             echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
@@ -308,7 +343,7 @@ version_virtualenv_dependencies:
 # -- Compila el informe tex
 build_tex: install_tex_dependencies
 	@echo "$(COLOR_BLUE)Compilando informe TeX...$(COLOR_RESET)"
-	@make -C $(TEX_DIR)
+	@make -sC $(TEX_DIR)
 	@echo "$(COLOR_GREEN)Informe TeX compilado exitosamente en $(TEX_DIR)/ $(COLOR_RESET)"
 
 # -- Elimina todos los ficheros generados por el makefile de tex
@@ -322,12 +357,13 @@ clean_tex:
 # ========================================================================================
 
 # -- Compila los ficheros de tests
-compile_tests: install_tests_dependencies compile_test_dummy
+compile_tests: compile_test_dummy
     
 compile_test_dummy: build_bin_dir
 	@echo; echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(TEST_DIR)/$(TEST_PREFIX)dummy$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)"
 	@$(GXX) $(CFLAGS) $(TEST_DIR)/$(TEST_PREFIX)dummy$(TEST_EXT) -o $(BIN_DIR)/$(TEST_PREFIX)dummy $(LDFLAGS)
 	
+# -- Limpia los ficheros de tests compilados
 clean_tests:
 	@echo "$(COLOR_BLUE)Limpiando ficheros de tests compilados...$(COLOR_RESET)"
 	@rm -f $(BIN_DIR)/$(TEST_PREFIX)*
@@ -338,7 +374,7 @@ clean_tests:
 # ========================================================================================
 
 # -- Comprueba la sintaxis de los fuentes del proyecto
-check: install_tests_dependencies
+check:
 	@printf "$(COLOR_BLUE)\nRealizando comprobacion sobre fuentes del proyecto...\n$(COLOR_RESET)"
 	@$(foreach DIR,$(INDEX_DIRS), \
         if [ -z "$(wildcard $(DIR)/*)" ]; then \
@@ -350,11 +386,30 @@ check: install_tests_dependencies
 			$(LINTER) $(DIR)/*; \
 		fi; \
     )
-    
-test: install_tests_dependencies compile_tests
+
+# -- Ejecuta los tests sobre los fuentes del proyecto
+test: compile_tests
 	@printf "$(COLOR_BLUE)\nEjecutando tests sobre fuentes del proyecto...\n$(COLOR_RESET)"
 	@$(foreach F,$(INDEX_FILES), \
 		echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$(TEST_PREFIX)$(F)$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
         ./$(BIN_DIR)/$(TEST_PREFIX)$(F) ; \
         echo ; \
     )
+    
+# ========================================================================================
+# DEFINICION DE REGLAS DE GESTION DE CONTENEDORES VIRTUALES
+# ========================================================================================
+
+# -- Construye la imagen de contenedor Docker
+build_docker:
+	@echo "$(COLOR_BLUE)Construyendo contenedor Docker $(COLOR_PURPLE)$(DOCKER_IMAGE)$(COLOR_BLUE)...$(COLOR_RESET)"
+	@docker build -t $(DOCKER_IMAGE):latest .
+	
+# -- Destruye la imagen de contenedor docker
+rmi_docker:
+	@docker rmi $(DOCKER_IMAGE) 2> /dev/null
+	
+# -- Ejecuta el contenedor docker
+run_docker: compile_tests build_docker
+	@docker run -it --rm -v `pwd`:/app/test $(DOCKER_IMAGE)
+	@make -s clean_tests
