@@ -1,0 +1,18 @@
+name: Docker container Test
+
+on:
+  push:
+      paths:
+         - '**.c'
+         - 'Makefile'
+         
+jobs:
+  docker_tests:
+      runs-on: ubuntu-latest
+      
+      steps:
+         - name: Checkout
+           uses: actions/checkout@v3
+             
+         - name: Run Docker
+           run: docker run -t -v `pwd`:/app/test danielsp13/lamport
