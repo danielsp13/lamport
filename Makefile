@@ -22,7 +22,7 @@ PACKAGE_MANAGER=apt
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex
-TEST_DEPENDENCIES=libcmocka-dev
+TEST_DEPENDENCIES=libcmocka-dev cppcheck
 
 # -- Variables referentes a informe tex
 TEX_DIR=tex
