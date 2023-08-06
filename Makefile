@@ -19,10 +19,14 @@ SHELL := /bin/bash
 
 # -- Variables referentes a las dependencias del proyecto
 PACKAGE_MANAGER=apt
+DPKG_ARCHITECTURE=`dpkg --print-architecture`
+VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex
 TEST_DEPENDENCIES=libcmocka-dev cppcheck
+VIRTUALENV_DEPENDENCIES=docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+PREVIOUS_DOCKER_DEPENDENCIES=ca-certificates curl gnupg
 
 # -- Variables referentes a informe tex
 TEX_DIR=tex
@@ -111,8 +115,8 @@ help:
 	@printf "%-30s %s\n" "make" "*No definido todavia*"
 	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
 	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
-	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests)."
-	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests)."
+	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests, contenedor virtual)."
+	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests, contenedor virtual)."
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
 	@printf "%-30s %s\n" "make test" "Compila y ejecuta los tests sobre los fuentes del proyecto."
@@ -124,13 +128,13 @@ help:
 # ========================================================================================
 
 # -- Instala todas las dependencias del proyecto
-install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies
+install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies install_virtualenv_dependencies
 
 # -- Desinstala todas las dependencias del proyecto
-uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies
+uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies uninstall_virtualenv_dependencies
 
 # -- Muestra la versión de todas las dependencias del proyecto
-version_dependencies: version_tex_dependencies version_compiler_dependencies version_tests_dependencies
+version_dependencies: version_tex_dependencies version_compiler_dependencies version_tests_dependencies version_virtualenv_dependencies
 
 # ----------------------------------------------------------------------------------------
 
@@ -236,6 +240,60 @@ uninstall_tests_dependencies:
 version_tests_dependencies:
 	@echo "$(COLOR_BLUE)Versión instalada de las dependencias para realizacion de tests sobre compilador:$(COLOR_RESET)"
 	@$(foreach DEP,$(TEST_DEPENDENCIES), \
+        if dpkg -s $(DEP) >/dev/null 2>&1; then \
+            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
+        else \
+            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
+        fi; \
+    )
+    
+# ----------------------------------------------------------------------------------------
+
+# -- Instala todas las dependencias relacionadas con los tests del compilador
+install_virtualenv_dependencies:
+	@echo "$(COLOR_BLUE)Instalando repositorio de $(COLOR_PURPLE)Docker$(COLOR_BLUE) en el sistema...$(COLOR_RESET)"
+	@$(foreach DEP,$(PREVIOUS_DOCKER_DEPENDENCIES), \
+        if ! dpkg -s $(DEP) >/dev/null 2>&1; then \
+            echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
+            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+        else \
+            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
+        fi; \
+    )
+	@sudo install -m 0755 -d /etc/apt/keyrings
+	@curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+	@sudo chmod a+r /etc/apt/keyrings/docker.gpg
+	@echo \
+	"deb [arch="$(DPKG_ARCHITECTURE)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+	"$(VERSION_DISTRIBUTION_LINUX)" stable" | \
+	sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+	@echo "$(COLOR_BLUE)Instalando dependencias para para gestion de contenedores virtuales...$(COLOR_RESET)"
+	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
+        if ! dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'; then \
+            echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
+            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+        else \
+            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
+        fi; \
+    )
+	
+# -- Desinstala todas las dependencias relacionadas con el compilador
+uninstall_virtualenv_dependencies:
+	@echo "$(COLOR_BLUE)Desinstalando dependencias para gestion de contenedores virtuales...$(COLOR_RESET)"
+	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
+        if dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'; then \
+        	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)$(COLOR_RESET)...$(COLOR_RESET)"; \
+            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+        else \
+            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
+        fi; \
+    )
+	
+# -- Muestra la versión de todas las dependencias relacionadas con el compilador
+version_virtualenv_dependencies:
+	@echo "$(COLOR_BLUE)Versión instalada de las dependencias para gestion de contenedores virtuales:$(COLOR_RESET)"
+	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
         if dpkg -s $(DEP) >/dev/null 2>&1; then \
             dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
         else \
