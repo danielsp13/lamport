@@ -15,6 +15,7 @@ En el siguiente índice se resumen los contenidos principales de este README:
 * :question: **[Resumen del proyecto](#lamport-resume)** : Describe los objetivos y el propósito de este proyecto.
 * :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX, así como proporciona enlaces documentación propia del repo.
 * :shell: **[Instalación y verificación](#lamport-install)** : Indica cómo se realiza la gestión de dependencias del proyecto mediante el `Makefile` implementado para ello.
+* :white_check_mark: **[Testeo de módulos](#lamport-test)** : Indica cómo realizar pruebas sobre el código implementado.
 
 ****
 
@@ -127,3 +128,26 @@ $ make version_tests_dependencies
 
 
 ****
+
+
+
+### :white_check_mark: <a name="lamport-test"></a> Testeo de módulos
+
+Todo el código que se desarrolle, debe ser probado. Para ello en este proyecto se ha utilizado un test framework ([cmocka](https://cmocka.org/)) que ejecuta tests unitarios sobre cada implementación, asegurando la calidad e integración del código. Además, también se ha utilizado una herramienta de análisis ([cppcheck](https://cppcheck.sourceforge.io/)) para realizar análisis sobre las clases en búsqueda de errores / fallos que el compilador no es capaz de detectar.
+
+
+
+Si desea comprobar la sintaxis y lanzar un análisis (sin compilación) de todas las clases:
+
+~~~bash
+$ make check
+~~~
+
+
+
+Si desea lanzar los tests definidos para las clases implementadas:
+
+~~~bash
+$ make test
+~~~
+
