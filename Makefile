@@ -34,6 +34,16 @@ BACKUP_NAME = lamport
 BACKUP_FILE = $(BACKUP_NAME)$(BACKUP_EXT_FILE)
 DIR_BACKUP = $(HOME)
 
+# -- Variables referentes a directorios de fuentes
+HEADER_DIR = include
+SOURCE_DIR = src
+TEST_DIR = test
+INDEX_DIRS=$(HEADER_DIR) $(SOURCE_DIR) $(TEST_DIR)
+
+# -- Variables referentes a compilacion/comprobacion de ficheros
+GXX = gcc
+LINTER = cppcheck
+
 # ========================================================================================
 # DEFINICION DE REGLA PRINICPAL (ALL)
 # ========================================================================================
@@ -41,7 +51,6 @@ DIR_BACKUP = $(HOME)
 # ========================================================================================
 # DEFINICION DE REGLAS DE GESTION INTERNA
 # ========================================================================================
-
 
 backup:
 	@echo "Generando copia de seguridad..."
@@ -70,7 +79,7 @@ help:
 	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests)."
 	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests)."
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
-
+	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
 
 
 # ========================================================================================
@@ -210,4 +219,21 @@ clean_tex:
 	@echo "Limpiando archivos de informe TeX..."
 	@find $(TEX_DIR) -type f -regex $(TEX_GEN_FILES) -delete
 	@echo "Archivos del informe TeX eliminados correctamente!"
+	
+# ========================================================================================
+# DEFINICION DE REGLAS DE TESTEO DE FUENTES
+# ========================================================================================
 
+# -- Comprueba la sintaxis de los fuentes del proyecto
+check: install_tests_dependencies
+	@printf "\nRealizando comprobacion sobre fuentes del proyecto...\n"
+	@$(foreach DIR,$(INDEX_DIRS), \
+        if [ -z "$(wildcard $(DIR)/*)" ]; then \
+			echo " ---> [!!] No hay fuentes en $(DIR)/"; \
+		else \
+			echo " ---> Comprobando la sintaxis de las cabeceras en $(DIR)/ ..."; \
+			$(GXX) -fsyntax-only $(DIR)/*; \
+			echo " ---> Comprobando errores/bugs de las cabeceras en $(DIR)/ ..."; \
+			$(LINTER) $(DIR)/*; \
+		fi; \
+    )
