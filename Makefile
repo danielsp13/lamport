@@ -28,6 +28,7 @@ ifeq ($(UNAME), Linux)
         CHECK_PACKAGES_V2=dpkg -s $(DEP) >/dev/null 2>&1
         
         TEST_CMOCKA=libcmocka-dev cppcheck
+    endif
 endif
 
 # -- Designacion de reglas internas
@@ -50,17 +51,17 @@ TEX_DIR=tex
 TEX_GEN_FILES='.*\.\(aux\|log\|pdf\|dvi\|toc\|out\|bbl\|blg\|lot\|lof\)'
 
 # -- Variables referentes a copias de seguridad locales
-BACKUP_EXT_FILE = .zip
-BACKUP_NAME = lamport
-BACKUP_FILE = $(BACKUP_NAME)$(BACKUP_EXT_FILE)
-DIR_BACKUP = $(HOME)
+BACKUP_EXT_FILE:=.zip
+BACKUP_NAME:=lamport
+BACKUP_FILE:=$(BACKUP_NAME)$(BACKUP_EXT_FILE)
+DIR_BACKUP:=$(HOME)
 
 # -- Variables referentes a directorios de fuentes
-HEADER_DIR = include
-SOURCE_DIR = src
-TEST_DIR = test
-BIN_DIR = bin
-INDEX_DIRS=$(HEADER_DIR) $(SOURCE_DIR) $(TEST_DIR)
+HEADER_DIR:=include
+SOURCE_DIR:=src
+TEST_DIR:=test
+BIN_DIR:=bin
+INDEX_DIRS:=$(HEADER_DIR) $(SOURCE_DIR) $(TEST_DIR)
 
 # -- Variables referentes a compilacion/comprobacion de ficheros
 GXX = gcc
@@ -87,7 +88,8 @@ COLOR_BOLD := $(shell echo -e "\033[1m")
 COLOR_RESET := $(shell echo -e "\033[0;0m")
 COLOR_RESET_BOLD := $(COLOR_RESET)$(COLOR_BOLD)
 
-# -- Variables de comprobacion de resultado de test
+# -- Variables de comprobacion de resultado de tests/checks
+RESULT_CHECKS_FILE:=test_checks.txt
 RESULT_TESTS_FILE:=test_result.txt
 
 # ========================================================================================
@@ -150,7 +152,10 @@ help:
 # ========================================================================================
 
 # -- Instala todas las dependencias del proyecto
-install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies
+install_dependencies: install_tex_dependencies install_source_dependencies
+
+# -- Instala todas las dependencias relacionadas con el codigo fuente del proyecto
+install_source_dependencies: install_compiler_dependencies install_tests_dependencies
 
 # -- Desinstala todas las dependencias del proyecto
 uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies
@@ -310,16 +315,28 @@ clean_tests:
 # -- Comprueba la sintaxis de los fuentes del proyecto
 check:
 	@printf "$(COLOR_BLUE)\nRealizando comprobacion sobre fuentes del proyecto...\n$(COLOR_RESET)"
-	@$(foreach DIR,$(INDEX_DIRS), \
-        if [ -z "$(wildcard $(DIR)/*)" ]; then \
-			printf "$(COLOR_RED) ---> [!!] No hay fuentes en $(COLOR_PURPLE)$(DIR)/$(COLOR_RESET)"; echo;\
-		else \
-			printf "$(COLOR_YELLOW) ---> Comprobando la sintaxis de las cabeceras en $(COLOR_PURPLE)$(DIR)/$(COLOR_YELLOW) ...$(COLOR_RESET)"; echo; \
-			$(GXX) -fsyntax-only $(DIR)/*; \
-			printf "$(COLOR_YELLOW) ---> Comprobando errores/bugs de las cabeceras en $(COLOR_PURPLE)$(DIR)/$(COLOR_YELLOW) ...$(COLOR_RESET)"; echo; \
-			$(LINTER) $(DIR)/*; \
+	@{ \
+		for DIR in $(INDEX_DIRS); do \
+			if [ -z "$$(ls -A $$DIR)" ]; then \
+				printf "$(COLOR_RED) ---> [!!] No hay fuentes en $(COLOR_PURPLE)$$DIR/$(COLOR_RESET)"; echo;\
+			else \
+				printf "$(COLOR_YELLOW) ---> Comprobando la sintaxis de las cabeceras en $(COLOR_PURPLE)$$DIR/$(COLOR_YELLOW) ...$(COLOR_RESET)"; echo; \
+				$(GXX) -fsyntax-only $$DIR/*; \
+				echo $$? >> $(RESULT_CHECKS_FILE); \
+				printf "$(COLOR_YELLOW) ---> Comprobando errores/bugs de las cabeceras en $(COLOR_PURPLE)$$DIR/$(COLOR_YELLOW) ...$(COLOR_RESET)"; echo; \
+				$(LINTER) $$DIR/*; \
+				echo $$? >> $(RESULT_CHECKS_FILE); \
+			fi; \
+		done; \
+		N_CHECKS_FAILED=0; \
+		while IFS= read -r num; do \
+			N_CHECKS_FAILED=$$((N_CHECKS_FAILED + num)); \
+		done < "$(RESULT_CHECKS_FILE)"; \
+		rm -f $(RESULT_CHECKS_FILE); \
+		if [ $${N_CHECKS_FAILED} -gt 0 ]; then \
+			exit 1; \
 		fi; \
-    )
+	}
 
 # -- Ejecuta los tests sobre los fuentes del proyecto
 test: compile_tests
@@ -335,8 +352,8 @@ test: compile_tests
 			N_TESTS_FAILED=$$((N_TESTS_FAILED + num)); \
 		done < "$(RESULT_TESTS_FILE)"; \
 		rm -f $(RESULT_TESTS_FILE); \
+		make -s clean_tests ; \
 		if [ $${N_TESTS_FAILED} -gt 0 ]; then \
 			exit 1; \
 		fi; \
 	}
-	
