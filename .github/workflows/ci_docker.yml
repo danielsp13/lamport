@@ -15,4 +15,4 @@ jobs:
            uses: actions/checkout@v3
              
          - name: Run Docker
-           run: docker run -t -v `pwd`:/app/test danielsp13/lamport
+           run: docker run --rm --mount type=bind,source=${PWD},target=/app/test danielsp13/lamport
