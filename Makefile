@@ -6,48 +6,120 @@
 # Autor: Daniel Perez Ruiz
 # Tutor: Carlos Ureña Almagro
 # ========================================================================================
+# Version: 0.0.0
+# ========================================================================================
 
 # -- Definicion del shell a utilizar
 SHELL := /bin/bash
 
+# -- Deteccion de OS
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Linux)
+	DISTRIBUTION := $(shell cat /etc/os-release | grep -o '^ID=.*' | cut -d= -f2-)
+	# -- Detectar SO Linux (Ubuntu)
+    ifeq ($(DISTRIBUTION), ubuntu)
+        PACKAGE_MANAGER:=apt
+        UPDATE_OPTION:=$(PACKAGE_MANAGER) update
+        INSTALL_OPTION:=$(PACKAGE_MANAGER) install -y
+        REMOVE_OPTION:=$(PACKAGE_MANAGER) remove -y
+        AUTOREMOVE_OPTION:=$(PACKAGE_MANAGER) autoremove -y
+        CHECK_PACKAGES_V1=dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'
+        CHECK_PACKAGES_V2=dpkg -s $(DEP) >/dev/null 2>&1
+        
+        TEST_CMOCKA=libcmocka-dev cppcheck
+    endif
+endif
+
 # -- Designacion de reglas internas
-.PHONY: backup
+.PHONY: backup build_bin_dir
 
 # ========================================================================================
 # DEFINICION DE VARIABLES
 # ========================================================================================
 
 # -- Variables referentes a las dependencias del proyecto
-PACKAGE_MANAGER=apt
+DPKG_ARCHITECTURE=`dpkg --print-architecture`
+VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex
-TEST_DEPENDENCIES=libcmocka-dev
+TEST_DEPENDENCIES=$(TEST_CMOCKA) cppcheck
 
 # -- Variables referentes a informe tex
 TEX_DIR=tex
 TEX_GEN_FILES='.*\.\(aux\|log\|pdf\|dvi\|toc\|out\|bbl\|blg\|lot\|lof\)'
 
 # -- Variables referentes a copias de seguridad locales
-BACKUP_EXT_FILE = .zip
-BACKUP_NAME = lamport
-BACKUP_FILE = $(BACKUP_NAME)$(BACKUP_EXT_FILE)
-DIR_BACKUP = $(HOME)
+BACKUP_EXT_FILE:=.zip
+BACKUP_NAME:=lamport
+BACKUP_FILE:=$(BACKUP_NAME)$(BACKUP_EXT_FILE)
+DIR_BACKUP:=$(HOME)
+
+# -- Variables referentes a directorios de fuentes
+HEADER_DIR:=include
+SOURCE_DIR:=src
+TEST_DIR:=test
+BIN_DIR:=bin
+INDEX_DIRS:=$(HEADER_DIR) $(SOURCE_DIR) $(TEST_DIR)
+
+# -- Variables referentes a compilacion/comprobacion de ficheros
+GXX = gcc
+CFLAGS = -Wall -Wextra -I$(HEADER_DIR)
+LDFLAGS := -lcmocka
+LINTER = cppcheck
+
+# -- Variables de ficheros
+INDEX_FILES=dummy
+TEST_PREFIX = test_
+
+# -- Variables de extensiones
+SOURCE_EXT = .c
+HEADER_EXT = .h
+TEST_EXT = .c
+
+# -- Variables cosmeticas
+COLOR_RED := $(shell echo -e "\033[1;31m")
+COLOR_GREEN := $(shell echo -e "\033[1;32m")
+COLOR_YELLOW := $(shell echo -e "\033[1;33m")
+COLOR_BLUE := $(shell echo -e "\033[1;34m")
+COLOR_PURPLE := $(shell echo -e "\033[1;35m")
+COLOR_BOLD := $(shell echo -e "\033[1m")
+COLOR_RESET := $(shell echo -e "\033[0;0m")
+COLOR_RESET_BOLD := $(COLOR_RESET)$(COLOR_BOLD)
+
+# -- Variables de comprobacion de resultado de tests/checks
+RESULT_CHECKS_FILE:=test_checks.txt
+RESULT_TESTS_FILE:=test_result.txt
 
 # ========================================================================================
-# DEFINICION DE REGLA PRINICPAL (ALL)
+# DEFINICION DE REGLAS PRINICPALES (ALL/CLEAN)
 # ========================================================================================
+
+# -- Elimina todos los ficheros que se hayan generado usando el Makefile
+clean: clean_tex clean_tests
+	@make -s clean_bin_dir
+		
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE GESTION INTERNA
 # ========================================================================================
 
-
 backup:
-	@echo "Generando copia de seguridad..."
+	@echo "$(COLOR_BLUE)Generando copia de seguridad...$(COLOR_RESET)"
 	@rm -f $(DIR_BACKUP)/$(BACKUP_FILE)
 	@zip -r $(DIR_BACKUP)/$(BACKUP_FILE) ./*
-	@echo "Copia de seguridad creada en $(DIR_BACKUP)/$(BACKUP_FILE)"
+	@echo "$(COLOR_GREEN)Copia de seguridad creada en $(COLOR_PURPLE)$(DIR_BACKUP)/$(BACKUP_FILE)$(COLOR_RESET)"
+	
+build_bin_dir:
+	@mkdir -p $(BIN_DIR)
+	
+clean_bin_dir:
+	@if [ -z "$(wildcard $(BIN_DIR)/*)" ]; then \
+		echo; echo "$(COLOR_BLUE)Eliminando directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_BLUE)...$(COLOR_RESET)"; \
+		rmdir $(BIN_DIR) 2>/dev/null || true; \
+		echo "$(COLOR_GREEN)Directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_GREEN) eliminado correctamente!$(COLOR_RESET)"; \
+	fi
 
 # ========================================================================================
 # DEFINICION DE OTRAS REGLAS
@@ -67,10 +139,12 @@ help:
 	@printf "%-30s %s\n" "make" "*No definido todavia*"
 	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
 	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
-	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests)."
-	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests)."
+	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests, contenedor virtual)."
+	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests, contenedor virtual)."
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
-
+	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
+	@printf "%-30s %s\n" "make test" "Compila y ejecuta los tests sobre los fuentes del proyecto."
+	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 
 
 # ========================================================================================
@@ -78,7 +152,10 @@ help:
 # ========================================================================================
 
 # -- Instala todas las dependencias del proyecto
-install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies
+install_dependencies: install_tex_dependencies install_source_dependencies
+
+# -- Instala todas las dependencias relacionadas con el codigo fuente del proyecto
+install_source_dependencies: install_compiler_dependencies install_tests_dependencies
 
 # -- Desinstala todas las dependencias del proyecto
 uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies
@@ -90,36 +167,36 @@ version_dependencies: version_tex_dependencies version_compiler_dependencies ver
 
 # -- Instala todas las dependencias relacionadas con informe TFG
 install_tex_dependencies:
-	@echo "Instalando dependencias TeX del proyecto..."
+	@echo "$(COLOR_BLUE)Instalando dependencias TeX del proyecto...$(COLOR_RESET)"
 	@$(foreach DEP,$(TEX_DEPENDENCIES), \
-        if ! dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii' ; then \
-            echo " ---> $(DEP) no está instalado. Instalando..."; \
-            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+        if ! $(CHECK_PACKAGES_V1) ; then \
+            echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
+            sudo $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) install $(DEP); \
         else \
-            echo " ---> $(DEP) ya se encuentra instalado en el sistema."; \
+            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) ya se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
 	
 # -- Desinstala todas las dependencias relacionadas con el informe TFG
 uninstall_tex_dependencies:
-	@echo "Desinstalando dependencias TeX del proyecto..."
+	@echo "$(COLOR_BLUE)Desinstalando dependencias TeX del proyecto...$(COLOR_RESET)"
 	@$(foreach DEP,$(TEX_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
-        	echo " ---> Desinstalando $(DEP)..."; \
-            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+        if $(CHECK_PACKAGES_V2); then \
+        	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)$(COLOR_RESET)...$(COLOR_RESET)"; \
+            sudo $(REMOVE_OPTION) $(DEP) && sudo $(AUTOREMOVE_OPTION); \
         else \
-            echo " ---> $(DEP) NO! se encuentra instalado en el sistema."; \
+            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
 
 # -- Muestra la version de todas las dependencias relacionadas con el informe TFG
 version_tex_dependencies:
-	@echo "Versión instalada de las dependencias TeX del proyecto:"
+	@echo "$(COLOR_BLUE)Versión instalada de las dependencias TeX del proyecto:$(COLOR_RESET)"
 	@$(foreach DEP,$(TEX_DEPENDENCIES), \
-        if dpkg -l $(DEP) 2>/dev/null | grep -qw 'ii'; then \
-            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(DEP): ", $$2}'; \
+        if $(CHECK_PACKAGES_V1); then \
+            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
         else \
-            echo " ---> $(DEP) NO! se encuentra instalado en el sistema."; \
+            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
 
@@ -127,36 +204,36 @@ version_tex_dependencies:
 
 # -- Instala todas las dependencias relacionadas con el compilador
 install_compiler_dependencies:
-	@echo "Instalando dependencias para la construcción del compilador..."
+	@echo "$(COLOR_BLUE)Instalando dependencias para la construcción del compilador...$(COLOR_RESET)"
 	@$(foreach DEP,$(COMPILER_DEPENDENCIES), \
-        if ! dpkg -s $(DEP) >/dev/null 2>&1; then \
-            echo " ---> $(DEP) no está instalado. Instalando..."; \
-            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+        if ! $(CHECK_PACKAGES_V2); then \
+            echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
+            sudo $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) $(DEP); \
         else \
-            echo " ---> $(DEP) ya se encuentra instalado en el sistema."; \
+            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) ya se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
 	
 # -- Desinstala todas las dependencias relacionadas con el compilador
 uninstall_compiler_dependencies:
-	@echo "Desinstalando dependencias para la construcción del compilador..."
+	@echo "$(COLOR_BLUE)Desinstalando dependencias para la construcción del compilador...$(COLOR_RESET)"
 	@$(foreach DEP,$(COMPILER_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
-        	echo " ---> Desinstalando $(DEP)..."; \
-            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+        if $(CHECK_PACKAGES_V2); then \
+        	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)...$(COLOR_RESET)"; \
+            sudo $(REMOVE_OPTION) $(DEP) && sudo $(AUTOREMOVE_OPTION); \
         else \
-            echo " ---> $(DEP) NO! se encuentra instalado en el sistema."; \
+            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
 	
 # -- Muestra la versión de todas las dependencias relacionadas con el compilador
 version_compiler_dependencies:
-	@echo "Versión instalada de las dependencias para la construcción del compilador:"
+	@echo "$(COLOR_BLUE)Versión instalada de las dependencias para la construcción del compilador:$(COLOR_RESET)"
 	@$(foreach DEP,$(COMPILER_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
-            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(DEP): ", $$2}'; \
+        if $(CHECK_PACKAGES_V2); then \
+            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
         else \
-            echo " ---> $(DEP) NO! se encuentra instalado en el sistema."; \
+            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
     
@@ -164,36 +241,36 @@ version_compiler_dependencies:
 
 # -- Instala todas las dependencias relacionadas con los tests del compilador
 install_tests_dependencies:
-	@echo "Instalando dependencias para realizacion de tests sobre compilador..."
+	@echo "$(COLOR_BLUE)Instalando dependencias para realizacion de tests sobre compilador...$(COLOR_RESET)"
 	@$(foreach DEP,$(TEST_DEPENDENCIES), \
-        if ! dpkg -s $(DEP) >/dev/null 2>&1; then \
-            echo " ---> $(DEP) no está instalado. Instalando..."; \
-            sudo $(PACKAGE_MANAGER) update && sudo $(PACKAGE_MANAGER) install -y $(DEP); \
+        if ! $(CHECK_PACKAGES_V2); then \
+            echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
+            sudo $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) $(DEP); \
         else \
-            echo " ---> $(DEP) ya se encuentra instalado en el sistema."; \
+            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
         fi; \
     )
 	
 # -- Desinstala todas las dependencias relacionadas con el compilador
 uninstall_tests_dependencies:
-	@echo "Desinstalando dependencias para realizacion de tests sobre compilador..."
+	@echo "$(COLOR_BLUE)Desinstalando dependencias para realizacion de tests sobre compilador...$(COLOR_RESET)"
 	@$(foreach DEP,$(TEST_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
-        	echo " ---> Desinstalando $(DEP)..."; \
-            sudo $(PACKAGE_MANAGER) remove -y $(DEP) && sudo $(PACKAGE_MANAGER) autoremove -y; \
+        if $(CHECK_PACKAGES_V2); then \
+        	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)$(COLOR_RESET)...$(COLOR_RESET)"; \
+            sudo $(REMOVE_OPTION) $(DEP) && sudo $(AUTOREMOVE_OPTION); \
         else \
-            echo " ---> $(DEP) NO! se encuentra instalado en el sistema."; \
+            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
 	
 # -- Muestra la versión de todas las dependencias relacionadas con el compilador
 version_tests_dependencies:
-	@echo "Versión instalada de las dependencias para realizacion de tests sobre compilador:"
+	@echo "$(COLOR_BLUE)Versión instalada de las dependencias para realizacion de tests sobre compilador:$(COLOR_RESET)"
 	@$(foreach DEP,$(TEST_DEPENDENCIES), \
-        if dpkg -s $(DEP) >/dev/null 2>&1; then \
-            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(DEP): ", $$2}'; \
+        if $(CHECK_PACKAGES_V2); then \
+            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
         else \
-            echo " ---> $(DEP) NO! se encuentra instalado en el sistema."; \
+            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
         fi; \
     )
     
@@ -203,11 +280,80 @@ version_tests_dependencies:
 
 # -- Compila el informe tex
 build_tex: install_tex_dependencies
-	@make -C $(TEX_DIR)
+	@echo "$(COLOR_BLUE)Compilando informe TeX...$(COLOR_RESET)"
+	@make -sC $(TEX_DIR)
+	@echo "$(COLOR_GREEN)Informe TeX compilado exitosamente en $(TEX_DIR)/ $(COLOR_RESET)"
 
 # -- Elimina todos los ficheros generados por el makefile de tex
 clean_tex:
-	@echo "Limpiando archivos de informe TeX..."
+	@echo "$(COLOR_BLUE)Limpiando archivos de informe TeX...$(COLOR_RESET)"
 	@find $(TEX_DIR) -type f -regex $(TEX_GEN_FILES) -delete
-	@echo "Archivos del informe TeX eliminados correctamente!"
+	@echo "$(COLOR_GREEN)Archivos del informe TeX eliminados correctamente!$(COLOR_RESET)"
+	
+# ========================================================================================
+# DEFINICION DE REGLAS DE COMPILACION DE FICHEROS DE TESTS
+# ========================================================================================
 
+# -- Compila los ficheros de tests
+compile_tests: compile_test_dummy
+    
+compile_test_dummy: build_bin_dir
+	@echo; echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(TEST_DIR)/$(TEST_PREFIX)dummy$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)"
+	@$(GXX) $(CFLAGS) $(TEST_DIR)/$(TEST_PREFIX)dummy$(TEST_EXT) -o $(BIN_DIR)/$(TEST_PREFIX)dummy $(LDFLAGS)
+	
+# -- Limpia los ficheros de tests compilados
+clean_tests:
+	@echo "$(COLOR_BLUE)Limpiando ficheros de tests compilados...$(COLOR_RESET)"
+	@rm -f $(BIN_DIR)/$(TEST_PREFIX)*
+	@echo "$(COLOR_GREEN)Archivos ficheros de tests compilados eliminados exitosamente!$(COLOR_RESET)"
+	@make -s clean_bin_dir
+
+# ========================================================================================
+# DEFINICION DE REGLAS DE TESTEO DE FUENTES
+# ========================================================================================
+
+# -- Comprueba la sintaxis de los fuentes del proyecto
+check:
+	@printf "$(COLOR_BLUE)\nRealizando comprobacion sobre fuentes del proyecto...\n$(COLOR_RESET)"
+	@{ \
+		for DIR in $(INDEX_DIRS); do \
+			if [ -z "$$(ls -A $$DIR)" ]; then \
+				printf "$(COLOR_RED) ---> [!!] No hay fuentes en $(COLOR_PURPLE)$$DIR/$(COLOR_RESET)"; echo;\
+			else \
+				printf "$(COLOR_YELLOW) ---> Comprobando la sintaxis de las cabeceras en $(COLOR_PURPLE)$$DIR/$(COLOR_YELLOW) ...$(COLOR_RESET)"; echo; \
+				$(GXX) -fsyntax-only $$DIR/*; \
+				echo $$? >> $(RESULT_CHECKS_FILE); \
+				printf "$(COLOR_YELLOW) ---> Comprobando errores/bugs de las cabeceras en $(COLOR_PURPLE)$$DIR/$(COLOR_YELLOW) ...$(COLOR_RESET)"; echo; \
+				$(LINTER) $$DIR/*; \
+				echo $$? >> $(RESULT_CHECKS_FILE); \
+			fi; \
+		done; \
+		N_CHECKS_FAILED=0; \
+		while IFS= read -r num; do \
+			N_CHECKS_FAILED=$$((N_CHECKS_FAILED + num)); \
+		done < "$(RESULT_CHECKS_FILE)"; \
+		rm -f $(RESULT_CHECKS_FILE); \
+		if [ $${N_CHECKS_FAILED} -gt 0 ]; then \
+			exit 1; \
+		fi; \
+	}
+
+# -- Ejecuta los tests sobre los fuentes del proyecto
+test: compile_tests
+	@printf "$(COLOR_BLUE)\nEjecutando tests sobre fuentes del proyecto...\n$(COLOR_RESET)"
+	@{ \
+		for F in $(INDEX_FILES); do \
+			echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$(TEST_PREFIX)$$F$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
+			./$(BIN_DIR)/$(TEST_PREFIX)$$F; \
+			echo $$? >> $(RESULT_TESTS_FILE); \
+		done; \
+		N_TESTS_FAILED=0; \
+		while IFS= read -r num; do \
+			N_TESTS_FAILED=$$((N_TESTS_FAILED + num)); \
+		done < "$(RESULT_TESTS_FILE)"; \
+		rm -f $(RESULT_TESTS_FILE); \
+		make -s clean_tests ; \
+		if [ $${N_TESTS_FAILED} -gt 0 ]; then \
+			exit 1; \
+		fi; \
+	}
