@@ -24,4 +24,4 @@ RUN make install_compiler_dependencies &&\
 
 USER root
 
-ENTRYPOINT ["make","virtual_test"]
+ENTRYPOINT ["make","test"]
