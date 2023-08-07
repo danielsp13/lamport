@@ -6,11 +6,6 @@ on:
          - '**.h'
          - '**.c'
          - 'Makefile'
-  pull_request:
-      paths:
-         - '**.h'
-         - '**.c'
-         - 'Makefile'
          
 jobs:
   check_and_scan:
