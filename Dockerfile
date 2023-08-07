@@ -24,4 +24,4 @@ RUN make install_compiler_dependencies &&\
 
 USER lamport
 
-ENTRYPOINT ["make","test"]
+ENTRYPOINT ["make","virtual_test"]

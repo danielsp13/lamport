@@ -358,6 +358,9 @@ clean_tex:
 # DEFINICION DE REGLAS DE COMPILACION DE FICHEROS DE TESTS
 # ========================================================================================
 
+# -- Compila y crea directorio bin
+compile_and_build_bin: build_bin_dir compile_tests
+
 # -- Compila los ficheros de tests
 compile_tests: compile_test_dummy
     
@@ -391,7 +394,16 @@ check:
     )
 
 # -- Ejecuta los tests sobre los fuentes del proyecto
-test: compile_tests
+test: compile_and_build_bin
+	@printf "$(COLOR_BLUE)\nEjecutando tests sobre fuentes del proyecto...\n$(COLOR_RESET)"
+	@$(foreach F,$(INDEX_FILES), \
+		echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$(TEST_PREFIX)$(F)$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
+        ./$(BIN_DIR)/$(TEST_PREFIX)$(F) ; \
+        echo ; \
+    )
+
+# -- Ejecuta los tests sobre los fuentes del proyecto (solo para docker)
+virtual_test: compile_tests
 	@printf "$(COLOR_BLUE)\nEjecutando tests sobre fuentes del proyecto...\n$(COLOR_RESET)"
 	@$(foreach F,$(INDEX_FILES), \
 		echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$(TEST_PREFIX)$(F)$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
