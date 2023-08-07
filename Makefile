@@ -426,5 +426,5 @@ rmi_docker:
 	
 # -- Ejecuta el contenedor docker
 run_docker: compile_tests build_docker
-	@docker run -it --rm -v `pwd`:/app/test $(DOCKER_IMAGE)
+	@docker run -it --rm --mount type=bind,source=${PWD},target=/app/test $(DOCKER_IMAGE)
 	@make -s clean_tests
