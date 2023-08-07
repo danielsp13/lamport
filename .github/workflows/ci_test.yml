@@ -1,22 +1,24 @@
 name: Compilación y testeo de módulos
 
 on:
- push:
-  paths:
-    - '**.c'
-    - 'Makefile'
+  push:
+      paths:
+         - '**.c'
+         - 'Makefile'
+         
 jobs:
-  check-and-scan:
-   runs-on: ubuntu-latest	
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  build_and_test:
+      runs-on: ubuntu-latest
       
-      - name: Instalar dependencias de compilación y testeo
-        run: make install_source_dependencies
-        
-      - name: Compilar fuentes
-        run: echo "PASSED"
-        
-      - name: Compilar y ejecutar tests
-        run: make test
+      steps:
+         - name: Checkout
+           uses: actions/checkout@v3
+             
+         - name: Instalar dependencias de compilación y testeo
+           run: make install_source_dependencies
+           
+         - name: Compilar fuentes
+           run: echo "PASSED"
+           
+         - name: Compilar y ejecutar tests
+           run: make test

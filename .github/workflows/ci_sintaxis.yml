@@ -1,21 +1,22 @@
 name: Análisis de sintaxis y bugs de módulos
 
 on:
- push:
-  paths:
-    - '**.h'
-    - '**.c'
-    - 'Makefile'
-jobs:
- check-and-scan:
-   runs-on: ubuntu-latest	
-   
-     steps:
-       - name: Checkout
-         uses: actions/checkout@v3
-       
-       - name: Instalar dependencias de compilación y testeo
-         run: make install_source_dependencies
+  push:
+      paths:
+         - '**.h'
+         - '**.c'
+         - 'Makefile'
          
-       - name: Comprobar fuentes
-         run: make check
+jobs:
+  check_and_scan:
+      runs-on: ubuntu-latest
+      
+      steps:
+         - name: Checkout
+           uses: actions/checkout@v3
+             
+         - name: Instalar dependencias de compilación y testeo
+           run: make install_source_dependencies
+           
+         - name: Compilar fuentes
+           run: make check
