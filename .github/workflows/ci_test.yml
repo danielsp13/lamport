@@ -5,6 +5,10 @@ on:
       paths:
          - '**.c'
          - 'Makefile'
+  pull_request:
+      paths:
+         - '**.c'
+         - 'Makefile'
          
 jobs:
   build_and_test:
