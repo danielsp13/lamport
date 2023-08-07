@@ -9,7 +9,7 @@ SHELL ["/bin/bash", "-c"]
 
 RUN adduser -D lamport
 
-RUN mkdir -p /app/test && \
+RUN mkdir -p /app/test/bin && \
     chown lamport --recursive /app
 
 ENV HOME="/home/lamport"
