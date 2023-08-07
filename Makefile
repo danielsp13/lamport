@@ -361,7 +361,7 @@ clean_tex:
 # -- Compila los ficheros de tests
 compile_tests: compile_test_dummy
     
-compile_test_dummy: build_bin_dir
+compile_test_dummy:
 	@echo; echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(TEST_DIR)/$(TEST_PREFIX)dummy$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)"
 	@$(GXX) $(CFLAGS) $(TEST_DIR)/$(TEST_PREFIX)dummy$(TEST_EXT) -o $(BIN_DIR)/$(TEST_PREFIX)dummy $(LDFLAGS)
 	
