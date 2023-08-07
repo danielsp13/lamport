@@ -22,6 +22,6 @@ RUN make install_compiler_dependencies &&\
     make install_tests_dependencies &&\
     rm Makefile
 
-USER lamport
+USER root
 
 ENTRYPOINT ["make","virtual_test"]
