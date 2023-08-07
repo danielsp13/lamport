@@ -7,9 +7,6 @@ RUN apk add --no-cache bash make sudo
 
 SHELL ["/bin/bash", "-c"]
 
-RUN mkdir -p /app/test/bin && \
-    chown root:root /app/test/bin
-
 RUN adduser -D lamport
 
 RUN mkdir -p /app/test && \
