@@ -28,18 +28,6 @@ ifeq ($(UNAME), Linux)
         CHECK_PACKAGES_V2=dpkg -s $(DEP) >/dev/null 2>&1
         
         TEST_CMOCKA=libcmocka-dev cppcheck
-    # -- Detectar SO Linux (Alpine)
-    else ifeq ($(DISTRIBUTION), alpine)
-        PACKAGE_MANAGER:=apk
-        UPDATE_OPTION:=$(PACKAGE_MANAGER) update
-        INSTALL_OPTION:=$(PACKAGE_MANAGER) add --no-cache
-        REMOVE_OPTION:=$(PACKAGE_MANAGER) remove
-        AUTOREMOVE_OPTION:=$(PACKAGE_MANAGER) autoremove
-        CHECK_PACKAGES_V1=apk info -e $(DEP) > /dev/null 2>&1
-        CHECK_PACKAGES_V2=apk info -e $(DEP) > /dev/null 2>&1
-        
-        TEST_CMOCKA=cmocka-dev 
-    endif
 endif
 
 # -- Designacion de reglas internas
@@ -56,8 +44,6 @@ VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex
 TEST_DEPENDENCIES=$(TEST_CMOCKA) cppcheck
-VIRTUALENV_DEPENDENCIES=docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-PREVIOUS_DOCKER_DEPENDENCIES=ca-certificates curl gnupg
 
 # -- Variables referentes a informe tex
 TEX_DIR=tex
@@ -90,9 +76,6 @@ TEST_PREFIX = test_
 SOURCE_EXT = .c
 HEADER_EXT = .h
 TEST_EXT = .c
-
-# -- Variables de entorno virtual
-DOCKER_IMAGE=danielsp13/lamport
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -159,7 +142,6 @@ help:
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
 	@printf "%-30s %s\n" "make test" "Compila y ejecuta los tests sobre los fuentes del proyecto."
-	@printf "%-30s %s\n" "make run_docker" "Ejecuta y realiza el testeo de fuentes en el contenedor docker."
 	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 
 
@@ -168,13 +150,13 @@ help:
 # ========================================================================================
 
 # -- Instala todas las dependencias del proyecto
-install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies install_virtualenv_dependencies
+install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies
 
 # -- Desinstala todas las dependencias del proyecto
-uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies uninstall_virtualenv_dependencies
+uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies
 
 # -- Muestra la versión de todas las dependencias del proyecto
-version_dependencies: version_tex_dependencies version_compiler_dependencies version_tests_dependencies version_virtualenv_dependencies
+version_dependencies: version_tex_dependencies version_compiler_dependencies version_tests_dependencies
 
 # ----------------------------------------------------------------------------------------
 
@@ -287,60 +269,6 @@ version_tests_dependencies:
         fi; \
     )
     
-# ----------------------------------------------------------------------------------------
-
-# -- Instala todas las dependencias relacionadas con los tests del compilador
-install_virtualenv_dependencies:
-	@echo "$(COLOR_BLUE)Instalando repositorio de $(COLOR_PURPLE)Docker$(COLOR_BLUE) en el sistema...$(COLOR_RESET)"
-	@$(foreach DEP,$(PREVIOUS_DOCKER_DEPENDENCIES), \
-        if ! $(CHECK_PACKAGES_V2); then \
-            echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
-            $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) -y $(DEP); \
-        else \
-            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
-        fi; \
-    )
-	@sudo install -m 0755 -d /etc/apt/keyrings
-	@curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-	@sudo chmod a+r /etc/apt/keyrings/docker.gpg
-	@echo \
-	"deb [arch="$(DPKG_ARCHITECTURE)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-	"$(VERSION_DISTRIBUTION_LINUX)" stable" | \
-	sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-	@echo "$(COLOR_BLUE)Instalando dependencias para para gestion de contenedores virtuales...$(COLOR_RESET)"
-	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
-        if ! $(CHECK_PACKAGES_V1); then \
-            echo "$(COLOR_BOLD) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) no está instalado. Instalando... $(COLOR_RESET)"; \
-            $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) $(DEP); \
-        else \
-            echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET) ya se encuentra instalado en el sistema."; \
-        fi; \
-    )
-	
-# -- Desinstala todas las dependencias relacionadas con el compilador
-uninstall_virtualenv_dependencies:
-	@echo "$(COLOR_BLUE)Desinstalando dependencias para gestion de contenedores virtuales...$(COLOR_RESET)"
-	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
-        if $(CHECK_PACKAGES_V1); then \
-        	echo "$(COLOR_BOLD) ---> Desinstalando $(COLOR_PURPLE)$(DEP)$(COLOR_RESET)...$(COLOR_RESET)"; \
-            sudo $(REMOVE_OPTION) $(DEP) && sudo $(AUTOREMOVE_OPTION); \
-        else \
-            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
-        fi; \
-    )
-	
-# -- Muestra la versión de todas las dependencias relacionadas con el compilador
-version_virtualenv_dependencies:
-	@echo "$(COLOR_BLUE)Versión instalada de las dependencias para gestion de contenedores virtuales:$(COLOR_RESET)"
-	@$(foreach DEP,$(VIRTUALENV_DEPENDENCIES), \
-        if $(CHECK_PACKAGES_V2); then \
-            dpkg -s $(DEP) | grep '^Version:' | awk '{print " ---> Versión de $(COLOR_PURPLE)$(DEP)$(COLOR_RESET): ", $$2}'; \
-        else \
-            echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
-        fi; \
-    )
-    
 # ========================================================================================
 # DEFINICION DE REGLAS DE GESTION DE INFORME TEX
 # ========================================================================================
@@ -361,13 +289,10 @@ clean_tex:
 # DEFINICION DE REGLAS DE COMPILACION DE FICHEROS DE TESTS
 # ========================================================================================
 
-# -- Compila y crea directorio bin
-compile_and_build_bin: build_bin_dir compile_tests
-
 # -- Compila los ficheros de tests
 compile_tests: compile_test_dummy
     
-compile_test_dummy:
+compile_test_dummy: build_bin_dir
 	@echo; echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(TEST_DIR)/$(TEST_PREFIX)dummy$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)"
 	@$(GXX) $(CFLAGS) $(TEST_DIR)/$(TEST_PREFIX)dummy$(TEST_EXT) -o $(BIN_DIR)/$(TEST_PREFIX)dummy $(LDFLAGS)
 	
@@ -397,7 +322,7 @@ check:
     )
 
 # -- Ejecuta los tests sobre los fuentes del proyecto
-test: compile_and_build_bin
+test: compile_tests
 	@printf "$(COLOR_BLUE)\nEjecutando tests sobre fuentes del proyecto...\n$(COLOR_RESET)"
 	@{ \
 		for F in $(INDEX_FILES); do \
@@ -413,31 +338,5 @@ test: compile_and_build_bin
 		if [ $${N_TESTS_FAILED} -gt 0 ]; then \
 			exit 1; \
 		fi; \
-	}           
-
-# -- Ejecuta los tests sobre los fuentes del proyecto (solo para docker)
-virtual_test: compile_tests
-	@printf "$(COLOR_BLUE)\nEjecutando tests sobre fuentes del proyecto...\n$(COLOR_RESET)"
-	@$(foreach F,$(INDEX_FILES), \
-		echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$(TEST_PREFIX)$(F)$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
-        ./$(BIN_DIR)/$(TEST_PREFIX)$(F) ; \
-        echo ; \
-    )
-    
-# ========================================================================================
-# DEFINICION DE REGLAS DE GESTION DE CONTENEDORES VIRTUALES
-# ========================================================================================
-
-# -- Construye la imagen de contenedor Docker
-build_docker:
-	@echo "$(COLOR_BLUE)Construyendo contenedor Docker $(COLOR_PURPLE)$(DOCKER_IMAGE)$(COLOR_BLUE)...$(COLOR_RESET)"
-	@docker build -t $(DOCKER_IMAGE):latest .
+	}
 	
-# -- Destruye la imagen de contenedor docker
-rmi_docker:
-	@docker rmi $(DOCKER_IMAGE) 2> /dev/null
-	
-# -- Ejecuta el contenedor docker
-run_docker: compile_tests build_docker
-	@docker run -it --rm --mount type=bind,source=${PWD},target=/app/test $(DOCKER_IMAGE)
-	@make -s clean_tests
