@@ -370,6 +370,7 @@ clean_tests:
 	@echo "$(COLOR_BLUE)Limpiando ficheros de tests compilados...$(COLOR_RESET)"
 	@rm -f $(BIN_DIR)/$(TEST_PREFIX)*
 	@echo "$(COLOR_GREEN)Archivos ficheros de tests compilados eliminados exitosamente!$(COLOR_RESET)"
+	@make -s clean_bin_dir
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE TESTEO DE FUENTES
