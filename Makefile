@@ -104,6 +104,9 @@ COLOR_BOLD := $(shell echo -e "\033[1m")
 COLOR_RESET := $(shell echo -e "\033[0;0m")
 COLOR_RESET_BOLD := $(COLOR_RESET)$(COLOR_BOLD)
 
+# -- Variables de comprobacion de resultado de test
+RESULT_TESTS_FILE:=test_result.txt
+
 # ========================================================================================
 # DEFINICION DE REGLAS PRINICPALES (ALL/CLEAN)
 # ========================================================================================
@@ -396,11 +399,21 @@ check:
 # -- Ejecuta los tests sobre los fuentes del proyecto
 test: compile_and_build_bin
 	@printf "$(COLOR_BLUE)\nEjecutando tests sobre fuentes del proyecto...\n$(COLOR_RESET)"
-	@$(foreach F,$(INDEX_FILES), \
-		echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$(TEST_PREFIX)$(F)$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
-        ./$(BIN_DIR)/$(TEST_PREFIX)$(F) ; \
-        echo ; \
-    )
+	@{ \
+		for F in $(INDEX_FILES); do \
+			echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$(TEST_PREFIX)$$F$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
+			./$(BIN_DIR)/$(TEST_PREFIX)$$F; \
+			echo $$? >> $(RESULT_TESTS_FILE); \
+		done; \
+		N_TESTS_FAILED=0; \
+		while IFS= read -r num; do \
+			N_TESTS_FAILED=$$((N_TESTS_FAILED + num)); \
+		done < "$(RESULT_TESTS_FILE)"; \
+		rm -f $(RESULT_TESTS_FILE); \
+		if [ $${N_TESTS_FAILED} -gt 0 ]; then \
+			exit 1; \
+		fi; \
+	}           
 
 # -- Ejecuta los tests sobre los fuentes del proyecto (solo para docker)
 virtual_test: compile_tests
