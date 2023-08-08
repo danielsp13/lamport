@@ -40,7 +40,7 @@ DPKG_ARCHITECTURE=`dpkg --print-architecture`
 VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
-COMPILER_DEPENDENCIES=gcc flex
+COMPILER_DEPENDENCIES=gcc flex libfl-dev
 TEST_DEPENDENCIES=libcmocka-dev cppcheck
 
 # -- Variables referentes a informe tex
