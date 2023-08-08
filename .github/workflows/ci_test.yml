@@ -17,8 +17,11 @@ jobs:
          - name: Instalar dependencias de compilación y testeo
            run: make install_source_dependencies
            
-         - name: Compilar fuentes
-           run: echo "PASSED"
+         - name: Compilar modulos
+           run: make compile_sources
            
-         - name: Compilar y ejecutar tests
-           run: make test
+         - name: Compilar tests
+           run: make compile_tests
+           
+         - name: Ejecutar tests de modulo -- lexer
+           run: make test_lexer

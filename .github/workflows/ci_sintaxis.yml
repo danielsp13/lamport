@@ -18,5 +18,5 @@ jobs:
          - name: Instalar dependencias de compilación y testeo
            run: make install_source_dependencies
            
-         - name: Compilar fuentes
+         - name: Comprobar sintaxis y escanear fuentes
            run: make check
