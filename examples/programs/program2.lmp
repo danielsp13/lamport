@@ -1,0 +1,5 @@
+process P;
+var x : integer := 0;
+cobegin
+  x := x+1 ; x := x+2;
+coend

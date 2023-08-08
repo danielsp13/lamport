@@ -1,0 +1,8 @@
+{instr. atómicas}
+begin
+  x := 0;
+  cobegin
+    << x := x+1 >>
+    << x := x-1 >>
+  coend
+end

@@ -1,0 +1,23 @@
+var x : integer; {contiene cada valor producido}
+{Proceso productor: calcula 'x'}
+process Productor;
+var a : integer; {no compartida}
+begin
+  while true do begin
+    {calcular un valor}
+    a := ProducirValor();
+    {escribir en mem. compartida}
+    x := a; {sentencia E}
+  end
+end
+{Proceso consumidor: lee 'x'}
+process Consumidor;
+var b : integer;
+begin
+  while true do begin
+    {leer de mem. compartida}
+    b := x; {sentencia L}
+    {utilizar el valor leido}
+    UsarValor(b);
+  end
+end
