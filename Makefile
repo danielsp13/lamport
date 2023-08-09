@@ -29,7 +29,7 @@ ifeq ($(UNAME), Linux)
     endif
 endif
 
-.PHONY: backup build_bin_dir clean_bin_dir
+.PHONY: backup build_bin_dir clean_bin_dir build_obj_dir clean_obj_dir
 
 # ========================================================================================
 # DEFINICION DE VARIABLES
@@ -58,17 +58,20 @@ HEADER_DIR:=include
 SOURCE_DIR:=src
 TEST_DIR:=test
 BIN_DIR:=bin
+OBJ_DIR:=obj
 EXAMPLES_DIR:=examples
 INDEX_DIRS:=$(HEADER_DIR) $(SOURCE_DIR) $(TEST_DIR)
 
 # -- Variables referentes a compilacion/comprobacion de ficheros
 GXX:=gcc
 CFLAGS:=-Wall -Wextra
-INCFLAGS:=-I$(HEADER_DIR) -I$(SOURCE_DIR)/
+INCFLAGS:=-I$(HEADER_DIR) -I$(SOURCE_DIR)/ -I$(HEADER_DIR)/$(TEST_DIR) -I$(SOURCE_DIR)/$(TEST_DIR)
 LDCMOCKA:=-lcmocka
 LDFLEX:=-lfl
+LDFLAGS:=$(LDFLEX) $(LDCMOCKA)
 LINTER:=cppcheck
 TEST_PREFIX:=test_
+TEST_COMMON_FUNCTIONS_PREFIX:=common_functions
 
 # -- Variables de extensiones
 SOURCE_EXT:=.c
@@ -83,8 +86,8 @@ LEXER_NAME:=lexer
 EXCLUDE_CHECK_FILES:=$(LEXER_NAME)$(LEXER_EXT) $(LEXER_NAME)$(SOURCE_EXT)
 
 # -- Variables de ficheros (tests)
-INDEX_TEST_LEXER_FILES:=$(TEST_PREFIX)$(LEXER_NAME)_recon_tokens
-INDEX_TEST_FILES:=$(INDEX_TEST_LEXER_FILES)
+INDEX_TEST_LEXER_FILES:=$(TEST_PREFIX)$(LEXER_NAME)_recon_tokens $(TEST_PREFIX)$(LEXER_NAME)_recon_patrones $(TEST_PREFIX)$(LEXER_NAME)_errores $(TEST_PREFIX)$(LEXER_NAME)_recon_ficheros
+INDEX_TEST_COMMON_FILES:=$(TEST_COMMON_FUNCTIONS_PREFIX)
 
 # -- Variables de ficheros (src)
 FLEX_LEXER_SRC:=$(LEXER_NAME)$(LEXER_EXT)
@@ -164,6 +167,23 @@ define compile_skeleton
 	}
 endef
 
+define compile_objects_skeleton
+	@{ \
+		N_FILES_EXPECTED=$(words $(1)) ; \
+		echo "$(COLOR_BOLD)>>> Compilando archivos objeto de modulo: $(COLOR_PURPLE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
+		N_FILES_COMPILED=0 ;\
+		for F in $(1); do \
+			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
+			$(GXX) $(INCFLAGS) -c $(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT) -o $(OBJ_DIR)/$$F.o $(4) ; \
+			if [ -f $(OBJ_DIR)/$$F.o ]; then \
+				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(OBJ_DIR)/$$F.o$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
+				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
+			fi ; \
+		done; \
+		echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_PURPLE)$(3)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
+	}
+endef
+
 define compile_tests_skeleton
 	@{ \
 		N_TESTS_EXPECTED=$(words $(1)) ; \
@@ -171,7 +191,7 @@ define compile_tests_skeleton
 		N_TESTS_COMPILED=0 ;\
 		for TEST in $(1); do \
 			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCFLAGS) $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(LDFLEX); \
+			$(GXX) $(INCFLAGS) $(OBJ_DIR)/* $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
 			if [ -f $(BIN_DIR)/$$TEST ]; then \
 				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
 				N_TESTS_COMPILED=$$(( N_TESTS_COMPILED + 1 )) ; \
@@ -204,6 +224,7 @@ define exec_tests_skeleton
 			if [ $$? -ne 0 ]; then \
 				N_TESTS_FAILED=$$((N_TESTS_FAILED + 1)); \
 			fi; \
+			echo ; \
 		done; \
 		echo "$(COLOR_BOLD)>>> Tests de $(COLOR_YELLOW)$(1)$(COLOR_RESET_BOLD) ejecutados exitosamente: [$$N_TESTS tests -> $$N_TESTS_FAILED tests fallados] ...$(COLOR_RESET)"; \
 		if [ $${N_TESTS_FAILED} -gt 0 ]; then \
@@ -246,6 +267,16 @@ define parse_and_check_files_skeleton
 	}
 endef
 
+define clean_dir_skeleton
+	@{ \
+		if [ -z "$(wildcard $(1)/*)" ] && [ -d $(1)/ ]; then \
+			echo; echo "$(COLOR_BLUE)Eliminando directorio $(COLOR_PURPLE)$(1)/$(COLOR_BLUE)...$(COLOR_RESET)"; \
+			rmdir $(1) 2>/dev/null || true; \
+			echo "$(COLOR_GREEN)Directorio $(COLOR_PURPLE)$(1)/$(COLOR_GREEN) eliminado correctamente!$(COLOR_RESET)"; \
+		fi ; \
+	}
+endef
+
 # ========================================================================================
 # DEFINICION DE REGLAS PRINICPALES (ALL/CLEAN)
 # ========================================================================================
@@ -254,6 +285,7 @@ endef
 clean:
 	@make -s clean_tex && echo
 	@make -s clean_tests && echo
+	@make -s clean_objects && echo
 	@make -s clean_binaries
 
 # ========================================================================================
@@ -270,11 +302,20 @@ build_bin_dir:
 	@mkdir -p $(BIN_DIR)
 	
 clean_bin_dir:
+	$(call clean_dir_skeleton,$(BIN_DIR))
+
+clean_bin_dir_old:
 	@if [ -z "$(wildcard $(BIN_DIR)/*)" ] && [ -d $(BIN_DIR)/ ]; then \
 		echo; echo "$(COLOR_BLUE)Eliminando directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_BLUE)...$(COLOR_RESET)"; \
 		rmdir $(BIN_DIR) 2>/dev/null || true; \
 		echo "$(COLOR_GREEN)Directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_GREEN) eliminado correctamente!$(COLOR_RESET)"; \
 	fi
+	
+build_obj_dir:
+	@mkdir -p $(OBJ_DIR)
+	
+clean_obj_dir:
+	$(call clean_dir_skeleton,$(OBJ_DIR))
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE LIMPIEZA (CLEAN)
@@ -293,7 +334,13 @@ clean_binaries:
 	@rm -f $(BIN_DIR)/*
 	@echo "$(COLOR_GREEN)Archivos eliminados exitosamente!$(COLOR_RESET)"
 	@make -s clean_bin_dir
-	
+
+# -- Limpia todos los ficheros objeto generados
+clean_objects:
+	@echo "$(COLOR_BLUE)Limpiando ficheros objeto...$(COLOR_RESET)"
+	@rm -f $(OBJ_DIR)/*
+	@echo "$(COLOR_GREEN)Archivos eliminados exitosamente!$(COLOR_RESET)"
+	@make -s clean_obj_dir
 
 # ========================================================================================
 # DEFINICION DE OTRAS REGLAS
@@ -418,7 +465,7 @@ generate_lexer: $(SOURCE_DIR)/$(FLEX_LEXER_SRC)
 	@echo "$(COLOR_BOLD)>>> Analizador lexico generado: $(COLOR_PURPLE)$(SOURCE_DIR)/$(LEXER_SRC)$(COLOR_RESET)"
 	
 # -- Compila los fuentes del analizador lexico
-compile_lexer: build_bin_dir
+compile_lexer: build_bin_dir build_obj_dir
 	@make -s generate_lexer && echo
 	$(call compile_skeleton, $(INDEX_LEXER_FILES), "analizador lexico", $(LDFLEX))
 	
@@ -433,9 +480,13 @@ compile_tests:
 	@make -s compile_tests_lexer
 	
 # -- Compila los ficheros de tests sobre modulo: lexer
-compile_tests_lexer: build_bin_dir
+compile_tests_lexer: build_bin_dir build_obj_dir
 	$(call check_compiled_files_skeleton,$(INDEX_LEXER_FILES),"compile_lexer")
-	$(call compile_tests_skeleton,$(INDEX_TEST_LEXER_FILES),"analizador lexico")
+	$(call compile_objects_skeleton,$(INDEX_TEST_COMMON_FILES),"$(TEST_DIR)/","common tests resources",$(LDFLAGS))
+	@echo
+	$(call compile_tests_skeleton,$(INDEX_TEST_LEXER_FILES),"analizador lexico",$(LDFLEX))
+	@echo
+	@make -s clean_objects
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE TESTEO DE FUENTES

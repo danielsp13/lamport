@@ -2,7 +2,7 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file test_lexer_recon_tokens.c
  * @author Daniel Perez Ruiz
- * @brief Tests del analizador lexico
+ * @brief Tests del analizador lexico : reconocimiento de tokens literales
  */
 
 #include <stdarg.h>
@@ -47,6 +47,7 @@ static void test_end_token(void **state);
 static void test_cobegin_token(void **state);
 static void test_coend_token(void **state);
 static void test_fork_token(void **state);
+static void test_join_token(void **state);
 static void test_if_token(void **state);
 static void test_then_token(void **state);
 static void test_else_token(void **state);
@@ -63,6 +64,11 @@ static void test_op_gt_token(void **state);
 static void test_op_gte_token(void **state);
 static void test_op_eq_token(void **state);
 static void test_op_neq_token(void **state);
+static void test_sum_token(void **state);
+static void test_minus_token(void **state);
+static void test_mult_token(void **state);
+static void test_div_token(void **state);
+static void test_mod_token(void **state);
 static void test_not_token(void **state);
 static void test_and_token(void **state);
 static void test_or_token(void **state);
@@ -101,6 +107,7 @@ int main() {
         cmocka_unit_test(test_cobegin_token),
         cmocka_unit_test(test_coend_token),
         cmocka_unit_test(test_fork_token),
+        cmocka_unit_test(test_join_token),
         cmocka_unit_test(test_if_token),
         cmocka_unit_test(test_then_token),
         cmocka_unit_test(test_else_token),
@@ -117,6 +124,11 @@ int main() {
         cmocka_unit_test(test_op_gte_token),
         cmocka_unit_test(test_op_eq_token),
         cmocka_unit_test(test_op_neq_token),
+        cmocka_unit_test(test_sum_token),
+        cmocka_unit_test(test_minus_token),
+        cmocka_unit_test(test_mult_token),
+        cmocka_unit_test(test_div_token),
+        cmocka_unit_test(test_mod_token),
         cmocka_unit_test(test_not_token),
         cmocka_unit_test(test_and_token),
         cmocka_unit_test(test_or_token),
@@ -240,6 +252,11 @@ static void test_fork_token(void **state){
     reconocer_token("fork", S_FORK);
 }
 
+static void test_join_token(void **state){
+    (void) state;
+    reconocer_token("join", JOIN);
+}
+
 static void test_if_token(void **state){
     (void) state;
     reconocer_token("if", IF);
@@ -292,32 +309,57 @@ static void test_op_assign_token(void **state){
 
 static void test_op_lt_token(void **state){
     (void) state;
-    reconocer_token("<", OP_REL);
+    reconocer_token("<", OP_REL_LT);
 }
 
 static void test_op_lte_token(void **state){
     (void) state;
-    reconocer_token("<=", OP_REL);
+    reconocer_token("<=", OP_REL_LTE);
 }
 
 static void test_op_gt_token(void **state){
     (void) state;
-    reconocer_token(">", OP_REL);
+    reconocer_token(">", OP_REL_GT);
 }
 
 static void test_op_gte_token(void **state){
     (void) state;
-    reconocer_token(">=", OP_REL);
+    reconocer_token(">=", OP_REL_GTE);
 }
 
 static void test_op_eq_token(void **state){
     (void) state;
-    reconocer_token("==", OP_REL);
+    reconocer_token("==", OP_REL_EQ);
 }
 
 static void test_op_neq_token(void **state){
     (void) state;
-    reconocer_token("!=", OP_REL);
+    reconocer_token("!=", OP_REL_NEQ);
+}
+
+static void test_sum_token(void **state){
+    (void) state;
+    reconocer_token("+", OP_SUM);
+}
+
+static void test_minus_token(void **state){
+    (void) state;
+    reconocer_token("-", OP_MINUS);
+}
+
+static void test_mult_token(void **state){
+    (void) state;
+    reconocer_token("*", OP_MULT);
+}
+
+static void test_div_token(void **state){
+    (void) state;
+    reconocer_token("/", OP_DIV);
+}
+
+static void test_mod_token(void **state){
+    (void) state;
+    reconocer_token("%", OP_MOD);
 }
 
 static void test_not_token(void **state){
