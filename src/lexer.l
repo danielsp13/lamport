@@ -13,21 +13,19 @@
 %}
 
 /* Definiciones regulares */
-delim       [ \t\n]
+delim       [ \t\r\n]
 ws          {delim}+
 letra       [A-Za-z]
 digito      [0-9]
 id          {letra}({letra}|{digito})*
-literal     ^".*?"$
-entero      ^-?{digito}+$
-real        ^-?{digito}+(.{digito}+)$
-caracter    ^'.'$
-comentario  \{[^\}]*\}
+literal     \"[^"]*\"
+entero      -?{digito}+
+real        -?{digito}+\.{digito}+
+caracter    \'.\'
+comentario  "{"[^}]*"}"
 
 %%
 
-{ws}            {/*no se produce retorno*/}
-{comentario}    {/*ignorar comentarios*/}
 "program"       {return(S_PROGRAM);}
 "var"           {return(S_VAR);}
 "integer"       {return(T_INTEGER);}
@@ -46,6 +44,7 @@ comentario  \{[^\}]*\}
 "cobegin"       {return(B_COBEGIN);}
 "coend"         {return(B_COEND);}
 "fork"          {return(S_FORK);}
+"join"			{return(JOIN);}
 "if"            {return(IF);}
 "then"          {return(THEN);}
 "else"          {return(ELSE);}
@@ -56,12 +55,17 @@ comentario  \{[^\}]*\}
 "true"          {return(L_BOOLEAN);}
 "false"         {return(L_BOOLEAN);}
 ":="            {return(OP_ASSIGN);}
-"<"             {return(OP_REL);}
-"<="            {return(OP_REL);}
-">"             {return(OP_REL);}
-">="            {return(OP_REL);}
-"=="            {return(OP_REL);}
-"!="            {return(OP_REL);}
+"<"             {return(OP_REL_LT);}
+"<="            {return(OP_REL_LTE);}
+">"             {return(OP_REL_GT);}
+">="            {return(OP_REL_GTE);}
+"=="            {return(OP_REL_EQ);}
+"!="            {return(OP_REL_NEQ);}
+"+"             {return(OP_SUM);}
+"-"             {return(OP_MINUS);}
+"*"             {return(OP_MULT);}
+"/"             {return(OP_DIV);}
+"%"             {return(OP_MOD);}
 "not"           {return(OP_NOT);}
 "and"           {return(OP_AND);}
 "or"            {return(OP_OR);}
@@ -80,6 +84,13 @@ comentario  \{[^\}]*\}
 {entero}        {return(L_INTEGER);}
 {real}          {return(L_REAL);}
 {caracter}      {return(L_CHAR);}
+{comentario}    { /*IGNORAR*/ }
+{ws}            { /*IGNORAR*/ }
+
+.               {
+    /*Regla para patrones no reconocidos */
+    return(UNRECOGNIZED_TOKEN);
+}
 
 %%
 
