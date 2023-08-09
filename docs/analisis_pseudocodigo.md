@@ -86,7 +86,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <letter-or-digit> ::= <letter> | <digit>
 <letter> ::= [a-zA-Z]
 <digit> ::= [0-9]
-<binary-operator> ::= "*" | "/" | "+" | "-"
+<binary-operator> ::= "*" | "/" | "+" | "-" | "%" |
  	| ">" | "<" | "<=" | ">=" | "==" | "!="
 	| "and" | "or"
 <unary-operator> ::= "-" | "not"
@@ -96,69 +96,79 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 
 #### <a name="prioridad-operadores"></a> Tabla de prioridades de operadores
 
-| Precedencia |                 Operador                 |               Descripción                | Asociatividad |
-| :---------: | :--------------------------------------: | :--------------------------------------: | :-----------: |
-|      1      |                    -                     |           menos<br />(unario)            |  Izda-a-Dcha  |
-|      2      |                 /<br />*                 | Multiplicación y división<br />(binario) |  Izda-a-Dcha  |
-|      3      |                 +<br />-                 |       Suma y resta<br />(binario)        |  Izda-a-Dcha  |
-|      4      | <<br /><=<br />><br />>=<br />==<br />!= | Operadores de comparación<br />(binario) |  Izda-a-Dcha  |
-|      5      |                   not                    |      Negación lógica<br />(unario)       |  Dcha-a-Izda  |
-|      6      |                   and                    |     Conjunción lógica<br />(binario)     |  Izda-a-Dcha  |
-|      7      |                    or                    |     Disyunción lógica<br />(binario)     |  Izda-a-Dcha  |
+| Precedencia |                 Operador                 |                   Descripción                    | Asociatividad |
+| :---------: | :--------------------------------------: | :----------------------------------------------: | :-----------: |
+|      1      |                    -                     |               menos<br />(unario)                |  Izda-a-Dcha  |
+|      2      |             /<br />*<br />%              | Multiplicación, división y módulo<br />(binario) |  Izda-a-Dcha  |
+|      3      |                 +<br />-                 |           Suma y resta<br />(binario)            |  Izda-a-Dcha  |
+|      4      | <<br /><=<br />><br />>=<br />==<br />!= |     Operadores de comparación<br />(binario)     |  Izda-a-Dcha  |
+|      5      |                   not                    |          Negación lógica<br />(unario)           |  Dcha-a-Izda  |
+|      6      |                   and                    |         Conjunción lógica<br />(binario)         |  Izda-a-Dcha  |
+|      7      |                    or                    |         Disyunción lógica<br />(binario)         |  Izda-a-Dcha  |
 
 ****
 
 #### <a name="tabla-tokens"></a> Tabla de Tokens
 
-|    TOKEN    |                     DESCRIPCIÓN INFORMAL                     |                   PATRÓN                   |       EJEMPLO       |
-| :---------: | :----------------------------------------------------------: | :----------------------------------------: | :-----------------: |
-|  S_PROGRAM  |         Palabra reservada para iniciar el programa.          |                 "program"                  |       program       |
-|    S_VAR    |          Palabra reservada para declarar variables.          |                   "var"                    |         var         |
-|  T_INTEGER  |            Palabra reservada para el tipo entero.            |                 "integer"                  |       integer       |
-|  T_BOOLEAN  |           Palabra reservada para el tipo boolean.            |                 "boolean"                  |       boolean       |
-|   T_CHAR    |           Palabra reservada para el tipo carácter.           |                   "char"                   |        char         |
-|  T_STRING   |     Palabra reservada para el tipo cadena de caracteres.     |                  "string"                  |       string        |
-|   T_REAL    |             Palabra reservada para el tipo real.             |                   "real"                   |        real         |
-|   T_ARRAY   |          Palabra reservada para declarar un vector.          |                  "array"                   |        array        |
-| T_SEMAPHORE |           Palabra reservada para el tipo semáforo.           |                "semaphore"                 |      semaphore      |
-| T_DPROCESS  |     Palabra reservada para declarar un proceso dinámico      |                 "dprocess"                 |      dprocess       |
-|  S_PROCESS  |    Palabra reservada para indicar el inicio de un proceso    |                 "process"                  |       process       |
-| S_PROCEDURE | Palabra reservada para indicar el inicio de un procedimiento. |                "procedure"                 |      procedure      |
-| S_FUNCTION  |   Palabra reservada para indicar el inicio de una función    |                 "function"                 |      function       |
-|   RETURN    |   Palabra reservada para indicar el retorno de una función   |                  "return"                  |       return        |
-|   B_BEGIN   |    Palabra reservada para indicar el inicio de un bloque.    |                  "begin"                   |        begin        |
-|    B_END    |     Palabra reservada para indicar el fin de un bloque.      |                   "end"                    |         end         |
-|  B_COBEGIN  | Palabra reservada para indicar el inicio de un bloque paralelo. |                 "cobegin"                  |       cobegin       |
-|   B_COEND   | Palabra reservada para indicar el fin de un bloque paralelo. |                  "coend"                   |        coend        |
-|   S_FORK    |       Palabra reservada para indicar inicio del fork.        |                   "fork"                   |        fork         |
-|     IF      |       Palabra reservada para estructura de control if.       |                    "if"                    |         if          |
-|    THEN     |         Palabra reservada para condición then de if.         |                   "then"                   |        then         |
-|    ELSE     |         Palabra reservada para condición else de if.         |                   "else"                   |        else         |
-|    WHILE    |     Palabra reservada para estructura de control while.      |                  "while"                   |        while        |
-|     DO      |         Palabra reservada para el bucle do de while.         |                    "do"                    |         do          |
-|     FOR     |      Palabra reservada para estructura de control for.       |                   "for"                    |         for         |
-|     TO      |       Palabra reservada para indicar límite bucle for.       |                    "to"                    |         to          |
-|    IDENT    |    Identificador de variables, funciones, procedimientos.    |       \[a-zA-Z\]([a-zA-Z] \| [0-9])*       | x, aux, sum, proc1B |
-|   LITERAL   |        Secuencia de caracteres entre comillas dobles.        |                  ^".*?"$                   |    "Hola Mundo!"    |
-|  L_INTEGER  |                       Literal entero.                        |                 ^-?[0-9]+$                 |      2, -31, 0      |
-|   L_REAL    |                      Literal flotante.                       |           ^-?[0-9]+(\.[0-9]+)?$            |  2.71, -6, -4.1314  |
-|  L_BOOLEAN  |                      Literal booleano.                       |             "true" \| "false"              |     true, false     |
-|   L_CHAR    |               Carácter entre comillas simples.               |                   ^'.'$                    |    'A', '4', '?'    |
-|  OP_ASSIGN  |                   Operador de asignación.                    |                    ":="                    |         :=          |
-|   OP_REL    |                   Operador de comparación.                   | "<" \| ">" \| "<=" \| ">=" \| "==" \| "!=" |        <, ==        |
-|   OP_NOT    |                  Operador negación lógica.                   |                   "not"                    |         not         |
-|   OP_AND    |                 Operador conjunción lógica.                  |                   "and"                    |         and         |
-|    OP_OR    |                 Operación disyunción lógica.                 |                    "or"                    |         or          |
-|  PAR_IZDO   |                    Paréntesis izquierdo.                     |                    "("                     |          (          |
-|  PAR_DCHO   |                     Paréntesis derecho.                      |                    ")"                     |          )          |
-| CORCH_IZDO  |                     Corchete izquierdo.                      |                    "["                     |          [          |
-| CORCH_DCHO  |                      Corchete derecho.                       |                    "]"                     |          ]          |
-|   DELIM_C   |                     Delimitador (coma).                      |                    ","                     |          ,          |
-|  DELIM_PC   |                 Delimitador (punto y coma).                  |                    ";"                     |          ;          |
-|  DELIM_2P   |                  Delimitador (dos puntos).                   |                    ":"                     |          :          |
-|  DELIM_ARR  |                Delimitador de size de array.                 |                    ".."                    |         ..          |
-|  ATOM_INI   |             Delimitador inicio sección atómica.              |                    "<<"                    |         <<          |
-|  ATOM_FIN   |               Delimitador fin sección atómica.               |                    ">>"                    |         >>          |
+| NUM  |    TOKEN    |                     DESCRIPCIÓN INFORMAL                     |             PATRÓN             |       EJEMPLO       |
+| :--: | :---------: | :----------------------------------------------------------: | :----------------------------: | :-----------------: |
+|  1   |  S_PROGRAM  |         Palabra reservada para iniciar el programa.          |           "program"            |       program       |
+|  2   |    S_VAR    |          Palabra reservada para declarar variables.          |             "var"              |         var         |
+|  3   |  T_INTEGER  |            Palabra reservada para el tipo entero.            |           "integer"            |       integer       |
+|  4   |  T_BOOLEAN  |           Palabra reservada para el tipo boolean.            |           "boolean"            |       boolean       |
+|  5   |   T_CHAR    |           Palabra reservada para el tipo carácter.           |             "char"             |        char         |
+|  6   |  T_STRING   |     Palabra reservada para el tipo cadena de caracteres.     |            "string"            |       string        |
+|  7   |   T_REAL    |             Palabra reservada para el tipo real.             |             "real"             |        real         |
+|  8   |   T_ARRAY   |          Palabra reservada para declarar un vector.          |            "array"             |        array        |
+|  9   | T_SEMAPHORE |           Palabra reservada para el tipo semáforo.           |          "semaphore"           |      semaphore      |
+|  10  | T_DPROCESS  |     Palabra reservada para declarar un proceso dinámico      |           "dprocess"           |      dprocess       |
+|  11  |  S_PROCESS  |    Palabra reservada para indicar el inicio de un proceso    |           "process"            |       process       |
+|  12  | S_PROCEDURE | Palabra reservada para indicar el inicio de un procedimiento. |          "procedure"           |      procedure      |
+|  13  | S_FUNCTION  |   Palabra reservada para indicar el inicio de una función    |           "function"           |      function       |
+|  14  |   RETURN    |   Palabra reservada para indicar el retorno de una función   |            "return"            |       return        |
+|  15  |   B_BEGIN   |    Palabra reservada para indicar el inicio de un bloque.    |            "begin"             |        begin        |
+|  16  |    B_END    |     Palabra reservada para indicar el fin de un bloque.      |             "end"              |         end         |
+|  17  |  B_COBEGIN  | Palabra reservada para indicar el inicio de un bloque paralelo. |           "cobegin"            |       cobegin       |
+|  18  |   B_COEND   | Palabra reservada para indicar el fin de un bloque paralelo. |            "coend"             |        coend        |
+|  19  |   S_FORK    |       Palabra reservada para indicar inicio del fork.        |             "fork"             |        fork         |
+|  20  |     IF      |       Palabra reservada para estructura de control if.       |              "if"              |         if          |
+|  21  |    THEN     |         Palabra reservada para condición then de if.         |             "then"             |        then         |
+|  22  |    ELSE     |         Palabra reservada para condición else de if.         |             "else"             |        else         |
+|  23  |    WHILE    |     Palabra reservada para estructura de control while.      |            "while"             |        while        |
+|  24  |     DO      |         Palabra reservada para el bucle do de while.         |              "do"              |         do          |
+|  25  |     FOR     |      Palabra reservada para estructura de control for.       |             "for"              |         for         |
+|  26  |     TO      |       Palabra reservada para indicar límite bucle for.       |              "to"              |         to          |
+|  27  |    IDENT    |    Identificador de variables, funciones, procedimientos.    | \[a-zA-Z\]([a-zA-Z] \| [0-9])* | x, aux, sum, proc1B |
+|  28  |   LITERAL   |        Secuencia de caracteres entre comillas dobles.        |            ^".*?"$             |    "Hola Mundo!"    |
+|  29  |  L_INTEGER  |                       Literal entero.                        |           ^-?[0-9]+$           |      2, -31, 0      |
+|  30  |   L_REAL    |                      Literal flotante.                       |     ^-?[0-9]+(\.[0-9]+)?$      |  2.71, -6, -4.1314  |
+|  31  |  L_BOOLEAN  |                      Literal booleano.                       |       "true" \| "false"        |     true, false     |
+|  32  |   L_CHAR    |               Carácter entre comillas simples.               |             ^'.'$              |    'A', '4', '?'    |
+|  33  |  OP_ASSIGN  |                   Operador de asignación.                    |              ":="              |         :=          |
+|  34  |  OP_REL_LT  |          Operador de comparación<br />(menor que).           |              "<"               |          <          |
+|  35  |  OP_REL_GT  |          Operador de comparación<br />(mayor que).           |              ">"               |          >          |
+|  36  | OP_REL_LTE  |      Operador de comparación<br />(menor o igual que).       |              "<="              |         <=          |
+|  37  | OP_REL_GTE  |      Operador de comparación<br />(mayor o igual que).       |              ">="              |         >=          |
+|  38  |  OP_REL_EQ  |          Operador de comparación<br />(igual que).           |              "=="              |         ==          |
+|  39  | OP_REL_NEQ  |         Operador de comparación<br />(distinto que)          |              "!="              |         !=          |
+|  40  |   OP_NOT    |                  Operador negación lógica.                   |             "not"              |         not         |
+|  41  |   OP_AND    |                 Operador conjunción lógica.                  |             "and"              |         and         |
+|  42  |    OP_OR    |                 Operación disyunción lógica.                 |              "or"              |         or          |
+|  43  |   OP_SUM    |                        Operador suma                         |              "+"               |          +          |
+|  44  |  OP_MINUS   |                        Operador resta                        |              "-"               |          -          |
+|  45  |   OP_MULT   |                   Operador multiplicación                    |              "*"               |          *          |
+|  46  |   OP_DIV    |                      Operador división                       |              "/"               |          /          |
+|  47  |   OP_MOD    |                       Operador módulo                        |              "%"               |          %          |
+|  48  |  PAR_IZDO   |                    Paréntesis izquierdo.                     |              "("               |          (          |
+|  49  |  PAR_DCHO   |                     Paréntesis derecho.                      |              ")"               |          )          |
+|  50  | CORCH_IZDO  |                     Corchete izquierdo.                      |              "["               |          [          |
+|  51  | CORCH_DCHO  |                      Corchete derecho.                       |              "]"               |          ]          |
+|  52  |   DELIM_C   |                     Delimitador (coma).                      |              ","               |          ,          |
+|  53  |  DELIM_PC   |                 Delimitador (punto y coma).                  |              ";"               |          ;          |
+|  54  |  DELIM_2P   |                  Delimitador (dos puntos).                   |              ":"               |          :          |
+|  55  |  DELIM_ARR  |                Delimitador de size de array.                 |              ".."              |         ..          |
+|  56  |  ATOM_INI   |             Delimitador inicio sección atómica.              |              "<<"              |         <<          |
+|  57  |  ATOM_FIN   |               Delimitador fin sección atómica.               |              ">>"              |         >>          |
 
 Para la designación de las clases de los tokens, se ha decidido utilizar un convenio en el prefijo donde:
 
