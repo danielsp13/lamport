@@ -9,7 +9,7 @@
 
 //Enumerado con los diferentes tipos de tokens definidos
 typedef enum{
-    S_PROGRAM,
+    S_PROGRAM = 1,
     S_VAR,
     T_INTEGER,
     T_BOOLEAN,
@@ -28,6 +28,7 @@ typedef enum{
     B_COBEGIN,
     B_COEND,
     S_FORK,
+    JOIN,
     IF,
     THEN,
     ELSE,
@@ -42,7 +43,17 @@ typedef enum{
     L_BOOLEAN,
     L_CHAR,
     OP_ASSIGN,
-    OP_REL,
+    OP_REL_LT,
+    OP_REL_GT,
+    OP_REL_LTE,
+    OP_REL_GTE,
+    OP_REL_EQ,
+    OP_REL_NEQ,
+    OP_SUM,
+    OP_MINUS,
+    OP_MULT,
+    OP_DIV,
+    OP_MOD,
     OP_NOT,
     OP_AND,
     OP_OR,
@@ -55,17 +66,8 @@ typedef enum{
     DELIM_2P,
     DELIM_ARR,
     ATOM_INI,
-    ATOM_FIN
+    ATOM_FIN,
+    UNRECOGNIZED_TOKEN
 } TokenType;
-
-//Enumerado con los diferentes tipos de operadores relacionales
-typedef enum{
-    LT,
-    GT,
-    LE,
-    GE,
-    EQ,
-    NE
-} OpRelType;
 
 #endif //_LAMPORT_TOKENTYPE_DPR_
