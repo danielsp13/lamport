@@ -1,0 +1,7 @@
+a
+TokenType
+hash2Deploy
+a123412312
+B123ASD
+UsarValor
+Consumir

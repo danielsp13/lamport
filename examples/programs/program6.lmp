@@ -1,4 +1,4 @@
-var a,b : array[1..2*n] of integer; {n es una constante predefinida}
+var a,b : array[1..2*n] integer; {n es una constante predefinida}
 
 procedure Sort( s,t : integer );
   var i,j : integer;
