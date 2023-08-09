@@ -27,11 +27,11 @@ jobs:
            if: steps.cache-apt.outputs.cache-hit != 'true'
            run: make install_source_dependencies
            
-         - name: Compilar modulos
+         - name: Compilar módulos
            run: make compile_sources
            
          - name: Compilar tests
            run: make compile_tests
            
-         - name: Ejecutar tests de modulo -- lexer
+         - name: "Ejecutar tests de módulo : Lexer"
            run: make test_lexer
