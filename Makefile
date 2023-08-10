@@ -29,7 +29,7 @@ ifeq ($(UNAME), Linux)
     endif
 endif
 
-.PHONY: backup build_bin_dir clean_bin_dir build_obj_dir clean_obj_dir
+.PHONY: backup build_bin_dir clean_bin_dir build_obj_dir clean_obj_dir update_packages
 
 # ========================================================================================
 # DEFINICION DE VARIABLES
@@ -115,7 +115,7 @@ define install_dependencies_skeleton
 		$(foreach DEP,$(2), \
 		    if ! $(call $(3),$(DEP)) ; then \
 		        echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) no está instalado. Instalando... $(COLOR_RESET)"; \
-		        sudo $(UPDATE_OPTION) && sudo $(INSTALL_OPTION) $(DEP); \
+		        sudo $(INSTALL_OPTION) $(DEP); \
 		    else \
 		        echo " ---> $(COLOR_PURPLE)$(DEP)$(COLOR_RESET_BOLD) ya se encuentra instalado en el sistema.$(COLOR_RESET)"; \
 		    fi; \
@@ -318,6 +318,9 @@ build_obj_dir:
 	
 clean_obj_dir:
 	$(call clean_dir_skeleton,$(OBJ_DIR))
+	
+update_packages:
+	@sudo $(UPDATE_OPTION)
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE LIMPIEZA (CLEAN)
@@ -380,10 +383,10 @@ help:
 # ========================================================================================
 
 # -- Instala todas las dependencias del proyecto
-install_dependencies: install_tex_dependencies install_source_dependencies
+install_dependencies: update_packages install_tex_dependencies install_source_dependencies
 
 # -- Instala todas las dependencias relacionadas con el codigo fuente del proyecto
-install_source_dependencies: install_compiler_dependencies install_tests_dependencies
+install_source_dependencies: update_packages install_compiler_dependencies install_tests_dependencies
 
 # -- Desinstala todas las dependencias del proyecto
 uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies
