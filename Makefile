@@ -242,19 +242,21 @@ define parse_and_check_files_skeleton
 				echo "$(COLOR_RED) ---> [!!] No hay fuentes en $(COLOR_PURPLE)$$DIR/$(COLOR_RESET)"; echo;\
 			else \
 				for FILE in $$DIR/*; do \
-					FILE_BASENAME=$$(basename $$FILE) ; \
-					if ! [[ " $(2) " =~ " $$FILE_BASENAME " ]]; then \
-						echo "$(COLOR_YELLOW) ---> Comprobando la sintaxis de $(COLOR_PURPLE)$$FILE$(COLOR_YELLOW) ...$(COLOR_RESET)"; \
-						$(GXX) $(INCFLAGS) -fsyntax-only $$FILE; \
-						if [ $$? -ne 0 ]; then \
-							N_CHECKS_FAILED=$$((N_CHECKS_FAILED + 1)); \
+					if [ ! -d $$FILE ]; then \
+						FILE_BASENAME=$$(basename $$FILE) ; \
+						if ! [[ " $(2) " =~ " $$FILE_BASENAME " ]]; then \
+							echo "$(COLOR_YELLOW) ---> Comprobando la sintaxis de $(COLOR_PURPLE)$$FILE$(COLOR_YELLOW) ...$(COLOR_RESET)"; \
+							$(GXX) $(INCFLAGS) -fsyntax-only $$FILE; \
+							if [ $$? -ne 0 ]; then \
+								N_CHECKS_FAILED=$$((N_CHECKS_FAILED + 1)); \
+							fi; \
+							echo "$(COLOR_YELLOW) ---> Comprobando errores/bugs de $(COLOR_PURPLE)$$FILE$(COLOR_YELLOW) ...$(COLOR_RESET)"; \
+							$(LINTER) $$FILE; \
+							if [ $$? -ne 0 ]; then \
+								N_CHECKS_FAILED=$$((N_CHECKS_FAILED + 1)); \
+							fi; \
+							echo; \
 						fi; \
-						echo "$(COLOR_YELLOW) ---> Comprobando errores/bugs de $(COLOR_PURPLE)$$FILE$(COLOR_YELLOW) ...$(COLOR_RESET)"; \
-						$(LINTER) $$FILE; \
-						if [ $$? -ne 0 ]; then \
-							N_CHECKS_FAILED=$$((N_CHECKS_FAILED + 1)); \
-						fi; \
-						echo; \
 					fi; \
 				done; \
 			fi; \
