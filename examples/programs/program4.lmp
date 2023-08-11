@@ -1,0 +1,13 @@
+procedure P1;
+begin
+  A;
+  fork P2;
+  B;
+  join P2;
+  C;
+end
+
+procedure P2;
+begin
+  D;
+end;
