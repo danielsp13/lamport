@@ -1,3 +1,0 @@
-"Hola mundo"
-"Bienvenido, 'Daniel Pérez Ruiz'"
-"El saldo actual es de: [21,4567€]"

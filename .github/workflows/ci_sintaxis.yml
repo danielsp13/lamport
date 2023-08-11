@@ -14,19 +14,9 @@ jobs:
       steps:
          - name: Checkout
            uses: actions/checkout@v3
-           
-         - name: Caché de paquetes apt
-           id: cache-apt
-           uses: actions/cache@v2
-           with:
-            path: |
-              /var/lib/apt/lists/
-              /var/cache/apt/archives/
-            key: ${{ runner.os }}-apt-${{ hashFiles('**/Makefile') }}
              
          - name: Instalar dependencias de compilación y testeo
-           if: steps.cache-apt.outputs.cache-hit != 'true'
            run: make install_source_dependencies
            
-         - name: Comprobar sintaxis y escanear fuentes
+         - name: Compilar fuentes
            run: make check
