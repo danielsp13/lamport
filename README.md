@@ -15,6 +15,7 @@ En el siguiente índice se resumen los contenidos principales de este README:
 * :question: **[Resumen del proyecto](#lamport-resume)** : Describe los objetivos y el propósito de este proyecto.
 * :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX, así como proporciona enlaces documentación propia del repo.
 * :shell: **[Instalación y verificación](#lamport-install)** : Indica cómo se realiza la gestión de dependencias del proyecto mediante el `Makefile` implementado para ello.
+* :building_construction: **[Construcción del compilador](#lamport-compile)** : Indica cómo construir el proyecto completo para su uso.
 * :white_check_mark: **[Testeo de módulos](#lamport-test)** : Indica cómo realizar pruebas sobre el código implementado.
 
 ****
@@ -129,7 +130,33 @@ $ make version_tests_dependencies
 
 ****
 
+ ### :building_construction: <a name="lamport-compile"></a> Construcción del compilador
 
+Para poder utilizar el compilador desarrollado para el lenguaje de lamport, hay que compilar todos los módulos implementados.
+
+
+
+Para constuir el compilador completo (incluyendo los tests de los módulos):
+
+~~~bash
+$ make compile
+~~~
+
+Esto hará que los ejecutables se encuentren en el directorio `bin/`.
+
+
+
+Para eliminar todos los ficheros ejecutables generados:
+
+~~~bash
+$ make clean
+~~~
+
+Esto limpiará también todos los ficheros de tests generados
+
+
+
+****
 
 ### :white_check_mark: <a name="lamport-test"></a> Testeo de módulos
 
@@ -148,6 +175,5 @@ $ make check
 Si desea lanzar los tests definidos para las clases implementadas:
 
 ~~~bash
-$ make test
+$ make tests
 ~~~
-
