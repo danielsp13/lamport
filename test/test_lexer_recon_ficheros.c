@@ -30,6 +30,9 @@
 #define LAMPORT_P6_FILE "program6"
 #define LIST_TOKENS_PREFIX "list_tokens_"
 
+//Definir macro para impresion de contenido en modo debug
+//#define LMP_VERBOSE
+
 // ==================================================================================
 
 // DEFINICION DE FUNCIONES AUXILIARES
@@ -105,6 +108,13 @@ Buffer* obtener_tokens_programa(const char* file){
     while((token = yylex()) != 0){
         char token_string[10]; sprintf(token_string,"%d",token);
         strcpy(buff_tokens->lines[buff_tokens->total_lines], token_string);
+        
+        #ifdef LMP_VERBOSE
+            printf(" ----- TOKEN [N-%d]\n",buff_tokens->total_lines+1);
+            printf(" ----- TEXTO RECONOCIDO: [%s] --> TIPO DE TOKEN [%s]\n",yytext, token_string);
+            printf(" ----- TIPO DE TOKEN: [%s] --> TOKEN ALMACENADO EN BUFFER [%s]\n\n",token_string, buff_tokens->lines[buff_tokens->total_lines]);
+        #endif
+
         buff_tokens->total_lines++;
     }
 
@@ -123,9 +133,14 @@ Buffer* obtener_lista_tokens_esperada(const char* file){
 
 void comparar_resultados_lexer(Buffer* tokens_lexer, Buffer* tokens_expected){
     // -- Asertar primero que se ha leido la misma cantidad de tokens
-    //assert_int_equal(tokens_lexer->total_lines,tokens_expected->total_lines);
+    assert_int_equal(tokens_lexer->total_lines,tokens_expected->total_lines);
+
     // -- Si se afirma, el siguiente caso es comprobar cada token
     for(int i=0; i<tokens_lexer->total_lines; i++){
+        #ifdef LMP_VERBOSE
+            printf(" ----- TOKEN [N-%d] -> RECONOCIDO POR LEXER: [%s] ==? ESPERADO [%s] \n", i+1, tokens_lexer->lines[i],tokens_expected->lines[i]);
+        #endif
+        
         assert_string_equal(tokens_lexer->lines[i],tokens_expected->lines[i]);
     }
 }
