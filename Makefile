@@ -78,12 +78,13 @@ SOURCE_EXT:=.c
 HEADER_EXT:=.h
 TEST_EXT:=.c
 LEXER_EXT:=.l
+BISON_EXT:=.y
 LAMPORT_EXT:=.lmp
 
 # -- Variables de ficheros
 LEXER_NAME:=lexer
-
-EXCLUDE_CHECK_FILES:=$(LEXER_NAME)$(LEXER_EXT) $(LEXER_NAME)$(SOURCE_EXT)
+PARSER_NAME:=parser
+EXCLUDE_CHECK_FILES:=$(FLEX_LEXER_SRC) $(LEXER_SRC) $(BISON_PARSER_SRC) $(PARSER_SRC)
 
 # -- Variables de ficheros (tests)
 INDEX_TEST_LEXER_FILES:=$(TEST_PREFIX)$(LEXER_NAME)_recon_tokens $(TEST_PREFIX)$(LEXER_NAME)_recon_patrones $(TEST_PREFIX)$(LEXER_NAME)_errores $(TEST_PREFIX)$(LEXER_NAME)_recon_ficheros
@@ -92,6 +93,9 @@ INDEX_TEST_COMMON_FILES:=$(TEST_COMMON_FUNCTIONS_PREFIX)
 # -- Variables de ficheros (src)
 FLEX_LEXER_SRC:=$(LEXER_NAME)$(LEXER_EXT)
 LEXER_SRC:=$(LEXER_NAME)$(SOURCE_EXT)
+BISON_PARSER_SRC:=$(PARSER_NAME)$(BISON_EXT)
+PARSER_SRC:=$(PARSER_NAME).tab$(SOURCE_EXT)
+PARSER_HEADER:=$(PARSER_NAME).tab$(HEADER_EXT)
 
 INDEX_LEXER_FILES:=$(LEXER_NAME)
 
@@ -462,6 +466,7 @@ compile:
 	
 compile_sources:
 	@make -s compile_lexer && echo
+	@make -s compile_parser && echo 
 
 # -- Genera la fuente del analizador lexico a traves de flex
 generate_lexer: $(SOURCE_DIR)/$(FLEX_LEXER_SRC)
@@ -473,6 +478,15 @@ generate_lexer: $(SOURCE_DIR)/$(FLEX_LEXER_SRC)
 compile_lexer: build_bin_dir build_obj_dir
 	@make -s generate_lexer && echo
 	$(call compile_skeleton, $(INDEX_LEXER_FILES), "analizador lexico", $(LDFLEX))
+
+# -- Genera la fuente del analizador sintactico a traves de bison	
+generate_parser:
+	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico $(COLOR_GREEN)$(SOURCE_DIR)/$(BISON_PARSER_SRC)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
+	@bison -d $(SOURCE_DIR)/$(BISON_PARSER_SRC) -v
+	@mv $(PARSER_SRC) $(SOURCE_DIR)
+	@mv $(PARSER_HEADER) $(HEADER_DIR)
+	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_DIR)/$(PARSER_SRC)$(COLOR_RESET)"
+	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_DIR)/$(PARSER_HEADER)$(COLOR_RESET)"
 	
 	
 # ========================================================================================
