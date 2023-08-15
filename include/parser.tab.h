@@ -53,7 +53,7 @@ extern int yydebug;
     YYEMPTY = -2,
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
-    YYUNDEF = 257,                 /* "invalid token"  */
+    YYUNDEF = 319,                 /* "invalid token"  */
     S_PROGRAM = 258,               /* S_PROGRAM  */
     S_VAR = 259,                   /* S_VAR  */
     T_INTEGER = 260,               /* T_INTEGER  */
@@ -114,8 +114,7 @@ extern int yydebug;
     DELIM_P = 315,                 /* DELIM_P  */
     ATOM_INI = 316,                /* ATOM_INI  */
     ATOM_FIN = 317,                /* ATOM_FIN  */
-    UNRECOGNIZED_TOKEN = 318,      /* UNRECOGNIZED_TOKEN  */
-    UNARY_MINUS = 319              /* UNARY_MINUS  */
+    UNRECOGNIZED_TOKEN = 318       /* UNRECOGNIZED_TOKEN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

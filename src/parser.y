@@ -23,68 +23,67 @@
 
 /* Definiciones de tokens */
 
-%token S_PROGRAM
-%token S_VAR
-%token T_INTEGER
-%token T_BOOLEAN
-%token T_CHAR
-%token T_STRING
-%token T_REAL
-%token T_ARRAY
-%token T_SEMAPHORE
-%token T_DPROCESS
-%token S_PROCESS
-%token S_PROCEDURE
-%token S_FUNCTION
-%token RETURN
-%token B_BEGIN
-%token B_END
-%token B_COBEGIN
-%token B_COEND
-%token S_FORK
-%token JOIN
-%token IF
-%token THEN
-%token ELSE
-%token WHILE
-%token DO
-%token FOR
-%token TO
-%token IDENT
-%token LITERAL
-%token L_INTEGER
-%token L_REAL
-%token L_BOOLEAN_TRUE
-%token L_BOOLEAN_FALSE
-%token L_CHAR
-%token OP_ASSIGN
-%token OP_REL_LT
-%token OP_REL_GT
-%token OP_REL_LTE
-%token OP_REL_GTE
-%token OP_REL_EQ
-%token OP_REL_NEQ
-%token OP_SUM
-%token OP_MINUS
-%token OP_MULT
-%token OP_DIV
-%token OP_MOD
-%token OP_NOT
-%token OP_AND
-%token OP_OR
-%token PAR_IZDO
-%token PAR_DCHO
-%token CORCH_IZDO
-%token CORCH_DCHO
-%token DELIM_C
-%token DELIM_PC
-%token DELIM_2P
-%token DELIM_ARR
-%token DELIM_P
-%token ATOM_INI
-%token ATOM_FIN
-%token UNRECOGNIZED_TOKEN
-%token UNARY_MINUS
+%token S_PROGRAM 258
+%token S_VAR 259
+%token T_INTEGER 260
+%token T_BOOLEAN 261
+%token T_CHAR 262
+%token T_STRING 263
+%token T_REAL 264
+%token T_ARRAY 265
+%token T_SEMAPHORE 266
+%token T_DPROCESS 267
+%token S_PROCESS 268
+%token S_PROCEDURE 269
+%token S_FUNCTION 270
+%token RETURN 271
+%token B_BEGIN 272
+%token B_END 273
+%token B_COBEGIN 274
+%token B_COEND 275
+%token S_FORK 276
+%token JOIN 277
+%token IF 278
+%token THEN 279
+%token ELSE 280
+%token WHILE 281
+%token DO 282
+%token FOR 283
+%token TO 284
+%token IDENT 285
+%token LITERAL 286
+%token L_INTEGER 287
+%token L_REAL 288
+%token L_BOOLEAN_TRUE 289
+%token L_BOOLEAN_FALSE 290
+%token L_CHAR 291
+%token OP_ASSIGN 292
+%token OP_REL_LT 293
+%token OP_REL_GT 294
+%token OP_REL_LTE 295
+%token OP_REL_GTE 296
+%token OP_REL_EQ 297
+%token OP_REL_NEQ 298
+%token OP_SUM 299
+%token OP_MINUS 300
+%token OP_MULT 301
+%token OP_DIV 302
+%token OP_MOD 303
+%token OP_NOT 304
+%token OP_AND 305
+%token OP_OR 306
+%token PAR_IZDO 307
+%token PAR_DCHO 308
+%token CORCH_IZDO 309
+%token CORCH_DCHO 310
+%token DELIM_C 311
+%token DELIM_PC 312
+%token DELIM_2P 313
+%token DELIM_ARR 314
+%token DELIM_P 315
+%token ATOM_INI 316
+%token ATOM_FIN 317
+%token UNRECOGNIZED_TOKEN 318
 
 %left OP_OR
 %left OP_AND
