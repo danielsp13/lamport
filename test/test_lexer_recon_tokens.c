@@ -12,7 +12,6 @@
 
 //Inlcuir analizador lexico implementado
 #include "lexer.c"
-#include "token_type.h"
 
 // ==================================================================================
 
@@ -23,7 +22,7 @@
  * @param str_test : Cadena de caracteres a escanear por el lexer
  * @param expected_token : Token esperado de la devolucion del escaneo del lexer
  */
-static void reconocer_token(const char* str_test, TokenType expected_token);
+static void reconocer_token(const char* str_test, int expected_token);
 
 // ==================================================================================
 
@@ -152,7 +151,7 @@ int main() {
 
 // IMPLEMENTACION DE FUNCIONES AUXILIARES
 
-static void reconocer_token(const char* str_test, TokenType expected_token){
+static void reconocer_token(const char* str_test, int expected_token){
     YY_BUFFER_STATE buffer = yy_scan_string(str_test);
     int token = yylex();
     assert_int_equal(token, expected_token);
