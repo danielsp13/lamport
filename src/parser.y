@@ -10,14 +10,15 @@
 %{
     //Inclusion de cabeceras
     #include <stdio.h>
-    #include "token_type.h"
-
-    //Definicion de funciones externas de Flex
-    extern int yylex();
-    extern int yyerror(const char *msg);
 
     //Definir directiva para testeo
     #define VERBOSE
+
+    //Definir prototipos de funciones
+    extern int yylex();  
+    extern FILE *yyin;
+
+    void yyerror(const char* s);  
 %}
 
 /* Definiciones de tokens */
@@ -311,6 +312,11 @@ unary-operator:
     | OP_NOT
     ;
 
+%%
 
 // Soporte de las rutinas en C
 
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Error de sintaxis: %s\n", s);
+}
