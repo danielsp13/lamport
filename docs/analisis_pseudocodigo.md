@@ -13,6 +13,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 * **[Sintaxis del Lenguaje](#sintaxis-bnf)** : Ha sido definida utilizando la [Notación de Backus-Naur (BNF)](https://www.cs.umsl.edu/~janikow/cs4280/bnf.pdf).
 * **[Tabla de prioridad de operadores](#prioridad-operadores)** : Para evitar ambigüedades y definir correctamente el orden de evaluación de expresiones, siguiendo, por ejemplo, el enfoque utilizado en el [lenguaje C](https://en.cppreference.com/w/c/language/operator_precedence).
 * **[Tabla de Tokens](#tabla-tokens)** : Esencial para el funcionamiento del analizador léxico, para definir y reconocer los diferentes tipos de tokens que pueden aparecer en el código fuente.
+* **[Descripción de las reglas de producción (Bison)](#sintaxis-bison)** : Para poder generar el analizador sintáctico, es necesario reajustar la sintaxis adaptando la notación BNF.
 
 ****
 
@@ -31,12 +32,11 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
  	| "array" "[" <size-array> "]" <type>
  	| "semaphore"
  	| "dprocess"
-<size-array> ::= <expression>
 <process> ::= "process" <identifier> [ "[" <identifier> : <integer-literal>
  	".." <integer-literal> "]" ] ";" [<declarations>] <block-statement>
 <block-statement> ::= "begin" (<statement>)+ "end"
 <procedure-definition> ::= "procedure" <identifier> "(" <parameters> ")"
-[<declarations>] <block-statement>
+ 	[<declarations>] <block-statement>
 <function-definition> ::= "function" <identifier> "(" <parameters> ")" ":" <type>
  	";" [<declarations>] <block-statement>
 <parameters> ::= [<parameter> ["," <parameters>]]
@@ -51,6 +51,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 	| <fork-statement>
 	| <atomic-statement>
 	| <return-statement>
+<cobegin-statement> ::= "cobegin" (<statement>)+ "coend"
 <fork-statement> ::= "fork" <identifier> <statement>
 <atomic-statement> ::= "<<" (<statement>)+ ">>"
 <assignment-statement> ::= <variable> ["[" <expression> "]"] ":=" <expression> ";"
@@ -59,10 +60,9 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
  	<block-statement>
 <if-statement> ::= "if" <expression> "then" <block-statement>
 	["else" <block-statement>]
-<procedure-invocation> ::= <identifier> "(" <arguments> ")" ";"
-<function-invocation> ::= <identifier> "(" <arguments> ")"
+<procedure-invocation> ::= <identifier> "(" <parameters> ")" ";"
+<function-invocation> ::= <identifier> "(" <parameters> ")"
 <return-statement> ::= "return" <expression> ";"
-<arguments> ::= <expression> ["," <expression>]
 <expression> ::= <term> <binary-operator> <expression>
 	| <unary-operator> <term>
 <term> ::= <variable>
@@ -180,3 +180,224 @@ Para la designación de las clases de los tokens, se ha decidido utilizar un con
 * *B_* delimita aquellos símbolos relacionados con un bloque (inicio, fin).
 * *L_* delimita aquellos símbolos relacionados con literales (literal entero, flotante, booleano, char,...).
 * *OP_* delimita aquellos símbolos que son operadores (binarios, de comparación,...).
+
+****
+
+#### <a name="sintaxis-bison"></a> Descripción de las reglas de producción (Bison)
+
+~~~bison
+// -- Regla de generacion de programa completo
+program:
+    S_PROGRAM identifier opt-declarations opt-subprograms program-process
+    ;
+
+// -- Reglas de generacion de declaraciones del programa
+opt-declarations:
+    declarations
+    | /* epsilon */
+    ;
+
+declarations:
+    S_VAR list-variable-declarations
+    ;
+
+list-variable-declarations:
+    variable-declaration
+    | list-variable-declarations variable-declaration
+    ;
+
+variable-declaration:
+    identifier DELIM_2P type variable-assignation DELIM_PC
+    ;
+
+variable-assignation:
+    OP_ASSIGN expression
+    | /* epsilon */
+    ;
+
+// -- Reglas de generacion de subprogramas del programa
+opt-subprograms:
+    list-subprograms
+    | /* epsilon */
+    ;
+
+list-subprograms:
+    subprogram
+    | list-subprograms subprogram
+    ;
+
+subprogram:
+    procedure-definition
+    | function-definition
+    ;
+
+// -- Reglas de generacion de procesos del programa
+program-process:
+    process
+    | program-process process
+    ;
+
+process:
+    S_PROCESS identifier array-of-process DELIM_PC opt-declarations block-statement
+    ;
+
+array-of-process:
+    CORCH_IZDO identifier DELIM_2P L_INTEGER DELIM_ARR L_INTEGER CORCH_DCHO
+    | /* epsilon */
+    ;
+
+// -- Reglas de generacion de tipos de dato
+type:
+    T_INTEGER
+    | T_BOOLEAN
+    | T_CHAR
+    | T_STRING
+    | T_REAL
+    | T_ARRAY CORCH_IZDO expression CORCH_DCHO type
+    | T_SEMAPHORE
+    | T_DPROCESS
+    ;
+
+// -- Reglas de generacion de definicion de funciones y procedimientos
+procedure-definition:
+    S_PROCEDURE identifier PAR_IZDO opt-parameters PAR_DCHO opt-declarations block-statement
+    ;
+
+function-definition:
+    S_FUNCTION identifier PAR_IZDO opt-parameters PAR_DCHO DELIM_2P type DELIM_PC opt-declarations block-statement
+    ;
+
+opt-parameters:
+    list-parameters
+    | /* epsilon */
+    ;
+
+list-parameters:
+    parameter
+    | list-parameters DELIM_C parameter
+    ;
+
+parameter:
+    identifier DELIM_2P type
+    ;
+
+// -- Reglas de generacion de sentencias
+list-statements:
+    statement
+    | list-statements statement
+    ;
+
+statement:
+    block-statement
+    | cobegin-statement
+    | assignment-statement
+    | while-statement
+    | for-statement
+    | if-statement
+    | procedure-invocation
+    | fork-statement
+    | atomic-statement
+    | return-statement
+    ;
+
+block-statement:
+    B_BEGIN list-statements B_END
+    ;
+
+cobegin-statement:
+    B_COBEGIN list-statements B_COEND
+    ;
+
+assignment-statement:
+    identifier array-assignment-statement OP_ASSIGN expression DELIM_PC
+    ;
+
+array-assignment-statement:
+    CORCH_IZDO expression CORCH_DCHO
+    | /* epsilon */
+    ;
+
+while-statement:
+    WHILE expression DO block-statement
+    ;
+
+for-statement:
+    FOR identifier OP_ASSIGN expression TO expression DO block-statement
+    ;
+
+if-statement:
+    IF expression THEN block-statement
+    | IF expression THEN block-statement ELSE block-statement
+    ;
+
+fork-statement:
+    S_FORK identifier statement
+    ;
+
+atomic-statement:
+    ATOM_INI list-statements ATOM_FIN
+    ;
+
+return-statement:
+    RETURN expression DELIM_PC
+    ;
+
+// -- Reglas de generacion de invocaciones de funciones y procedimientos
+procedure-invocation:
+    identifier PAR_IZDO opt-parameters PAR_DCHO DELIM_PC
+    ;
+
+function-invocation:
+    identifier PAR_IZDO opt-parameters PAR_DCHO
+    ;
+
+// -- Reglas de generacion de expresiones
+expression:
+    term binary-operator expression
+    | unary-operator term
+    ;
+
+term:
+    identifier
+    | literal
+    | function-invocation
+    | PAR_IZDO expression PAR_DCHO
+    ;
+    
+// -- Reglas de generacion de literales
+literal:
+    LITERAL
+    | L_INTEGER
+    | L_BOOLEAN_TRUE
+    | L_BOOLEAN_FALSE
+    | L_CHAR
+    | L_REAL
+    ;
+
+identifier:
+    IDENT
+    ;
+
+// -- Reglas de generacion de operadores binarios y unarios
+binary-operator:
+    OP_MULT
+    | OP_DIV
+    | OP_SUM
+    | OP_MINUS
+    | OP_MOD
+    | OP_REL_GT
+    | OP_REL_LT
+    | OP_REL_GTE
+    | OP_REL_LTE
+    | OP_REL_EQ
+    | OP_REL_NEQ
+    | OP_AND
+    | OP_OR
+    ;
+
+unary-operator:
+    OP_MINUS
+    | OP_NOT
+    ;
+~~~
+
