@@ -62,13 +62,18 @@ OBJ_DIR:=obj
 EXAMPLES_DIR:=examples
 INDEX_DIRS:=$(HEADER_DIR) $(SOURCE_DIR) $(TEST_DIR)
 
+# -- Variables referentes a macros
+BISON_HEADER_MACRO:=BISON_HEADER
+
 # -- Variables referentes a compilacion/comprobacion de ficheros
 GXX:=gcc
 CFLAGS:=-Wall -Wextra
+UNDEFINED_MACROS:=-U$(BISON_HEADER_MACRO)
 INCFLAGS:=-I$(HEADER_DIR) -I$(SOURCE_DIR)/ -I$(HEADER_DIR)/$(TEST_DIR) -I$(SOURCE_DIR)/$(TEST_DIR)
 LDCMOCKA:=-lcmocka
 LDFLEX:=-lfl
-LDFLAGS:=$(LDFLEX) $(LDCMOCKA)
+LDBISON:=-ly
+LDFLAGS:=$(LDFLEX) $(LDBISON) $(LDCMOCKA)
 LINTER:=cppcheck
 TEST_PREFIX:=test_
 TEST_COMMON_FUNCTIONS_PREFIX:=common_functions
@@ -98,6 +103,7 @@ PARSER_SRC:=$(PARSER_NAME).tab$(SOURCE_EXT)
 PARSER_HEADER:=$(PARSER_NAME).tab$(HEADER_EXT)
 
 INDEX_LEXER_FILES:=$(LEXER_NAME)
+INDEX_PARSER_FILES:=$(PARSER_NAME).tab $(LEXER_NAME)
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -156,6 +162,44 @@ endef
 
 define compile_skeleton
 	@{ \
+		COMPILATION_MODE="$(4)"; \
+		if [ "$$COMPILATION_MODE" = "multiple" ]; then \
+			N_FILES_EXPECTED=1; \
+			echo "$(COLOR_BOLD)>>> Compilando fuentes de modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
+			N_FILES_COMPILED=0 ;\
+		    LIST_OF_SOURCES=""; \
+			for F in $(1); do \
+				LIST_OF_SOURCES="$$LIST_OF_SOURCES $(SOURCE_DIR)/$$F$(SOURCE_EXT)"; \
+			done; \
+			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$(5)$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
+			$(GXX) $(INCFLAGS) $$LIST_OF_SOURCES -o $(BIN_DIR)/$(5) $(3) ; \
+			if [ -f $(BIN_DIR)/$(5) ]; then \
+				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
+				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
+			fi ; \
+			echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
+		else \
+			N_FILES_EXPECTED=$(words $(1)) ; \
+			echo "$(COLOR_BOLD)>>> Compilando fuentes de modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
+			N_FILES_COMPILED=0 ;\
+			for F in $(1); do \
+				echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
+				$(GXX) $(INCFLAGS) $(SOURCE_DIR)/$$F$(SOURCE_EXT) -o $(BIN_DIR)/$$F $(3) ; \
+				if [ -f $(BIN_DIR)/$$F ]; then \
+					echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
+					N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
+				fi ; \
+			done; \
+			echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
+		fi; \
+	}
+endef
+
+define compile_skeleton_old
+	@{ \# -- Compila los fuentes del analizador sintactico
+compile_parser: build_bin_dir build_obj_dir
+	@make -s generate_parser && echo
+	$(call compile_skeleton, $(INDEX_PARSER_FILES),"analizador sintactico",$(LDFLEX),"multiple",$(PARSER_NAME))
 		N_FILES_EXPECTED=$(words $(1)) ; \
 		echo "$(COLOR_BOLD)>>> Compilando fuentes de modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
 		N_FILES_COMPILED=0 ;\
@@ -195,7 +239,7 @@ define compile_tests_skeleton
 		N_TESTS_COMPILED=0 ;\
 		for TEST in $(1); do \
 			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCFLAGS) $(OBJ_DIR)/* $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
+			$(GXX) $(4) $(INCFLAGS) $(OBJ_DIR)/* $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
 			if [ -f $(BIN_DIR)/$$TEST ]; then \
 				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
 				N_TESTS_COMPILED=$$(( N_TESTS_COMPILED + 1 )) ; \
@@ -477,16 +521,22 @@ generate_lexer: $(SOURCE_DIR)/$(FLEX_LEXER_SRC)
 # -- Compila los fuentes del analizador lexico
 compile_lexer: build_bin_dir build_obj_dir
 	@make -s generate_lexer && echo
-	$(call compile_skeleton, $(INDEX_LEXER_FILES), "analizador lexico", $(LDFLEX))
+	$(call compile_skeleton, $(INDEX_LEXER_FILES), "analizador lexico", $(LDFLEX),"")
 
 # -- Genera la fuente del analizador sintactico a traves de bison	
 generate_parser:
 	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico $(COLOR_GREEN)$(SOURCE_DIR)/$(BISON_PARSER_SRC)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@bison -d $(SOURCE_DIR)/$(BISON_PARSER_SRC) -v
+	@bison -d $(SOURCE_DIR)/$(BISON_PARSER_SRC)
 	@mv $(PARSER_SRC) $(SOURCE_DIR)
 	@mv $(PARSER_HEADER) $(HEADER_DIR)
 	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_DIR)/$(PARSER_SRC)$(COLOR_RESET)"
 	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_DIR)/$(PARSER_HEADER)$(COLOR_RESET)"
+	
+# -- Compila los fuentes del analizador sintactico
+compile_parser: build_bin_dir build_obj_dir
+	@make -s generate_parser && echo
+	$(call compile_skeleton, $(INDEX_PARSER_FILES),"analizador sintactico",$(LDFLEX),"multiple",$(PARSER_NAME))
+	
 	
 	
 # ========================================================================================
@@ -503,7 +553,7 @@ compile_tests_lexer: build_bin_dir build_obj_dir
 	$(call check_compiled_files_skeleton,$(INDEX_LEXER_FILES),"compile_lexer")
 	$(call compile_objects_skeleton,$(INDEX_TEST_COMMON_FILES),"$(TEST_DIR)/","common tests resources",$(LDFLAGS))
 	@echo
-	$(call compile_tests_skeleton,$(INDEX_TEST_LEXER_FILES),"analizador lexico",$(LDFLEX))
+	$(call compile_tests_skeleton,$(INDEX_TEST_LEXER_FILES),"analizador lexico",$(LDFLEX) $(UNDEFINED_MACROS))
 	@echo
 	@make -s clean_objects
 
