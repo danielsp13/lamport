@@ -89,7 +89,7 @@ LAMPORT_EXT:=.lmp
 # -- Variables de ficheros
 LEXER_NAME:=lexer
 PARSER_NAME:=parser
-EXCLUDE_CHECK_FILES:=$(FLEX_LEXER_SRC) $(LEXER_SRC) $(BISON_PARSER_SRC) $(PARSER_SRC)
+EXCLUDE_CHECK_FILES="$(FLEX_LEXER_SRC) $(LEXER_SRC) $(BISON_PARSER_SRC) $(PARSER_SRC)"
 
 # -- Variables de ficheros (tests)
 INDEX_TEST_LEXER_FILES:=$(TEST_PREFIX)$(LEXER_NAME)_recon_tokens $(TEST_PREFIX)$(LEXER_NAME)_recon_patrones $(TEST_PREFIX)$(LEXER_NAME)_errores $(TEST_PREFIX)$(LEXER_NAME)_recon_ficheros
@@ -195,26 +195,6 @@ define compile_skeleton
 	}
 endef
 
-define compile_skeleton_old
-	@{ \# -- Compila los fuentes del analizador sintactico
-compile_parser: build_bin_dir build_obj_dir
-	@make -s generate_parser && echo
-	$(call compile_skeleton, $(INDEX_PARSER_FILES),"analizador sintactico",$(LDFLEX),"multiple",$(PARSER_NAME))
-		N_FILES_EXPECTED=$(words $(1)) ; \
-		echo "$(COLOR_BOLD)>>> Compilando fuentes de modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
-		N_FILES_COMPILED=0 ;\
-		for F in $(1); do \
-			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(TEST_DIR)/$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCFLAGS) $(SOURCE_DIR)/$$F$(SOURCE_EXT) -o $(BIN_DIR)/$$F $(3) ; \
-			if [ -f $(BIN_DIR)/$$F ]; then \
-				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
-				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
-			fi ; \
-		done; \
-		echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
-	}
-endef
-
 define compile_objects_skeleton
 	@{ \
 		N_FILES_EXPECTED=$(words $(1)) ; \
@@ -292,7 +272,7 @@ define parse_and_check_files_skeleton
 				for FILE in $$DIR/*; do \
 					if [ ! -d $$FILE ]; then \
 						FILE_BASENAME=$$(basename $$FILE) ; \
-						if ! [[ " $(2) " =~ " $$FILE_BASENAME " ]]; then \
+						if ! echo $(2) | tr " " '\n' | grep -F -q -x "$$FILE_BASENAME"; then \
 							echo "$(COLOR_YELLOW) ---> Comprobando la sintaxis de $(COLOR_PURPLE)$$FILE$(COLOR_YELLOW) ...$(COLOR_RESET)"; \
 							$(GXX) $(INCFLAGS) -fsyntax-only $$FILE; \
 							if [ $$? -ne 0 ]; then \
