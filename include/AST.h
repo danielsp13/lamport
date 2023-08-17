@@ -9,7 +9,9 @@
 #ifndef _LAMPORT_AST_DPR_
 #define _LAMPORT_AST_DPR_
 
+#include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 // ===============================================================
 
@@ -107,13 +109,13 @@ typedef enum{
  * Puede contener el nombre de la declaración, su tipo, un valor (si es una expresión),
  * código asociado (si es una función), y un enlace a la siguiente declaración en el programa.
  */
-struct{
+struct declaration{
     char *name;                 ///< Nombre de la declaracion.
     struct type *type;          ///< Tipo de la declaracion.
     struct expression *value;   ///< Valor asociado (si es declaracion de variable)
     struct statement *code;     ///< Codigo asociado (si es la declaracion de una funcion)
     struct declaration *next;   ///< Puntero a la siguiente declaracion
-} declaration;
+};
 
 /**
  * @brief Estructura que representa una sentencia de lamport.
@@ -182,7 +184,7 @@ struct{
  *          ///> kind       -> STMT_RETURN
  *          ///> stmt       -> statement_return
  */
-struct{
+struct statement{
     statement_t kind;                               ///< Tipo de sentencia
     struct statement *next;                         ///< Puntero a siguiente sentencia
     union 
@@ -237,7 +239,7 @@ struct{
         } statement_return;
     } stmt;                                         ///< Sentencia
     
-} statement;
+};
 
 /**
  * @brief Estructura que representa a una expresion de lamport.
@@ -309,7 +311,7 @@ struct{
  *          ///> kind       -> EXPR_GROUPED
  *          ///> expr       -> grouped_expression
  */
-struct{
+struct expression{
     expression_t kind;                                      ///< Tipo de expresion
     struct expression *next;                                ///< Puntero a siguiente expresion
     union
@@ -354,7 +356,7 @@ struct{
         struct expression *grouped_expression;              ///< Expresion entre parentesis
     } expr;
     
-} expression;
+};
 
 /**
  * @brief Estructura que representa a un tipo de dato en lamport.
@@ -368,7 +370,7 @@ struct{
  * TIPOS DE DATO BASICOS
  *   -> Son tipos de datos simples, conocidos:
  *   -> Lista:
- *      ///> INTEGER
+ *      ///> INTEGERstruct declaration * creat
  *      ///> REAL
  *      ///> BOOLEAN
  *      ///> CHAR
@@ -381,11 +383,11 @@ struct{
  *      ///> SEMAPHORE
  *      ///> DPROCESS
  */
-struct{
+struct type{
     type_t kind;
     struct type *subtype;
-    struct parameter_list *params;
-} type;
+    struct parameter_list *parameters;
+};
 
 /**
  * @brief Estructura que representa a una lista de parametros de una funcion/procedimiento en lamport.
@@ -393,11 +395,11 @@ struct{
  * Esta estructura almacena informacion sobre los parametros de los que dispone una funcion
  * o un procedimiento, indicando el tipo de dato de todas ellas
  */
-struct{
+struct parameter_list{
     char *name_parameter;
     struct type *type;
     struct parameter_list *next;
-} parameter_list;
+};
 
 // ===============================================================
 
@@ -521,10 +523,17 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
 /**
  * @brief Crea y reserva memoria para una expresion de tipo operacion unaria
  * @param kind : Tipo de operacion unaria
- * @param right : Operando
+ * @param left : Operando
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_unary_operator(expression_unary_t kind, char *operator, struct expression *right);
+struct expression * create_expression_unary_operator(expression_unary_t kind, char *operator, struct expression *left);
+
+/**
+ * @brief Crea y reserva memoria para una expresion de identificador
+ * @param id : identificador
+ * @return puntero con la expresion inicializada
+ */
+struct expression * create_expression_identifier(char *id);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo literal
@@ -585,7 +594,7 @@ struct type * create_semaphore_type();
  * @brief Crea y reserva memoria para el tipo de dato proceso dinamico
  * @return puntero con el tipo de dato inicializado
  */
-struct type * create_dproces_type();
+struct type * create_dprocess_type();
 
 // ===============================================================
 
