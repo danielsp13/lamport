@@ -21,7 +21,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 
 ~~~bash
 <program> ::= "program" <identifier> [<declarations>] (<subprogram>)* <process>+
-<declarations> ::= "var" (<variable> ":" <type> [:= <expression>] ";")+
+<declarations> ::= "var" (<identifier> ":" <type> [:= <expression>] ";")+
 <subprogram> ::= <procedure-definition>
 	| <function-definition>
 <type> ::= "integer"
@@ -54,9 +54,9 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <cobegin-statement> ::= "cobegin" (<statement>)+ "coend"
 <fork-statement> ::= "fork" <identifier> <statement>
 <atomic-statement> ::= "<<" (<statement>)+ ">>"
-<assignment-statement> ::= <variable> ["[" <expression> "]"] ":=" <expression> ";"
+<assignment-statement> ::= <identifier> ["[" <expression> "]"] ":=" <expression> ";"
 <while-statement> ::= "while" <expression> "do" <block-statement>
-<for-statement> ::= "for" <variable> ":=" <expression> "to" <expression> "do"
+<for-statement> ::= "for" <identifier> ":=" <expression> "to" <expression> "do"
  	<block-statement>
 <if-statement> ::= "if" <expression> "then" <block-statement>
 	["else" <block-statement>]
@@ -65,7 +65,8 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <return-statement> ::= "return" <expression> ";"
 <expression> ::= <term> <binary-operator> <expression>
 	| <unary-operator> <term>
-<term> ::= <variable>
+	| <term>
+<term> ::= <identifier>
 	| <literal>
 	| <function-invocation>
 	| "(" <expression> ")"
@@ -81,7 +82,6 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <char-literal> ::= cualquier caracter del juego de caracteres
  	en uso, con comilla simple al inicio y al final
 <real-literal> ::= <integer-literal> "." <integer-literal>
-<variable> ::= <identifier>
 <identifier> ::= <letter> (<leter-or-digit>)*
 <letter-or-digit> ::= <letter> | <digit>
 <letter> ::= [a-zA-Z]
@@ -355,6 +355,7 @@ function-invocation:
 expression:
     term binary-operator expression
     | unary-operator term
+    | term
     ;
 
 term:

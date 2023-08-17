@@ -266,6 +266,7 @@ function-invocation:
 expression:
     term binary-operator expression
     | unary-operator term
+    | term
     ;
 
 term:
