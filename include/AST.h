@@ -16,7 +16,7 @@
 /**
  * @brief Estructura que representa los tipos de sentencias de lamport.
  */
-typdef enum{
+typedef enum{
     STMT_ASSIGNMENT,     ///< Sentencia de asignacion de variables
     STMT_WHILE,          ///< Sentencia while
     STMT_FOR,            ///< Sentencia for
@@ -219,6 +219,7 @@ struct statement{
  * @param value : Valor de una expresion (declaraciones de variables)
  * @param code : Cuerpo de una funcion (declaraciones de funciones)
  * @param next : Puntero a la siguiente declaracion
+ * @return puntero a la declaracion creada
  */
 struct declaration * create_declaration(
     char *name, 
@@ -235,10 +236,11 @@ struct declaration * create_declaration(
  * @param init_expr : Inicio de expresion (si kind = STMT_FOR)
  * @param expr : Expresiones (si kind = STMT_WHILE | STMT_FOR | STMT_IF_ELSE | STMT_RETURN)
  * @param next_expr : Expresion siguiente (si kind = STMT_FOR)
- * @param body : Cuerpo con lista de sentencias (si kind = )
+ * @param body : Cuerpo con lista de sentencias (si kind = STMT_WHILE | STMT_FOR | STMT_IF_ELSE | STMT_BLOCK | STMT_BLOCK_COBEGIN | STMT_FORK | STMT_ATOMIC)
  * @param else_body : Cuerpo con lista de sentencias (si kind = STMT_IF_ELSE)
  * @param parameters : Parametros de un procedimiento (si kind = STMT_PROCEDURE_INV)
  * @param next : Puntero a siguiente sentencia
+ * @return puntero a la sentencia creada
  */
 struct statement * create_statement(
     statement_t kind,
