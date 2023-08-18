@@ -12,7 +12,7 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (DECLARACIONES) -----
 
-struct declaration * create_declaration(char *name, struct type *type, struct statement *code){
+struct declaration * create_variable_declaration(char *name, struct type *type, struct expression *value){
     struct declaration *d = malloc(sizeof(*d));
 
     if(!d)
@@ -20,7 +20,7 @@ struct declaration * create_declaration(char *name, struct type *type, struct st
 
     d->name = name;
     d->type = type;
-    d->code = code; 
+    d->value = value; 
     d->next = NULL;
 
     return d;
@@ -358,4 +358,65 @@ struct parameter_list * create_parameter_list(char * name_parameter, struct type
     pl->next = NULL;
 
     return pl;
+}
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (SUBPROGRAMAS Y PROCESOS) -----
+
+struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type){
+    struct subprogram *subprog = malloc(sizeof(*subprog));
+
+    if(!subprog)
+        return NULL;
+
+    subprog->kind = kind;
+    subprog->name_subprogram = name_subprogram;
+    subprog->parameters = parameters;
+    subprog->declarations = declarations;
+    subprog->statements = statements;
+    subprog->type = type;
+    subprog->next = NULL;
+
+    return subprog;
+}
+
+struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements){
+    return create_subprogram(SUBPROGRAM_PROCEDURE, name_procedure, parameters, declarations, statements, NULL);
+}
+
+struct subprogram * create_subprogram_function(char *name_function, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type){
+    return create_subprogram(SUBPROGRAM_FUNCTION, name_function, parameters, declarations, statements, type);   
+}
+
+struct process * create_process(char *name_process, struct declaration *declarations, struct statement *statements){
+    struct process *proc = malloc(sizeof(*proc));
+
+    if(!proc)
+        return NULL;
+
+    proc->name_process = name_process;
+    proc->declarations = declarations;
+    proc->statements = statements;
+    proc->next = NULL;
+
+    return proc;
+}
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (PROGRAMAS) -----
+
+struct program * create_program(char *name_program, struct declaration *declarations, struct subprogram *subprograms, struct process *process){
+    struct program *prog = malloc(sizeof(*prog));
+
+    if(!prog)
+        return NULL;
+
+    prog->name_program = name_program;
+    prog->declarations = declarations;
+    prog->subprograms = subprograms;
+    prog->process = process;
+
+    return prog;
 }

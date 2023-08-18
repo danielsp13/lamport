@@ -98,6 +98,14 @@ typedef enum{
     TYPE_FUNCTION           ///< Tipo de dato de funciones
 } type_t;
 
+/**
+ * @brief Estructura que representa los tipos de subprogramas del lenguaje lamport.
+ */
+typedef enum{
+    SUBPROGRAM_PROCEDURE,   ///< Definicion de un procedimiento
+    SUBPROGRAM_FUNCTION     ///< Definicion de una funcion
+} subprogram_t;
+
 // ===============================================================
 
 // ----- DEFINICION DE ESTRUCTURAS DEL AST -----
@@ -107,13 +115,12 @@ typedef enum{
  * 
  * Esta estructura almacena información sobre una declaración en el programa Lamport.
  * Puede contener el nombre de la declaración, su tipo, un valor (si es una expresión),
- * código asociado (si es una función), y un enlace a la siguiente declaración en el programa.
+ * y un enlace a la siguiente declaración en el programa.
  */
 struct declaration{
     char *name;                 ///< Nombre de la declaracion.
     struct type *type;          ///< Tipo de la declaracion.
     struct expression *value;   ///< Valor asociado (si es declaracion de variable)
-    struct statement *code;     ///< Codigo asociado (si es la declaracion de una funcion)
     struct declaration *next;   ///< Puntero a la siguiente declaracion
 };
 
@@ -370,7 +377,7 @@ struct expression{
  * TIPOS DE DATO BASICOS
  *   -> Son tipos de datos simples, conocidos:
  *   -> Lista:
- *      ///> INTEGERstruct declaration * creat
+ *      ///> INTEGER
  *      ///> REAL
  *      ///> BOOLEAN
  *      ///> CHAR
@@ -384,9 +391,9 @@ struct expression{
  *      ///> DPROCESS
  */
 struct type{
-    type_t kind;
-    struct type *subtype;
-    struct parameter_list *parameters;
+    type_t kind;                            ///< Tipo de dato
+    struct type *subtype;                   ///< Subtipo de dato (arrays y funciones)
+    struct parameter_list *parameters;      ///< Lista de parametros (para funciones)
 };
 
 /**
@@ -396,9 +403,55 @@ struct type{
  * o un procedimiento, indicando el tipo de dato de todas ellas
  */
 struct parameter_list{
-    char *name_parameter;
-    struct type *type;
-    struct parameter_list *next;
+    char *name_parameter;                   ///< Nombre de parametro
+    struct type *type;                      ///< Tipo de parametro
+    struct parameter_list *next;            ///< Puntero a siguiente parametro
+};
+
+/**
+ * @brief Estructura que representa un proceso de lamport.
+ * 
+ * Esta estructura almacena informacion sobre un proceso de lamport. Consta de un
+ * nombre de proceso, seguido de una serie de declaraciones y un bloque de sentencias
+ * de ejecucion del proceso
+ */
+struct process{
+   char *name_process;                      ///< Nombre de proceso
+   struct declaration *declarations;        ///< Declaraciones del proceso
+   struct statement *statements;            ///< Sentencias del proceso
+   struct process *next;                    ///< Puntero a siguiente proceso
+};
+
+/**
+ * @brief Estructura que representa a subprogramas de lamport
+ * 
+ * Esta estructura almacena informacion sobre un subprograma de lamport, que representa
+ * a la declaracion de un proceso o de una funcion. Consta de un tipo, nombre de programa,
+ * una lista de parametros y un conjunto de delcaraciones y sentencias. Si ademas es una
+ * funcion, se indicara su tipo de retorno
+ */
+struct subprogram{
+    subprogram_t kind;                      ///< Tipo de subprograma
+    char *name_subprogram;                  ///< Nombre de subprograma
+    struct parameter_list *parameters;      ///< Lista de parametros del subprograma
+    struct declaration *declarations;       ///< Declaraciones del subprograma
+    struct statement *statements;           ///< Sentencias del programa
+    struct type *type;                      ///< Tipo de retorno (solo funciones)
+    struct subprogram *next;                ///< Puntero a siguiente subprograma
+};
+
+/**
+ * @brief Estructura que representa a un programa completo en lamport.
+ * 
+ * Esta estructura almacena informacion sobre un programa escrito en el lenguaje lamport.
+ * Consta de un nombre de programa, seguido de una lista de declaraciones, subprogramas
+ * y procesos. Es el nodo principal del AST.
+ */
+struct program{
+    char *name_program;                     ///< Nombre de programa
+    struct declaration *declarations;       ///< Declaraciones del programa
+    struct subprogram *subprograms;         ///< Subprogramas
+    struct process *process;                ///< Procesos del programa
 };
 
 // ===============================================================
@@ -410,10 +463,9 @@ struct parameter_list{
  * @param name : Nombre de la declaracion
  * @param type : Tipo de la declaracion
  * @param value : Valor de una expresion (declaraciones de variables)
- * @param code : Cuerpo de una funcion (declaraciones de funciones)
  * @return puntero a la declaracion creada
  */
-struct declaration * create_declaration(char *name, struct type *type, struct statement *code);
+struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value);
 
 // ===============================================================
 
@@ -607,5 +659,64 @@ struct type * create_dprocess_type();
  * @return puntero con la lista de parametros inicializada
  */
 struct parameter_list * create_parameter_list(char * name_parameter, struct type * type);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (SUBPROGRAMAS Y PROCESOS) -----
+
+/**
+ * @brief Crea y reserva memoria para crear un subprograma
+ * @param kind : Tipo de subprograma (PROCEDURE o FUNCTION)
+ * @param name_subprogram : Nombre de subprograma
+ * @param parameters : Lista de parametros
+ * @param declarations : Lista de declaraciones
+ * @param statements : Lista de sentencias
+ * @param type : Tipo de funcion
+ * @return puntero con el subprograma inicializado
+ */
+struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type);
+
+/**
+ * @brief Crea y reserva memoria para crear un subprograma de tipo procedure
+ * @param name_procedure : Nombre del procedimiento
+ * @param parameters : Lista de parametros
+ * @param declarations : Lista de declaraciones
+ * @param statements : Lista de sentencias
+ * @return puntero con el procedimiento inicializado
+ */
+struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements);
+
+/**
+ * @brief Crea y reserva memoria para crear un subprograma de tipo funcion
+ * @param name_function : Nombre de funcion
+ * @param parameters : Lista de parametros
+ * @param declarations : Lista de declaraciones
+ * @param statements : Lista de sentencias
+ * @return puntero con la funcion inicializada
+ */
+struct subprogram * create_subprogram_function(char *name_function, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type);
+
+/**
+ * @brief Crea y reserva memoria para un proceso
+ * @param name_process : Nombre de proceso
+ * @param declarations : Lista de declaraciones del proceso
+ * @param statements : Lista de sentencias
+ * @return puntero con el proceso inicializado
+ */
+struct process * create_process(char *name_process, struct declaration *declarations, struct statement *statements);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (PROGRAMAS) -----
+
+/**
+ * @brief Crea y reserva memoria para un programa
+ * @param name_program : Nombre de programa
+ * @param declarations : Lista de declaraciones
+ * @param subprograms : Lista de subprogramas
+ * @param process : Lista de procesos
+ * @return puntero con el programa inicializado
+ */
+struct program * create_program(char *name_program, struct declaration *declarations, struct subprogram *subprograms, struct process *process);
 
 #endif //_LAMPORT_AST_DPR_
