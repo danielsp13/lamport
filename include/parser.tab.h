@@ -121,7 +121,29 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 101 "src/parser.y"
+
+    struct program *prog;
+    struct declaration *decl;
+    struct subprogram *subprog;
+    struct process *proc;
+    struct statement *stmt;
+    struct expression *expr;
+    struct type *type;
+    struct parameter_list *param;
+    char *ident;
+    char *literal_string;
+    char literal_char;
+    int literal_int;
+    float literal_float;
+    bool literal_boolean;
+
+#line 144 "parser.tab.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif

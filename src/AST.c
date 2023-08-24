@@ -12,7 +12,7 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (DECLARACIONES) -----
 
-struct declaration * create_variable_declaration(char *name, struct type *type, struct expression *value){
+struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value){
     struct declaration *d = malloc(sizeof(*d));
 
     if(!d)

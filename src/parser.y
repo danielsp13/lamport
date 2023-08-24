@@ -11,6 +11,9 @@
     //Inclusion de cabeceras
     #include <stdio.h>
 
+    //Inclusion de AST
+    #include "AST.h"
+
     //Definir directiva para testeo
     #define VERBOSE
 
@@ -93,223 +96,400 @@
 %left OP_MULT OP_DIV OP_MOD
 %right OP_NOT
 
+/* Union de los tipos del AST */
+
+%union {
+    struct program *prog;
+    struct declaration *decl;
+    struct subprogram *subprog;
+    struct process *proc;
+    struct statement *stmt;
+    struct expression *expr;
+    struct type *type;
+    struct parameter_list *param;
+    char *ident;
+    char *literal_string;
+    char literal_char;
+    int literal_int;
+    float literal_float;
+    bool literal_boolean;
+};
+
+/* Especificacion de tipos de valor semantico */
+%type <prog> program
+%type <decl> list-declarations declaration
+%type <subprog> list-subprograms subprogram
+%type <proc> list-process process
+%type <type> type
+%type <expr> expression binary-expression unary-expression
+%type <expr> term function-invocation literal identifier
+%type <param> list-parameters parameter
+%type <stmt> statement list-statements
+%type <stmt> block-statement cobegin-statement assignment-statement while-statement for-statement if-statement procedure-invocation fork-statement atomic-statement return-statement
+%type <ident> IDENT
+%type <literal_string> LITERAL
+%type <literal_char> L_CHAR
+%type <literal_int> L_INTEGER
+%type <literal_float> L_REAL
+%type <literal_boolean> L_BOOLEAN_TRUE L_BOOLEAN_FALSE
+
 %%
 
 // Reglas de traduccion
 
 // -- Regla de generacion de programa completo
 program:
-    S_PROGRAM identifier opt-declarations opt-subprograms program-process
+    S_PROGRAM identifier list-declarations list-subprograms list-process{
+        $$ = create_program($2,$3,$4,$5);
+    }
     ;
 
 // -- Reglas de generacion de declaraciones del programa
-opt-declarations:
-    declarations
-    | /* epsilon */
+list-declarations:
+    declaration list-declarations{
+        $$ = $1;
+        $1->next = $2;
+    }
+    | /* epsilon */{
+        $$ = 0;
+    }
     ;
 
-declarations:
-    S_VAR list-variable-declarations
-    ;
-
-list-variable-declarations:
-    variable-declaration
-    | list-variable-declarations variable-declaration
-    ;
-
-variable-declaration:
-    identifier DELIM_2P type variable-assignation DELIM_PC
-    ;
-
-variable-assignation:
-    OP_ASSIGN expression
-    | /* epsilon */
+declaration:
+    S_VAR identifier DELIM_2P type OP_ASSIGN expression DELIM_PC{
+        $$ = create_variable_declaration($2, $4, $6);
+    }
+    | S_VAR identifier DELIM_2P type DELIM_PC{
+        $$ = create_variable_declaration($2, $4, 0);
+    }
     ;
 
 // -- Reglas de generacion de subprogramas del programa
-opt-subprograms:
-    list-subprograms
-    | /* epsilon */
-    ;
-
 list-subprograms:
-    subprogram
-    | list-subprograms subprogram
+    subprogram list-subprograms{
+        $$ = $1;
+        $1->next = $2;
+    }
+    | /* epsilon */{
+        $$ = 0;
+    }
     ;
 
 subprogram:
-    procedure-definition
-    | function-definition
+    // -- Generacion de subprogramas de tipo procedimiento
+    S_PROCEDURE identifier PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement{
+        $$ = create_subprogram_procedure($2, $4, $6, $7);
+    }
+    // -- Generacion de subprogramas de tipo funcion
+    | S_FUNCTION identifier PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
+        $$ = create_subprogram_function($2, $4, $9, $10, $7);
+    }
+    ;
+
+list-parameters:
+    parameter DELIM_C list-parameters{
+        $$ = $1;
+        $1->next = $3;
+    }
+    | parameter{
+        $$ = $1;
+    }
+    | /* epsilon */{
+        $$ = 0;
+    }
+    ;
+
+parameter:
+    identifier DELIM_2P type{
+        $$ = create_parameter_list($1, $3);
+    }
     ;
 
 // -- Reglas de generacion de procesos del programa
-program-process:
-    process
-    | program-process process
+list-process:
+    process{
+        $$ = $1;
+    }
+    | process list-process{
+        $$ = $1;
+        $1->next = $2;
+    }
     ;
 
 process:
-    S_PROCESS identifier array-of-process DELIM_PC opt-declarations block-statement
-    ;
-
-array-of-process:
-    CORCH_IZDO identifier DELIM_2P L_INTEGER DELIM_ARR L_INTEGER CORCH_DCHO
-    | /* epsilon */
+    // process proc_name ....
+    S_PROCESS identifier DELIM_PC list-declarations block-statement{
+        $$ = create_process($2, $4, $5);
+    }
+    // process proc_array_name[expr..expr] (?) ...
+    //| S_PROCESS identifier CORCH_IZDO identifier DELIM_2P L_INTEGER DELIM_ARR L_INTEGER CORCH_DCHO DELIM_PC list-declarations block-statement
     ;
 
 // -- Reglas de generacion de tipos de dato
 type:
-    T_INTEGER
-    | T_BOOLEAN
-    | T_CHAR
-    | T_STRING
-    | T_REAL
-    | T_ARRAY CORCH_IZDO expression CORCH_DCHO type
-    | T_SEMAPHORE
-    | T_DPROCESS
-    ;
-
-// -- Reglas de generacion de definicion de funciones y procedimientos
-procedure-definition:
-    S_PROCEDURE identifier PAR_IZDO opt-parameters PAR_DCHO opt-declarations block-statement
-    ;
-
-function-definition:
-    S_FUNCTION identifier PAR_IZDO opt-parameters PAR_DCHO DELIM_2P type DELIM_PC opt-declarations block-statement
-    ;
-
-opt-parameters:
-    list-parameters
-    | /* epsilon */
-    ;
-
-list-parameters:
-    parameter
-    | list-parameters DELIM_C parameter
-    ;
-
-parameter:
-    identifier DELIM_2P type
+    T_INTEGER{
+        $$ = create_basic_type(TYPE_INTEGER);
+    }
+    | T_BOOLEAN{
+        $$ = create_basic_type(TYPE_BOOLEAN);
+    }
+    | T_CHAR{
+        $$ = create_basic_type(TYPE_CHAR);
+    }
+    | T_STRING{
+        $$ = create_basic_type(TYPE_STRING);
+    }
+    | T_REAL{
+        $$ = create_basic_type(TYPE_REAL);
+    }
+    | T_ARRAY CORCH_IZDO expression CORCH_DCHO type{
+        $$ = create_array_type($5);
+    }
+    | T_SEMAPHORE{
+        $$ = create_semaphore_type();
+    }
+    | T_DPROCESS{
+        $$ = create_dprocess_type();
+    }
     ;
 
 // -- Reglas de generacion de sentencias
 list-statements:
-    statement
-    | list-statements statement
+    statement{
+        $$ = $1;
+    }
+    | statement list-statements{
+        $$ = $1;
+        $1->next = $2;
+    }
     ;
 
 statement:
-    block-statement
-    | cobegin-statement
-    | assignment-statement
-    | while-statement
-    | for-statement
-    | if-statement
-    | procedure-invocation
-    | fork-statement
-    | atomic-statement
-    | return-statement
+    block-statement{
+        $$ = $1;
+    }
+    | cobegin-statement{
+        $$ = $1;
+    }
+    | assignment-statement{
+        $$ = $1;
+    }
+    | while-statement{
+        $$ = $1;
+    }
+    | for-statement{
+        $$ = $1;
+    }
+    | if-statement{
+        $$ = $1;
+    }
+    | procedure-invocation{
+        $$ = $1
+    }
+    | fork-statement{
+        $$ = $1;
+    }
+    | atomic-statement{
+        $$ = $1;
+    }
+    | return-statement{
+        $$ = $1;
+    }
     ;
 
 block-statement:
-    B_BEGIN list-statements B_END
+    B_BEGIN list-statements B_END{
+        $$ = create_statement_block_begin($2);
+    }
     ;
 
 cobegin-statement:
-    B_COBEGIN list-statements B_COEND
+    B_COBEGIN list-statements B_COEND{
+        $$ = create_statement_block_cobegin($2);
+    }
     ;
 
 assignment-statement:
-    identifier array-assignment-statement OP_ASSIGN expression DELIM_PC
-    ;
-
-array-assignment-statement:
-    CORCH_IZDO expression CORCH_DCHO
-    | /* epsilon */
+    // var_name = expr;
+    identifier OP_ASSIGN expression DELIM_PC{
+        $$ = create_statement_assignment($1, $3);
+    }
+    // var_array_name[index] = expr;
+    //| identifier CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC
     ;
 
 while-statement:
-    WHILE expression DO block-statement
+    WHILE expression DO block-statement{
+        $$ = create_statement_while($2, $4);
+    }
     ;
 
 for-statement:
-    FOR identifier OP_ASSIGN expression TO expression DO block-statement
+    FOR expression OP_ASSIGN expression TO expression DO block-statement{
+        $$ = create_statement_for($2, $4, $6, $8);
+    }
     ;
 
 if-statement:
-    IF expression THEN block-statement
-    | IF expression THEN block-statement ELSE block-statement
+    IF expression THEN block-statement{
+        $$ = create_statement_if_else($2, $4, 0);
+    }
+    | IF expression THEN block-statement ELSE block-statement{
+        $$ = create_statement_if_else($2, $4, $6);
+    }
     ;
 
 fork-statement:
-    S_FORK identifier statement
+    S_FORK identifier statement{
+        $$ = create_statement_fork($2, $3);
+    }
     ;
 
 atomic-statement:
-    ATOM_INI list-statements ATOM_FIN
+    ATOM_INI list-statements ATOM_FIN{
+        $$ = create_statement_atomic($2);
+    }
     ;
 
 return-statement:
-    RETURN expression DELIM_PC
+    RETURN expression DELIM_PC{
+        $$ = create_statement_return($2);
+    }
     ;
 
 // -- Reglas de generacion de invocaciones de funciones y procedimientos
 procedure-invocation:
-    identifier PAR_IZDO opt-parameters PAR_DCHO DELIM_PC
+    identifier PAR_IZDO list-parameters PAR_DCHO DELIM_PC{
+        $$ = create_statement_procedure_inv($1, $3);
+    }
     ;
 
 function-invocation:
-    identifier PAR_IZDO opt-parameters PAR_DCHO
+    identifier PAR_IZDO list-parameters PAR_DCHO{
+        $$ = create_expression_function_invocation($1, $3);
+    }
     ;
 
 // -- Reglas de generacion de expresiones
 expression:
-    term binary-operator expression
-    | unary-operator term
-    | term
+    binary-expression{
+        $$ = $1;
+    }
+    | unary-expression{
+        $$ = $1;
+    }
+    | term{
+        $$ = $1;
+    }
+    ;
+
+binary-expression:
+    // term + expression
+    term OP_SUM expression{
+        $$ = create_expression_binary_operation(EXPR_ADD, "+", $1, $3);
+    }
+    // term - expression
+    | term OP_MINUS expression{
+        $$ = create_expression_binary_operation(EXPR_SUB, "-", $1, $3);
+    }
+    // term * expression
+    | term OP_MULT expression{
+        $$ = create_expression_binary_operation(EXPR_MULT, "*", $1, $3);
+    }
+    // term / expression
+    | term OP_DIV expression{
+        $$ = create_expression_binary_operation(EXPR_DIV, "/", $1, $3);
+    }
+    // term % expression
+    | term OP_MOD expression{
+        $$ = create_expression_binary_operation(EXPR_MOD, "%", $1, $3);
+    }
+    // term < expression
+    | term OP_REL_LT expression{
+        $$ = create_expression_binary_operation(EXPR_LT, "<", $1, $3);
+    }
+    // term <= expression
+    | term OP_REL_LTE expression{
+        $$ = create_expression_binary_operation(EXPR_LTE, "<=", $1, $3);
+    }
+    // term > expression
+    | term OP_REL_GT expression{
+        $$ = create_expression_binary_operation(EXPR_GT, ">", $1, $3);
+    }
+    // term >= expression
+    | term OP_REL_GTE expression{
+        $$ = create_expression_binary_operation(EXPR_GTE, ">=", $1, $3);
+    }
+    // term == expression
+    | term OP_REL_EQ expression{
+        $$ = create_expression_binary_operation(EXPR_EQ, "==", $1, $3);
+    }
+    // term != expression
+    | term OP_REL_NEQ expression{
+        $$ = create_expression_binary_operation(EXPR_NEQ, "!=", $1, $3);
+    }
+    // term and expression
+    | term OP_AND expression{
+        $$ = create_expression_binary_operation(EXPR_AND, "and", $1, $3);
+    }
+    // term or expression
+    | term OP_OR expression{
+        $$ = create_expression_binary_operation(EXPR_OR, "or", $1, $3);
+    }
+    ;
+    
+unary-expression:
+    // not term
+    OP_NOT term{
+        $$ = create_expression_unary_operation(EXPR_NOT, "not", $2);
+    }
+    // - term
+    | OP_MINUS term{
+        $$ = create_expression_unary_operation(EXPR_NEGATION, "-", $2);
+    }
     ;
 
 term:
-    identifier
-    | literal
-    | function-invocation
-    | PAR_IZDO expression PAR_DCHO
+    identifier{
+        $$ = $1;
+    }
+    | literal{
+        $$ = $1;
+    }
+    | function-invocation{
+        $$ = $1;
+    }
+    | PAR_IZDO expression PAR_DCHO{
+        $$ = create_expression_grouped($2);
+    }
     ;
     
 // -- Reglas de generacion de literales
 literal:
-    LITERAL
-    | L_INTEGER
-    | L_BOOLEAN_TRUE
-    | L_BOOLEAN_FALSE
-    | L_CHAR
-    | L_REAL
+    LITERAL{
+        $$ = create_expression_literal(EXPR_LITERAL_STRING ,$1);
+    }
+    | L_INTEGER{
+        $$ = create_expression_literal(EXPR_LITERAL_INTEGER, $1);
+    }
+    | L_BOOLEAN_TRUE{
+        $$ = create_expression_literal(EXPR_LITERAL_BOOLEAN, $1);
+    }
+    | L_BOOLEAN_FALSE{
+        $$ = create_expression_literal(EXPR_LITERAL_BOOLEAN, $1);
+    }
+    | L_CHAR{
+        $$ = create_expression_literal(EXPR_LITERAL_CHARACTER, $1);
+    }
+    | L_REAL{
+        $$ = create_expression_literal(EXPR_LITERAL_REAL, $1);
+    }
     ;
 
 identifier:
-    IDENT
-    ;
-
-// -- Reglas de generacion de operadores binarios y unarios
-binary-operator:
-    OP_MULT
-    | OP_DIV
-    | OP_SUM
-    | OP_MINUS
-    | OP_MOD
-    | OP_REL_GT
-    | OP_REL_LT
-    | OP_REL_GTE
-    | OP_REL_LTE
-    | OP_REL_EQ
-    | OP_REL_NEQ
-    | OP_AND
-    | OP_OR
-    ;
-
-unary-operator:
-    OP_MINUS
-    | OP_NOT
+    IDENT{
+        $$ = create_expression_identifier(EXPR_IDENTIFIER, $1);
+    }
     ;
 
 %%
@@ -318,5 +498,5 @@ unary-operator:
 
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error de sintaxis: %s\n", s);
+    fprintf(stderr, "Error de sintaxis cerca de: %s\n", s);
 }
