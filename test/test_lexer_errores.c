@@ -14,7 +14,7 @@
 #include "lexer.c"
 
 //Incluir funciones comunes
-#include "common_functions.h"
+#include "test/common_functions.h"
 
 // -- Macro que define la ruta donde se encuentran los ficheros de pruebas
 #define EXAMPLES_PATH "examples/test_tokens/"
