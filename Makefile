@@ -89,6 +89,7 @@ LAMPORT_EXT:=.lmp
 # -- Variables de ficheros
 LEXER_NAME:=lexer
 PARSER_NAME:=parser
+AST_NAME:=AST
 EXCLUDE_CHECK_FILES="$(FLEX_LEXER_SRC) $(LEXER_SRC) $(BISON_PARSER_SRC) $(PARSER_SRC)"
 
 # -- Variables de ficheros (tests)
@@ -101,9 +102,12 @@ LEXER_SRC:=$(LEXER_NAME)$(SOURCE_EXT)
 BISON_PARSER_SRC:=$(PARSER_NAME)$(BISON_EXT)
 PARSER_SRC:=$(PARSER_NAME).tab$(SOURCE_EXT)
 PARSER_HEADER:=$(PARSER_NAME).tab$(HEADER_EXT)
+AST_HEADER:=$(AST_NAME)$(HEADER_EXT)
+AST_SOURCE:=$(AST_NAME)$(SOURCE_EXT)
 
 INDEX_LEXER_FILES:=$(LEXER_NAME)
-INDEX_PARSER_FILES:=$(PARSER_NAME).tab $(LEXER_NAME)
+INDEX_PARSER_FILES:=$(PARSER_NAME).tab $(LEXER_NAME) $(AST_NAME)
+INDEX_AST_FILES:=$(AST_NAME)
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -516,7 +520,6 @@ generate_parser:
 compile_parser: build_bin_dir build_obj_dir
 	@make -s generate_parser && echo
 	$(call compile_skeleton, $(INDEX_PARSER_FILES),"analizador sintactico",$(LDFLEX),"multiple",$(PARSER_NAME))
-	
 	
 	
 # ========================================================================================

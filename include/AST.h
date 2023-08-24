@@ -338,8 +338,10 @@ struct expression{
             struct expression *left;                        ///< Expresion derecha de la operacion
         } expression_unary_operation;
 
-        // Expresion de identificador
-        const char *id;                                     ///< Valor de identificador
+        // Estructura de expresion de identificador
+        struct{
+            const char *id;                                 ///< Valor de identificador
+        } expression_identifier;
 
         // Estructura de expresion de literal
         struct {
@@ -578,7 +580,7 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
  * @param left : Operando
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_unary_operator(expression_unary_t kind, char *operator, struct expression *left);
+struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left);
 
 /**
  * @brief Crea y reserva memoria para una expresion de identificador
@@ -588,12 +590,39 @@ struct expression * create_expression_unary_operator(expression_unary_t kind, ch
 struct expression * create_expression_identifier(char *id);
 
 /**
- * @brief Crea y reserva memoria para una expresion de tipo literal
- * @param kind : Tipo de literal
- * @param value : Valor de literal (se realizara un casteo al tipo de literal adecuado)
+ * @brief Crea y reserva memoria para una expresion de tipo literal entero
+ * @param value : Valor de literal
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_literal(expression_literal_t kind, void *value);
+struct expression * create_expression_literal_integer(int value);
+
+/**
+ * @brief Crea y reserva memoria para una expresion de tipo literal real
+ * @param value : Valor de literal
+ * @return puntero con la expresion inicialiada
+ */
+struct expression * create_expression_literal_real(float value);
+
+/**
+ * @brief Crea y reserva memoria para una expresion de tipo literal string
+ * @param value : Valor de literal
+ * @return puntero con la expresion inicializada
+ */
+struct expression * create_expression_literal_string(char *value);
+
+/**
+ * @brief Crea y reserva memoria para una expresion de tipo literal char
+ * @param value : Valor de literal
+ * @return puntero con la expresion inicializada
+ */
+struct expression * create_expression_literal_char(char value);
+
+/**
+ * @brief Crea y reserva memoria para una expresion de tipo literal booleano
+ * @param value : Valor de literal
+ * @return puntero con la expresion inicializada
+ */
+struct expression * create_expression_literal_boolean(bool value);
 
 /**
  * @brief Crea y reserva memoria para una expresion de invocacion de funcion

@@ -175,7 +175,7 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
     return ex;
 }
 
-struct expression * create_expression_unary_operator(expression_unary_t kind, char *operator, struct expression *left){
+struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left){
     struct expression *ex = malloc(sizeof(*ex));
 
     if(!ex)
@@ -197,55 +197,72 @@ struct expression * create_expression_identifier(char *id){
         return NULL;
 
     ex->kind = EXPR_IDENTIFIER;
-    ex->expr.id = id;
+    ex->expr.expression_identifier.id = id;
     ex->next = NULL;
 
     return ex;
 }
 
-struct expression * create_expression_literal(expression_literal_t kind, void *value){
+struct expression * create_expression_literal_integer(int value){
     struct expression *ex = malloc(sizeof(*ex));
 
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_LITERAL;
-    ex->next = NULL;
-    switch (kind)
-    {
-    case EXPR_LITERAL_INTEGER:
-        ex->expr.expression_literal.kind = EXPR_LITERAL_INTEGER;
-        ex->expr.expression_literal.value.integer_literal = (intptr_t) value;
-        break;
-
-    case EXPR_LITERAL_REAL:
-        ex->expr.expression_literal.kind = EXPR_LITERAL_REAL;
-        ex->expr.expression_literal.value.real_literal = *((float *) value);
-        break;
-
-    case EXPR_LITERAL_BOOLEAN:
-        ex->expr.expression_literal.kind = EXPR_LITERAL_BOOLEAN;
-        ex->expr.expression_literal.value.boolean_literal = *((bool *) value);
-        break;
-
-    case EXPR_LITERAL_CHARACTER:
-        ex->expr.expression_literal.kind = EXPR_LITERAL_CHARACTER;
-        ex->expr.expression_literal.value.character_literal = *((char *) value);
-        break;
-
-    case EXPR_LITERAL:
-        ex->expr.expression_literal.kind = EXPR_LITERAL;
-        ex->expr.expression_literal.value.string_literal = (char *) value;
-        break;
+    ex->expr.expression_literal.kind = EXPR_LITERAL_INTEGER;
+    ex->expr.expression_literal.value.integer_literal = value;
     
-    default:
-        ex->expr.expression_literal.kind = EXPR_LITERAL;
-        ex->expr.expression_literal.value.string_literal = (char *) value;
-        break;
-    }
-
     return ex;
 }
+
+struct expression * create_expression_literal_real(float value){
+    struct expression *ex = malloc(sizeof(*ex));
+
+    if(!ex)
+        return NULL;
+
+    ex->expr.expression_literal.kind = EXPR_LITERAL_REAL;
+    ex->expr.expression_literal.value.real_literal = value;
+    
+    return ex;
+}
+
+struct expression * create_expression_literal_string(char *value){
+    struct expression *ex = malloc(sizeof(*ex));
+
+    if(!ex)
+        return NULL;
+
+    ex->expr.expression_literal.kind = EXPR_LITERAL_STRING;
+    ex->expr.expression_literal.value.string_literal = value;
+    
+    return ex;
+}
+
+struct expression * create_expression_literal_char(char value){
+    struct expression *ex = malloc(sizeof(*ex));
+
+    if(!ex)
+        return NULL;
+
+    ex->expr.expression_literal.kind = EXPR_LITERAL_CHARACTER;
+    ex->expr.expression_literal.value.character_literal = value;
+    
+    return ex;
+}
+
+struct expression * create_expression_literal_boolean(bool value){
+    struct expression *ex = malloc(sizeof(*ex));
+
+    if(!ex)
+        return NULL;
+
+    ex->expr.expression_literal.kind = EXPR_LITERAL_BOOLEAN;
+    ex->expr.expression_literal.value.boolean_literal = value;
+    
+    return ex;
+}
+
 
 struct expression * create_expression_function_invocation(char *function_name, struct parameter_list *parameters){
     struct expression *ex = malloc(sizeof(*ex));

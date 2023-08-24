@@ -112,10 +112,11 @@
     char literal_char;
     int literal_int;
     float literal_float;
-    bool literal_boolean;
+    int literal_boolean;
 };
 
-/* Especificacion de tipos de valor semantico */
+// Especificacion de tipos de valor semantico
+
 %type <prog> program
 %type <decl> list-declarations declaration
 %type <subprog> list-subprograms subprogram
@@ -139,7 +140,7 @@
 
 // -- Regla de generacion de programa completo
 program:
-    S_PROGRAM identifier list-declarations list-subprograms list-process{
+    S_PROGRAM IDENT list-declarations list-subprograms list-process{
         $$ = create_program($2,$3,$4,$5);
     }
     ;
@@ -156,11 +157,11 @@ list-declarations:
     ;
 
 declaration:
-    S_VAR identifier DELIM_2P type OP_ASSIGN expression DELIM_PC{
-        $$ = create_variable_declaration($2, $4, $6);
+    S_VAR IDENT DELIM_2P type OP_ASSIGN expression DELIM_PC{
+        $$ = create_declaration_variable($2, $4, $6);
     }
-    | S_VAR identifier DELIM_2P type DELIM_PC{
-        $$ = create_variable_declaration($2, $4, 0);
+    | S_VAR IDENT DELIM_2P type DELIM_PC{
+        $$ = create_declaration_variable($2, $4, 0);
     }
     ;
 
@@ -177,11 +178,11 @@ list-subprograms:
 
 subprogram:
     // -- Generacion de subprogramas de tipo procedimiento
-    S_PROCEDURE identifier PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement{
+    S_PROCEDURE IDENT PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement{
         $$ = create_subprogram_procedure($2, $4, $6, $7);
     }
     // -- Generacion de subprogramas de tipo funcion
-    | S_FUNCTION identifier PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
+    | S_FUNCTION IDENT PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
         $$ = create_subprogram_function($2, $4, $9, $10, $7);
     }
     ;
@@ -200,7 +201,7 @@ list-parameters:
     ;
 
 parameter:
-    identifier DELIM_2P type{
+    IDENT DELIM_2P type{
         $$ = create_parameter_list($1, $3);
     }
     ;
@@ -218,7 +219,7 @@ list-process:
 
 process:
     // process proc_name ....
-    S_PROCESS identifier DELIM_PC list-declarations block-statement{
+    S_PROCESS IDENT DELIM_PC list-declarations block-statement{
         $$ = create_process($2, $4, $5);
     }
     // process proc_array_name[expr..expr] (?) ...
@@ -284,7 +285,7 @@ statement:
         $$ = $1;
     }
     | procedure-invocation{
-        $$ = $1
+        $$ = $1;
     }
     | fork-statement{
         $$ = $1;
@@ -311,7 +312,7 @@ cobegin-statement:
 
 assignment-statement:
     // var_name = expr;
-    identifier OP_ASSIGN expression DELIM_PC{
+    IDENT OP_ASSIGN expression DELIM_PC{
         $$ = create_statement_assignment($1, $3);
     }
     // var_array_name[index] = expr;
@@ -340,7 +341,7 @@ if-statement:
     ;
 
 fork-statement:
-    S_FORK identifier statement{
+    S_FORK IDENT statement{
         $$ = create_statement_fork($2, $3);
     }
     ;
@@ -359,13 +360,13 @@ return-statement:
 
 // -- Reglas de generacion de invocaciones de funciones y procedimientos
 procedure-invocation:
-    identifier PAR_IZDO list-parameters PAR_DCHO DELIM_PC{
+    IDENT PAR_IZDO list-parameters PAR_DCHO DELIM_PC{
         $$ = create_statement_procedure_inv($1, $3);
     }
     ;
 
 function-invocation:
-    identifier PAR_IZDO list-parameters PAR_DCHO{
+    IDENT PAR_IZDO list-parameters PAR_DCHO{
         $$ = create_expression_function_invocation($1, $3);
     }
     ;
@@ -445,7 +446,7 @@ unary-expression:
     }
     // - term
     | OP_MINUS term{
-        $$ = create_expression_unary_operation(EXPR_NEGATION, "-", $2);
+        $$ = create_expression_unary_operation(EXPR_NEGATIVE, "-", $2);
     }
     ;
 
@@ -467,28 +468,28 @@ term:
 // -- Reglas de generacion de literales
 literal:
     LITERAL{
-        $$ = create_expression_literal(EXPR_LITERAL_STRING ,$1);
+        $$ = create_expression_literal_string($1);
     }
     | L_INTEGER{
-        $$ = create_expression_literal(EXPR_LITERAL_INTEGER, $1);
+        $$ = create_expression_literal_integer($1);
     }
     | L_BOOLEAN_TRUE{
-        $$ = create_expression_literal(EXPR_LITERAL_BOOLEAN, $1);
+        $$ = create_expression_literal_boolean(1);
     }
     | L_BOOLEAN_FALSE{
-        $$ = create_expression_literal(EXPR_LITERAL_BOOLEAN, $1);
+        $$ = create_expression_literal_boolean(0);
     }
     | L_CHAR{
-        $$ = create_expression_literal(EXPR_LITERAL_CHARACTER, $1);
+        $$ = create_expression_literal_char($1);
     }
     | L_REAL{
-        $$ = create_expression_literal(EXPR_LITERAL_REAL, $1);
+        $$ = create_expression_literal_real($1);
     }
     ;
 
 identifier:
     IDENT{
-        $$ = create_expression_identifier(EXPR_IDENTIFIER, $1);
+        $$ = create_expression_identifier($1);
     }
     ;
 
@@ -498,5 +499,5 @@ identifier:
 
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error de sintaxis cerca de: %s\n", s);
+    fprintf(stderr, "Error de sintaxis en la linea ?: %s\n",s);
 }
