@@ -12,7 +12,7 @@
     #include <stdio.h>
 
     //Inclusion de AST
-    #include "AST.h"
+    #include "AST/AST.h"
 
     //Definir directiva para testeo
     #define VERBOSE

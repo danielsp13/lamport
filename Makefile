@@ -57,6 +57,7 @@ DIR_BACKUP:=$(HOME)
 HEADER_DIR:=include
 SOURCE_DIR:=src
 TEST_DIR:=test
+AST_DIR:=AST
 BIN_DIR:=bin
 OBJ_DIR:=obj
 EXAMPLES_DIR:=examples
@@ -69,7 +70,9 @@ BISON_HEADER_MACRO:=BISON_HEADER
 GXX:=gcc
 CFLAGS:=-Wall -Wextra
 UNDEFINED_MACROS:=-U$(BISON_HEADER_MACRO)
-INCFLAGS:=-I$(HEADER_DIR) -I$(SOURCE_DIR)/ -I$(HEADER_DIR)/$(TEST_DIR) -I$(SOURCE_DIR)/$(TEST_DIR)
+INCFLAGS:=-I$(HEADER_DIR) -I$(SOURCE_DIR)/ $(INCFLAGS_TEST) $(INCFLAGS_AST)
+INCFLAGS_TEST:=-I$(HEADER_DIR)/$(TEST_DIR) -I$(SOURCE_DIR)/$(TEST_DIR)
+INCFLAGS_AST:=-I$(HEADER_DIR)/$(AST_DIR) -I$(SOURCE_DIR)/$(AST_DIR)
 LDCMOCKA:=-lcmocka
 LDFLEX:=-lfl
 LDBISON:=-ly
@@ -90,6 +93,12 @@ LAMPORT_EXT:=.lmp
 LEXER_NAME:=lexer
 PARSER_NAME:=parser
 AST_NAME:=AST
+AST_NODE_DECL_NAME:=declaration
+AST_NODE_STMT_NAME:=statement
+AST_NODE_EXPR_NAME:=expression
+AST_NODE_TYPE_NAME:=type
+AST_NODE_SUBPROG_NAME:=subprogram
+AST_NODE_PROC_NAME:=process
 EXCLUDE_CHECK_FILES="$(FLEX_LEXER_SRC) $(LEXER_SRC) $(BISON_PARSER_SRC) $(PARSER_SRC)"
 
 # -- Variables de ficheros (tests)
@@ -106,8 +115,8 @@ AST_HEADER:=$(AST_NAME)$(HEADER_EXT)
 AST_SOURCE:=$(AST_NAME)$(SOURCE_EXT)
 
 INDEX_LEXER_FILES:=$(LEXER_NAME)
-INDEX_PARSER_FILES:=$(PARSER_NAME).tab $(LEXER_NAME) $(AST_NAME)
-INDEX_AST_FILES:=$(AST_NAME)
+INDEX_PARSER_FILES:=$(PARSER_NAME).tab $(LEXER_NAME)
+INDEX_AST_FILES:=$(AST_DIR)/$(AST_NAME) $(AST_DIR)/$(AST_NODE_DECL_NAME) $(AST_DIR)/$(AST_NODE_STMT_NAME) $(AST_DIR)/$(AST_NODE_EXPR_NAME) $(AST_DIR)/$(AST_NODE_TYPE_NAME) $(AST_DIR)/$(AST_NODE_PROC_NAME) $(AST_DIR)/$(AST_NODE_SUBPROG_NAME)
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -519,7 +528,7 @@ generate_parser:
 # -- Compila los fuentes del analizador sintactico
 compile_parser: build_bin_dir build_obj_dir
 	@make -s generate_parser && echo
-	$(call compile_skeleton, $(INDEX_PARSER_FILES),"analizador sintactico",$(LDFLEX),"multiple",$(PARSER_NAME))
+	$(call compile_skeleton, $(INDEX_PARSER_FILES) $(INDEX_AST_FILES),"analizador sintactico",$(LDFLEX),"multiple",$(PARSER_NAME))
 	
 	
 # ========================================================================================
