@@ -138,7 +138,7 @@ union YYSTYPE
     char literal_char;
     int literal_int;
     float literal_float;
-    bool literal_boolean;
+    int literal_boolean;
 
 #line 144 "parser.tab.h"
 
