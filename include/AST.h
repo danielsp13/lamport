@@ -197,7 +197,7 @@ struct statement{
     {
         // Estructura de sentencia de asignacion
         struct {
-            const char *variable_name;              ///< Nombre de la variable
+            char *variable_name;                    ///< Nombre de la variable
             struct expression *expr;                ///< Expresion de la asignacion
         } statement_assignment;
 
@@ -224,8 +224,8 @@ struct statement{
 
         // Estructura de sentencia de invocacion de proceso
         struct {
-            const char *procedure_name;             ///< Nombre del procedimiento
-            struct parameter_list *parameters;     ///< Parametros del procedimiento
+            char *procedure_name;                   ///< Nombre del procedimiento
+            struct parameter_list *parameters;      ///< Parametros del procedimiento
         } statement_procedure_inv;
 
         // Estructura de sentencia de bloque begin-end o cobegin-coend o atomic
@@ -235,7 +235,7 @@ struct statement{
 
         // Estructura de sentencia fork
         struct {
-            const char *forked_process;             ///< Nombre del proceso
+            char *forked_process;                   ///< Nombre del proceso
             struct statement *stmt;                 ///< Sentencia
         } statement_fork;
 
@@ -325,7 +325,7 @@ struct expression{
         // Estructura de expresion de operacion binaria
         struct {
             expression_binary_t kind;                       ///< Tipo de operacion binaria
-            const char *operator;                           ///< Operador de operacion
+            char *operator;                                 ///< Operador de operacion
             struct expression *left;                        ///< Expresion izquierda de la operacion
             struct expression *right;                       ///< Expresion derecha de la operacion
         } expression_binary_operation;
@@ -333,13 +333,13 @@ struct expression{
         // Estructura de expresion de operacion unaria
         struct {
             expression_unary_t kind;                        ///< Tipo de la operacion unaria
-            const char *operator;                           ///< Operador de operacion
+            char *operator;                                 ///< Operador de operacion
             struct expression *left;                        ///< Expresion derecha de la operacion
         } expression_unary_operation;
 
         // Estructura de expresion de identificador
         struct{
-            const char *id;                                 ///< Valor de identificador
+            char *id;                                       ///< Valor de identificador
         } expression_identifier;
 
         // Estructura de expresion de literal
@@ -348,7 +348,7 @@ struct expression{
             union{
                 int integer_literal;                        ///< Valor para literal entero
                 float real_literal;                         ///< Valor para literal flotante
-                int boolean_literal;                       ///< Valor para literal booleano
+                int boolean_literal;                        ///< Valor para literal booleano
                 char character_literal;                     ///< Valor para literal de caracter
                 char* string_literal;                       ///< Valor para literal de cadena de caracteres
             } value;
@@ -356,7 +356,7 @@ struct expression{
 
         // Estructura de expresion de invocacion de funcion
         struct {
-            const char *function_name;                      ///< Nombre de funcion
+            char *function_name;                            ///< Nombre de funcion
             struct parameter_list *parameters;              ///< Lista de parametros para funciones
         } expression_function_inv;
 
@@ -746,5 +746,94 @@ struct process * create_process(char *name_process, struct declaration *declarat
  * @return puntero con el programa inicializado
  */
 struct program * create_program(char *name_program, struct declaration *declarations, struct subprogram *subprograms, struct process *process);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST -----
+
+/**
+ * @brief Libera la memoria asignada para la construccion del AST del programa completo
+ * @param prog : Puntero a AST (prog -> nodo raiz)
+ */
+void free_program(struct program *prog);
+
+/**
+ * @brief Libera la memoria asignada para una lista de subprogramas
+ * @param subprograms_list : Puntero a lista enlazada de subprogramas
+ */
+void free_list_subprograms(struct subprogram *subprograms_list);
+
+/**
+ * @brief Libera la memoria asignada para una lista de procesos
+ * @param process_list : Puntero a lista enlazada de procesos
+ */
+void free_list_process(struct process *process_list);
+
+/**
+ * @brief Libera la memoria asignada para una lista de declaraciones
+ * @param declarations_list : Puntero a lista enlazada de declaraciones
+ */
+void free_list_declarations(struct declaration *declarations_list);
+
+/**
+ * @brief Libera la memoria asignada para una lista de sentencias
+ * @param statements_list : Puntero a lista enlazada de sentencias
+ */
+void free_list_statements(struct statement *statements_list);
+
+/**
+ * @brief Libera la memoria asignada para una lista de expresiones
+ * @param expressions_list : Puntero a lista enlazada de expresiones
+ */
+void free_list_expressions(struct statement *expressions_list);
+
+/**
+ * @brief Libera la memoria asignada para un nodo de tipo lista de parametros
+ * @param parameter_list : Puntero a nodo lista de parametros
+ */
+void free_list_parameters(struct parameter_list *parameter_list);
+
+/**
+ * @brief Libera la memoria asignada para un nodo de tipo subprograma
+ * @param subprog : Puntero a nodo subprograma
+ */
+void free_subprogram(struct subprogram *subprog);
+
+/**
+ * @brief Libera la memoria asignada para un nodo de tipo declaracion
+ * @param decl : Puntero a nodo declaracion
+ */
+void free_declaration(struct declaration *decl);
+
+/**
+ * @brief Libera la memoria asignada para un nodo de tipo proceso
+ * @param proc : Puntero a nodo proceso
+ */
+void free_process(struct process *proc);
+
+/**
+ * @brief Libera la memoria asignada para un nodo de tipo type
+ * @param type : Puntero a nodo tipo
+ */
+void free_type(struct type *type);
+
+/**
+ * @brief Libera la memoria asignada para un nodo de tipo sentencia
+ * @param stmt : Puntero a nodo sentencia
+ */
+void free_statement(struct statement *stmt);
+
+/**
+ * @brief Libera la memoria asignada para un nodo de tipo expresion
+ * @param expr : Puntero a nodo expresion
+ */
+void free_expression(struct expression *expr);
+
+/**
+ * @brief Libera la memoria para un nodo de tipo parametro
+ * @param parameter : Puntero a nodo parametro
+ */
+void free_parameter(struct parameter_list *parameter);
+
 
 #endif //_LAMPORT_AST_DPR_

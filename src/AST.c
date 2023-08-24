@@ -379,7 +379,7 @@ struct parameter_list * create_parameter_list(char * name_parameter, struct type
 
 // ===============================================================
 
-// ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (SUBPROGRAMAS Y PROCESOS) -----
+// ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (SUBPROGRAMAS Y PROCESOS) -----
 
 struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type){
     struct subprogram *subprog = malloc(sizeof(*subprog));
@@ -422,7 +422,7 @@ struct process * create_process(char *name_process, struct declaration *declarat
 
 // ===============================================================
 
-// ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (PROGRAMAS) -----
+// ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (PROGRAMAS) -----
 
 struct program * create_program(char *name_program, struct declaration *declarations, struct subprogram *subprograms, struct process *process){
     struct program *prog = malloc(sizeof(*prog));
@@ -436,4 +436,321 @@ struct program * create_program(char *name_program, struct declaration *declarat
     prog->process = process;
 
     return prog;
+}
+
+// ===============================================================
+
+// ----- IMPLEMENTACION DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST -----
+
+void free_program(struct program *prog){
+    // -- Si NULL, simplemente devolver
+    if(!prog)
+        return;
+
+    // -- Liberacion del nombre del programa
+    if(prog->name_program)
+        free(prog->name_program);
+
+    // -- Liberacion de declaraciones
+    if(prog->declarations)
+        free_list_declarations(prog->declarations);
+
+    // -- Liberacion de subprogramas
+    if(prog->subprograms)
+        free_list_subprograms(prog->subprograms);
+
+    // -- Liberacion de procesos
+    if(prog->process)
+        free_list_process(prog->process);
+
+    // -- Liberar nodo raiz programa
+    free(prog);
+}
+
+void free_list_declarations(struct declaration *declarations_list){
+    struct declaration *current_declaration = declarations_list;
+    while(current_declaration){
+        // -- Seleccionar siguiente en la lista
+        struct declaration *next = current_declaration->next;
+        // -- Liberar nodo
+        free_declaration(current_declaration);
+        // -- Nodo actual -> siguiente
+        current_declaration = next;
+    }
+}
+
+void free_list_subprograms(struct subprogram *subprograms_list){
+    struct subprogram *current_subprogram = subprograms_list;
+    while(current_subprogram){
+        // -- Seleccionar siguiente en la lista
+        struct subprogram *next = current_subprogram->next;
+        // -- Liberar nodo
+        free_subprogram(current_subprogram);
+        // -- Nodo actual -> siguiente
+        current_subprogram = next;
+    }
+}
+
+void free_list_process(struct process *process_list){
+    struct process *current_process = process_list;
+    while(current_process){
+        // -- Seleccionar siguiente en la lista
+        struct process *next = current_process->next;
+        // -- Liberar nodo
+        free_process(current_process);
+        // -- Nodo actual -> siguiente
+        current_process = next;
+    }
+}
+
+void free_list_statements(struct statement *statements_list){
+    struct statement *current_statement = statements_list;
+    while(current_statement){
+        // -- Seleccionar siguiente en la lista
+        struct statement *next = current_statement->next;
+        // -- Liberar nodo
+        free_statement(current_statement);
+        // -- Nodo actual -> siguiente
+        current_statement = next;
+    }
+}
+
+void free_list_parameters(struct parameter_list *parameter_list){
+    struct parameter_list *current_parameter_list = parameter_list;
+    while(current_parameter_list){
+        // -- Seleccionar siguiente en la lista
+        struct parameter_list *next = current_parameter_list->next;
+        // -- Liberar nodo
+        free_parameter(current_parameter_list);
+        // -- Nodo actual -> siguiente
+        current_parameter_list = next;
+    }
+}
+
+void free_subprogram(struct subprogram *subprog){
+    // -- Si NULL, simplemente devolver
+    if(!subprog)
+        return;
+
+    // -- Liberar nombre de subprograma
+    if(subprog->name_subprogram)
+        free(subprog->name_subprogram);
+
+    // -- Liberar tipo de subprograma (solo para funciones)
+    if(subprog->type)
+        free_type(subprog->type);
+
+    // -- Liberar declaraciones del subprograma
+    if(subprog->declarations)
+        free_list_declarations(subprog->declarations);
+
+    // -- Liberar
+    if(subprog->parameters)
+        free_list_parameters(subprog->parameters);
+
+    // -- Liberar
+    if(subprog->statements)
+        free_list_statements(subprog->statements);
+
+    
+    // -- Liberar nodo
+    free(subprog);
+}
+
+void free_process(struct process *proc){
+    // -- Si NULL, simplemente devolver
+    if(!proc)
+        return;
+
+    // -- Liberar nombre de proceso
+    if(proc->name_process)
+        free(proc->name_process);
+
+    // -- Liberar declaraciones de proceso
+    if(proc->declarations)
+        free_list_declarations(proc->declarations);
+
+    // -- Liberar sentencias de proceso
+    if(proc->statements){
+        free_list_statements(proc->statements);
+    }
+
+    // -- Liberar nodo
+    free(proc);
+}
+
+void free_declaration(struct declaration *decl){
+    // -- Si NULL, simplemente devolver
+    if(!decl)
+        return;
+
+    // -- Liberar nombre de variable
+    if(decl->name)
+        free(decl->name);
+
+    // -- Liberar tipo de declaracion
+    if(decl->type)
+        free_type(decl->type);
+
+    // -- Liberar expresion de valor
+    if(decl->value)
+        free_expression(decl->value);
+
+    // -- Liberar nodo
+    free(decl);
+}
+
+void free_statement(struct statement *stmt){
+    // -- Si NULL, simplemente devolver
+    if(!stmt)
+        return;
+
+    // -- Liberar en funcion del tipo de sentencia
+    switch (stmt->kind)
+    {
+    case STMT_ASSIGNMENT:
+        free(stmt->stmt.statement_assignment.variable_name);
+        free_expression(stmt->stmt.statement_assignment.expr);
+        break;
+
+    case STMT_WHILE:
+        free_expression(stmt->stmt.statement_while.condition);
+        free_list_statements(stmt->stmt.statement_while.body);
+        break;
+
+    case STMT_FOR:
+        free_expression(stmt->stmt.statement_for.intialization);
+        free_expression(stmt->stmt.statement_for.condition);
+        free_expression(stmt->stmt.statement_for.increment);
+        free_list_statements(stmt->stmt.statement_for.body);
+        break;
+
+    case STMT_IF_ELSE:
+        free_expression(stmt->stmt.statement_if_else.condition);
+        free_list_statements(stmt->stmt.statement_if_else.if_body);
+        if(stmt->stmt.statement_if_else.else_body)
+            free_list_statements(stmt->stmt.statement_if_else.else_body);
+        break;
+
+    case STMT_PROCEDURE_INV:
+        free(stmt->stmt.statement_procedure_inv.procedure_name);
+        if(stmt->stmt.statement_procedure_inv.parameters)
+            free_list_parameters(stmt->stmt.statement_procedure_inv.parameters);
+        break;
+
+    case STMT_BLOCK_BEGIN:
+        free_list_statements(stmt->stmt.statement_block.body);
+        break;
+
+    case STMT_BLOCK_COBEGIN:
+        free_list_statements(stmt->stmt.statement_block.body);
+        break;
+
+    case STMT_FORK:
+        free(stmt->stmt.statement_fork.forked_process);
+        free_list_statements(stmt->stmt.statement_fork.stmt);
+        break;
+
+    case STMT_ATOMIC:
+        free_list_statements(stmt->stmt.statement_block.body);
+        break;
+
+    case STMT_RETURN:
+        free_expression(stmt->stmt.statement_return.returned_expr);
+        break;
+    }
+    
+    // -- Liberar nodo
+    free(stmt);
+}
+
+void free_expression(struct expression *expr){
+    // -- Si NULL, simplemente devolver
+    if(!expr)
+        return;
+
+    switch (expr->kind)
+    {
+    case EXPR_BINARY:
+        free(expr->expr.expression_binary_operation.operator);
+        free_expression(expr->expr.expression_binary_operation.left);
+        free_expression(expr->expr.expression_binary_operation.right);
+        break;
+
+    case EXPR_UNARY:
+        free(expr->expr.expression_unary_operation.operator);
+        free_expression(expr->expr.expression_unary_operation.left);
+        break;
+
+    case EXPR_IDENTIFIER:
+        free(expr->expr.expression_identifier.id);
+        break;
+
+    case EXPR_LITERAL:
+        switch (expr->expr.expression_literal.kind)
+        {
+        case EXPR_LITERAL_STRING:
+            free(expr->expr.expression_literal.value.string_literal);
+            break;
+        
+        default:
+            break;
+        }
+        break;
+
+    case EXPR_FUNCTION_INV:
+        free(expr->expr.expression_function_inv.function_name);
+        free_list_parameters(expr->expr.expression_function_inv.parameters);
+        break;
+
+    case EXPR_GROUPED:
+        free_expression(expr->expr.grouped_expression);
+        break;
+    }
+
+    // -- Liberar nodo
+    free(expr);
+}
+
+void free_type(struct type *type){
+    // -- Si NULL, simplemente devolver
+    if(!type)
+        return;
+
+    // -- Liberar en funcion del tipo
+    switch (type->kind)
+    {
+    case TYPE_ARRAY:
+        free_type(type->subtype);
+        break;
+
+    case TYPE_FUNCTION:
+        free_type(type->subtype);
+        free_list_parameters(type->parameters);
+        break;
+
+    default:
+        break;
+    }
+
+    // -- Liberar nodo
+    free(type);
+}
+
+void free_parameter(struct parameter_list *parameter){
+    // -- Si NULL, simplemente devolver
+    if(!parameter)
+        return;
+
+    // -- Liberar nombre de parametro
+    if(parameter->name_parameter)
+        free(parameter->name_parameter);
+
+    // -- Liberar tipo de parametro
+    if(parameter->type)
+        free_type(parameter->type);
+
+
+    // -- Liberar nodo
+    free(parameter);
 }
