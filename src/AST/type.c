@@ -22,6 +22,42 @@ struct type * create_basic_type(type_t kind){
     t->subtype = NULL;
     t->parameters = NULL;
 
+    switch (t->kind)
+    {
+    case TYPE_INTEGER:
+        t->kind_str = strdup("integer");
+        break;
+    case TYPE_REAL:
+        t->kind_str = strdup("real");
+        break;
+    case TYPE_BOOLEAN:
+        t->kind_str = strdup("boolean");
+        break;
+    case TYPE_CHAR:
+        t->kind_str = strdup("char");
+        break;
+    case TYPE_STRING:
+        t->kind_str = strdup("string");
+        break;
+    case TYPE_ARRAY:
+        t->kind_str = strdup("array");
+        break;
+    case TYPE_FUNCTION:
+        t->kind_str = strdup("function");
+        break;
+    case TYPE_SEMAPHORE:
+        t->kind_str = strdup("semaphore");
+        break;
+    case TYPE_DPROCESS:
+        t->kind_str = strdup("dprocess");
+        break;
+    }
+
+    if(!t->kind_str){
+        free(t->kind_str); free(t);
+        return NULL;
+    }
+
     return t;
 }
 
@@ -87,7 +123,12 @@ struct parameter_list * create_parameter_list(char * name_parameter, struct type
     if(!pl)
         return NULL;
 
-    pl->name_parameter = name_parameter;
+    pl->name_parameter = strdup(name_parameter);
+    if(!pl->name_parameter){
+        free(pl->name_parameter);
+        return NULL;
+    }
+
     pl->type = type;
     pl->next = NULL;
 
@@ -107,15 +148,18 @@ void free_type(struct type *type){
     switch (type->kind)
     {
     case TYPE_ARRAY:
+        free(type->kind_str);
         free_type(type->subtype);
         break;
 
     case TYPE_FUNCTION:
+        free(type->kind_str);
         free_type(type->subtype);
         free_list_parameters(type->parameters);
         break;
 
     default:
+        free(type->kind_str);
         break;
     }
 
@@ -155,4 +199,62 @@ void free_parameter(struct parameter_list *parameter){
 
     // -- Liberar nodo
     free(parameter);
+}
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO TIPO) -----
+
+void print_AST_type(struct type *type){
+    const char *IDENT_ARROW = "------------>";
+
+    // -- Si NULL, simplemente devolver
+    if(!type){
+        printf(" %s <NONE>\n", IDENT_ARROW);
+        return;
+    }
+
+    switch (type->kind)
+    {
+    case TYPE_ARRAY:
+        printf(" %s ARRAY DE TIPO: [%s]\n", IDENT_ARROW, type->subtype->kind_str);
+        break;
+
+    case TYPE_FUNCTION:
+        printf(" %s FUNCION DE TIPO: [%s]\n", IDENT_ARROW, type->subtype->kind_str);
+        break;
+
+    default:
+        printf(" %s TIPO: [%s]\n", IDENT_ARROW, type->kind_str);
+        break;
+    }
+}
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO SUBPROGRAMAS) -----
+
+void print_AST_parameters(struct parameter_list *parameters_list){
+    const char *IDENT_ARROW = "---------->";
+
+    // -- Si NULL, simplemente devolver
+    if(!parameters_list){
+        printf(" %s <NONE>\n", IDENT_ARROW);
+        return;
+    }
+
+    struct parameter_list *current_parameter = parameters_list;
+    while(current_parameter){
+        // -- Imprimir nombre de parametro
+        printf(" %s PARAMETRO: [%s] \n", IDENT_ARROW, current_parameter->name_parameter);
+
+        // -- Imprimir tipo de parametro
+        printf(" %s TIPO DE DATO DEL PARAMETRO: [%s]\n", IDENT_ARROW, current_parameter->name_parameter);
+        print_AST_type(current_parameter->type);
+
+        printf("\n");
+
+        // -- Ir al siguiente parametro
+        current_parameter = current_parameter->next;
+    }
 }

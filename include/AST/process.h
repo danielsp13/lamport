@@ -14,6 +14,8 @@
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "declaration.h"        ///< Declaraciones
 #include "statement.h"          ///< Sentencias
@@ -65,5 +67,14 @@ void free_list_process(struct process *process_list);
  */
 void free_process(struct process *proc);
 
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO PROCESOS) -----
+
+/**
+ * @brief Imprime una lista de nodos de procesos
+ * @param process_list : Puntero a lista enlazada de procesos
+ */
+void print_AST_process(struct process *process_list);
 
 #endif //_LAMPORT_AST_PROCESS_DPR_

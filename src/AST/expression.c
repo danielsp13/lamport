@@ -19,8 +19,18 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
         return NULL;
 
     ex->kind = EXPR_BINARY;
+    ex->kind_str = strdup("binary operation");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
     ex->expr.expression_binary_operation.kind = kind;
-    ex->expr.expression_binary_operation.operator = operator;
+    ex->expr.expression_binary_operation.operator = strdup(operator);
+    if(!ex->expr.expression_binary_operation.operator){
+        free(ex->expr.expression_binary_operation.operator);
+        return NULL;
+    }
+
     ex->expr.expression_binary_operation.left = left;
     ex->expr.expression_binary_operation.right = right;
     ex->next = NULL;
@@ -35,8 +45,17 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
         return NULL;
 
     ex->kind = EXPR_UNARY;
+    ex->kind_str = strdup("unary operation");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
     ex->expr.expression_unary_operation.kind = kind;
-    ex->expr.expression_unary_operation.operator = operator;
+    ex->expr.expression_unary_operation.operator = strdup(operator);
+    if(!ex->expr.expression_unary_operation.operator){
+        free(ex->expr.expression_unary_operation.operator);
+        return NULL;
+    }
     ex->expr.expression_unary_operation.left = left;
     ex->next = NULL;
 
@@ -50,7 +69,16 @@ struct expression * create_expression_identifier(char *id){
         return NULL;
 
     ex->kind = EXPR_IDENTIFIER;
-    ex->expr.expression_identifier.id = id;
+    ex->kind_str = strdup("identifier");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
+    ex->expr.expression_identifier.id = strdup(id);
+    if(!ex->expr.expression_identifier.id){
+        free(ex->expr.expression_identifier.id);
+        return NULL;
+    }
     ex->next = NULL;
 
     return ex;
@@ -63,6 +91,11 @@ struct expression * create_expression_literal_integer(int value){
         return NULL;
 
     ex->expr.expression_literal.kind = EXPR_LITERAL_INTEGER;
+    ex->kind_str = strdup("literal integer");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
     ex->expr.expression_literal.value.integer_literal = value;
     
     return ex;
@@ -75,6 +108,11 @@ struct expression * create_expression_literal_real(float value){
         return NULL;
 
     ex->expr.expression_literal.kind = EXPR_LITERAL_REAL;
+    ex->kind_str = strdup("literal real");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
     ex->expr.expression_literal.value.real_literal = value;
     
     return ex;
@@ -87,6 +125,11 @@ struct expression * create_expression_literal_string(char *value){
         return NULL;
 
     ex->expr.expression_literal.kind = EXPR_LITERAL_STRING;
+    ex->kind_str = strdup("literal string");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
     ex->expr.expression_literal.value.string_literal = value;
     
     return ex;
@@ -99,6 +142,11 @@ struct expression * create_expression_literal_char(char value){
         return NULL;
 
     ex->expr.expression_literal.kind = EXPR_LITERAL_CHARACTER;
+    ex->kind_str = strdup("literal char");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
     ex->expr.expression_literal.value.character_literal = value;
     
     return ex;
@@ -111,6 +159,11 @@ struct expression * create_expression_literal_boolean(int value){
         return NULL;
 
     ex->expr.expression_literal.kind = EXPR_LITERAL_BOOLEAN;
+    ex->kind_str = strdup("literal boolean");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
     ex->expr.expression_literal.value.boolean_literal = value;
     
     return ex;
@@ -124,7 +177,16 @@ struct expression * create_expression_function_invocation(char *function_name, s
         return NULL;
 
     ex->kind = EXPR_FUNCTION_INV;
-    ex->expr.expression_function_inv.function_name = function_name;
+    ex->kind_str = strdup("function invocation");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
+    ex->expr.expression_function_inv.function_name = strdup(function_name);
+    if(!ex->expr.expression_function_inv.function_name){
+        free(ex->expr.expression_function_inv.function_name);
+        return NULL;
+    }
     ex->expr.expression_function_inv.parameters = parameters;
     ex->next = NULL;
 
@@ -138,6 +200,11 @@ struct expression * create_expression_grouped(struct expression *grouped_express
         return NULL;
 
     ex->kind = EXPR_GROUPED;
+    ex->kind_str = strdup("grouped expression");
+    if(!ex->kind_str){
+        free(ex->kind_str);
+        return NULL;
+    }
     ex->expr.grouped_expression = grouped_expression;
     ex->next = NULL;
 
@@ -205,6 +272,92 @@ void free_expression(struct expression *expr){
         break;
     }
 
+    if(expr->kind_str)
+        free(expr->kind_str);
+
     // -- Liberar nodo
     free(expr);
+}
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO EXPRESIONES) -----
+
+void print_AST_expressions(struct expression *expressions_list){
+    const char *IDENT_ARROW = "------->";
+    // -- Si NULL, simplemente devolver
+    if(!expressions_list){
+        printf(" %s <NONE>\n", IDENT_ARROW);
+        return;
+    }
+
+    struct expression *current_expression = expressions_list;
+    while(current_expression){
+        // -- Imprimir tipo de expresion
+        printf(" %s EXPRESION DE TIPO [%s]\n", IDENT_ARROW, current_expression->kind_str);
+
+        printf(" %s CONTENIDO DE LA EXPRESION DE TIPO: [%s]\n", IDENT_ARROW, current_expression->kind_str);
+        // -- Imprimir expresion
+        switch (current_expression->kind)
+        {
+        case EXPR_BINARY:
+            printf(" %s SIMBOLO DE OPERACION: [%s]\n", IDENT_ARROW, current_expression->expr.expression_binary_operation.operator);
+            printf(" %s OPERANDO IZQUIERDO: \n", IDENT_ARROW);
+            print_AST_expressions(current_expression->expr.expression_binary_operation.left);
+            printf(" %s OPERANDO DERECHO: \n", IDENT_ARROW);
+            print_AST_expressions(current_expression->expr.expression_binary_operation.right);
+            break;
+        
+        case EXPR_UNARY:
+            printf(" %s SIMBOLO DE OPERACION: [%s]\n", IDENT_ARROW, current_expression->expr.expression_unary_operation.operator);
+            printf(" %s OPERANDO IZQUIERDO: \n", IDENT_ARROW);
+            print_AST_expressions(current_expression->expr.expression_unary_operation.left);
+            break;
+
+        case EXPR_IDENTIFIER:
+            printf(" %s NOMBRE DE IDENTIFICADOR: [%s]\n", IDENT_ARROW, current_expression->expr.expression_identifier.id);
+            break;
+
+        case EXPR_LITERAL:
+            switch (current_expression->expr.expression_literal.kind)
+            {
+            case EXPR_LITERAL_INTEGER:
+                printf(" %s VALOR DE LITERAL: [%d] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.integer_literal);
+                break;
+            
+            case EXPR_LITERAL_REAL:
+                printf(" %s VALOR DE LITERAL: [%f] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.real_literal);
+                break;
+            
+            case EXPR_LITERAL_BOOLEAN:
+                printf(" %s VALOR DE LITERAL: [%d] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.boolean_literal);
+                break;
+
+            case EXPR_LITERAL_CHARACTER:
+                printf(" %s VALOR DE LITERAL: [%c] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.character_literal);
+                break;
+
+            case EXPR_LITERAL_STRING:
+                printf(" %s VALOR DE LITERAL: [%s] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.string_literal);
+                break;
+            }
+            break;
+
+        case EXPR_FUNCTION_INV:
+            printf(" %s INVOCACION DE FUNCION DE NOMBRE: [%s]\n", IDENT_ARROW, current_expression->expr.expression_function_inv.function_name);
+            printf(" %s PARAMETROS DE FUNCION: [%s]\n", IDENT_ARROW, current_expression->expr.expression_function_inv.function_name);
+            print_AST_parameters(current_expression->expr.expression_function_inv.parameters);
+            break;
+
+        case EXPR_GROUPED:
+            printf(" %s EXPRESION ENTRE ( )\n", IDENT_ARROW);
+            print_AST_expressions(current_expression->expr.grouped_expression);
+            break;
+        }
+
+        printf("\n");
+
+        // Ir a la siguiente expresion
+        current_expression = current_expression->next;
+    }
 }

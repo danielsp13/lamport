@@ -15,6 +15,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "type.h"           ///< Parametros (procedimientos y funciones)
 
@@ -148,6 +150,7 @@ typedef enum{
  */
 struct expression{
     expression_t kind;                                      ///< Tipo de expresion
+    char *kind_str;                                         ///< Tipo de expresion (str)
     struct expression *next;                                ///< Puntero a siguiente expresion
     union
     {
@@ -289,6 +292,16 @@ void free_list_expressions(struct expression *expressions_list);
  * @param expr : Puntero a nodo expresion
  */
 void free_expression(struct expression *expr);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO EXPRESIONES) -----
+
+/**
+ * @brief Imprime una lista de nodos de expresiones
+ * @param expressions_list : Puntero a lista enlazada de expresiones
+ */
+void print_AST_expressions(struct expression *expressions_list);
 
 
 #endif //_LAMPORT_AST_EXPRESSION_DPR_

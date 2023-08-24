@@ -14,6 +14,8 @@
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 // ===============================================================
 
@@ -65,6 +67,7 @@ typedef enum{
  */
 struct type{
     type_t kind;                            ///< Tipo de dato
+    char *kind_str;                         ///< Tipo de dato (en formato string)
     struct type *subtype;                   ///< Subtipo de dato (arrays y funciones)
     struct parameter_list *parameters;      ///< Lista de parametros (para funciones)
 };
@@ -160,6 +163,26 @@ void free_list_parameters(struct parameter_list *parameter_list);
  * @param parameter : Puntero a nodo parametro
  */
 void free_parameter(struct parameter_list *parameter);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO TIPOS) -----
+
+/**
+ * @brief Imprime un nodo de tipo de dato
+ * @param type : Puntero a nodo tipo
+ */
+void print_AST_type(struct type *type);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO PARAMETROS) -----
+
+/**
+ * @brief Imprime una lista de nodos de parametros
+ * @param parameters_list : Puntero a lista enlazada de parametros
+ */
+void print_AST_parameters(struct parameter_list *parameters_list);
 
 
 #endif //_LAMPORT_AST_TYPE_DPR_

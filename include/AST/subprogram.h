@@ -14,6 +14,8 @@
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "declaration.h"    ///< Declaraciones
 #include "statement.h"      ///< Sentencias
@@ -45,6 +47,7 @@ typedef enum{
  */
 struct subprogram{
     subprogram_t kind;                      ///< Tipo de subprograma
+    char *kind_str;                         ///< Tipo de subprograma (string)
     char *name_subprogram;                  ///< Nombre de subprograma
     struct parameter_list *parameters;      ///< Lista de parametros del subprograma
     struct declaration *declarations;       ///< Declaraciones del subprograma
@@ -104,5 +107,15 @@ void free_list_subprograms(struct subprogram *subprograms_list);
  * @param subprog : Puntero a nodo subprograma
  */
 void free_subprogram(struct subprogram *subprog);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO EXPRESIONES) -----
+
+/**
+ * @brief Imprime una lista de nodos de subprogramas
+ * @param subprograms_list : Puntero a lista enlazada de subprogramas
+ */
+void print_AST_subprograms(struct subprogram *subprograms_list);
 
 #endif //_LAMPORT_AST_SUBPROGRAM_DPR_

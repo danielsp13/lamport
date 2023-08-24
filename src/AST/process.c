@@ -18,7 +18,12 @@ struct process * create_process(char *name_process, struct declaration *declarat
     if(!proc)
         return NULL;
 
-    proc->name_process = name_process;
+    proc->name_process = strdup(name_process);
+    if(!proc->name_process){
+        free(proc->name_process);
+        return NULL;
+    }
+
     proc->declarations = declarations;
     proc->statements = statements;
     proc->next = NULL;
@@ -62,4 +67,35 @@ void free_process(struct process *proc){
 
     // -- Liberar nodo
     free(proc);
+}
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO PROCESO) -----
+
+void print_AST_process(struct process *process_list){
+    const char *IDENT_ARROW = "---->";
+
+    // -- Si NULL, simplemente devolver
+    if(!process_list){
+        printf(" %s <NONE>\n", IDENT_ARROW);
+        return;
+    }
+
+    struct process *current_process = process_list;
+    while(current_process){
+        // -- Imprimir nombre de proceso
+        printf(" %s NOMBRE DE PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
+        // -- Imprimir declaraciones de proceso
+        printf(" %s DECLARACIONES DE PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
+        print_AST_declarations(current_process->declarations);
+        // -- Imprimir sentencias de proceso
+        printf(" %s SENTENCIAS DE PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
+        print_AST_statements(current_process->statements);
+
+        printf("\n");
+
+        // Ir al siguiente proceso
+        current_process = current_process->next;
+    }
 }

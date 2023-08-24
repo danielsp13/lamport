@@ -14,6 +14,8 @@
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "expression.h"     ///< Expresiones
 #include "type.h"           ///< Parametros (procedimientos y funciones)
@@ -111,6 +113,7 @@ typedef enum{
  */
 struct statement{
     statement_t kind;                               ///< Tipo de sentencia
+    char *kind_str;                                 ///< Tipo de sentencia (str)
     struct statement *next;                         ///< Puntero a siguiente sentencia
     union 
     {
@@ -274,6 +277,16 @@ void free_list_statements(struct statement *statements_list);
  * @param stmt : Puntero a nodo sentencia
  */
 void free_statement(struct statement *stmt);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO SENTENCIAS) -----
+
+/**
+ * @brief Imprime una lista de nodos de sentencias
+ * @param statements_list : Puntero a lista enlazada de sentencias
+ */
+void print_AST_statements(struct statement *statements_list);
 
 
 #endif //_LAMPORT_AST_STATEMENT_DPR_

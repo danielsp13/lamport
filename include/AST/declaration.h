@@ -14,6 +14,8 @@
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "expression.h"     ///< Expresiones
 #include "type.h"           ///< Tipos
@@ -64,6 +66,16 @@ void free_list_declarations(struct declaration *declarations_list);
  * @param decl : Puntero a nodo declaracion
  */
 void free_declaration(struct declaration *decl);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO DECLARACIONES) -----
+
+/**
+ * @brief Imprime una lista de nodos de declaraciones
+ * @param declarations_list : Puntero a lista enlazada de declaraciones
+ */
+void print_AST_declarations(struct declaration *declarations_list);
 
 
 #endif //_LAMPORT_AST_DECLARATION_DPR_

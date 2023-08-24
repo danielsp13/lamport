@@ -18,7 +18,12 @@ struct program * create_program(char *name_program, struct declaration *declarat
     if(!prog)
         return NULL;
 
-    prog->name_program = name_program;
+    prog->name_program = strdup(name_program);
+    if(!prog->name_program){
+        free(prog->name_program);
+        return NULL;
+    }
+
     prog->declarations = declarations;
     prog->subprograms = subprograms;
     prog->process = process;
@@ -53,4 +58,37 @@ void free_program(struct program *prog){
 
     // -- Liberar nodo raiz programa
     free(prog);
+}
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST -----
+
+void print_AST(struct program *prog){
+    const char *IDENT_ARROW = "-->";
+
+    // -- Si NULL, simplemente devolver
+    if(!prog){
+        printf(" %s <NONE>\n", IDENT_ARROW);
+        return;
+    }
+
+    // -- Imprimir nombre de programa
+    printf(" %s PROGRAMA LAMPORT DE NOMBRE: [%s]\n", IDENT_ARROW, prog->name_program);
+
+    // -- Imprimir declaraciones
+    printf(" %s DECLARACIONES DE PROGRAMA: [%s]\n", IDENT_ARROW, prog->name_program);
+    print_AST_declarations(prog->declarations);
+
+    printf("\n");
+
+    // -- Imprimir subprogramas
+    printf(" %s SUBPROGRAMAS DE PROGRAMA: [%s]\n", IDENT_ARROW, prog->name_program);
+    print_AST_subprograms(prog->subprograms);
+
+    printf("\n");
+
+    // -- Imprimir sentencias
+    printf(" %s PROCESOS DEL PROGRAMA: [%s]\n", IDENT_ARROW, prog->name_program);
+    print_AST_process(prog->process);
 }

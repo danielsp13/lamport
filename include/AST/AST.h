@@ -13,6 +13,8 @@
 
 // ----- INCLUSION DE DEPENDENCIAS DEL AST -----
 
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "declaration.h"        ///< Declaraciones
@@ -60,6 +62,16 @@ struct program * create_program(char *name_program, struct declaration *declarat
  * @param prog : Puntero a AST (prog -> nodo raiz)
  */
 void free_program(struct program *prog);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST -----
+
+/**
+ * @brief Imprime el AST en pantalla
+ * @param prog : Puntero a AST (prog -> nodo raiz)
+ */
+void print_AST(struct program *prog);
 
 
 #endif //_LAMPORT_AST_DPR_
