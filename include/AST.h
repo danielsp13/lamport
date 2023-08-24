@@ -10,7 +10,6 @@
 #define _LAMPORT_AST_DPR_
 
 #include <stdint.h>
-#include <stdbool.h>
 #include <stdlib.h>
 
 // ===============================================================
@@ -349,7 +348,7 @@ struct expression{
             union{
                 int integer_literal;                        ///< Valor para literal entero
                 float real_literal;                         ///< Valor para literal flotante
-                bool boolean_literal;                       ///< Valor para literal booleano
+                int boolean_literal;                       ///< Valor para literal booleano
                 char character_literal;                     ///< Valor para literal de caracter
                 char* string_literal;                       ///< Valor para literal de cadena de caracteres
             } value;
@@ -622,7 +621,7 @@ struct expression * create_expression_literal_char(char value);
  * @param value : Valor de literal
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_literal_boolean(bool value);
+struct expression * create_expression_literal_boolean(int value);
 
 /**
  * @brief Crea y reserva memoria para una expresion de invocacion de funcion

@@ -251,7 +251,7 @@ struct expression * create_expression_literal_char(char value){
     return ex;
 }
 
-struct expression * create_expression_literal_boolean(bool value){
+struct expression * create_expression_literal_boolean(int value){
     struct expression *ex = malloc(sizeof(*ex));
 
     if(!ex)
