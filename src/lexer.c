@@ -557,7 +557,7 @@ char *yytext;
 /* DECLARACIONES */
 #line 11 "src/lexer.l"
     //Inclusion de los tipos de Token
-    #include "parser.tab.h"
+    #include "token.h"
 
     //Definir macro para impresion de contenido en modo debug
     //#define LMP_VERBOSE
