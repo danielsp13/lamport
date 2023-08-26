@@ -283,7 +283,7 @@ define compile_tests_skeleton
 		N_TESTS_COMPILED=0 ;\
 		for TEST in $(1); do \
 			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(4) $(INCFLAGS) $(OBJ_DIR)/* $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
+			$(GXX) $(4) $(INCFLAGS) $(OBJ_DIR)/$(TEST_COMMON_FUNCTIONS_PREFIX)$(OBJ_EXT) $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
 			if [ -f $(BIN_DIR)/$$TEST ]; then \
 				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
 				N_TESTS_COMPILED=$$(( N_TESTS_COMPILED + 1 )) ; \
@@ -644,7 +644,7 @@ compile_tests_lexer: build_bin_dir build_obj_dir
 	@echo
 	$(call compile_tests_skeleton,$(INDEX_TEST_LEXER_FILES),"analizador lexico",$(LDFLEX), $(UNDEFINED_MACROS))
 	@echo
-	#@make -s clean_objects
+	@make -s clean_objects
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE TESTEO DE FUENTES
