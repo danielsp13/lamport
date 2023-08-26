@@ -90,6 +90,7 @@ struct expression * create_expression_literal_integer(int value){
     if(!ex)
         return NULL;
 
+    ex->kind = EXPR_LITERAL;
     ex->expr.expression_literal.kind = EXPR_LITERAL_INTEGER;
     ex->kind_str = strdup("literal integer");
     if(!ex->kind_str){
@@ -97,6 +98,7 @@ struct expression * create_expression_literal_integer(int value){
         return NULL;
     }
     ex->expr.expression_literal.value.integer_literal = value;
+    ex->next = NULL;
     
     return ex;
 }
@@ -107,6 +109,7 @@ struct expression * create_expression_literal_real(float value){
     if(!ex)
         return NULL;
 
+    ex->kind = EXPR_LITERAL;
     ex->expr.expression_literal.kind = EXPR_LITERAL_REAL;
     ex->kind_str = strdup("literal real");
     if(!ex->kind_str){
@@ -114,6 +117,7 @@ struct expression * create_expression_literal_real(float value){
         return NULL;
     }
     ex->expr.expression_literal.value.real_literal = value;
+    ex->next = NULL;
     
     return ex;
 }
@@ -124,13 +128,19 @@ struct expression * create_expression_literal_string(char *value){
     if(!ex)
         return NULL;
 
+    ex->kind = EXPR_LITERAL;
     ex->expr.expression_literal.kind = EXPR_LITERAL_STRING;
     ex->kind_str = strdup("literal string");
     if(!ex->kind_str){
         free(ex->kind_str);
         return NULL;
     }
-    ex->expr.expression_literal.value.string_literal = value;
+    ex->expr.expression_literal.value.string_literal = strdup(value);
+    if(!ex->expr.expression_literal.value.string_literal){
+        return NULL;
+    }
+
+    ex->next = NULL;
     
     return ex;
 }
@@ -141,6 +151,7 @@ struct expression * create_expression_literal_char(char value){
     if(!ex)
         return NULL;
 
+    ex->kind = EXPR_LITERAL;
     ex->expr.expression_literal.kind = EXPR_LITERAL_CHARACTER;
     ex->kind_str = strdup("literal char");
     if(!ex->kind_str){
@@ -148,6 +159,7 @@ struct expression * create_expression_literal_char(char value){
         return NULL;
     }
     ex->expr.expression_literal.value.character_literal = value;
+    ex->next = NULL;
     
     return ex;
 }
@@ -158,6 +170,7 @@ struct expression * create_expression_literal_boolean(int value){
     if(!ex)
         return NULL;
 
+    ex->kind = EXPR_LITERAL;
     ex->expr.expression_literal.kind = EXPR_LITERAL_BOOLEAN;
     ex->kind_str = strdup("literal boolean");
     if(!ex->kind_str){
@@ -165,6 +178,7 @@ struct expression * create_expression_literal_boolean(int value){
         return NULL;
     }
     ex->expr.expression_literal.value.boolean_literal = value;
+    ex->next = NULL;
     
     return ex;
 }
