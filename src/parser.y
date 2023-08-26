@@ -18,8 +18,9 @@
     #define VERBOSE
 
     //Definir prototipos de funciones
-    extern int yylex();  
+    extern int yylex();
     extern FILE *yyin;
+    extern int yylineno;
 
     void yyerror(const char* s);  
 %}
@@ -96,8 +97,7 @@
 %left OP_MULT OP_DIV OP_MOD
 %right OP_NOT
 
-/* Union de los tipos del AST */
-
+/* Informacion para construccion de AST */
 %union {
     struct program *prog;
     struct declaration *decl;
@@ -141,7 +141,10 @@
 // -- Regla de generacion de programa completo
 program:
     S_PROGRAM IDENT list-declarations list-subprograms list-process{
-        $$ = create_program($2,$3,$4,$5);
+        AST_program = create_program($2,$3,$4,$5);
+
+        // -- Liberar memoria dinamica usada
+        free($2);
     }
     ;
 
@@ -159,9 +162,15 @@ list-declarations:
 declaration:
     S_VAR IDENT DELIM_2P type OP_ASSIGN expression DELIM_PC{
         $$ = create_declaration_variable($2, $4, $6);
+
+        // -- Liberar memoria dinamica usada
+        free($2);
     }
     | S_VAR IDENT DELIM_2P type DELIM_PC{
         $$ = create_declaration_variable($2, $4, 0);
+
+        // -- Liberar memoria dinamica usada
+        free($2);
     }
     ;
 
@@ -180,10 +189,16 @@ subprogram:
     // -- Generacion de subprogramas de tipo procedimiento
     S_PROCEDURE IDENT PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement{
         $$ = create_subprogram_procedure($2, $4, $6, $7);
+
+        // -- Liberar memoria dinamica usada
+        free($2);
     }
     // -- Generacion de subprogramas de tipo funcion
     | S_FUNCTION IDENT PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
         $$ = create_subprogram_function($2, $4, $9, $10, $7);
+
+        // -- Liberar memoria dinamica usada
+        free($2);
     }
     ;
 
@@ -203,6 +218,9 @@ list-parameters:
 parameter:
     IDENT DELIM_2P type{
         $$ = create_parameter_list($1, $3);
+
+        // -- Liberar memoria dinamica usada
+        free($1);
     }
     ;
 
@@ -221,6 +239,9 @@ process:
     // process proc_name ....
     S_PROCESS IDENT DELIM_PC list-declarations block-statement{
         $$ = create_process($2, $4, $5);
+
+        // -- Liberar memoria dinamica usada
+        free($2);
     }
     // process proc_array_name[expr..expr] (?) ...
     //| S_PROCESS identifier CORCH_IZDO identifier DELIM_2P L_INTEGER DELIM_ARR L_INTEGER CORCH_DCHO DELIM_PC list-declarations block-statement
@@ -314,6 +335,9 @@ assignment-statement:
     // var_name = expr;
     IDENT OP_ASSIGN expression DELIM_PC{
         $$ = create_statement_assignment($1, $3);
+
+        // -- Liberar memoria dinamica usada
+        free($1);
     }
     // var_array_name[index] = expr;
     //| identifier CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC
@@ -343,6 +367,9 @@ if-statement:
 fork-statement:
     S_FORK IDENT statement{
         $$ = create_statement_fork($2, $3);
+
+        // -- Liberar memoria dinamica usada
+        free($2);
     }
     ;
 
@@ -362,12 +389,18 @@ return-statement:
 procedure-invocation:
     IDENT PAR_IZDO list-parameters PAR_DCHO DELIM_PC{
         $$ = create_statement_procedure_inv($1, $3);
+
+        // -- Liberar memoria dinamica usada
+        free($1);
     }
     ;
 
 function-invocation:
     IDENT PAR_IZDO list-parameters PAR_DCHO{
         $$ = create_expression_function_invocation($1, $3);
+
+        // -- Liberar memoria dinamica usada
+        free($1);
     }
     ;
 
@@ -469,6 +502,8 @@ term:
 literal:
     LITERAL{
         $$ = create_expression_literal_string($1);
+
+        free(yylval.literal_string);
     }
     | L_INTEGER{
         $$ = create_expression_literal_integer($1);
@@ -490,6 +525,8 @@ literal:
 identifier:
     IDENT{
         $$ = create_expression_identifier($1);
+
+        free(yylval.ident);
     }
     ;
 
@@ -499,5 +536,5 @@ identifier:
 
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error de sintaxis en la linea ?: %s\n",s);
+    fprintf(stderr, "Error de sintaxis en la línea %d: %s\n", yylineno, s);
 }

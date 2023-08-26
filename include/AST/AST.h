@@ -41,6 +41,12 @@ struct program{
 
 // ===============================================================
 
+// ----- DEFINICION DE AST -----
+
+extern struct program * AST_program;
+
+// ===============================================================
+
 // ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (PROGRAMAS) -----
 
 /**
