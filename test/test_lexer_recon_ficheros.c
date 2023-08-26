@@ -10,15 +10,14 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-//Incluir analizador lexico
 #include "lexer.c"
 
 //Incluir funciones comunes
 #include "test/common_functions.h"
 
 // -- Macro que define la ruta donde se encuentran los ficheros de pruebas
-#define EXAMPLES_PATH "examples/programs"
-#define EXAMPLES_RESULT_PATH "examples/programs/tokens"
+#define EXAMPLES_PATH "examples/programs/transparencias/"
+#define EXAMPLES_RESULT_PATH "examples/programs/tokens/"
 #define LMP_EXT ".lmp"
 #define TXT_EXT ".txt"
 // -- Macros que definen los nombres de ficheros de pruebas
