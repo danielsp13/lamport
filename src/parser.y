@@ -14,6 +14,9 @@
     //Inclusion de AST
     #include "AST/AST.h"
 
+    //Inclusion de mensajes de errores de parser
+    #include "parser_errors.h"
+
     //Definir directiva para testeo
     #define VERBOSE
 
@@ -117,17 +120,44 @@
 
 // Especificacion de tipos de valor semantico
 
+// ---- TIPO program
 %type <prog> program
-%type <decl> list-declarations declaration
+
+// ---- TIPO declaracion
+%type <decl> list-declarations declaration 
+%type <decl> declaration-var-with-assignment declaration-var
+
+// ---- TIPO subprogram
 %type <subprog> list-subprograms subprogram
-%type <proc> list-process process
+%type <subprog> subprogram-procedure
+%type <subprog> subprogram-function
+
+// ---- TIPO process
+%type <proc> list-process process process-def
+
+// ---- TIPO type
 %type <type> type
-%type <expr> expression binary-expression unary-expression
-%type <expr> term function-invocation literal identifier
+
+// ---- TIPO expression
+%type <expr> expression 
+%type <expr> binary-expression unary-expression
+%type <expr> term function-invocation 
+%type <expr> literal identifier
+
+// ---- TIPO parameter_list
 %type <param> list-parameters parameter
+
+// ---- TIPO statement
 %type <stmt> statement list-statements
-%type <stmt> block-statement cobegin-statement assignment-statement while-statement for-statement if-statement procedure-invocation fork-statement atomic-statement return-statement
+%type <stmt> block-statement
+%type <stmt> cobegin-statement 
+%type <stmt> assignment-statement while-statement for-statement if-statement procedure-invocation fork-statement atomic-statement return-statement
+
+// ---- TIPO identifier
 %type <ident> IDENT
+%type <ident> program-name declaration-name subprogram-procedure-name subprogram-function-name parameter-name process-name
+
+// ---- TIPO LITERALS
 %type <literal_string> LITERAL
 %type <literal_char> L_CHAR
 %type <literal_int> L_INTEGER
@@ -140,11 +170,29 @@
 
 // -- Regla de generacion de programa completo
 program:
-    S_PROGRAM IDENT list-declarations list-subprograms list-process{
+    S_PROGRAM program-name list-declarations list-subprograms list-process{
         AST_program = create_program($2,$3,$4,$5);
+    }
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROGRAM_PROGRAM);
 
-        // -- Liberar memoria dinamica usada
-        free($2);
+        // -- Abortar inmediatamente el analisis
+        YYABORT;
+    }
+    ;
+
+program-name:
+    IDENT{ 
+        $$ = $1;
+    }
+    // <--> ERROR : Nombre de programa incorrecto
+    | error { 
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROGRAM_IDENT);
+
+        // -- Abortar inmediatamente el analisis
+        YYABORT; 
     }
     ;
 
@@ -160,17 +208,77 @@ list-declarations:
     ;
 
 declaration:
-    S_VAR IDENT DELIM_2P type OP_ASSIGN expression DELIM_PC{
-        $$ = create_declaration_variable($2, $4, $6);
-
-        // -- Liberar memoria dinamica usada
-        free($2);
+    S_VAR declaration-var-with-assignment{
+        $$ = $2;
     }
-    | S_VAR IDENT DELIM_2P type DELIM_PC{
-        $$ = create_declaration_variable($2, $4, 0);
+    | S_VAR declaration-var{
+        $$ = $2;
+    }
+    // <--> ERROR: Falta palabra var
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_DECLARARTION_VAR);
 
-        // -- Liberar memoria dinamica usada
-        free($2);
+        // -- Abortar inmediatamente el analisis
+        YYABORT;
+    }
+    ;
+
+declaration-var-with-assignment:
+    declaration-name DELIM_2P type OP_ASSIGN expression DELIM_PC{
+        $$ = create_declaration_variable($1, $3, $5);
+    }
+    // <--> ERROR: Falta ':' en la declaracion
+    | declaration-name error type OP_ASSIGN expression DELIM_PC{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_DECLARATION_DELIM2P);
+
+        // -- Abortar inmediatamente el analisis
+        YYABORT;
+    }
+    // <--> ERROR: Falta ';' en la declaracion
+    | declaration-name DELIM_2P type OP_ASSIGN expression error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_DECLARATION_DELIMPC);
+
+        // -- Abortar inmediatamente el analisis
+        YYABORT;
+    }
+    ;
+
+declaration-var:
+    declaration-name DELIM_2P type DELIM_PC{
+        $$ = create_declaration_variable($1, $3, 0);
+    }
+    // <--> ERROR: Falta ':' en la declaracion
+    | declaration-name error type DELIM_PC{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_DECLARATION_DELIM2P);
+
+        // -- Abortar inmediatamente el analisis
+        YYABORT;
+    }
+    // <--> ERROR: Falta ';' en la declaracion
+    | declaration-name DELIM_2P type error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_DECLARATION_DELIMPC);
+
+        // -- Abortar inmediatamente el analisis
+        YYABORT;
+    }
+    ;
+
+declaration-name:
+    IDENT{
+        $$ = $1;
+    }
+    // <--> ERROR : Nombre de variable incorrecto
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_DECLARATION_IDENT);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
     }
     ;
 
@@ -186,19 +294,77 @@ list-subprograms:
     ;
 
 subprogram:
-    // -- Generacion de subprogramas de tipo procedimiento
-    S_PROCEDURE IDENT PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement{
-        $$ = create_subprogram_procedure($2, $4, $6, $7);
-
-        // -- Liberar memoria dinamica usada
-        free($2);
+    subprogram-procedure{
+        $$ = $1;
     }
-    // -- Generacion de subprogramas de tipo funcion
-    | S_FUNCTION IDENT PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
-        $$ = create_subprogram_function($2, $4, $9, $10, $7);
+    | subprogram-function{
+        $$ = $1;
+    }
+    ;
 
-        // -- Liberar memoria dinamica usada
-        free($2);
+subprogram-procedure:
+    // -- Generacion de subprogramas de tipo procedimiento (Con parametros)
+    S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement{
+        $$ = create_subprogram_procedure($2, $4, $6, $7);
+    }
+    // -- Generacion de subprogramas de tipo procedimiento (sin parametros)
+    | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO list-declarations block-statement{
+        $$ = create_subprogram_procedure($2, 0, $5, $6);
+    }
+    // <--> ERROR: Procedimiento mal formado
+    | S_PROCEDURE error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROC_PROCEDURE_MALFORMED);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
+    ;
+
+subprogram-procedure-name:
+    IDENT{
+        $$ = $1;
+    }
+    // <--> ERROR : Nombre de variable incorrecto
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROC_PROCEDURE_IDENT);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
+    ;
+
+subprogram-function:
+    // -- Generacion de subprogramas de tipo funcion (con parametros)
+    S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
+        $$ = create_subprogram_function($2, $4, $9, $10, $7);
+    }
+    // -- Generacion de subprogramas de tipo funcion (sin parametros)
+    | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
+        $$ = create_subprogram_function($2, 0, $8, $9, $6);
+    }
+    // <--> ERROR: Funcion mal formado
+    | S_FUNCTION error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROC_FUNCTION_MALFORMED);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
+    ;
+
+subprogram-function-name:
+    IDENT{
+        $$ = $1;
+    }
+    // <--> ERROR : Nombre de variable incorrecto
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROC_FUNCTION_IDENT);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
     }
     ;
 
@@ -210,17 +376,33 @@ list-parameters:
     | parameter{
         $$ = $1;
     }
-    | /* epsilon */{
-        $$ = 0;
-    }
     ;
 
 parameter:
-    IDENT DELIM_2P type{
+    parameter-name DELIM_2P type{
         $$ = create_parameter_list($1, $3);
+    }
+    // <--> ERROR : Nombre de parametro incorrecto
+    | parameter-name error type{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROC_PARAMETER_DELIM2P);
 
-        // -- Liberar memoria dinamica usada
-        free($1);
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
+    ;
+
+parameter-name:
+    IDENT{
+        $$ = $1;
+    }
+    // <--> ERROR : Nombre de parametro incorrecto
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROC_PARAMETER_IDENT);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
     }
     ;
 
@@ -236,16 +418,48 @@ list-process:
     ;
 
 process:
-    // process proc_name ....
-    S_PROCESS IDENT DELIM_PC list-declarations block-statement{
-        $$ = create_process($2, $4, $5);
-
-        // -- Liberar memoria dinamica usada
-        free($2);
+    process-def{
+        $$ = $1;
     }
-    // process proc_array_name[expr..expr] (?) ...
-    //| S_PROCESS identifier CORCH_IZDO identifier DELIM_2P L_INTEGER DELIM_ARR L_INTEGER CORCH_DCHO DELIM_PC list-declarations block-statement
+    /*| process-def-array{
+        $$ = $1;
+    }*/
     ;
+
+process-def:
+    // process proc_name ....
+    S_PROCESS process-name DELIM_PC list-declarations block-statement{
+        $$ = create_process($2, $4, $5);
+    }
+    // <--> ERROR : Falta ';'
+    | S_PROCESS process-name error list-declarations block-statement{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROCESS_DELIMPC);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
+    ;
+
+/*process-def-array:
+    // process proc_array_name[expr..expr] (?) ...
+    S_PROCESS identifier CORCH_IZDO identifier DELIM_2P L_INTEGER DELIM_ARR L_INTEGER CORCH_DCHO DELIM_PC list-declarations block-statement
+    ;*/
+
+process-name:
+    IDENT{
+        $$ = $1;
+    }
+    // <--> ERROR : Nombre de variable incorrecto
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_PROCESS_IDENT);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
+    ;
+
 
 // -- Reglas de generacion de tipos de dato
 type:
@@ -272,6 +486,14 @@ type:
     }
     | T_DPROCESS{
         $$ = create_dprocess_type();
+    }
+    // <--> ERROR : Tipo de dato no reconocido
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_TYPE);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
     }
     ;
 
@@ -317,6 +539,13 @@ statement:
     | return-statement{
         $$ = $1;
     }
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_STMT_MALFORMED);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
     ;
 
 block-statement:
@@ -335,9 +564,6 @@ assignment-statement:
     // var_name = expr;
     IDENT OP_ASSIGN expression DELIM_PC{
         $$ = create_statement_assignment($1, $3);
-
-        // -- Liberar memoria dinamica usada
-        free($1);
     }
     // var_array_name[index] = expr;
     //| identifier CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC
@@ -367,9 +593,6 @@ if-statement:
 fork-statement:
     S_FORK IDENT statement{
         $$ = create_statement_fork($2, $3);
-
-        // -- Liberar memoria dinamica usada
-        free($2);
     }
     ;
 
@@ -389,18 +612,12 @@ return-statement:
 procedure-invocation:
     IDENT PAR_IZDO list-parameters PAR_DCHO DELIM_PC{
         $$ = create_statement_procedure_inv($1, $3);
-
-        // -- Liberar memoria dinamica usada
-        free($1);
     }
     ;
 
 function-invocation:
     IDENT PAR_IZDO list-parameters PAR_DCHO{
         $$ = create_expression_function_invocation($1, $3);
-
-        // -- Liberar memoria dinamica usada
-        free($1);
     }
     ;
 
@@ -470,6 +687,13 @@ binary-expression:
     | term OP_OR expression{
         $$ = create_expression_binary_operation(EXPR_OR, "or", $1, $3);
     }
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_EXPR_MALFORMED);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
     ;
     
 unary-expression:
@@ -502,8 +726,6 @@ term:
 literal:
     LITERAL{
         $$ = create_expression_literal_string($1);
-
-        free(yylval.literal_string);
     }
     | L_INTEGER{
         $$ = create_expression_literal_integer($1);
@@ -525,8 +747,6 @@ literal:
 identifier:
     IDENT{
         $$ = create_expression_identifier($1);
-
-        free(yylval.ident);
     }
     ;
 
@@ -536,5 +756,6 @@ identifier:
 
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error de sintaxis en la línea %d: %s\n", yylineno, s);
+    if(strcmp(s, "syntax error") != 0)
+        fprintf(stderr, "--- Error de sintaxis en la línea %d -> %s\n", yylineno, s);
 }

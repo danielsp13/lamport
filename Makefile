@@ -557,7 +557,7 @@ generate_lexer: $(SOURCE_DIR)/$(FLEX_LEXER_SRC)
 # -- Genera la fuente del analizador sintactico a traves de bison	
 generate_parser:
 	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico $(COLOR_GREEN)$(SOURCE_DIR)/$(BISON_PARSER_SRC)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@bison --defines=$(HEADER_DIR)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_DIR)/$(PARSER_SRC)  $(SOURCE_DIR)/$(BISON_PARSER_SRC) -Wcounterexamples
+	@bison --defines=$(HEADER_DIR)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_DIR)/$(PARSER_SRC)  $(SOURCE_DIR)/$(BISON_PARSER_SRC) #-Wcounterexamples
 	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_DIR)/$(PARSER_SRC)$(COLOR_RESET)"
 	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_DIR)/$(PARSER_HEADER)$(COLOR_RESET)"
 
