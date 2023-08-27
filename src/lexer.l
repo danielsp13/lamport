@@ -10,6 +10,9 @@
 %{
     //Inclusion de los tipos de Token
     #include "token.h"
+
+    //Inclusion de registro de cadenas de caracteres
+    #include "string_register.h"
 %}
 
 /* Habilitar seguimiento de errores en la linea especifica del programa */
@@ -84,14 +87,20 @@ comentario  "{"[^}]*"}"
 "<<"            {return(ATOM_INI);}
 ">>"            {return(ATOM_FIN);}
 {id}            {
-    #ifndef LEXER_TEST
-        yylval.ident = strdup(yytext);
+    #ifndef LEXER_TEST 
+        // -- Incluir cadena al registro de cadenas
+        if(add_string_to_register(strdup(yytext)) == STRING_REGISTER_SUCCESS)
+            yylval.ident = last_string_register->str;
+        
     #endif
     return(IDENT);
     }
 {literal}       {
     #ifndef LEXER_TEST
-        yylval.literal_string = strdup(yytext);
+        // -- Incluir cadena al registro de cadenas
+        if(add_string_to_register(strdup(yytext)) == STRING_REGISTER_SUCCESS)
+            yylval.literal_string = last_string_register->str;
+            
     #endif
     return(LITERAL);
     }

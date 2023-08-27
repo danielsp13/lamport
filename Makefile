@@ -101,6 +101,7 @@ AST_NODE_EXPR_NAME:=expression
 AST_NODE_TYPE_NAME:=type
 AST_NODE_SUBPROG_NAME:=subprogram
 AST_NODE_PROC_NAME:=process
+STRING_REGISTER_NAME:=string_register
 LMP_DEPENDENCIES_IO_NAME:=lmp_io
 LMP_DEPENDENCIES_ANALYSIS_NAME:=lmp_analysis
 LMP_MAIN_NAME:=lmp
@@ -120,23 +121,21 @@ FLEX_LEXER_SRC:=$(LEXER_NAME)$(LEXER_EXT)
 LEXER_SRC:=$(LEXER_NAME)$(SOURCE_EXT)
 BISON_PARSER_SRC:=$(PARSER_NAME)$(BISON_EXT)
 PARSER_SRC:=$(PARSER_NAME)$(SOURCE_EXT)
-AST_SOURCE:=$(AST_NAME)$(SOURCE_EXT)
-LMP_IO_SRC:=$(LMP_DEPENDENCIES_IO_NAME)$(SOURCE_EXT)
-LMP_MAIN:=$(LMP_MAIN_NAME)$(SOURCE_EXT)
-
 
 INDEX_LEXER_FILES:=$(LEXER_NAME)
 INDEX_PARSER_FILES:=$(PARSER_NAME)
 INDEX_AST_FILES:=$(AST_NAME) $(AST_NODE_DECL_NAME) $(AST_NODE_STMT_NAME) $(AST_NODE_EXPR_NAME) $(AST_NODE_TYPE_NAME) $(AST_NODE_PROC_NAME) $(AST_NODE_SUBPROG_NAME)
+INDEX_STRING_REGISTER_FILES:=$(STRING_REGISTER_NAME)
 INDEX_LMP_MAIN_FILES:=$(LMP_DEPENDENCIES_IO_NAME) $(LMP_DEPENDENCIES_ANALYSIS_NAME)
 
 # -- Variables de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
 INDEX_OBJ_PARSER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_PARSER_FILES))
 INDEX_OBJ_AST_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_AST_FILES))
+INDEX_OBJ_STRING_REGISTER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_STRING_REGISTER_FILES))
 INDEX_OBJ_LMP_MAIN_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_MAIN_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_LMP_MAIN_FILES)
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_LMP_MAIN_FILES) $(INDEX_OBJ_STRING_REGISTER_FILES)
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -460,7 +459,7 @@ author:
 help:
 	@echo "$(COLOR_BOLD)"
 	@echo "-- TAREAS DE MAKEFILE --"
-	@printf "%-30s %s\n" "make" "*No definido todavia*"
+	@printf "%-30s %s\n" "make" "Constuye el compilador de lamport"
 	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
 	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
 	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests)."
@@ -558,7 +557,7 @@ generate_lexer: $(SOURCE_DIR)/$(FLEX_LEXER_SRC)
 # -- Genera la fuente del analizador sintactico a traves de bison	
 generate_parser:
 	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico $(COLOR_GREEN)$(SOURCE_DIR)/$(BISON_PARSER_SRC)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@bison --defines=$(HEADER_DIR)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_DIR)/$(PARSER_SRC)  $(SOURCE_DIR)/$(BISON_PARSER_SRC)
+	@bison --defines=$(HEADER_DIR)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_DIR)/$(PARSER_SRC)  $(SOURCE_DIR)/$(BISON_PARSER_SRC) -Wcounterexamples
 	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_DIR)/$(PARSER_SRC)$(COLOR_RESET)"
 	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_DIR)/$(PARSER_HEADER)$(COLOR_RESET)"
 
@@ -580,6 +579,7 @@ compile_sources:
 	@make -s compile_lexer && echo
 	@make -s compile_parser && echo
 	@make -s compile_ast && echo
+	@make -s compile_string_register && echo
 	
 	@make -s compile_lmp_dependencies && echo	
 	
@@ -597,36 +597,14 @@ compile_parser: build_obj_dir
 compile_ast: build_obj_dir
 	$(call compile_objects_skeleton,$(INDEX_AST_FILES),"$(AST_DIR)/","Abstract Syntax Tree \(AST\)")
 	
+# -- Genera codigo objeto para registro de cadenas de caracteres
+compile_string_register:
+	$(call compile_objects_skeleton,$(INDEX_STRING_REGISTER_FILES),"","Registro de cadenas de caracteres")
+	
+# -- Genera codigo objeto para las dependencias del compilador Lamport
 compile_lmp_dependencies:
 	$(call compile_objects_skeleton,$(INDEX_LMP_MAIN_FILES),"","dependencias de compilador lamport")
 	
-# ========================================================================================
-# DEFINICION DE REGLAS DE COMPILACION
-# ========================================================================================
-
-# -- Compila los fuentes del proyecto
-compile_old:
-	@echo "$(COLOR_BLUE)Compilando ficheros de fuentes del proyecto...$(COLOR_RESET)"
-	@make -s compile_sources && echo
-	@make -s compile_tests
-	
-compile_sources_old:
-	@make -s compile_lexer && echo
-	@make -s compile_parser && echo 
-
-
-	
-# -- Compila los fuentes del analizador lexico
-compile_lexer_old: build_bin_dir build_obj_dir
-	@make -s generate_lexer && echo
-	$(call compile_skeleton, $(INDEX_LEXER_FILES), "analizador lexico", $(LDFLEX),"")
-
-
-	
-# -- Compila los fuentes del analizador sintactico
-compile_parser_old: build_bin_dir build_obj_dir
-	@make -s generate_parser && echo
-	$(call compile_skeleton, $(INDEX_PARSER_FILES) $(INDEX_AST_FILES),"analizador sintactico",$(LDFLEX),"multiple",$(PARSER_NAME))
 	
 	
 # ========================================================================================

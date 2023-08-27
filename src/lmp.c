@@ -17,7 +17,7 @@
 
 // ----- INCLUSION DE MODULOS -----
 
-#include "AST/AST.h"    ///< Importacion del AST
+#include "AST/AST.h"                ///< Importacion del AST
 
 // ===============================================================
 
@@ -50,12 +50,18 @@ int main(int argc, char **argv){
     // -- 2. Realizar parsing
     if(lmp_parsing_file() < LMP_IO_SUCCESS){
         // -- Imprimir mensaje de error
-        fprintf(stderr,"%s %s : %s\n", LMP_PARSING_ERROR_MSG_HEADER, LMP_PARSING_ERROR_MSG, file_parsed_name);
+        fprintf(stdout,"%s %s : %s\n", LMP_PARSING_ERROR_MSG_HEADER, LMP_PARSING_ERROR_MSG, file_parsed_name);
+        
+        // -- Cerrar fichero y limpiar AST
+        cerrar_fichero();
+        lmp_free_AST();
+
+        // -- Liberar registro de cadenas
+        free_string_register();
+
+        // -- Salir con error
+        exit(EXIT_FAILURE);
     }
-    else{
-        fprintf(stdout,"ANALISIS DE %s completado con exito!!!\n", file_parsed_name);
-    }
-    
 
     // -- . Cerrar fichero
     if(cerrar_fichero() < LMP_IO_SUCCESS){
@@ -68,6 +74,9 @@ int main(int argc, char **argv){
 
     // -- . Liberar memoria utilizada para el AST
     lmp_free_AST();
+
+    // -- Liberar registro de cadenas
+    free_string_register();
 
     // -- Retorno
     return EXIT_SUCCESS;
