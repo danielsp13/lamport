@@ -16,7 +16,7 @@
 #define LMP_PARSING_FAILURE -1      ///< Indica el fallo en el parsing de un fichero de lamport
 
 #define LMP_PARSING_ERROR_MSG_HEADER "--- [LMP: PARSING - ERROR]"
-#define LMP_PARSING_ERROR_MSG "Error en el procesamiento del fichero"
+#define LMP_PARSING_ERROR_MSG "Fallo al procesar el fichero"
 
 // ===============================================================
 
