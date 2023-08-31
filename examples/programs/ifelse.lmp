@@ -1,0 +1,21 @@
+{Programa: ifelse.lmp}
+{Autor: Daniel Pérez Ruiz}
+{Descripción: Programa de calculo del valor absoluto}
+
+program ValorAbsoluto
+	var num : integer := -2;
+	
+{Proceso que comprueba el valor de num, y calcula su valor absoluto}
+process main;
+	var resultado : integer := 0; {Variable para almacenar el resultado de valor absoluto}
+begin
+	{Comprobar el valor de var global num}
+	if (num < 0) then
+		begin
+			resultado := -num;
+		end
+	else
+		begin
+			resultado := num;
+		end
+end
