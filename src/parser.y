@@ -619,6 +619,9 @@ function-invocation:
     IDENT PAR_IZDO list-parameters PAR_DCHO{
         $$ = create_expression_function_invocation($1, $3);
     }
+    | IDENT PAR_IZDO PAR_DCHO{
+        $$ = create_expression_function_invocation($1, 0);
+    }
     ;
 
 // -- Reglas de generacion de expresiones
