@@ -21,7 +21,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 
 ~~~bash
 <program> ::= "program" <identifier> [<declarations>] (<subprogram>)* <process>+
-<declarations> ::= "var" (<identifier> ":" <type> [:= <expression>] ";")+
+<declarations> ::= ("var" <identifier> ":" <type> [:= <expression>] ";")+
 <subprogram> ::= <procedure-definition>
 	| <function-definition>
 <type> ::= "integer"
@@ -60,8 +60,9 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
  	<block-statement>
 <if-statement> ::= "if" <expression> "then" <block-statement>
 	["else" <block-statement>]
-<procedure-invocation> ::= <identifier> "(" <parameters> ")" ";"
-<function-invocation> ::= <identifier> "(" <parameters> ")"
+<procedure-invocation> ::= <identifier> "(" <arguments> ")" ";"
+<function-invocation> ::= <identifier> "(" <arguments> ")"
+<arguments> ::= [<expression> ["," <arguments>]]
 <return-statement> ::= "return" <expression> ";"
 <expression> ::= <term> <binary-operator> <expression>
 	| <unary-operator> <term>

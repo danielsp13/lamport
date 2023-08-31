@@ -147,7 +147,7 @@ struct statement{
         // Estructura de sentencia de invocacion de proceso
         struct {
             char *procedure_name;                   ///< Nombre del procedimiento
-            struct parameter_list *parameters;      ///< Parametros del procedimiento
+            struct expression *arguments_list;      ///< Argumentos de invocacion del procedimiento
         } statement_procedure_inv;
 
         // Estructura de sentencia de bloque begin-end o cobegin-coend o atomic
@@ -211,10 +211,10 @@ struct statement * create_statement_if_else(struct expression *condition, struct
 /**
  * @brief Crea y reserva memoria para una sentencia de invocacion de procedimiento
  * @param procedure_name : Nombre del procedimiento
- * @param parameters : Lista de parametros del procedimiento
+ * @param arguments_list : Lista de argumentos de invocacion procedimiento
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_procedure_inv(char *procedure_name, struct parameter_list *parameters);
+struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de construccion de bloques

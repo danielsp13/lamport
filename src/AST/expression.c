@@ -184,7 +184,7 @@ struct expression * create_expression_literal_boolean(int value){
 }
 
 
-struct expression * create_expression_function_invocation(char *function_name, struct parameter_list *parameters){
+struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list){
     struct expression *ex = malloc(sizeof(*ex));
 
     if(!ex)
@@ -201,7 +201,7 @@ struct expression * create_expression_function_invocation(char *function_name, s
         free(ex->expr.expression_function_inv.function_name);
         return NULL;
     }
-    ex->expr.expression_function_inv.parameters = parameters;
+    ex->expr.expression_function_inv.arguments_list = arguments_list;
     ex->next = NULL;
 
     return ex;
@@ -278,7 +278,7 @@ void free_expression(struct expression *expr){
 
     case EXPR_FUNCTION_INV:
         free(expr->expr.expression_function_inv.function_name);
-        free_list_parameters(expr->expr.expression_function_inv.parameters);
+        free_list_expressions(expr->expr.expression_function_inv.arguments_list);
         break;
 
     case EXPR_GROUPED:
@@ -359,8 +359,8 @@ void print_AST_expressions(struct expression *expressions_list){
 
         case EXPR_FUNCTION_INV:
             printf(" %s INVOCACION DE FUNCION DE NOMBRE: [%s]\n", IDENT_ARROW, current_expression->expr.expression_function_inv.function_name);
-            printf(" %s PARAMETROS DE FUNCION: [%s]\n", IDENT_ARROW, current_expression->expr.expression_function_inv.function_name);
-            print_AST_parameters(current_expression->expr.expression_function_inv.parameters);
+            printf(" %s ARGUMENTOS DE INVOCACION DE FUNCION: [%s]\n", IDENT_ARROW, current_expression->expr.expression_function_inv.function_name);
+            print_AST_expressions(current_expression->expr.expression_function_inv.arguments_list);
             break;
 
         case EXPR_GROUPED:

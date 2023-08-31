@@ -98,7 +98,7 @@ struct statement * create_statement_if_else(struct expression *condition, struct
     return st; 
 }
 
-struct statement * create_statement_procedure_inv(char *procedure_name, struct parameter_list *parameters){
+struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list){
     struct statement *st = malloc(sizeof(*st));
 
     if(!st)
@@ -110,13 +110,14 @@ struct statement * create_statement_procedure_inv(char *procedure_name, struct p
         free(st->kind_str);
         return NULL;
     }
+
     st->stmt.statement_procedure_inv.procedure_name = strdup(procedure_name);
-    if(st->stmt.statement_procedure_inv.procedure_name){
+    if(!st->stmt.statement_procedure_inv.procedure_name){
         free(st->stmt.statement_procedure_inv.procedure_name);
         return NULL;
     }
 
-    st->stmt.statement_procedure_inv.parameters = parameters;
+    st->stmt.statement_procedure_inv.arguments_list = arguments_list;
     st->next = NULL;
 
     return st; 
@@ -259,8 +260,8 @@ void free_statement(struct statement *stmt){
 
     case STMT_PROCEDURE_INV:
         free(stmt->stmt.statement_procedure_inv.procedure_name);
-        if(stmt->stmt.statement_procedure_inv.parameters)
-            free_list_parameters(stmt->stmt.statement_procedure_inv.parameters);
+        if(stmt->stmt.statement_procedure_inv.arguments_list)
+            free_list_expressions(stmt->stmt.statement_procedure_inv.arguments_list);
         break;
 
     case STMT_BLOCK_BEGIN:
@@ -362,8 +363,8 @@ void print_AST_statements(struct statement *statements_list){
 
         case STMT_PROCEDURE_INV:
             printf(" %s INVOCACION DE PROCEDIMIENTO DE NOMBRE: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_procedure_inv.procedure_name);
-            printf(" %s PARAMETROS DEL PROCEDIMIENTO: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_procedure_inv.procedure_name);
-            print_AST_parameters(current_statement->stmt.statement_procedure_inv.parameters);
+            printf(" %s ARGUMENTOS DE INVOCACION DEL PROCEDIMIENTO: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_procedure_inv.procedure_name);
+            print_AST_expressions(current_statement->stmt.statement_procedure_inv.arguments_list);
             break;
 
         case STMT_FORK:

@@ -143,6 +143,7 @@
 %type <expr> binary-expression unary-expression
 %type <expr> term function-invocation 
 %type <expr> literal identifier
+%type <expr> list-arguments argument
 
 // ---- TIPO parameter_list
 %type <param> list-parameters parameter
@@ -576,7 +577,7 @@ while-statement:
     ;
 
 for-statement:
-    FOR expression OP_ASSIGN expression TO expression DO block-statement{
+    FOR IDENT OP_ASSIGN expression TO expression DO block-statement{
         $$ = create_statement_for($2, $4, $6, $8);
     }
     ;
@@ -610,17 +611,36 @@ return-statement:
 
 // -- Reglas de generacion de invocaciones de funciones y procedimientos
 procedure-invocation:
-    IDENT PAR_IZDO list-parameters PAR_DCHO DELIM_PC{
+    IDENT PAR_IZDO list-arguments PAR_DCHO DELIM_PC{
         $$ = create_statement_procedure_inv($1, $3);
+    }
+    | IDENT PAR_IZDO PAR_DCHO DELIM_PC{
+        $$ = create_statement_procedure_inv($1, 0);
     }
     ;
 
 function-invocation:
-    IDENT PAR_IZDO list-parameters PAR_DCHO{
+    IDENT PAR_IZDO list-arguments PAR_DCHO{
         $$ = create_expression_function_invocation($1, $3);
     }
     | IDENT PAR_IZDO PAR_DCHO{
         $$ = create_expression_function_invocation($1, 0);
+    }
+    ;
+
+list-arguments:
+    argument DELIM_C list-arguments{
+        $$ = $1;
+        $1->next = $3;
+    }
+    | argument{
+        $$ = $1;
+    }
+    ;
+
+argument:
+    expression{
+        $$ = $1;
     }
     ;
 

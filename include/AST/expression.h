@@ -189,7 +189,7 @@ struct expression{
         // Estructura de expresion de invocacion de funcion
         struct {
             char *function_name;                            ///< Nombre de funcion
-            struct parameter_list *parameters;              ///< Lista de parametros para funciones
+            struct expression *arguments_list;              ///< Lista de argumentos para funciones
         } expression_function_inv;
 
         // Expresion entre parentesis
@@ -265,10 +265,10 @@ struct expression * create_expression_literal_boolean(int value);
 /**
  * @brief Crea y reserva memoria para una expresion de invocacion de funcion
  * @param function_name : Nombre de funcion
- * @param parameters : Parametros de la funcion
+ * @param arguments_list : Argumentos de invocación de la funcion
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_function_invocation(char *function_name, struct parameter_list *parameters);
+struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list);
 
 /**
  * @brief Crea y reserva memoria para una expresion definida entre parentesis
