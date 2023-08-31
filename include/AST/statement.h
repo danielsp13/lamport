@@ -131,9 +131,9 @@ struct statement{
 
         // Estructura de sentencia de bucle for
         struct {
-            struct expression *intialization;       ///< Inicializacion de contadores de bucle
-            struct expression *condition;           ///< Condicion del bucle
-            struct expression *increment;           ///< Incremento de contadores de bucle
+            char *counter_name;                     ///< Variable utiliada para el bucle for
+            struct expression *intialization;       ///< Inicializacion de contador de bucle
+            struct expression *finish;              ///< Finalizacion del bucle
             struct statement *body;                 ///< Cuerpo del bucle (conjunto de sentencias)
         } statement_for;
         
@@ -191,13 +191,13 @@ struct statement * create_statement_while(struct expression *condition, struct s
 
 /**
  * @brief Crea y reserva memoria para una sentencia de bucle for (STMT_FOR)
- * @param initializacion : Expresion para inicializar los contadores del bucle
- * @param condition : Expresion de condicion del bucle for
- * @param increment : Expresion de incremento de condiciones
+ * @param counter_name : Identificador de contador utilizado para el bucle
+ * @param initializacion : Expresion para inicializar el contador del bucle
+ * @param finish : Expresion para finalizar el contador del bucle
  * @param body : Cuerpo del bucle (conjunto de sentencias)
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_for(struct expression *initialization, struct expression *condition, struct expression *increment, struct statement *body);
+struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de control de flujo if-else

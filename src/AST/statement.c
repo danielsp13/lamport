@@ -56,7 +56,7 @@ struct statement * create_statement_while(struct expression *condition, struct s
     return st;
 }
 
-struct statement * create_statement_for(struct expression *initialization, struct expression *condition, struct expression *increment, struct statement *body){
+struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body){
     struct statement *st = malloc(sizeof(*st));
 
     if(!st)
@@ -69,9 +69,9 @@ struct statement * create_statement_for(struct expression *initialization, struc
         return NULL;
     }
 
+    st->stmt.statement_for.counter_name = strdup(counter_name);
     st->stmt.statement_for.intialization = initialization;
-    st->stmt.statement_for.condition = condition;
-    st->stmt.statement_for.increment = increment;
+    st->stmt.statement_for.finish = finish;
     st->stmt.statement_for.body = body;
     st->next = NULL;
 
@@ -243,9 +243,10 @@ void free_statement(struct statement *stmt){
         break;
 
     case STMT_FOR:
+        if(stmt->stmt.statement_for.counter_name)
+            free(stmt->stmt.statement_for.counter_name);
         free_expression(stmt->stmt.statement_for.intialization);
-        free_expression(stmt->stmt.statement_for.condition);
-        free_expression(stmt->stmt.statement_for.increment);
+        free_expression(stmt->stmt.statement_for.finish);
         free_list_statements(stmt->stmt.statement_for.body);
         break;
 
@@ -326,12 +327,11 @@ void print_AST_statements(struct statement *statements_list){
             break;
 
         case STMT_FOR:
-            printf(" %s INICIALIZACION DEL BUCLE FOR\n", IDENT_ARROW);
+            printf(" %s NOMBRE DE CONTADOR DEL BUCLE FOR: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_for.counter_name);
+            printf(" %s EXPRESION DE INICIO DE CONTADOR DE BUCLE FOR\n", IDENT_ARROW);
             print_AST_expressions(current_statement->stmt.statement_for.intialization);
-            printf(" %s CONDICION DEL BUCLE FOR\n", IDENT_ARROW);
-            print_AST_expressions(current_statement->stmt.statement_for.condition);
-            printf(" %s INCREMENTO DEL BUCLE FOR\n", IDENT_ARROW);
-            print_AST_expressions(current_statement->stmt.statement_for.increment);
+            printf(" %s EXPRESION DE FINIALIZACION DE BUCLE FOR\n", IDENT_ARROW);
+            print_AST_expressions(current_statement->stmt.statement_for.finish);
             printf(" %s CUERPO DEL BUCLE FOR\n", IDENT_ARROW);
             print_AST_statements(current_statement->stmt.statement_for.body);
             break;
