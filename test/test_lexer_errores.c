@@ -14,7 +14,7 @@
 #include "lexer.c"
 
 //Incluir funciones comunes
-#include "common_functions.h"
+#include "test/common_functions.h"
 
 // -- Macro que define la ruta donde se encuentran los ficheros de pruebas
 #define EXAMPLES_PATH "examples/test_tokens/"
@@ -30,14 +30,14 @@
  * @param str_test : Cadena de caracteres a escanear por el lexer
  * @param expected_token : Token esperado de la devolucion del escaneo del lexer
  */
-void reconocer_token(const char* str_test, TokenType expected_token);
+void reconocer_token(const char* str_test, int expected_token);
 
 /**
  * @brief Funcion de reconocimiento de tokens. Lee desde un fichero la lista de lexemas a probar
  * @param file : Nombre del fichero que contiene los lexemas
  * @param expected_token : Token esperado de la devolucion del escaneo del lexer
  */
-void reconocer_token_desde_fichero(const char* file, TokenType expected_token);
+void reconocer_token_desde_fichero(const char* file, int expected_token);
 
 // ==================================================================================
 
@@ -61,14 +61,14 @@ int main() {
 
 // IMPLEMENTACION DE FUNCIONES AUXILIARES
 
-void reconocer_token(const char* str_test, TokenType expected_token){
+void reconocer_token(const char* str_test, int expected_token){
     YY_BUFFER_STATE buffer = yy_scan_string(str_test);
     int token = yylex();
     assert_int_equal(token, expected_token);
     yy_delete_buffer(buffer);
 }
 
-void reconocer_token_desde_fichero(const char* file, TokenType expected_token){
+void reconocer_token_desde_fichero(const char* file, int expected_token){
     Buffer* buff = crear_buffer();
     leer_fichero(file,buff,0);
 

@@ -1,0 +1,17 @@
+{Programa: while.lmp}
+{Autor: Daniel Pérez Ruiz}
+{Descripción: Programa que incrementa un contador usando un bucle while}
+
+program IncrementarContador
+	var contador : integer := 0;	{Contador entero a incrementar}
+	
+{Proceso principal del programa}
+process Main;
+begin
+	{Bucle que se ejecuta el numero de veces especificado}
+	while contador < 5 do
+	begin
+		{Incrementar contador}
+		contador := contador + 1;
+	end
+end

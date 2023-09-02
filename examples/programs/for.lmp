@@ -1,0 +1,18 @@
+{Programa: for.lmp}
+{Autor: Daniel Pérez Ruiz}
+{Descripción: Programa que incrementa un contador usando un bucle for}
+
+program IncrementarContador
+	var contador : integer := 0;	{Contador entero a incrementar}
+	
+{Proceso principal del programa}
+process Main;
+	var i : integer;
+begin
+	{Bucle que se ejecuta el numero de veces especificado}
+	for i := 0 to 5 do
+	begin
+		{Incrementar contador}
+		contador := contador + 1;
+	end
+end

@@ -5,8 +5,8 @@
  * @brief Definicion del prototipo de funciones comunes a todos los ficheros de testeo
  */
 
-#ifndef _LAMPORT_COMMON_FUNCTIONS_DPR_
-#define _LAMPORT_COMMON_FUNCTIONS_DPR_
+#ifndef _LAMPORT_TEST_COMMON_FUNCTIONS_DPR_
+#define _LAMPORT_TEST_COMMON_FUNCTIONS_DPR_
 
 // -- Macro que define la capacidad maxima de lineas que lee el buffer
 #define BUFF_MAX_LINES 1000 
@@ -56,4 +56,4 @@ int leer_fichero(const char* filename, Buffer* buff, int remove_newline);
  */
 char* zip_buffer(Buffer* buff);
 
-#endif //_LAMPORT_COMMON_FUNCTIONS_DPR_
+#endif //_LAMPORT_TEST_COMMON_FUNCTIONS_DPR_

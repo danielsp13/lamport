@@ -12,7 +12,6 @@
 
 //Inlcuir analizador lexico implementado
 #include "lexer.c"
-#include "token_type.h"
 
 // ==================================================================================
 
@@ -23,7 +22,7 @@
  * @param str_test : Cadena de caracteres a escanear por el lexer
  * @param expected_token : Token esperado de la devolucion del escaneo del lexer
  */
-static void reconocer_token(const char* str_test, TokenType expected_token);
+static void reconocer_token(const char* str_test, int expected_token);
 
 // ==================================================================================
 
@@ -79,6 +78,7 @@ static void test_corch_dcho_token(void **state);
 static void test_delim_c_token(void **state);
 static void test_delim_pc_token(void **state);
 static void test_delim_2p_token(void **state);
+static void test_delim_p_token(void **state);
 static void test_delim_arr_token(void **state);
 static void test_atom_ini_token(void **state);
 static void test_atom_fin_token(void **state);
@@ -135,6 +135,7 @@ int main() {
         cmocka_unit_test(test_delim_c_token),
         cmocka_unit_test(test_delim_pc_token),
         cmocka_unit_test(test_delim_2p_token),
+        cmocka_unit_test(test_delim_p_token),
         cmocka_unit_test(test_delim_arr_token),
         cmocka_unit_test(test_atom_ini_token),
         cmocka_unit_test(test_atom_fin_token),
@@ -150,7 +151,7 @@ int main() {
 
 // IMPLEMENTACION DE FUNCIONES AUXILIARES
 
-static void reconocer_token(const char* str_test, TokenType expected_token){
+static void reconocer_token(const char* str_test, int expected_token){
     YY_BUFFER_STATE buffer = yy_scan_string(str_test);
     int token = yylex();
     assert_int_equal(token, expected_token);
@@ -294,12 +295,12 @@ static void test_to_token(void **state){
 
 static void test_true_token(void **state){
     (void) state;
-    reconocer_token("true", L_BOOLEAN);
+    reconocer_token("true", L_BOOLEAN_TRUE);
 }
 
 static void test_false_token(void **state){
     (void) state;
-    reconocer_token("false", L_BOOLEAN);
+    reconocer_token("false", L_BOOLEAN_FALSE);
 }
 
 static void test_op_assign_token(void **state){
@@ -415,6 +416,11 @@ static void test_delim_2p_token(void **state){
 static void test_delim_arr_token(void **state){
     (void) state;
     reconocer_token("..", DELIM_ARR);
+}
+
+static void test_delim_p_token(void **state){
+    (void) state;
+    reconocer_token(".", DELIM_P);
 }
 
 static void test_atom_ini_token(void **state){
