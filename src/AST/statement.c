@@ -12,125 +12,37 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (SENTENCIAS) -----
 
-struct statement * create_statement_assignment(char *variable_name, struct expression *expr){
+struct statement * create_statement(statement_t kind){
     struct statement *st = malloc(sizeof(*st));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!st)
         return NULL;
 
-    st->kind = STMT_ASSIGNMENT;
-    st->kind_str = strdup("assignment");
-    if(!st->kind_str){
-        free(st->kind_str);
-        return NULL;
-    }
-
-    st->stmt.statement_assignment.variable_name = strdup(variable_name);
-    if(!st->stmt.statement_assignment.variable_name){
-        free(st->stmt.statement_assignment.variable_name);
-        return NULL;
-    }
-
-    st->stmt.statement_assignment.expr = expr;
-    st->next = NULL;
-
-    return st;
-}
-
-struct statement * create_statement_while(struct expression *condition, struct statement *body){
-    struct statement *st = malloc(sizeof(*st));
-
-    if(!st)
-        return NULL;
-
-    st->kind = STMT_WHILE;
-    st->kind_str = strdup("while");
-    if(!st->kind_str){
-        free(st->kind_str);
-        return NULL;
-    }
-    st->stmt.statement_while.condition = condition;
-    st->stmt.statement_while.body = body;
-    st->next = NULL;
-
-    return st;
-}
-
-struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body){
-    struct statement *st = malloc(sizeof(*st));
-
-    if(!st)
-        return NULL;
-
-    st->kind = STMT_FOR;
-    st->kind_str = strdup("for");
-    if(!st->kind_str){
-        free(st->kind_str);
-        return NULL;
-    }
-
-    st->stmt.statement_for.counter_name = strdup(counter_name);
-    st->stmt.statement_for.intialization = initialization;
-    st->stmt.statement_for.finish = finish;
-    st->stmt.statement_for.body = body;
-    st->next = NULL;
-
-    return st;
-}
-
-struct statement * create_statement_if_else(struct expression *condition, struct statement *if_body, struct statement *else_body){
-    struct statement *st = malloc(sizeof(*st));
-
-    if(!st)
-        return NULL;
-
-    st->kind = STMT_IF_ELSE;
-    st->kind_str = strdup("if/else");
-    if(!st->kind_str){
-        free(st->kind_str);
-        return NULL;
-    }
-    st->stmt.statement_if_else.condition = condition;
-    st->stmt.statement_if_else.if_body = if_body;
-    st->stmt.statement_if_else.else_body = else_body;
-    st->next = NULL;
-
-    return st; 
-}
-
-struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list){
-    struct statement *st = malloc(sizeof(*st));
-
-    if(!st)
-        return NULL;
-
-    st->kind = STMT_PROCEDURE_INV;
-    st->kind_str = strdup("procedure invocation");
-    if(!st->kind_str){
-        free(st->kind_str);
-        return NULL;
-    }
-
-    st->stmt.statement_procedure_inv.procedure_name = strdup(procedure_name);
-    if(!st->stmt.statement_procedure_inv.procedure_name){
-        free(st->stmt.statement_procedure_inv.procedure_name);
-        return NULL;
-    }
-
-    st->stmt.statement_procedure_inv.arguments_list = arguments_list;
-    st->next = NULL;
-
-    return st; 
-}
-
-struct statement * create_block_of_statements(statement_t block_type, struct statement *body){
-    struct statement *st = malloc(sizeof(*st));
-
-    if(!st)
-        return NULL;
-
-    switch (block_type)
+    // -- Asignar tipo de sentencia (statement_t y str)
+    st->kind = kind;
+    switch (st->kind)
     {
+    case STMT_ASSIGNMENT:
+        st->kind_str = strdup("assignment");
+        break;
+
+    case STMT_WHILE:
+        st->kind_str = strdup("while");
+        break;
+    
+    case STMT_FOR:
+        st->kind_str = strdup("for");
+        break;
+
+    case STMT_IF_ELSE:
+        st->kind_str = strdup("if/else");
+        break;
+
+    case STMT_PROCEDURE_INV:
+        st->kind_str = strdup("procedure invocation");
+        break;
+
     case STMT_BLOCK_BEGIN:
         st->kind_str = strdup("begin/end block");
         break;
@@ -142,17 +54,153 @@ struct statement * create_block_of_statements(statement_t block_type, struct sta
     case STMT_ATOMIC:
         st->kind_str = strdup("atomic block");
         break;
+
+    case STMT_FORK:
+        st->kind_str = strdup("fork process");
+        break;
+
+    case STMT_RETURN:
+        st->kind_str = strdup("return statement");
+        break;
+
+    default:
+        st->kind_str = NULL;
+        break;
     }
+
+    // -- Comprobar asignacion de tipo de sentencia (str) exitosa
     if(!st->kind_str){
-        free(st->kind_str);
+        // -- Liberar memoria reservada para la expresion
+        free(st);
         return NULL;
     }
 
-    st->kind = block_type;
-    st->stmt.statement_block.body = body;
+    // -- Asignar puntero a siguiente sentencia (NULL)
     st->next = NULL;
 
-    return st; 
+    // -- Retornar sentencia creada
+    return st;
+}
+
+struct statement * create_statement_assignment(char *variable_name, struct expression *expr){
+    struct statement *st = create_statement(STMT_ASSIGNMENT);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asignar nombre de variable
+    st->stmt.statement_assignment.variable_name = strdup(variable_name);
+    // -- Comprobar asignacion de nombre de variable exitosa
+    if(!st->stmt.statement_assignment.variable_name){
+        // -- Liberar memoria reservada al nodo
+        free(st);
+        return NULL;
+    }
+
+    // -- Asignar expresion
+    st->stmt.statement_assignment.expr = expr;
+
+    // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
+struct statement * create_statement_while(struct expression *condition, struct statement *body){
+    struct statement *st = create_statement(STMT_WHILE);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asingar expresion de condicion
+    st->stmt.statement_while.condition = condition;
+    // -- Asignar cuerpo de bucle
+    st->stmt.statement_while.body = body;
+
+    // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
+struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body){
+    struct statement *st = create_statement(STMT_FOR);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asignar variable de contador de for
+    st->stmt.statement_for.counter_name = strdup(counter_name);
+    // -- Comprobar asignacion de contador de for exitosa
+    if(!st->stmt.statement_for.counter_name){
+        // -- Liberar memoria reservada para la sentencia
+        free(st);
+        return NULL;
+    }
+
+    // -- Asignar inicializacion de bucle
+    st->stmt.statement_for.intialization = initialization;
+    // -- Asignar finalizacion de bucle
+    st->stmt.statement_for.finish = finish;
+    // -- Asignar cuerpo de bucle
+    st->stmt.statement_for.body = body;
+
+    // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
+struct statement * create_statement_if_else(struct expression *condition, struct statement *if_body, struct statement *else_body){
+    struct statement *st = create_statement(STMT_IF_ELSE);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asignar expresion de condicion de if
+    st->stmt.statement_if_else.condition = condition;
+    // -- Asignar cuerpo de if
+    st->stmt.statement_if_else.if_body = if_body;
+    // -- Asignar cuerpo de else
+    st->stmt.statement_if_else.else_body = else_body;
+    
+    // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
+struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list){
+    struct statement *st = create_statement(STMT_PROCEDURE_INV);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asignar nombre de procedimiento
+    st->stmt.statement_procedure_inv.procedure_name = strdup(procedure_name);
+    // -- Comprobar asignacion de procedimiento exitosa
+    if(!st->stmt.statement_procedure_inv.procedure_name){
+        // -- Liberar memoria reservada para la sentencia
+        free(st);
+        return NULL;
+    }
+
+    // -- Asignar lista de argumentos de invocacion
+    st->stmt.statement_procedure_inv.arguments_list = arguments_list;
+    
+    // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
+struct statement * create_block_of_statements(statement_t block_type, struct statement *body){
+    struct statement *st = create_statement(block_type);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asignar bloque de sentencias
+    st->stmt.statement_block.body = body;
+
+    // -- Retornar sentencia creada e inicializada
+    return st;
 }
 
 struct statement * create_statement_block_begin(struct statement *body){
@@ -168,45 +216,40 @@ struct statement * create_statement_atomic(struct statement *body){
 }
 
 struct statement * create_statement_fork(char *process_name, struct statement *stmt){
-    struct statement *st = malloc(sizeof(*st));
+    struct statement *st = create_statement(STMT_FORK);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!st)
         return NULL;
 
-    st->kind = STMT_FORK;
-    st->kind_str = strdup("fork process");
-    if(!st->kind_str){
-        free(st->kind_str);
-        return NULL;
-    }
+    // -- Asignar nombre de proceso
     st->stmt.statement_fork.forked_process = strdup(process_name);
+    // -- Comprobar asignacion de nombre de proceso exitosa
     if(!st->stmt.statement_fork.forked_process){
-        free(st->stmt.statement_fork.forked_process);
+        // -- Liberar memoria reservada para la sentencia
+        free(st);
         return NULL;
     }
 
+    // -- Asignar sentencia
     st->stmt.statement_fork.stmt = stmt;
-    st->next = NULL;
 
-    return st; 
+    // -- Retornar sentencia creada e inicializada
+    return st;
 }
 
 struct statement * create_statement_return(struct expression *returned_expr){
-    struct statement *st = malloc(sizeof(*st));
+    struct statement *st = create_statement(STMT_RETURN);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!st)
         return NULL;
 
-    st->kind = STMT_RETURN;
-    st->kind_str = strdup("return statement");
-    if(!st->kind_str){
-        free(st->kind_str);
-        return NULL;
-    }
+    // -- Asignar expresion de retorno
     st->stmt.statement_return.returned_expr = returned_expr;
-    st->next = NULL;
 
-    return st; 
+    // -- Retornar sentencia creada e inicializada
+    return st;
 }
 
 // ===============================================================

@@ -174,6 +174,13 @@ struct statement{
 // ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (SENTENCIAS) -----
 
 /**
+ * @brief Crea y reserva memoria para una sentencia
+ * @param kind : Tipo de sentencia
+ * @return puntero con la sentencia creada
+ */
+struct statement * create_statement(statement_t kind);
+
+/**
  * @brief Crea y reserva memoria para una sentencia de asignacion (STMT_ASSIGNMENT).
  * @param variable_name : Nombre de la variable
  * @param expr : Expresion a asignar

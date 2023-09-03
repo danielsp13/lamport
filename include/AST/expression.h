@@ -203,6 +203,20 @@ struct expression{
 // ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (EXPRESIONES) -----
 
 /**
+ * @brief Crea y reserva memoria para inicializar una expresion (no literal)
+ * @param kind : Tipo de expresion
+ * @return puntero con la expresion inicializada
+ */
+struct expression * create_expression_non_literal(expression_t kind);
+
+/**
+ * @brief Crea y reserva memoria para inicializar una expresion (solo literal)
+ * @param kind : Tipo de expresion literal
+ * @return puntero con la expresion inicializada
+ */
+struct expression * create_expression_literal(expression_literal_t kind);
+
+/**
  * @brief Crea y reserva memoria para una expresion de tipo operacion binaria
  * @param kind : Tipo de operacion binaria
  * @param operator : Simbolo de operacion

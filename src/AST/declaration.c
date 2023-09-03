@@ -15,19 +15,27 @@
 struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value){
     struct declaration *d = malloc(sizeof(*d));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!d)
         return NULL;
 
+    // -- Asignar nombre de variable
     d->name = strdup(name);
+    // -- Comprobar asginacion de nombre exitosa
     if(!d->name){
-        free(d->name);
+        // -- Liberar memoria reservada para la declaracion
+        free(d);
         return NULL;
     }
 
+    // -- Asignar tipo de dato de la variable declarada
     d->type = type;
+    // -- Asignar valor de inicializacion de variable
     d->value = value; 
+    // -- Asignar puntero a siguiente declaracion (NULL)
     d->next = NULL;
 
+    // -- Retornar declaracion creada e inicializada
     return d;
 }
 

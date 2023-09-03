@@ -15,38 +15,53 @@
 struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type){
     struct subprogram *subprog = malloc(sizeof(*subprog));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!subprog)
         return NULL;
 
+    // -- Asignar tipo de subprograma (subprogram_t y str)
     subprog->kind = kind;
     switch (subprog->kind)
     {
     case SUBPROGRAM_PROCEDURE:
         subprog->kind_str = strdup("procedure");
-        
         break;
     case SUBPROGRAM_FUNCTION:
         subprog->kind_str = strdup("function");
         break;
+    default:
+        subprog->kind_str = NULL;
+        break;
     }
 
+    // -- Comprobar asignacion de tipo de subprograma (str) exitosa
     if(!subprog->kind_str){
-        free(subprog->kind_str);
+        // -- Liberar memoria reservada al subprograma
+        free(subprog);
         return NULL;
     }
 
+    // -- Asignar nombre de subprograma
     subprog->name_subprogram = strdup(name_subprogram);
+    // -- Comprobar asignacion de nombre de subprograma exitosa
     if(!subprog->name_subprogram){
-        free(subprog->name_subprogram);
+        // -- Liberar memoria reservada al subprograma
+        free(subprog);
         return NULL;
     }
 
+    // -- Asignar parametros del subprograma
     subprog->parameters = parameters;
+    // -- Asignar declaraciones del subprograma
     subprog->declarations = declarations;
+    // -- Asignar sentencias del subprograma
     subprog->statements = statements;
+    // -- Asignar tipo de retorno de subprograma (funciones)
     subprog->type = type;
+    // -- Asignar puntero a siguiente subprograma (NULL)
     subprog->next = NULL;
 
+    // -- Retornar subprograma creado e inicializado
     return subprog;
 }
 

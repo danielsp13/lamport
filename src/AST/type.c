@@ -15,13 +15,18 @@
 struct type * create_basic_type(type_t kind){
     struct type *t = malloc(sizeof(*t));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
+    // -- Asignar tipo de dato
     t->kind = kind;
+    // -- Asignar subtipo de dato (NULL)
     t->subtype = NULL;
+    // -- Asignar parametros (si tipo funcion)
     t->parameters = NULL;
 
+    // -- Asignar tipo de dato (str)
     switch (t->kind)
     {
     case TYPE_INTEGER:
@@ -53,63 +58,66 @@ struct type * create_basic_type(type_t kind){
         break;
     }
 
+    // -- Comprobar asignacion de tipo de dato exitoso
     if(!t->kind_str){
-        free(t->kind_str); free(t);
+        // -- Liberar memoria reservada al tipo de dato
+        free(t);
         return NULL;
     }
 
+    // -- Retornar tipo creado
     return t;
 }
 
 struct type * create_function_type(struct type *subtype, struct parameter_list *parameters){
-    struct type *t = malloc(sizeof(*t));
+    struct type *t = create_basic_type(TYPE_FUNCTION);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
-    t->kind = TYPE_FUNCTION;
+    // -- Asignar subtipo de dato (retorno de funcion)
     t->subtype = subtype;
+    // -- Asignar parametros de funcion
     t->parameters = parameters;
 
+    // -- Retornar tipo creado e inicializado
     return t;
 }
 
 struct type * create_array_type(struct type *subtype){
-    struct type *t = malloc(sizeof(*t));
+    struct type *t = create_basic_type(TYPE_ARRAY);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
-    t->kind = TYPE_ARRAY;
+    // -- Asignar subtipo de dato
     t->subtype = subtype;
-    t->parameters = NULL;
 
+    // -- Retornar tipo creado e inicializado
     return t;
 }
 
 struct type * create_semaphore_type(){
-    struct type *t = malloc(sizeof(*t));
+    struct type *t = create_basic_type(TYPE_SEMAPHORE);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
-    t->kind = TYPE_SEMAPHORE;
-    t->subtype = NULL;
-    t->parameters = NULL;
-
+    // -- Retornar tipo creado e inicializado
     return t;
 }
 
 struct type * create_dprocess_type(){
-    struct type *t = malloc(sizeof(*t));
+    struct type *t = create_basic_type(TYPE_DPROCESS);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
-    t->kind = TYPE_DPROCESS;
-    t->subtype = NULL;
-    t->parameters = NULL;
-
+    // -- Retornar tipo creado e inicializado
     return t;
 }
 
@@ -120,18 +128,25 @@ struct type * create_dprocess_type(){
 struct parameter_list * create_parameter_list(char * name_parameter, struct type * type){
     struct parameter_list *pl = malloc(sizeof(*pl));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!pl)
         return NULL;
 
+    // -- Asignar nombre de parametro
     pl->name_parameter = strdup(name_parameter);
+    // -- Comprobar asignacion de nombre de parametro exitosa
     if(!pl->name_parameter){
-        free(pl->name_parameter);
+        // -- Liberar memoria reservada al parametro
+        free(pl);
         return NULL;
     }
 
+    // -- Asignar tipo de dato del parametro
     pl->type = type;
+    // -- Asignar puntero al siguiente parametro (null)
     pl->next = NULL;
 
+    // -- Retornar lista de parametros reservada
     return pl;
 }
 

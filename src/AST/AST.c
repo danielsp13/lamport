@@ -15,19 +15,27 @@
 struct program * create_program(char *name_program, struct declaration *declarations, struct subprogram *subprograms, struct process *process){
     struct program *prog = malloc(sizeof(*prog));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!prog)
         return NULL;
 
+    // -- Asignar nombre de programa
     prog->name_program = strdup(name_program);
+    // -- Comprobar asignacion de nombre de programa exitosa
     if(!prog->name_program){
-        free(prog->name_program);
+        // -- Liberar memoria reservada al programa
+        free(prog);
         return NULL;
     }
 
+    // -- Asignar declaraciones del programa
     prog->declarations = declarations;
+    // -- Asignar subprogramas del programa
     prog->subprograms = subprograms;
+    // -- Asignar procesos del programa
     prog->process = process;
 
+    // -- Retornar programa creado e inicializado
     return prog;
 }
 

@@ -15,19 +15,27 @@
 struct process * create_process(char *name_process, struct declaration *declarations, struct statement *statements){
     struct process *proc = malloc(sizeof(*proc));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!proc)
         return NULL;
 
+    // -- Asignar nombre de proceso
     proc->name_process = strdup(name_process);
+    // -- Comprobar asignacion de nombre exitosa
     if(!proc->name_process){
-        free(proc->name_process);
+        // -- Liberar memoria reservada para el proceso
+        free(proc);
         return NULL;
     }
 
+    // -- Asignar declaraciones del proceso
     proc->declarations = declarations;
+    // -- Asignar sentencias del proceso
     proc->statements = statements;
+    // -- Asignar puntero a siguiente proceso (NULL)
     proc->next = NULL;
 
+    // -- Retornar proceso creado e inicializado
     return proc;
 }
 

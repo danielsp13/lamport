@@ -12,217 +12,285 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (EXPRESIONES) -----
 
-struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right){
+struct expression * create_expression_non_literal(expression_t kind){
     struct expression *ex = malloc(sizeof(*ex));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_BINARY;
-    ex->kind_str = strdup("binary operation");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
+    // -- Asignar tipo de expresion (expression_t y str)
+    ex->kind = kind;
+    switch (ex->kind)
+    {
+    case EXPR_BINARY:
+        ex->kind_str = strdup("binary operation");
+        break;
+    
+    case EXPR_UNARY:
+        ex->kind_str = strdup("unary operation");
+        break;
+
+    case EXPR_IDENTIFIER:
+        ex->kind_str = strdup("identifier");
+        break;
+
+    case EXPR_FUNCTION_INV:
+        ex->kind_str = strdup("function invocation");
+        break;
+
+    case EXPR_GROUPED:
+        ex->kind_str = strdup("grouped expression");
+        break;
+    
+    default:
+        ex->kind_str = NULL;
+        break;
     }
-    ex->expr.expression_binary_operation.kind = kind;
-    ex->expr.expression_binary_operation.operator = strdup(operator);
-    if(!ex->expr.expression_binary_operation.operator){
-        free(ex->expr.expression_binary_operation.operator);
+
+    // -- Comprobar asignacion de tipo de expresion (str) exitosa
+    if(!ex->kind_str){
+        // -- Liberar memoria reservada para la expresion
+        free(ex);
         return NULL;
     }
 
-    ex->expr.expression_binary_operation.left = left;
-    ex->expr.expression_binary_operation.right = right;
+    // -- Asignar puntero a siguiente expresion (NULL)
     ex->next = NULL;
+
+    // -- Retornar expresion creada
+    return ex;
+}
+
+struct expression * create_expression_literal(expression_literal_t kind){
+    struct expression *ex = malloc(sizeof(*ex));
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!ex)
+        return NULL;
+
+    // -- Asignar tipo de expresion (expression_t, expression_literal_t y str)
+    ex->kind = EXPR_LITERAL;
+    ex->expr.expression_literal.kind = kind;
+    switch (ex->expr.expression_literal.kind)
+    {
+    case EXPR_LITERAL_INTEGER:
+        ex->kind_str = strdup("literal integer");
+        break;
     
+    case EXPR_LITERAL_REAL:
+        ex->kind_str = strdup("literal real");
+        break;
+
+    case EXPR_LITERAL_STRING:
+        ex->kind_str = strdup("literal string");
+        break;
+
+    case EXPR_LITERAL_CHARACTER:
+        ex->kind_str = strdup("literal char");
+        break;
+
+    case EXPR_LITERAL_BOOLEAN:
+        ex->kind_str = strdup("literal boolean");
+        break;
+    }
+
+    // -- Comprobar asignacion de tipo de expresion (str) exitosa
+    if(!ex->kind_str){
+        // -- Liberar memoria reservada para la expresion
+        free(ex);
+        return NULL;
+    }
+
+    // -- Asignar puntero a siguiente expresion (NULL)
+    ex->next = NULL;
+
+    // -- Retornar expresion creada
+    return ex;
+}
+
+struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right){
+    struct expression *ex = create_expression_non_literal(EXPR_BINARY);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!ex)
+        return NULL;
+
+    // -- Asignar tipo de operacion binaria
+    ex->expr.expression_binary_operation.kind = kind;
+    // -- Asignar simbolo de operacion binaria
+    ex->expr.expression_binary_operation.operator = strdup(operator);
+    // -- Comprobar asignacion de simbolo (exitosa)
+    if(!ex->expr.expression_binary_operation.operator){
+        // -- Liberar memoria reservada para la expresion
+        free(ex);
+        return NULL;
+    }
+
+    // -- Asignar operando izquierdo de la operacion
+    ex->expr.expression_binary_operation.left = left;
+    // -- Asignar operando derecho de la operacion
+    ex->expr.expression_binary_operation.right = right;
+    
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_non_literal(EXPR_UNARY);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_UNARY;
-    ex->kind_str = strdup("unary operation");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asignar tipo de operacion unaria
     ex->expr.expression_unary_operation.kind = kind;
+    // -- Asignar simbolo de operacion unaria
     ex->expr.expression_unary_operation.operator = strdup(operator);
     if(!ex->expr.expression_unary_operation.operator){
-        free(ex->expr.expression_unary_operation.operator);
+        // -- Liberar memoria reservada para la expresion
+        free(ex);
         return NULL;
     }
-    ex->expr.expression_unary_operation.left = left;
-    ex->next = NULL;
 
+    // -- Asignar operando izquierdo de la operacion
+    ex->expr.expression_unary_operation.left = left;
+
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 struct expression * create_expression_identifier(char *id){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_non_literal(EXPR_IDENTIFIER);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_IDENTIFIER;
-    ex->kind_str = strdup("identifier");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asignar identificador de variable
     ex->expr.expression_identifier.id = strdup(id);
+    // -- Comprobar asignacion de identificador exitosa
     if(!ex->expr.expression_identifier.id){
-        free(ex->expr.expression_identifier.id);
+        // -- Liberar memoria reservada para la expresion
+        free(ex);
         return NULL;
     }
-    ex->next = NULL;
 
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 struct expression * create_expression_literal_integer(int value){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_literal(EXPR_LITERAL_INTEGER);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_LITERAL;
-    ex->expr.expression_literal.kind = EXPR_LITERAL_INTEGER;
-    ex->kind_str = strdup("literal integer");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asignar valor de literal
     ex->expr.expression_literal.value.integer_literal = value;
-    ex->next = NULL;
     
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 struct expression * create_expression_literal_real(float value){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_literal(EXPR_LITERAL_REAL);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_LITERAL;
-    ex->expr.expression_literal.kind = EXPR_LITERAL_REAL;
-    ex->kind_str = strdup("literal real");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asignar valor de literal
     ex->expr.expression_literal.value.real_literal = value;
-    ex->next = NULL;
     
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 struct expression * create_expression_literal_string(char *value){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_literal(EXPR_LITERAL_STRING);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_LITERAL;
-    ex->expr.expression_literal.kind = EXPR_LITERAL_STRING;
-    ex->kind_str = strdup("literal string");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asignar valor de literal
     ex->expr.expression_literal.value.string_literal = strdup(value);
+    // -- Comprobar asginacion de literal exitosa
     if(!ex->expr.expression_literal.value.string_literal){
+        // -- Liberar memoria reservada para la declaracion
+        free(ex);
         return NULL;
     }
-
-    ex->next = NULL;
     
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 struct expression * create_expression_literal_char(char value){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_literal(EXPR_LITERAL_CHARACTER);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_LITERAL;
-    ex->expr.expression_literal.kind = EXPR_LITERAL_CHARACTER;
-    ex->kind_str = strdup("literal char");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asignar valor de literal
     ex->expr.expression_literal.value.character_literal = value;
-    ex->next = NULL;
     
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 struct expression * create_expression_literal_boolean(int value){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_literal(EXPR_LITERAL_BOOLEAN);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_LITERAL;
-    ex->expr.expression_literal.kind = EXPR_LITERAL_BOOLEAN;
-    ex->kind_str = strdup("literal boolean");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asignar valor de literal
     ex->expr.expression_literal.value.boolean_literal = value;
-    ex->next = NULL;
     
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 
 struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_non_literal(EXPR_FUNCTION_INV);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_FUNCTION_INV;
-    ex->kind_str = strdup("function invocation");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asginar nombre de funcion
     ex->expr.expression_function_inv.function_name = strdup(function_name);
+    // -- Comprobar asignacion de nombre de funcion exitosa
     if(!ex->expr.expression_function_inv.function_name){
-        free(ex->expr.expression_function_inv.function_name);
+        // -- Liberar memoria reservada para la expresion
+        free(ex);
         return NULL;
     }
+    // -- Asignar lista de argumentos de la invocacion de funcion
     ex->expr.expression_function_inv.arguments_list = arguments_list;
-    ex->next = NULL;
-
+    
+    // -- Retornar expresion creada e inicializada
     return ex;
 }
 
 struct expression * create_expression_grouped(struct expression *grouped_expression){
-    struct expression *ex = malloc(sizeof(*ex));
+    struct expression *ex = create_expression_non_literal(EXPR_GROUPED);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!ex)
         return NULL;
 
-    ex->kind = EXPR_GROUPED;
-    ex->kind_str = strdup("grouped expression");
-    if(!ex->kind_str){
-        free(ex->kind_str);
-        return NULL;
-    }
+    // -- Asignar expresion entre parentesis
     ex->expr.grouped_expression = grouped_expression;
-    ex->next = NULL;
-
-    return ex;  
+    
+    // -- Retornar expresion creada e inicializada
+    return ex;
 }
 
 // ===============================================================
