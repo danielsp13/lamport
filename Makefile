@@ -41,7 +41,7 @@ VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex libfl-dev bison
-TEST_DEPENDENCIES=libcmocka-dev cppcheck
+TEST_DEPENDENCIES=libcmocka-dev cppcheck valgrind
 
 # -- Variables referentes a compilacion/comprobacion de ficheros
 GXX:=gcc
@@ -649,3 +649,6 @@ tests:
 test_lexer: 
 	$(call check_compiled_files_skeleton,$(INDEX_TEST_LEXER_FILES),compile_tests_lexer)
 	$(call exec_tests_skeleton,lexer,$(INDEX_TEST_LEXER_FILES))
+	
+mem_check:
+	@valgrind --leak-check=full $(BIN_DIR)/$(LMP_MAIN_NAME) $(FILE_MEM)
