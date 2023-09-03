@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "string_register.h"       ///< Inclusion de registro de cadenas de caracteres
+#include "lexer/string_register.h"       ///< Inclusion de registro de cadenas de caracteres
 
 // ===============================================================
 

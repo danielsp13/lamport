@@ -11,7 +11,7 @@
 #include <cmocka.h>
 
 //Inlcuir analizador lexico implementado
-#include "lexer.c"
+#include "lexer/lexer.c"
 
 // ==================================================================================
 

@@ -15,10 +15,7 @@
     #include "AST/AST.h"
 
     //Inclusion de mensajes de errores de parser
-    #include "parser_errors.h"
-
-    //Definir directiva para testeo
-    #define VERBOSE
+    #include "parser/parser_errors.h"
 
     //Definir prototipos de funciones
     extern int yylex();
@@ -91,6 +88,10 @@
 %token ATOM_INI 316
 %token ATOM_FIN 317
 %token UNRECOGNIZED_TOKEN 318
+
+/* Indicar a bison donde encontrar la cabecera de tokens */
+%define api.header.include { "lexer/token.h" }
+
 
 %left OP_OR
 %left OP_AND

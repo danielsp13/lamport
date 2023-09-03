@@ -5,7 +5,7 @@
  * @brief 
  */
 
-#include "lmp_analysis.h"
+#include "lmp_utils/lmp_analysis.h"
 
 // ===============================================================
 

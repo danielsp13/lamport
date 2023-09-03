@@ -9,10 +9,10 @@
 
 %{
     //Inclusion de los tipos de Token
-    #include "token.h"
+    #include "lexer/token.h"
 
     //Inclusion de registro de cadenas de caracteres
-    #include "string_register.h"
+    #include "lexer/string_register.h"
 %}
 
 /* Habilitar seguimiento de errores en la linea especifica del programa */

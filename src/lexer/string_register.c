@@ -6,7 +6,7 @@
  * de reconocimiento de cadenas de caracteres en el parser y lexer
  */
 
-#include "string_register.h"
+#include "lexer/string_register.h"
 
 // ===============================================================
 

@@ -23,8 +23,8 @@
 
 // ----- INCLUSION DE COMPONENTES DE GESTION DE COMPILADOR -----
 
-#include "lmp_io.h"         ///< Gestion de entrada/salida de lmp
-#include "lmp_analysis.h"   ///< Parsing de fichero de lmp
+#include "lmp_utils/lmp_io.h"         ///< Gestion de entrada/salida de lmp
+#include "lmp_utils/lmp_analysis.h"   ///< Parsing de fichero de lmp
 
 // ===============================================================
 

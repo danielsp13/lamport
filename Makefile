@@ -43,9 +43,35 @@ TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex libfl-dev bison
 TEST_DEPENDENCIES=libcmocka-dev cppcheck
 
+# -- Variables referentes a compilacion/comprobacion de ficheros
+GXX:=gcc
+CFLAGS:=-Wall -Wextra
+UNDEFINED_MACROS=-D$(LEXER_TESTS_MACRO)
+
+INCLUDE_FLAGS=-I$(HEADER_DIR) -I$(SOURCE_DIR)
+
+LDCMOCKA:=-lcmocka
+LDFLEX:=-lfl
+LDBISON:=-ly
+LDFLAGS:=$(LDFLEX) $(LDBISON) $(LDCMOCKA)
+LINTER:=cppcheck
+TEST_PREFIX:=test_
+
+# -- Variables referentes a macros
+LEXER_TESTS_MACRO:=LEXER_TEST
+
 # -- Variables referentes a informe tex
 TEX_DIR=tex
 TEX_GEN_FILES='.*\.\(aux\|log\|pdf\|dvi\|toc\|out\|bbl\|blg\|lot\|lof\)'
+
+# -- Variables de extensiones
+SOURCE_EXT:=.c
+HEADER_EXT:=.h
+TEST_EXT:=.c
+FLEX_EXT:=.l
+BISON_EXT:=.y
+OBJ_EXT:=.o
+LAMPORT_EXT:=.lmp
 
 # -- Variables referentes a copias de seguridad locales
 BACKUP_EXT_FILE:=.zip
@@ -63,79 +89,51 @@ OBJ_DIR:=obj
 EXAMPLES_DIR:=examples
 INDEX_DIRS:=$(HEADER_DIR) $(SOURCE_DIR) $(TEST_DIR)
 
-# -- Variables referentes a macros
-LEXER_TESTS_MACRO:=LEXER_TEST
+# -- Variables referentes a modulos
+LEXER_MODULE:=lexer
+PARSER_MODULE:=parser
+AST_MODULE:=AST
+LMP_UTILS_MODULE:=lmp_utils
+TEST_UTILS_MODULE:=test_utils
 
-# -- Variables referentes a compilacion/comprobacion de ficheros
-GXX:=gcc
-CFLAGS:=-Wall -Wextra
-UNDEFINED_MACROS:=-D$(LEXER_TESTS_MACRO)
-INCFLAGS:=-I$(HEADER_DIR) -I$(SOURCE_DIR)/ $(INCFLAGS_TEST) $(INCFLAGS_AST)
-INCFLAGS_TEST:=-I$(HEADER_DIR)/$(TEST_DIR) -I$(SOURCE_DIR)/$(TEST_DIR)
-INCFLAGS_AST:=-I$(HEADER_DIR)/$(AST_DIR) -I$(SOURCE_DIR)/$(AST_DIR)
-LDCMOCKA:=-lcmocka
-LDFLEX:=-lfl
-LDBISON:=-ly
-LDFLAGS:=$(LDFLEX) $(LDBISON) $(LDCMOCKA)
-LINTER:=cppcheck
-TEST_PREFIX:=test_
-TEST_COMMON_FUNCTIONS_PREFIX:=common_functions
+# -- Variables referentes a directorios de modulos (cabeceras)
+HEADER_LEXER:=$(HEADER_DIR)/$(LEXER_MODULE)
+HEADER_PARSER:=$(HEADER_DIR)/$(PARSER_MODULE)
+HEADER_AST:=$(HEADER_DIR)/$(AST_MODULE)
+HEADER_LMP_UTILS:=$(HEADER_DIR)/$(LMP_UTILS_MODULE)
+HEADER_TEST_UTILS:=$(HEADER_DIR)/$(TEST_UTILS_MODULE)
 
-# -- Variables de extensiones
-SOURCE_EXT:=.c
-HEADER_EXT:=.h
-TEST_EXT:=.c
-LEXER_EXT:=.l
-BISON_EXT:=.y
-OBJ_EXT:=.o
-LAMPORT_EXT:=.lmp
+# -- Variables referentes a directorios de modulos (sources)
+SOURCE_LEXER:=$(SOURCE_DIR)/$(LEXER_MODULE)
+SOURCE_PARSER:=$(SOURCE_DIR)/$(PARSER_MODULE)
+SOURCE_AST:=$(SOURCE_DIR)/$(AST_MODULE)
+SOURCE_LMP_UTILS:=$(SOURCE_DIR)/$(LMP_UTILS_MODULE)
+SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
 
 # -- Variables de ficheros
 TOKEN_TYPE_NAME:=token
-LEXER_NAME:=lexer
-PARSER_NAME:=parser
-AST_NAME:=AST
-AST_NODE_DECL_NAME:=declaration
-AST_NODE_STMT_NAME:=statement
-AST_NODE_EXPR_NAME:=expression
-AST_NODE_TYPE_NAME:=type
-AST_NODE_SUBPROG_NAME:=subprogram
-AST_NODE_PROC_NAME:=process
-STRING_REGISTER_NAME:=string_register
-LMP_DEPENDENCIES_IO_NAME:=lmp_io
-LMP_DEPENDENCIES_ANALYSIS_NAME:=lmp_analysis
 LMP_MAIN_NAME:=lmp
-EXCLUDE_CHECK_FILES="$(FLEX_LEXER_SRC) $(LEXER_SRC) $(BISON_PARSER_SRC) $(PARSER_SRC)"
+EXCLUDE_CHECK_FILES="$(LEXER_MODULE)$(FLEX_EXT) $(LEXER_MODULE)$(SOURCE_EXT) $(PARSER_MODULE)$(BISON_EXT) $(PARSER_MODULE)$(SOURCE_EXT)"
 
 # -- Variables de ficheros (tests)
-INDEX_TEST_LEXER_FILES:=$(TEST_PREFIX)$(LEXER_NAME)_recon_tokens $(TEST_PREFIX)$(LEXER_NAME)_recon_patrones $(TEST_PREFIX)$(LEXER_NAME)_errores $(TEST_PREFIX)$(LEXER_NAME)_recon_ficheros
-INDEX_TEST_COMMON_FILES:=$(TEST_COMMON_FUNCTIONS_PREFIX)
+INDEX_TEST_LEXER_FILES:=$(TEST_PREFIX)$(LEXER_MODULE)_recon_tokens $(TEST_PREFIX)$(LEXER_MODULE)_recon_patrones $(TEST_PREFIX)$(LEXER_MODULE)_errores $(TEST_PREFIX)$(LEXER_MODULE)_recon_ficheros
+INDEX_TEST_UTILS_FILES:=common_functions
 
-# -- Variables de ficheros (include)
-PARSER_HEADER:=$(PARSER_NAME)$(HEADER_EXT)
-AST_HEADER:=$(AST_NAME)$(HEADER_EXT)
-LMP_IO_HEADER:=$(LMP_DEPENDENCIES)$(HEADER_EXT)
+# -- Indice de ficheros
+INDEX_LEXER_FILES:=lexer
+INDEX_PARSER_FILES:=parser
+INDEX_AST_FILES:=AST declaration statement expression type subprogram process
+INDEX_STRING_REGISTER_FILES:=string_register
+INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
 
-# -- Variables de ficheros (src)
-FLEX_LEXER_SRC:=$(LEXER_NAME)$(LEXER_EXT)
-LEXER_SRC:=$(LEXER_NAME)$(SOURCE_EXT)
-BISON_PARSER_SRC:=$(PARSER_NAME)$(BISON_EXT)
-PARSER_SRC:=$(PARSER_NAME)$(SOURCE_EXT)
-
-INDEX_LEXER_FILES:=$(LEXER_NAME)
-INDEX_PARSER_FILES:=$(PARSER_NAME)
-INDEX_AST_FILES:=$(AST_NAME) $(AST_NODE_DECL_NAME) $(AST_NODE_STMT_NAME) $(AST_NODE_EXPR_NAME) $(AST_NODE_TYPE_NAME) $(AST_NODE_PROC_NAME) $(AST_NODE_SUBPROG_NAME)
-INDEX_STRING_REGISTER_FILES:=$(STRING_REGISTER_NAME)
-INDEX_LMP_MAIN_FILES:=$(LMP_DEPENDENCIES_IO_NAME) $(LMP_DEPENDENCIES_ANALYSIS_NAME)
-
-# -- Variables de ficheros (obj)
+# -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
 INDEX_OBJ_PARSER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_PARSER_FILES))
 INDEX_OBJ_AST_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_AST_FILES))
 INDEX_OBJ_STRING_REGISTER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_STRING_REGISTER_FILES))
-INDEX_OBJ_LMP_MAIN_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_MAIN_FILES))
+INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_LMP_MAIN_FILES) $(INDEX_OBJ_STRING_REGISTER_FILES)
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_LMP_UTILS_FILES) $(INDEX_OBJ_STRING_REGISTER_FILES)
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -204,7 +202,7 @@ define compile_skeleton
 				LIST_OF_SOURCES="$$LIST_OF_SOURCES $(SOURCE_DIR)/$$F$(SOURCE_EXT)"; \
 			done; \
 			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$(5)$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCFLAGS) $$LIST_OF_SOURCES -o $(BIN_DIR)/$(5) $(3) ; \
+			$(GXX) $(INCLUDE_FLAGS) $$LIST_OF_SOURCES -o $(BIN_DIR)/$(5) $(3) ; \
 			if [ -f $(BIN_DIR)/$(5) ]; then \
 				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
 				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
@@ -216,7 +214,7 @@ define compile_skeleton
 			N_FILES_COMPILED=0 ;\
 			for F in $(1); do \
 				echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-				$(GXX) $(INCFLAGS) $(SOURCE_DIR)/$$F$(SOURCE_EXT) -o $(BIN_DIR)/$$F $(3) ; \
+				$(GXX) $(INCLUDE_FLAGS) $(SOURCE_DIR)/$$F$(SOURCE_EXT) -o $(BIN_DIR)/$$F $(3) ; \
 				if [ -f $(BIN_DIR)/$$F ]; then \
 					echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
 					N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
@@ -234,7 +232,7 @@ define compile_objects_skeleton
 		N_FILES_COMPILED=0 ;\
 		for F in $(1); do \
 			echo "$(COLOR_YELLOW) ---> Compilando: $(COLOR_PURPLE)$(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCFLAGS) -c $(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT) -o $(OBJ_DIR)/$$F.o $(4) ; \
+			$(GXX) $(INCLUDE_FLAGS) -c $(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT) -o $(OBJ_DIR)/$$F.o $(4) ; \
 			if [ -f $(OBJ_DIR)/$$F.o ]; then \
 				echo "$(COLOR_GREEN) ---> Codigo objeto de: $(COLOR_PURPLE)$(OBJ_DIR)/$$F.o$(COLOR_GREEN) generado exitosamente!! $(COLOR_RESET)" ; \
 				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
@@ -265,7 +263,7 @@ define compile_lamport_skeleton
 		fi; \
 		echo ;\
 		echo "$(COLOR_BOLD)>>> Construyendo compilador: $(COLOR_BLUE)$(2)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
-		$(GXX) $(INCFLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(2)$(SOURCE_EXT) -o $(BIN_DIR)/$(2) $(LDFLEX); \
+		$(GXX) $(INCLUDE_FLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(2)$(SOURCE_EXT) -o $(BIN_DIR)/$(2) $(LDFLEX); \
 		if [ -f $(BIN_DIR)/$(2) ]; then \
 			echo "$(COLOR_GREEN) ---> Compilador $(COLOR_BLUE)$(2)$(COLOR_GREEN) construido exitosamente!! $(COLOR_RESET)" ; \
 		else \
@@ -282,7 +280,7 @@ define compile_tests_skeleton
 		N_TESTS_COMPILED=0 ;\
 		for TEST in $(1); do \
 			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(4) $(INCFLAGS) $(OBJ_DIR)/$(TEST_COMMON_FUNCTIONS_PREFIX)$(OBJ_EXT) $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
+			$(GXX) $(4) $(INCLUDE_FLAGS) $(OBJ_DIR)/$(INDEX_TEST_UTILS_FILES)$(OBJ_EXT) $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
 			if [ -f $(BIN_DIR)/$$TEST ]; then \
 				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
 				N_TESTS_COMPILED=$$(( N_TESTS_COMPILED + 1 )) ; \
@@ -337,7 +335,7 @@ define parse_and_check_files_skeleton
 						FILE_BASENAME=$$(basename $$FILE) ; \
 						if ! echo $(2) | tr " " '\n' | grep -F -q -x "$$FILE_BASENAME"; then \
 							echo "$(COLOR_YELLOW) ---> Comprobando la sintaxis de $(COLOR_PURPLE)$$FILE$(COLOR_YELLOW) ...$(COLOR_RESET)"; \
-							$(GXX) $(INCFLAGS) -fsyntax-only $$FILE; \
+							$(GXX) $(INCLUDE_FLAGS) -fsyntax-only $$FILE; \
 							if [ $$? -ne 0 ]; then \
 								N_CHECKS_FAILED=$$((N_CHECKS_FAILED + 1)); \
 							fi; \
@@ -452,7 +450,7 @@ author:
 	@echo " -- Nombre de proyecto: Lamport. Simulador de Sistemas Concurrentes y Distribuidos"
 	@echo " -- Autor: Daniel Pérez Ruiz"
 	@echo " -- Tutor: Carlos Ureña Almagro"
-	@echo " -- Version: 0.0.0"
+	@echo " -- Version: 0.0.6"
 	@echo "$(COLOR_RESET)"
 
 # -- Muestra las diferentes opciones de Makefile
@@ -549,17 +547,17 @@ clean_tex:
 # ========================================================================================
 
 # -- Genera la fuente del analizador lexico a traves de flex
-generate_lexer: $(SOURCE_DIR)/$(FLEX_LEXER_SRC)
-	@echo "$(COLOR_BOLD)>>> Generando analizador lexico $(COLOR_GREEN)$(SOURCE_DIR)/$(FLEX_LEXER_SRC)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@flex -o $(SOURCE_DIR)/$(LEXER_SRC) $(SOURCE_DIR)/$(FLEX_LEXER_SRC)
-	@echo "$(COLOR_BOLD)>>> Analizador lexico generado: $(COLOR_PURPLE)$(SOURCE_DIR)/$(LEXER_SRC)$(COLOR_RESET)"
+generate_lexer:
+	@echo "$(COLOR_BOLD)>>> Generando analizador lexico: $(COLOR_BLUE)$(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
+	@flex -o $(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_EXT) $(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)
+	@echo "$(COLOR_BOLD)>>> Analizador lexico generado: $(COLOR_PURPLE)$(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_EXT)$(COLOR_RESET)"
 	
 # -- Genera la fuente del analizador sintactico a traves de bison	
 generate_parser:
-	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico $(COLOR_GREEN)$(SOURCE_DIR)/$(BISON_PARSER_SRC)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@bison --defines=$(HEADER_DIR)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_DIR)/$(PARSER_SRC)  $(SOURCE_DIR)/$(BISON_PARSER_SRC) #-Wcounterexamples
-	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_DIR)/$(PARSER_SRC)$(COLOR_RESET)"
-	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_DIR)/$(PARSER_HEADER)$(COLOR_RESET)"
+	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico: $(COLOR_BLUE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
+	@bison --defines=$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)  $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT) #-Wcounterexamples
+	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)$(COLOR_RESET)"
+	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT)$(COLOR_RESET)"
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE COMPILACION (OBJETOS)
@@ -581,29 +579,29 @@ compile_sources:
 	@make -s compile_ast && echo
 	@make -s compile_string_register && echo
 	
-	@make -s compile_lmp_dependencies && echo	
+	@make -s compile_lmp_utils && echo	
 	
 # -- Genera codigo objeto para el analizador lexico
 compile_lexer: build_obj_dir
 	@make -s generate_lexer && echo
-	$(call compile_objects_skeleton,$(INDEX_LEXER_FILES),"","analizador lexico", $(LDFLEX))
+	$(call compile_objects_skeleton,$(INDEX_LEXER_FILES),"$(LEXER_MODULE)/","analizador lexico", $(LDFLEX))
 	
 # -- Genera codigo objeto para el analizador sintactico
 compile_parser: build_obj_dir
 	@make -s generate_parser && echo
-	$(call compile_objects_skeleton,$(INDEX_PARSER_FILES),"","analizador sintactico",$(LDFLEX))
+	$(call compile_objects_skeleton,$(INDEX_PARSER_FILES),"$(PARSER_MODULE)/","analizador sintactico",$(LDFLEX))
 	
 # -- Genera codigo objeto para el AST
 compile_ast: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_AST_FILES),"$(AST_DIR)/","Abstract Syntax Tree \(AST\)")
+	$(call compile_objects_skeleton,$(INDEX_AST_FILES),"$(AST_MODULE)/","Abstract Syntax Tree \(AST\)")
 	
 # -- Genera codigo objeto para registro de cadenas de caracteres
 compile_string_register:
-	$(call compile_objects_skeleton,$(INDEX_STRING_REGISTER_FILES),"","Registro de cadenas de caracteres")
+	$(call compile_objects_skeleton,$(INDEX_STRING_REGISTER_FILES),"$(LEXER_MODULE)/","Registro de cadenas de caracteres")
 	
 # -- Genera codigo objeto para las dependencias del compilador Lamport
-compile_lmp_dependencies:
-	$(call compile_objects_skeleton,$(INDEX_LMP_MAIN_FILES),"","dependencias de compilador lamport")
+compile_lmp_utils:
+	$(call compile_objects_skeleton,$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
 	
 	
 	
@@ -618,7 +616,7 @@ compile_tests:
 	
 # -- Compila los ficheros de tests sobre modulo: lexer
 compile_tests_lexer: build_bin_dir build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_TEST_COMMON_FILES),"$(TEST_DIR)/","common tests resources",$(LDFLAGS))
+	$(call compile_objects_skeleton,$(INDEX_TEST_UTILS_FILES),"$(TEST_UTILS_MODULE)/","common tests resources",$(LDFLAGS))
 	@echo
 	$(call compile_tests_skeleton,$(INDEX_TEST_LEXER_FILES),"analizador lexico",$(LDFLEX), $(UNDEFINED_MACROS))
 	@echo

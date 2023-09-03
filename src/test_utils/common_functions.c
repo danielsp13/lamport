@@ -7,7 +7,7 @@
 
 //=============================================================================================
 
-#include "test/common_functions.h"
+#include "test_utils/common_functions.h"
 
 Buffer* crear_buffer(){
     Buffer* buff = malloc(sizeof(Buffer));

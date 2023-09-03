@@ -10,10 +10,10 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-#include "lexer.c"
+#include "lexer/lexer.c"
 
 //Incluir funciones comunes
-#include "test/common_functions.h"
+#include "test_utils/common_functions.h"
 
 // -- Macro que define la ruta donde se encuentran los ficheros de pruebas
 #define EXAMPLES_PATH "examples/programs/transparencias/"
