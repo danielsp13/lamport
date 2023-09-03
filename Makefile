@@ -82,8 +82,6 @@ DIR_BACKUP:=$(HOME)
 # -- Variables referentes a directorios de fuentes
 HEADER_DIR:=include
 SOURCE_DIR:=src
-TEST_DIR:=test
-AST_DIR:=AST
 BIN_DIR:=bin
 OBJ_DIR:=obj
 EXAMPLES_DIR:=examples
@@ -93,6 +91,7 @@ INDEX_DIRS:=$(HEADER_DIR) $(SOURCE_DIR) $(TEST_DIR)
 LEXER_MODULE:=lexer
 PARSER_MODULE:=parser
 AST_MODULE:=AST
+SEMANTIC_MODULE:=semantic
 LMP_UTILS_MODULE:=lmp_utils
 TEST_UTILS_MODULE:=test_utils
 
@@ -100,6 +99,7 @@ TEST_UTILS_MODULE:=test_utils
 HEADER_LEXER:=$(HEADER_DIR)/$(LEXER_MODULE)
 HEADER_PARSER:=$(HEADER_DIR)/$(PARSER_MODULE)
 HEADER_AST:=$(HEADER_DIR)/$(AST_MODULE)
+HEADER_SEMANTIC:=$(HEADER_DIR)/$(SEMANITC_MODULE)
 HEADER_LMP_UTILS:=$(HEADER_DIR)/$(LMP_UTILS_MODULE)
 HEADER_TEST_UTILS:=$(HEADER_DIR)/$(TEST_UTILS_MODULE)
 
@@ -107,6 +107,7 @@ HEADER_TEST_UTILS:=$(HEADER_DIR)/$(TEST_UTILS_MODULE)
 SOURCE_LEXER:=$(SOURCE_DIR)/$(LEXER_MODULE)
 SOURCE_PARSER:=$(SOURCE_DIR)/$(PARSER_MODULE)
 SOURCE_AST:=$(SOURCE_DIR)/$(AST_MODULE)
+SOURCE_SEMANTIC:=$(SOURCE_DIR)/$(SEMANITC_MODULE)
 SOURCE_LMP_UTILS:=$(SOURCE_DIR)/$(LMP_UTILS_MODULE)
 SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
 
@@ -124,6 +125,7 @@ INDEX_LEXER_FILES:=lexer
 INDEX_PARSER_FILES:=parser
 INDEX_AST_FILES:=AST declaration statement expression type subprogram process
 INDEX_STRING_REGISTER_FILES:=string_register
+INDEX_SEMANTIC_FILES:=symbol
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
 
 # -- Indice de ficheros (obj)
@@ -578,6 +580,7 @@ compile_sources:
 	@make -s compile_parser && echo
 	@make -s compile_ast && echo
 	@make -s compile_string_register && echo
+	@make -s compile_semantic && echo
 	
 	@make -s compile_lmp_utils && echo	
 	
@@ -596,11 +599,15 @@ compile_ast: build_obj_dir
 	$(call compile_objects_skeleton,$(INDEX_AST_FILES),"$(AST_MODULE)/","Abstract Syntax Tree \(AST\)")
 	
 # -- Genera codigo objeto para registro de cadenas de caracteres
-compile_string_register:
+compile_string_register: build_obj_dir
 	$(call compile_objects_skeleton,$(INDEX_STRING_REGISTER_FILES),"$(LEXER_MODULE)/","Registro de cadenas de caracteres")
 	
+# -- Genera codigo objeto para el analizador semantico
+compile_semantic: build_obj_dir
+	$(call compile_objects_skeleton,$(INDEX_SEMANTIC_FILES),"$(SEMANTIC_MODULE)/","analizador semantico")
+	
 # -- Genera codigo objeto para las dependencias del compilador Lamport
-compile_lmp_utils:
+compile_lmp_utils: build_obj_dir
 	$(call compile_objects_skeleton,$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
 	
 	
