@@ -159,22 +159,29 @@ void free_type(struct type *type){
     if(!type)
         return;
 
+    // -- Liberar tipo de dato (str)
+    free(type->kind_str);
+    type->kind_str = NULL;
+
     // -- Liberar en funcion del tipo
     switch (type->kind)
     {
     case TYPE_ARRAY:
-        free(type->kind_str);
         free_type(type->subtype);
+        type->subtype = NULL;
+
         break;
 
     case TYPE_FUNCTION:
-        free(type->kind_str);
         free_type(type->subtype);
+        type->subtype = NULL;
+
         free_list_parameters(type->parameters);
+        type->parameters = NULL;
+
         break;
 
     default:
-        free(type->kind_str);
         break;
     }
 
@@ -204,12 +211,16 @@ void free_parameter(struct parameter_list *parameter){
         return;
 
     // -- Liberar nombre de parametro
-    if(parameter->name_parameter)
+    if(parameter->name_parameter){
         free(parameter->name_parameter);
+        parameter->name_parameter = NULL;
+    }
 
     // -- Liberar tipo de parametro
-    if(parameter->type)
+    if(parameter->type){
         free_type(parameter->type);
+        parameter->type = NULL;
+    }
 
 
     // -- Liberar nodo

@@ -273,64 +273,109 @@ void free_statement(struct statement *stmt){
     if(!stmt)
         return;
 
+    // -- Liberar tipo de sentencia (str)
+    if(stmt->kind_str){
+        free(stmt->kind_str);
+        stmt->kind_str = NULL;
+    }
+
     // -- Liberar en funcion del tipo de sentencia
     switch (stmt->kind)
     {
     case STMT_ASSIGNMENT:
         free(stmt->stmt.statement_assignment.variable_name);
+        stmt->stmt.statement_assignment.variable_name = NULL;
+
         free_expression(stmt->stmt.statement_assignment.expr);
+        stmt->stmt.statement_assignment.expr = NULL;
+
         break;
 
     case STMT_WHILE:
         free_expression(stmt->stmt.statement_while.condition);
+        stmt->stmt.statement_while.condition = NULL;
+
         free_list_statements(stmt->stmt.statement_while.body);
+        stmt->stmt.statement_while.body = NULL;
+
         break;
 
     case STMT_FOR:
-        if(stmt->stmt.statement_for.counter_name)
-            free(stmt->stmt.statement_for.counter_name);
+        free(stmt->stmt.statement_for.counter_name);
+        stmt->stmt.statement_for.counter_name = NULL;
+
         free_expression(stmt->stmt.statement_for.intialization);
+        stmt->stmt.statement_for.intialization = NULL;
+        
         free_expression(stmt->stmt.statement_for.finish);
+        stmt->stmt.statement_for.finish = NULL;
+
         free_list_statements(stmt->stmt.statement_for.body);
+        stmt->stmt.statement_for.body = NULL;
+
         break;
 
     case STMT_IF_ELSE:
         free_expression(stmt->stmt.statement_if_else.condition);
+        stmt->stmt.statement_if_else.condition = NULL;
+
         free_list_statements(stmt->stmt.statement_if_else.if_body);
-        if(stmt->stmt.statement_if_else.else_body)
+        stmt->stmt.statement_if_else.if_body = NULL;
+
+
+        if(stmt->stmt.statement_if_else.else_body){
             free_list_statements(stmt->stmt.statement_if_else.else_body);
+            stmt->stmt.statement_if_else.else_body = NULL;
+        }
+
         break;
 
     case STMT_PROCEDURE_INV:
         free(stmt->stmt.statement_procedure_inv.procedure_name);
-        if(stmt->stmt.statement_procedure_inv.arguments_list)
+        stmt->stmt.statement_procedure_inv.procedure_name = NULL;
+
+
+        if(stmt->stmt.statement_procedure_inv.arguments_list){
             free_list_expressions(stmt->stmt.statement_procedure_inv.arguments_list);
+            stmt->stmt.statement_procedure_inv.arguments_list = NULL;
+        }
+
         break;
 
     case STMT_BLOCK_BEGIN:
         free_list_statements(stmt->stmt.statement_block.body);
+        stmt->stmt.statement_block.body = NULL;
+
         break;
 
     case STMT_BLOCK_COBEGIN:
         free_list_statements(stmt->stmt.statement_block.body);
+        stmt->stmt.statement_block.body = NULL;
+
         break;
 
     case STMT_FORK:
         free(stmt->stmt.statement_fork.forked_process);
+        stmt->stmt.statement_fork.forked_process = NULL;
+
+
         free_list_statements(stmt->stmt.statement_fork.stmt);
+        stmt->stmt.statement_fork.stmt = NULL;
+
         break;
 
     case STMT_ATOMIC:
         free_list_statements(stmt->stmt.statement_block.body);
+        stmt->stmt.statement_block.body = NULL;
+
         break;
 
     case STMT_RETURN:
         free_expression(stmt->stmt.statement_return.returned_expr);
+        stmt->stmt.statement_return.returned_expr = NULL;
+
         break;
     }
-
-    if(stmt->kind_str)
-        free(stmt->kind_str);
     
     // -- Liberar nodo
     free(stmt);

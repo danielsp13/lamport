@@ -315,21 +315,38 @@ void free_expression(struct expression *expr){
     if(!expr)
         return;
 
+    // -- Liberar tipo de expresion (str)
+    if(expr->kind_str){
+        free(expr->kind_str);
+        expr->kind_str = NULL;
+    }
+
     switch (expr->kind)
     {
     case EXPR_BINARY:
         free(expr->expr.expression_binary_operation.operator);
+        expr->expr.expression_binary_operation.operator = NULL;
+
         free_expression(expr->expr.expression_binary_operation.left);
+        expr->expr.expression_binary_operation.left = NULL;
+
         free_expression(expr->expr.expression_binary_operation.right);
+        expr->expr.expression_binary_operation.right = NULL;
+
         break;
 
     case EXPR_UNARY:
         free(expr->expr.expression_unary_operation.operator);
+        expr->expr.expression_unary_operation.operator = NULL;
+
         free_expression(expr->expr.expression_unary_operation.left);
+        expr->expr.expression_unary_operation.left = NULL;
         break;
 
     case EXPR_IDENTIFIER:
         free(expr->expr.expression_identifier.id);
+        expr->expr.expression_identifier.id = NULL;
+
         break;
 
     case EXPR_LITERAL:
@@ -337,6 +354,8 @@ void free_expression(struct expression *expr){
         {
         case EXPR_LITERAL_STRING:
             free(expr->expr.expression_literal.value.string_literal);
+            expr->expr.expression_literal.value.string_literal = NULL;
+
             break;
         
         default:
@@ -346,16 +365,19 @@ void free_expression(struct expression *expr){
 
     case EXPR_FUNCTION_INV:
         free(expr->expr.expression_function_inv.function_name);
+        expr->expr.expression_function_inv.function_name = NULL;
+
         free_list_expressions(expr->expr.expression_function_inv.arguments_list);
+        expr->expr.expression_function_inv.arguments_list = NULL;
+
         break;
 
     case EXPR_GROUPED:
         free_expression(expr->expr.grouped_expression);
+        expr->expr.grouped_expression = NULL;
+
         break;
     }
-
-    if(expr->kind_str)
-        free(expr->kind_str);
 
     // -- Liberar nodo
     free(expr);

@@ -49,20 +49,28 @@ void free_program(struct program *prog){
         return;
 
     // -- Liberacion del nombre del programa
-    if(prog->name_program)
+    if(prog->name_program){
         free(prog->name_program);
+        prog->name_program = NULL;
+    }
 
     // -- Liberacion de declaraciones
-    if(prog->declarations)
+    if(prog->declarations){
         free_list_declarations(prog->declarations);
+        prog->declarations = NULL;
+    }
 
     // -- Liberacion de subprogramas
-    if(prog->subprograms)
+    if(prog->subprograms){
         free_list_subprograms(prog->subprograms);
+        prog->subprograms = NULL;
+    }
 
     // -- Liberacion de procesos
-    if(prog->process)
+    if(prog->process){
         free_list_process(prog->process);
+        prog->process = NULL;
+    }
 
     // -- Liberar nodo raiz programa
     free(prog);

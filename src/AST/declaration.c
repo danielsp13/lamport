@@ -61,16 +61,22 @@ void free_declaration(struct declaration *decl){
         return;
 
     // -- Liberar nombre de variable
-    if(decl->name)
+    if(decl->name){
         free(decl->name);
+        decl->name = NULL;
+    }
 
     // -- Liberar tipo de declaracion
-    if(decl->type)
+    if(decl->type){
         free_type(decl->type);
+        decl->type = NULL;
+    }
 
     // -- Liberar expresion de valor
-    if(decl->value)
+    if(decl->value){
         free_expression(decl->value);
+        decl->value = NULL;
+    }
 
     // -- Liberar nodo
     free(decl);

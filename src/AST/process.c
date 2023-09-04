@@ -61,16 +61,21 @@ void free_process(struct process *proc){
         return;
 
     // -- Liberar nombre de proceso
-    if(proc->name_process)
+    if(proc->name_process){
         free(proc->name_process);
+        proc->name_process = NULL;
+    }
 
     // -- Liberar declaraciones de proceso
-    if(proc->declarations)
+    if(proc->declarations){
         free_list_declarations(proc->declarations);
+        proc->declarations = NULL;
+    }
 
     // -- Liberar sentencias de proceso
     if(proc->statements){
         free_list_statements(proc->statements);
+        proc->statements = NULL;
     }
 
     // -- Liberar nodo

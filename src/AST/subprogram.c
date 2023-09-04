@@ -95,27 +95,39 @@ void free_subprogram(struct subprogram *subprog){
         return;
 
     // -- Liberar nombre de subprograma
-    if(subprog->name_subprogram)
+    if(subprog->name_subprogram){
         free(subprog->name_subprogram);
+        subprog->name_subprogram = NULL;
+    }
 
-    if(subprog->kind_str)
+    if(subprog->kind_str){
         free(subprog->kind_str);
+        subprog->kind_str = NULL;
+    }
 
     // -- Liberar tipo de subprograma (solo para funciones)
-    if(subprog->type)
+    if(subprog->type){
         free_type(subprog->type);
+        subprog->type = NULL;
+    }
 
     // -- Liberar declaraciones del subprograma
-    if(subprog->declarations)
+    if(subprog->declarations){
         free_list_declarations(subprog->declarations);
+        subprog->declarations = NULL;
+    }
 
     // -- Liberar
-    if(subprog->parameters)
+    if(subprog->parameters){
         free_list_parameters(subprog->parameters);
+        subprog->parameters = NULL;
+    }
 
     // -- Liberar
-    if(subprog->statements)
+    if(subprog->statements){
         free_list_statements(subprog->statements);
+        subprog->statements = NULL;
+    }
 
     
     // -- Liberar nodo
