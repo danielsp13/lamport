@@ -347,7 +347,7 @@ void print_scope(scope * scope){
     for(unsigned int i=0; i<MAX_SCOPE_SIZE; i++){
         if(scope->table[i]){
             print_list_entry(scope->table[i], i);
-            printf(" ");
+            printf("\n");
         }
     }
 }
