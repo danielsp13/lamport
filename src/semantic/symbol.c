@@ -83,12 +83,16 @@ void free_symbol(struct symbol * symb){
         return;
 
     // -- Liberar memoria de tipo de simbolo (str)
-    if(symb->kind_str)
+    if(symb->kind_str){
         free(symb->kind_str);
+        symb->kind_str = NULL;
+    }
 
     // -- Liberar memoria de nombre de variable
-    if(symb->name)
+    if(symb->name){
         free(symb->name);
+        symb->name = NULL;
+    }
 
     // -- Liberar simbolo
     free(symb);

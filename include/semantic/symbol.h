@@ -11,7 +11,7 @@
 
 // ===============================================================
 
-// ----- INCLUSION DE DEPENDENCIAS DE NODO -----
+// ----- INCLUSION DE DEPENDENCIAS -----
 
 #include <stdlib.h>
 #include <stdio.h>
