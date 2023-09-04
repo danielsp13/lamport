@@ -128,7 +128,7 @@ INDEX_LEXER_FILES:=lexer
 INDEX_PARSER_FILES:=parser
 INDEX_AST_FILES:=AST declaration statement expression type subprogram process
 INDEX_STRING_REGISTER_FILES:=string_register
-INDEX_SEMANTIC_FILES:=symbol
+INDEX_SEMANTIC_FILES:=symbol scope
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
 
 # -- Indice de ficheros (obj)
