@@ -32,8 +32,8 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
  	| "array" "[" <size-array> "]" <type>
  	| "semaphore"
  	| "dprocess"
-<process> ::= "process" <identifier> [ "[" <identifier> : <integer-literal>
- 	".." <integer-literal> "]" ] ";" [<declarations>] <block-statement>
+<process> ::= "process" <identifier> [ "[" <identifier> : <expression>
+ 	".." <expression> "]" ] ";" [<declarations>] <block-statement>
 <block-statement> ::= "begin" (<statement>)+ "end"
 <procedure-definition> ::= "procedure" <identifier> "(" <parameters> ")"
  	[<declarations>] <block-statement>

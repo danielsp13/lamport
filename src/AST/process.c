@@ -12,12 +12,36 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (PROCESOS) -----
 
-struct process * create_process(char *name_process, struct declaration *declarations, struct statement *statements){
+struct process * create_process(process_t kind, char *name_process, struct declaration *declarations, struct statement *statements){
     struct process *proc = malloc(sizeof(*proc));
 
     // -- Comprobar reserva de memoria exitosa
     if(!proc)
         return NULL;
+
+    // -- Asignar tipo de proceso
+    proc->kind = kind;
+
+    // -- Asignar tipo de proceso (str)
+    switch (proc->kind){
+    case PROCESS_SINGLE:
+        proc->kind_str = strdup("individual process");
+        break;
+    
+    case PROCESS_VECTOR:
+        proc->kind_str = strdup("vector process");
+        break;
+
+    default:
+        proc->kind_str = NULL;
+        break;
+    }
+    // -- Comprobar asignacion de tipo de proceso (str) exitoso
+    if(!proc->kind_str){
+        // -- Liberar memoria reservada para el proceso
+        free(proc);
+        return NULL;
+    }
 
     // -- Asignar nombre de proceso
     proc->name_process = strdup(name_process);
@@ -32,8 +56,54 @@ struct process * create_process(char *name_process, struct declaration *declarat
     proc->declarations = declarations;
     // -- Asignar sentencias del proceso
     proc->statements = statements;
+
+    // -- Asignar identificador de indexacion de vector de procesos (NULL)
+    proc->index_identifier = NULL;
+    // -- Asignar expresion de inicio de rango de vector de procesos (NULL)
+    proc->index_start = NULL;
+    // -- Asignar expresion de fin de rango de vector de procesos (NULL)
+    proc->index_end = NULL;
+
     // -- Asignar puntero a siguiente proceso (NULL)
     proc->next = NULL;
+
+    // -- Retornar proceso creado e inicializado
+    return proc;
+}
+
+struct process * create_process_single(char *name_process, struct declaration *declarations, struct statement *statements){
+    // -- Retornar proceso creado e inicializado
+    return create_process(PROCESS_SINGLE, name_process, declarations, statements);
+}
+
+struct process * create_process_vector(char *name_process, struct declaration *declarations, struct statement *statements, char *index_identifier, struct expression *index_start, struct expression *index_end){
+    struct process * proc = create_process(PROCESS_VECTOR, name_process, declarations, statements);
+
+    // -- Comprobar creacion del proceso exitosa
+    if(!proc)
+        return NULL;
+
+    // -- Asignar identificador de indexacion de vector de procesos (NULL)
+    proc->index_identifier = strdup(index_identifier);
+
+    // -- Comprobar asignacion de id de indexacion exitoso
+    if(!proc->index_identifier){
+        // -- Liberar memoria reservada para el proceso
+        free(proc);
+        return NULL;
+    }
+
+    // -- Asignar expresion de inicio de rango de vector de procesos
+    proc->index_start = index_start;
+    // -- Asignar expresion de inicio de rango de vector de procesos
+    proc->index_end = index_end;
+
+    // -- Asegurar que ni el inicio ni el fin de rango son nulos
+    if(!proc->index_start || !proc->index_end){
+        // -- Liberar memoria reservada para el proceso
+        free(proc);
+        return NULL;
+    }
 
     // -- Retornar proceso creado e inicializado
     return proc;
@@ -60,6 +130,12 @@ void free_process(struct process *proc){
     if(!proc)
         return;
 
+    // -- Liberar tipo de proceso (str)
+    if(proc->kind_str){
+        free(proc->kind_str);
+        proc->kind_str = NULL;
+    }
+
     // -- Liberar nombre de proceso
     if(proc->name_process){
         free(proc->name_process);
@@ -76,6 +152,28 @@ void free_process(struct process *proc){
     if(proc->statements){
         free_list_statements(proc->statements);
         proc->statements = NULL;
+    }
+
+    // -- Comprobar tipo de proceso para definir mas liberaciones
+    switch (proc->kind)
+    {
+    case PROCESS_VECTOR:
+        // -- Liberar identificador de indexacion de proceso
+        free(proc->index_identifier);
+        proc->index_identifier = NULL;
+
+        // -- Liberar rango de inicio
+        free_expression(proc->index_start);
+        proc->index_start = NULL;
+
+        // -- Liberar rango de fin
+        free_expression(proc->index_end);
+        proc->index_end = NULL;
+
+        break;
+    
+    default:
+        break;
     }
 
     // -- Liberar nodo
@@ -97,8 +195,24 @@ void print_AST_process(struct process *process_list){
 
     struct process *current_process = process_list;
     while(current_process){
-        // -- Imprimir nombre de proceso
-        printf(" %s NOMBRE DE PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
+        // -- Imprimir nombre y tipo de proceso
+        printf(" %s NOMBRE DE PROCESO: [%s] DE TIPO: [%s]\n", IDENT_ARROW, current_process->name_process, current_process->kind_str);
+        // -- Imprimir informacion adicional de proceso (si es necesario)
+        switch (current_process->kind)
+        {
+        case PROCESS_VECTOR:
+            printf(" %s INFORMACION ADICIONAL DEL PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
+            printf(" %s INDEXADOR DE VECTOR DE PROCESOS: [%s]\n", IDENT_ARROW, current_process->index_identifier);
+            printf(" %s RANGO DE INICIO DEL VECTOR: \n", IDENT_ARROW);
+            print_AST_expressions(current_process->index_start);
+            printf(" %s RANGO DE FIN DEL VECTOR: \n", IDENT_ARROW);
+            print_AST_expressions(current_process->index_end);
+            break;
+        
+        default:
+            break;
+        }
+
         // -- Imprimir declaraciones de proceso
         printf(" %s DECLARACIONES DE PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
         print_AST_declarations(current_process->declarations);

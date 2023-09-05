@@ -135,7 +135,7 @@
 %type <subprog> subprogram-function
 
 // ---- TIPO process
-%type <proc> list-process process process-def
+%type <proc> list-process process process-def process-def-array
 
 // ---- TIPO type
 %type <type> type
@@ -427,15 +427,15 @@ process:
     process-def{
         $$ = $1;
     }
-    /*| process-def-array{
+    | process-def-array{
         $$ = $1;
-    }*/
+    }
     ;
 
 process-def:
     // process proc_name ....
     S_PROCESS process-name DELIM_PC list-declarations block-statement{
-        $$ = create_process($2, $4, $5);
+        $$ = create_process_single($2, $4, $5);
     }
     // <--> ERROR : Falta ';'
     | S_PROCESS process-name error list-declarations block-statement{
@@ -447,10 +447,12 @@ process-def:
     }
     ;
 
-/*process-def-array:
+process-def-array:
     // process proc_array_name[expr..expr] (?) ...
-    S_PROCESS identifier CORCH_IZDO identifier DELIM_2P L_INTEGER DELIM_ARR L_INTEGER CORCH_DCHO DELIM_PC list-declarations block-statement
-    ;*/
+    S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statement{
+        $$ = create_process_vector($2, $11, $12, $4, $6, $8);
+    }
+    ;
 
 process-name:
     IDENT{
@@ -679,6 +681,13 @@ expression:
     | term{
         $$ = $1;
     }
+    | error{
+        // -- Mostrar error
+        yyerror(PARSER_ERROR_MSG_EXPR_MALFORMED);
+
+        // -- Abortar inmediatmente el analisis
+        YYABORT;
+    }
     ;
 
 binary-expression:
@@ -733,13 +742,6 @@ binary-expression:
     // term or expression
     | term OP_OR expression{
         $$ = create_expression_binary_operation(EXPR_OR, "or", $1, $3);
-    }
-    | error{
-        // -- Mostrar error
-        yyerror(PARSER_ERROR_MSG_EXPR_MALFORMED);
-
-        // -- Abortar inmediatmente el analisis
-        YYABORT;
     }
     ;
     
