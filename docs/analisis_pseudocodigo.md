@@ -53,7 +53,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 	| <return-statement>
 	| <print-statement>
 <cobegin-statement> ::= "cobegin" (<statement>)+ "coend"
-<fork-statement> ::= "fork" <identifier> <statement>
+<fork-statement> ::= "fork" <identifier> ";"
 <atomic-statement> ::= "<<" (<statement>)+ ">>"
 <assignment-statement> ::= <identifier> ["[" <expression> "]"] ":=" <expression> ";"
 <while-statement> ::= "while" <expression> "do" <block-statement>
