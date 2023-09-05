@@ -487,7 +487,7 @@ type:
         $$ = create_basic_type(TYPE_REAL);
     }
     | T_ARRAY CORCH_IZDO expression CORCH_DCHO type{
-        $$ = create_array_type($5);
+        $$ = create_array_type($5,$3);
     }
     | T_SEMAPHORE{
         $$ = create_semaphore_type();
@@ -574,10 +574,12 @@ cobegin-statement:
 assignment-statement:
     // var_name = expr;
     IDENT OP_ASSIGN expression DELIM_PC{
-        $$ = create_statement_assignment($1, $3);
+        $$ = create_statement_assignment($1, 0, $3);
     }
     // var_array_name[index] = expr;
-    //| identifier CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC
+    | IDENT CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC{
+        $$ = create_statement_assignment($1, $3, $6);
+    }
     ;
 
 while-statement:

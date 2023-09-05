@@ -93,6 +93,10 @@ struct expression * create_expression_literal(expression_literal_t kind){
     case EXPR_LITERAL_BOOLEAN:
         ex->kind_str = strdup("literal boolean");
         break;
+
+    default:
+        ex->kind_str = NULL;
+        break;
     }
 
     // -- Comprobar asignacion de tipo de expresion (str) exitosa
@@ -361,6 +365,7 @@ void free_expression(struct expression *expr){
         default:
             break;
         }
+        
         break;
 
     case EXPR_FUNCTION_INV:

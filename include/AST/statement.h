@@ -127,6 +127,7 @@ struct statement{
         // Estructura de sentencia de asignacion
         struct {
             char *variable_name;                    ///< Nombre de la variable
+            struct expression *index_expr;          ///< Expresion del subindice. NULL si no hay subíndice.
             struct expression *expr;                ///< Expresion de la asignacion
         } statement_assignment;
 
@@ -195,10 +196,11 @@ struct statement * create_statement(statement_t kind);
 /**
  * @brief Crea y reserva memoria para una sentencia de asignacion (STMT_ASSIGNMENT).
  * @param variable_name : Nombre de la variable
+ * @param index_expr : Expresion de indice (si se esta realizando la asignacion sobre una posicion de array)
  * @param expr : Expresion a asignar
  * @return puntero con la sentencia incializada
  */
-struct statement * create_statement_assignment(char *variable_name, struct expression *expr);
+struct statement * create_statement_assignment(char *variable_name, struct expression *index_expr, struct expression *expr);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de bucle while (STMT_WHILE)

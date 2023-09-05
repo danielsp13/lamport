@@ -23,6 +23,8 @@ struct type * create_basic_type(type_t kind){
     t->kind = kind;
     // -- Asignar subtipo de dato (NULL)
     t->subtype = NULL;
+    // -- Asignar size de dato (NULL)
+    t->size = NULL;
     // -- Asignar parametros (si tipo funcion)
     t->parameters = NULL;
 
@@ -85,7 +87,7 @@ struct type * create_function_type(struct type *subtype, struct parameter_list *
     return t;
 }
 
-struct type * create_array_type(struct type *subtype){
+struct type * create_array_type(struct type *subtype, struct expression *size){
     struct type *t = create_basic_type(TYPE_ARRAY);
 
     // -- Comprobar reserva de memoria exitosa
@@ -94,6 +96,9 @@ struct type * create_array_type(struct type *subtype){
 
     // -- Asignar subtipo de dato
     t->subtype = subtype;
+
+    // -- Asignar size de array
+    t->size = size;
 
     // -- Retornar tipo creado e inicializado
     return t;
@@ -170,6 +175,9 @@ void free_type(struct type *type){
         free_type(type->subtype);
         type->subtype = NULL;
 
+        free_expression(type->size);
+        type->size = NULL;
+
         break;
 
     case TYPE_FUNCTION:
@@ -244,6 +252,8 @@ void print_AST_type(struct type *type){
     {
     case TYPE_ARRAY:
         printf(" %s ARRAY DE TIPO: [%s]\n", IDENT_ARROW, type->subtype->kind_str);
+        printf(" %s DIMENSION DEL ARRAY DE TIPO: [%s]\n", IDENT_ARROW, type->subtype->kind_str);
+        print_AST_expressions(type->size);
         break;
 
     case TYPE_FUNCTION:

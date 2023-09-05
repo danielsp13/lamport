@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "expression.h"         ///< Expresiones
+
 // ===============================================================
 
 // ----- DEFINICION DE TIPOS DE DATO -----
@@ -69,6 +71,7 @@ struct type{
     type_t kind;                            ///< Tipo de dato
     char *kind_str;                         ///< Tipo de dato (en formato string)
     struct type *subtype;                   ///< Subtipo de dato (arrays y funciones)
+    struct expression *size;                ///< Size de dato (arrays)
     struct parameter_list *parameters;      ///< Lista de parametros (para funciones)
 };
 
@@ -110,9 +113,10 @@ struct type * create_function_type(struct type *subtype, struct parameter_list *
 /**
  * @brief Crea y reserva memoria para el tipo de dato de array
  * @param subtype : tipo de dato almacenado en el array
+ * @param size : dimension del array
  * @return puntero con el tipo de dato inicializado
  */
-struct type * create_array_type(struct type *subtype);
+struct type * create_array_type(struct type *subtype, struct expression *size);
 
 /**
  * @brief Crea y reserva memoria para el tipo de dato semaphore

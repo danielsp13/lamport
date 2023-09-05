@@ -29,7 +29,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 	| "char"
 	| "string"
 	| "real"
- 	| "array" "[" <size-array> "]" <type>
+ 	| "array" "[" <expression> "]" <type>
  	| "semaphore"
  	| "dprocess"
 <process> ::= "process" <identifier> [ "[" <identifier> : <expression>

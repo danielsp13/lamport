@@ -86,7 +86,7 @@ struct statement * create_statement(statement_t kind){
     return st;
 }
 
-struct statement * create_statement_assignment(char *variable_name, struct expression *expr){
+struct statement * create_statement_assignment(char *variable_name, struct expression *index_expr, struct expression *expr){
     struct statement *st = create_statement(STMT_ASSIGNMENT);
 
     // -- Comprobar reserva de memoria exitosa
@@ -101,6 +101,9 @@ struct statement * create_statement_assignment(char *variable_name, struct expre
         free(st);
         return NULL;
     }
+
+    // -- Asignar expresion de indice (si la asignacion se esta realizando sobre un array)
+    st->stmt.statement_assignment.index_expr = index_expr;
 
     // -- Asignar expresion
     st->stmt.statement_assignment.expr = expr;
@@ -304,6 +307,9 @@ void free_statement(struct statement *stmt){
         free(stmt->stmt.statement_assignment.variable_name);
         stmt->stmt.statement_assignment.variable_name = NULL;
 
+        free_expression(stmt->stmt.statement_assignment.index_expr);
+        stmt->stmt.statement_assignment.index_expr = NULL;
+
         free_expression(stmt->stmt.statement_assignment.expr);
         stmt->stmt.statement_assignment.expr = NULL;
 
@@ -428,6 +434,11 @@ void print_AST_statements(struct statement *statements_list){
         {
         case STMT_ASSIGNMENT:
             printf(" %s ASIGNACION A VARIABLE: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_assignment.variable_name);
+            if(current_statement->stmt.statement_assignment.index_expr){
+                printf(" %s EXPRESION DE INDICE DE ACCESO A ARRAY: \n", IDENT_ARROW);
+                print_AST_expressions(current_statement->stmt.statement_assignment.index_expr);
+            }
+
             printf(" %s EXPRESION ASIGNADA A VARIABLE: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_assignment.variable_name);
             print_AST_expressions(current_statement->stmt.statement_assignment.expr);
             break;

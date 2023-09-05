@@ -41,6 +41,7 @@ comentario  "{"[^}]*"}"
 "real"          {return(T_REAL);}
 "semaphore"     {return(T_SEMAPHORE);}
 "dprocess"      {return(T_DPROCESS);}
+"array"         {return(T_ARRAY);}
 "process"       {return(S_PROCESS);}
 "procedure"     {return(S_PROCEDURE);}
 "function"      {return(S_FUNCTION);}
