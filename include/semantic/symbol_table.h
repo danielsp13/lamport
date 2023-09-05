@@ -118,6 +118,9 @@ int free_symbol_table();
 
 // ----- PROTOTIPOS DE FUNCIONES DE IMPRESION DE TABLA DE SIMBOLOS -----
 
+/**
+ * @brief Imprime la tabla de simbolos
+ */
 void print_symbol_table();
 
 #endif //_LAMPORT_SEMANTIC_SYMBOL_TABLE_DPR_
