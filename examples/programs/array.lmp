@@ -1,0 +1,21 @@
+{Programa: array.lmp}
+{Autor: Daniel Pérez Ruiz}
+{Descripción: Programa que define un array e imprime sus posiciones}
+
+program ImprimeArray
+	var tam : integer := 5;
+
+process Main;
+	var vector : array [tam+1] integer;
+	var i : integer;
+begin
+	for i := 0 to tam do
+	begin
+		vector[i] := i;
+	end
+
+	for i := 0 to tam do
+	begin
+		print(vector[i]);
+	end
+end

@@ -164,7 +164,7 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
     return ex;
 }
 
-struct expression * create_expression_identifier(char *id){
+struct expression * create_expression_identifier(char *id, struct expression *index_expr){
     struct expression *ex = create_expression_non_literal(EXPR_IDENTIFIER);
 
     // -- Comprobar reserva de memoria exitosa
@@ -179,6 +179,9 @@ struct expression * create_expression_identifier(char *id){
         free(ex);
         return NULL;
     }
+
+    // -- Asignar expresion de indice (acceso a array)
+    ex->expr.expression_identifier.index_expr = index_expr;
 
     // -- Retornar expresion creada e inicializada
     return ex;
@@ -351,6 +354,9 @@ void free_expression(struct expression *expr){
         free(expr->expr.expression_identifier.id);
         expr->expr.expression_identifier.id = NULL;
 
+        free_list_expressions(expr->expr.expression_identifier.index_expr);
+        expr->expr.expression_identifier.index_expr = NULL;
+
         break;
 
     case EXPR_LITERAL:
@@ -425,6 +431,10 @@ void print_AST_expressions(struct expression *expressions_list){
 
         case EXPR_IDENTIFIER:
             printf(" %s NOMBRE DE IDENTIFICADOR: [%s]\n", IDENT_ARROW, current_expression->expr.expression_identifier.id);
+            if(current_expression->expr.expression_identifier.index_expr){
+                printf(" %s EXPRESION DE ACCESO A POSICION DE IDENTIFICADOR: [%s]\n", IDENT_ARROW, current_expression->expr.expression_identifier.id);
+                print_AST_expressions(current_expression->expr.expression_identifier.index_expr);
+            }
             break;
 
         case EXPR_LITERAL:

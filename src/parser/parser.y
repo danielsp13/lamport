@@ -797,7 +797,10 @@ literal:
 
 identifier:
     IDENT{
-        $$ = create_expression_identifier($1);
+        $$ = create_expression_identifier($1,0);
+    }
+    | IDENT CORCH_IZDO expression CORCH_DCHO{
+        $$ = create_expression_identifier($1, $3);
     }
     ;
 

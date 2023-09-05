@@ -70,7 +70,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <expression> ::= <term> <binary-operator> <expression>
 	| <unary-operator> <term>
 	| <term>
-<term> ::= <identifier>
+<term> ::= <identifier> ["[" <expression> "]"]
 	| <literal>
 	| <function-invocation>
 	| "(" <expression> ")"

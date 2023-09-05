@@ -30,7 +30,7 @@
 typedef enum{
     EXPR_BINARY,            ///< Expresion de operacion binaria
     EXPR_UNARY,             ///< Expresion de operacion unaria
-    EXPR_IDENTIFIER,        ///< Expresion de identificador     
+    EXPR_IDENTIFIER,        ///< Expresion de identificador
     EXPR_LITERAL,           ///< Expresion literal
     EXPR_FUNCTION_INV,      ///< Expresion de invocacion de funciones
     EXPR_GROUPED            ///< Expresion entre parentesis
@@ -172,6 +172,7 @@ struct expression{
         // Estructura de expresion de identificador
         struct{
             char *id;                                       ///< Valor de identificador
+            struct expression *index_expr;                  ///< Expresion del subindice. NULL si no hay subíndice.
         } expression_identifier;
 
         // Estructura de expresion de literal
@@ -237,9 +238,10 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
 /**
  * @brief Crea y reserva memoria para una expresion de identificador
  * @param id : identificador
+ * @param index_expr : Expresion de indice (si se esta referenciando una posicion de array)
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_identifier(char *id);
+struct expression * create_expression_identifier(char *id, struct expression * index_expr);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo literal entero
