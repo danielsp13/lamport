@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include "expression.h"     ///< Expresiones
-#include "type.h"           ///< Parametros (procedimientos y funciones)
+#include "type.h"           ///< Tipos de dato
 
 // ===============================================================
 

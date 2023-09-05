@@ -20,6 +20,7 @@
 #include "declaration.h"    ///< Declaraciones
 #include "statement.h"      ///< Sentencias
 #include "type.h"           ///< Tipos
+#include "parameter_list.h" ///< Parametros de subprgramas
 
 // ===============================================================
 

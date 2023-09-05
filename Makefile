@@ -126,7 +126,7 @@ INDEX_TEST_UTILS_FILES:=common_functions
 # -- Indice de ficheros
 INDEX_LEXER_FILES:=lexer
 INDEX_PARSER_FILES:=parser
-INDEX_AST_FILES:=AST declaration statement expression type subprogram process
+INDEX_AST_FILES:=AST declaration statement expression type parameter_list subprogram process
 INDEX_STRING_REGISTER_FILES:=string_register
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
@@ -651,4 +651,4 @@ test_lexer:
 	$(call exec_tests_skeleton,lexer,$(INDEX_TEST_LEXER_FILES))
 	
 mem_check:
-	@valgrind --leak-check=full $(BIN_DIR)/$(LMP_MAIN_NAME) $(FILE_MEM)
+	@valgrind --leak-check=full $(BIN_DIR)/$(LMP_MAIN_NAME) $(LMP_FILE)
