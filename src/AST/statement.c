@@ -63,6 +63,10 @@ struct statement * create_statement(statement_t kind){
         st->kind_str = strdup("return statement");
         break;
 
+    case STMT_PRINT:
+        st->kind_str = strdup("print statement");
+        break;
+
     default:
         st->kind_str = NULL;
         break;
@@ -252,6 +256,20 @@ struct statement * create_statement_return(struct expression *returned_expr){
     return st;
 }
 
+struct statement * create_statement_print(struct expression *expressions_list){
+    struct statement *st = create_statement(STMT_PRINT);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asignar lista de expresiones a imprimir
+    st->stmt.statement_print.expressions_list = expressions_list;
+
+    // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO SENTENCIAS) -----
@@ -375,6 +393,12 @@ void free_statement(struct statement *stmt){
         stmt->stmt.statement_return.returned_expr = NULL;
 
         break;
+
+    case STMT_PRINT:
+        free_list_expressions(stmt->stmt.statement_print.expressions_list);
+        stmt->stmt.statement_print.expressions_list = NULL;
+
+        break;
     }
     
     // -- Liberar nodo
@@ -464,6 +488,11 @@ void print_AST_statements(struct statement *statements_list){
         case STMT_RETURN:
             printf(" %s EXPRESION DE RETORNO\n", IDENT_ARROW);
             print_AST_expressions(current_statement->stmt.statement_return.returned_expr);
+            break;
+
+        case STMT_PRINT:
+            printf(" %s LISTADO DE EXPRESIONES A IMPRIMIR:\n", IDENT_ARROW);
+            print_AST_expressions(current_statement->stmt.statement_print.expressions_list);
             break;
         }
 

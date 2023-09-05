@@ -37,7 +37,8 @@ typedef enum{
     STMT_BLOCK_COBEGIN,  ///< Sentencia de bloque cobegin-coend
     STMT_FORK,           ///< Sentencia fork
     STMT_ATOMIC,         ///< Sentencia atomica
-    STMT_RETURN          ///< Sentencia de retorno (para funciones)
+    STMT_RETURN,         ///< Sentencia de retorno (para funciones)
+    STMT_PRINT           ///< Sentencia de impresion de expresiones
 } statement_t;
 
 // ===============================================================
@@ -110,6 +111,12 @@ typedef enum{
  *    --> Estado de los atributos del struct:
  *          ///> kind       -> STMT_RETURN
  *          ///> stmt       -> statement_return
+ * 
+ * STMT_PRINT :
+ *    --> Descripcion: Indica la impresion de una serie de expresiones en pantalla
+ *    --> Estado de los atributos del struct:
+ *          ///> kind       -> STMT_PRINT
+ *          ///> stmt       -> statement_print
  */
 struct statement{
     statement_t kind;                               ///< Tipo de sentencia
@@ -165,6 +172,11 @@ struct statement{
         struct {
             struct expression *returned_expr;       ///< Expresion de retorno
         } statement_return;
+
+        // Estructura de sentencia de impresion
+        struct{
+            struct expression *expressions_list;    ///< Lista de expresiones a imprimir
+        } statement_print;
     } stmt;                                         ///< Sentencia
     
 };
@@ -266,6 +278,13 @@ struct statement * create_statement_fork(char *process_name, struct statement *s
  * @return puntero con la sentencia inicializada
  */
 struct statement * create_statement_return(struct expression *returned_expr);
+
+/**
+ * @brief Crea y reserva memoria para una sentencia de impresion de expresiones
+ * @param expressions_list : Lista de expresiones a imprimir
+ * @return puntero con la sentencia inicializada
+ */
+struct statement * create_statement_print(struct expression *expressions_list);
 
 
 

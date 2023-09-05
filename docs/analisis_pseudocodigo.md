@@ -51,6 +51,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 	| <fork-statement>
 	| <atomic-statement>
 	| <return-statement>
+	| <print-statement>
 <cobegin-statement> ::= "cobegin" (<statement>)+ "coend"
 <fork-statement> ::= "fork" <identifier> <statement>
 <atomic-statement> ::= "<<" (<statement>)+ ">>"
@@ -64,6 +65,8 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <function-invocation> ::= <identifier> "(" <arguments> ")"
 <arguments> ::= [<expression> ["," <arguments>]]
 <return-statement> ::= "return" <expression> ";"
+<print-statement> ::= "print" "(" <print-list> ")" ";"
+<print-list> ::= <expression> ("," <expression>)*
 <expression> ::= <term> <binary-operator> <expression>
 	| <unary-operator> <term>
 	| <term>

@@ -87,7 +87,8 @@
 %token DELIM_P 315
 %token ATOM_INI 316
 %token ATOM_FIN 317
-%token UNRECOGNIZED_TOKEN 318
+%token PRINT 318
+%token UNRECOGNIZED_TOKEN 319
 
 /* Indicar a bison donde encontrar la cabecera de tokens */
 %define api.header.include { "lexer/token.h" }
@@ -145,6 +146,7 @@
 %type <expr> term function-invocation 
 %type <expr> literal identifier
 %type <expr> list-arguments argument
+%type <expr> list-print
 
 // ---- TIPO parameter_list
 %type <param> list-parameters parameter
@@ -153,7 +155,9 @@
 %type <stmt> statement list-statements
 %type <stmt> block-statement
 %type <stmt> cobegin-statement 
-%type <stmt> assignment-statement while-statement for-statement if-statement procedure-invocation fork-statement atomic-statement return-statement
+%type <stmt> assignment-statement 
+%type <stmt> while-statement for-statement
+%type <stmt> if-statement procedure-invocation fork-statement atomic-statement return-statement print-statement
 
 // ---- TIPO identifier
 %type <ident> IDENT
@@ -541,6 +545,9 @@ statement:
     | return-statement{
         $$ = $1;
     }
+    | print-statement{
+        $$ = $1;
+    }
     | error{
         // -- Mostrar error
         yyerror(PARSER_ERROR_MSG_STMT_MALFORMED);
@@ -607,6 +614,22 @@ atomic-statement:
 return-statement:
     RETURN expression DELIM_PC{
         $$ = create_statement_return($2);
+    }
+    ;
+
+print-statement:
+    PRINT PAR_IZDO list-print PAR_DCHO DELIM_PC{
+        $$ = create_statement_print($3);
+    }
+    ;
+
+list-print:
+    expression DELIM_C list-print{
+        $$ = $1;
+        $1->next = $3;
+    }
+    | expression{
+        $$ = $1;
     }
     ;
 

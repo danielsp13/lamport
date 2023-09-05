@@ -53,7 +53,7 @@ extern int yydebug;
     YYEMPTY = -2,
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
-    YYUNDEF = 319,                 /* "invalid token"  */
+    YYUNDEF = 320,                 /* "invalid token"  */
     S_PROGRAM = 258,               /* S_PROGRAM  */
     S_VAR = 259,                   /* S_VAR  */
     T_INTEGER = 260,               /* T_INTEGER  */
@@ -114,7 +114,8 @@ extern int yydebug;
     DELIM_P = 315,                 /* DELIM_P  */
     ATOM_INI = 316,                /* ATOM_INI  */
     ATOM_FIN = 317,                /* ATOM_FIN  */
-    UNRECOGNIZED_TOKEN = 318       /* UNRECOGNIZED_TOKEN  */
+    PRINT = 318,                   /* PRINT  */
+    UNRECOGNIZED_TOKEN = 319       /* UNRECOGNIZED_TOKEN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -123,7 +124,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 105 "src/parser/parser.y"
+#line 106 "src/parser/parser.y"
 
     struct program *prog;
     struct declaration *decl;
@@ -140,7 +141,7 @@ union YYSTYPE
     float literal_float;
     int literal_boolean;
 
-#line 144 "include/lexer/token.h"
+#line 145 "include/lexer/token.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
