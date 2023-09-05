@@ -25,8 +25,8 @@ letra       [A-Za-z]
 digito      [0-9]
 id          {letra}({letra}|{digito})*
 literal     \"[^"]*\"
-entero      -?{digito}+
-real        -?{digito}+\.{digito}+
+entero      {digito}+
+real        {digito}+\.{digito}+
 caracter    \'.\'
 comentario  "{"[^}]*"}"
 

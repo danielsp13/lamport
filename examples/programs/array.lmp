@@ -6,15 +6,15 @@ program ImprimeArray
 	var tam : integer := 5;
 
 process Main;
-	var vector : array [tam+1] integer;
+	var vector : array [tam] integer;
 	var i : integer;
 begin
-	for i := 0 to tam do
+	for i := 0 to tam-1 do
 	begin
 		vector[i] := i;
 	end
 
-	for i := 0 to tam do
+	for i := 0 to (tam - 1) do
 	begin
 		print(vector[i]);
 	end
