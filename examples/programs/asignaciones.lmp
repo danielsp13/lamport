@@ -1,8 +1,8 @@
-{Programa: holamundo.lmp}
+{Programa: asignaciones.lmp}
 {Autor: Daniel Pérez Ruiz}
 {Descripción: Proceso que asigna valores a variables}
 
-program HolaMundo
+program Asignaciones
 	{VARIABLES GLOBALES}
 	var v1int : integer := 0; 	{Variable global de tipo entero}
 	var v2char : char := 'x';	{Variable global de tipo char}
@@ -10,7 +10,7 @@ program HolaMundo
 	var v4string : string;		{Variable global de tipo cadena de caracteres (string)}
 
 {Proceso que asigna valores a variables globales}
-process AsignarValores;
+process Main;
 begin
 	v1int := 13;
 	v2char := 'd';
