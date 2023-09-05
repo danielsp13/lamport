@@ -222,7 +222,7 @@ struct statement * create_statement_atomic(struct statement *body){
     return create_block_of_statements(STMT_ATOMIC, body);
 }
 
-struct statement * create_statement_fork(char *process_name, struct statement *stmt){
+struct statement * create_statement_fork(char *process_name){
     struct statement *st = create_statement(STMT_FORK);
 
     // -- Comprobar reserva de memoria exitosa
@@ -237,9 +237,6 @@ struct statement * create_statement_fork(char *process_name, struct statement *s
         free(st);
         return NULL;
     }
-
-    // -- Asignar sentencia
-    st->stmt.statement_fork.stmt = stmt;
 
     // -- Retornar sentencia creada e inicializada
     return st;
@@ -382,10 +379,6 @@ void free_statement(struct statement *stmt){
         free(stmt->stmt.statement_fork.forked_process);
         stmt->stmt.statement_fork.forked_process = NULL;
 
-
-        free_list_statements(stmt->stmt.statement_fork.stmt);
-        stmt->stmt.statement_fork.stmt = NULL;
-
         break;
 
     case STMT_ATOMIC:
@@ -492,8 +485,6 @@ void print_AST_statements(struct statement *statements_list){
 
         case STMT_FORK:
             printf(" %s FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_fork.forked_process);
-            printf(" %s SENTENCIAS DE FORK DE PROCESO: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_fork.forked_process);
-            print_AST_statements(current_statement->stmt.statement_fork.stmt);
             break;
         
         case STMT_RETURN:

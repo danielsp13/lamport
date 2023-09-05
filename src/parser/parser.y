@@ -604,8 +604,8 @@ if-statement:
     ;
 
 fork-statement:
-    S_FORK IDENT statement{
-        $$ = create_statement_fork($2, $3);
+    S_FORK IDENT DELIM_PC{
+        $$ = create_statement_fork($2);
     }
     ;
 

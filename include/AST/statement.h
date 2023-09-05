@@ -166,7 +166,6 @@ struct statement{
         // Estructura de sentencia fork
         struct {
             char *forked_process;                   ///< Nombre del proceso
-            struct statement *stmt;                 ///< Sentencia
         } statement_fork;
 
         // Estructura de sentencia return (para funciones)
@@ -269,10 +268,9 @@ struct statement * create_statement_atomic(struct statement *body);
 /**
  * @brief Crea y reserva memoria para una sentencia fork
  * @param process_name : Nombre del proceso
- * @param stmt : Sentencia
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_fork(char *process_name, struct statement *stmt);
+struct statement * create_statement_fork(char *process_name);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de retorno (para funciones)
