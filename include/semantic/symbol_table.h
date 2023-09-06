@@ -100,6 +100,7 @@ struct symbol * lookup_symbol_from_specific_scope(char * name, int index);
 
 /**
  * @brief Busca un determinado simbolo a partir de su nombre en todos los scopes
+ * Empieza primero buscando en el scope actual, y si no hay resultado, busca en el resto
  * @param name : nombre del simbolo (actua como llave de registro de tabla hash)
  * @return puntero a simbolo que coincide con la busqueda, NULL en otro caso
  */

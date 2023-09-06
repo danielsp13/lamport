@@ -168,11 +168,21 @@ struct symbol * lookup_symbol_from_all_scopes(char * name){
     if(!symbol_table || !name)
         return NULL;
 
-    // -- Obtener total de scopes actuales
-    const unsigned int total_scopes = scope_level();
-
     // -- Variable para obtencion de simbolo a buscar
     struct symbol * target_symbol = NULL;
+
+    // -- Busca en el scope actual esperando resultado
+    target_symbol = lookup_symbol_from_current_scope(name);
+
+    // -- Comprueba si el simbolo se encuentra en el scope actual
+    if(target_symbol){
+        // -- Devolver simbolo (procedente del scope actual)
+        return target_symbol;
+    }
+
+    // --- En caso contrario, buscar en el resto de scopes
+    // -- Obtener total de scopes actuales
+    const unsigned int total_scopes = scope_level();
 
     // -- Recorrer todos los scopes
     for(unsigned int i=0; i<total_scopes; i++){
