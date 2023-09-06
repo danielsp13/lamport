@@ -47,9 +47,6 @@ struct type * create_basic_type(type_t kind){
     case TYPE_ARRAY:
         t->kind_str = strdup("array");
         break;
-    case TYPE_FUNCTION:
-        t->kind_str = strdup("function");
-        break;
     case TYPE_SEMAPHORE:
         t->kind_str = strdup("semaphore");
         break;
@@ -66,20 +63,6 @@ struct type * create_basic_type(type_t kind){
     }
 
     // -- Retornar tipo creado
-    return t;
-}
-
-struct type * create_function_type(struct type *subtype){
-    struct type *t = create_basic_type(TYPE_FUNCTION);
-
-    // -- Comprobar reserva de memoria exitosa
-    if(!t)
-        return NULL;
-
-    // -- Asignar subtipo de dato (retorno de funcion)
-    t->subtype = subtype;
-
-    // -- Retornar tipo creado e inicializado
     return t;
 }
 
@@ -147,12 +130,6 @@ void free_type(struct type *type){
 
         break;
 
-    case TYPE_FUNCTION:
-        free_type(type->subtype);
-        type->subtype = NULL;
-
-        break;
-
     default:
         break;
     }
@@ -181,11 +158,6 @@ void print_AST_type(struct type *type){
         printf(" %s DIMENSION DEL ARRAY DE TIPO: [%s]\n", IDENT_ARROW, type->subtype->kind_str);
         print_AST_expressions(type->size);
         break;
-
-    case TYPE_FUNCTION:
-        printf(" %s FUNCION DE TIPO: [%s]\n", IDENT_ARROW, type->subtype->kind_str);
-        break;
-
     default:
         printf(" %s TIPO: [%s]\n", IDENT_ARROW, type->kind_str);
         break;

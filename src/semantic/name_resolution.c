@@ -558,11 +558,6 @@ void resolve_type(struct type *type){
         // -- Aplicar resolucion de nombres al tipo de dato array
         resolve_type_array(type);
         break;
-
-    case TYPE_FUNCTION:
-        // -- Aplicar resolucion de nombres al tipo de dato funcion
-        resolve_type_function(type);
-        break;
     
     default:
         // -- En el resto de casos, no es necesario aplicar resolucion de nombres
@@ -577,15 +572,6 @@ void resolve_type_array(struct type *type){
 
     // -- Aplicar resolucion de nombres a size de array
     resolve_expression(type->size);
-
-    // -- Aplicar resolucion de nombres a subtipo de dato
-    resolve_type(type->subtype);
-}
-
-void resolve_type_function(struct type *type){
-    // -- Comprobar que el tipo de dato existe
-    if(!type)
-        return;
 
     // -- Aplicar resolucion de nombres a subtipo de dato
     resolve_type(type->subtype);

@@ -35,7 +35,6 @@ typedef enum{
     TYPE_ARRAY,             ///< Tipo de dato array
     TYPE_SEMAPHORE,         ///< Tipo de dato semaforo
     TYPE_DPROCESS,          ///< Tipo de dato proceso dinamico
-    TYPE_FUNCTION           ///< Tipo de dato de funciones
 } type_t;
 
 // ===============================================================
@@ -70,7 +69,7 @@ typedef enum{
 struct type{
     type_t kind;                            ///< Tipo de dato
     char *kind_str;                         ///< Tipo de dato (en formato string)
-    struct type *subtype;                   ///< Subtipo de dato (arrays y funciones)
+    struct type *subtype;                   ///< Subtipo de dato (arrays)
     struct expression *size;                ///< Size de dato (arrays)
 };
 
@@ -84,14 +83,6 @@ struct type{
  * @return puntero con el tipo de dato inicializado
  */
 struct type * create_basic_type(type_t kind);
-
-/**
- * @brief Crea y reserva memoria para el tipo de dato de una funcion
- * @param subtype : subtipo de dato (para especificar el retorno de la funcion)
- * @param parameters : parametros de la funcion
- * @return puntero con el tipo de dato inicializado
- */
-struct type * create_function_type(struct type *subtype);
 
 /**
  * @brief Crea y reserva memoria para el tipo de dato de array

@@ -211,12 +211,6 @@ void resolve_type(struct type *type);
  */
 void resolve_type_array(struct type *type);
 
-/**
- * @brief Realiza la resolucion de nombres en un tipo de dato funcion
- * @param type : puntero a tipo de dato (funcion)
- */
-void resolve_type_function(struct type *type);
-
 // ===============================================================
 
 // ----- PROTOTIPOS DE FUNCIONES DE RESOLUCION DE NOMBRES (NODO LISTA DE PARAMETROS) -----
