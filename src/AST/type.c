@@ -25,8 +25,6 @@ struct type * create_basic_type(type_t kind){
     t->subtype = NULL;
     // -- Asignar size de dato (NULL)
     t->size = NULL;
-    // -- Asignar parametros (si tipo funcion)
-    t->parameters = NULL;
 
     // -- Asignar tipo de dato (str)
     switch (t->kind)
@@ -71,7 +69,7 @@ struct type * create_basic_type(type_t kind){
     return t;
 }
 
-struct type * create_function_type(struct type *subtype, struct parameter_list *parameters){
+struct type * create_function_type(struct type *subtype){
     struct type *t = create_basic_type(TYPE_FUNCTION);
 
     // -- Comprobar reserva de memoria exitosa
@@ -80,8 +78,6 @@ struct type * create_function_type(struct type *subtype, struct parameter_list *
 
     // -- Asignar subtipo de dato (retorno de funcion)
     t->subtype = subtype;
-    // -- Asignar parametros de funcion
-    t->parameters = parameters;
 
     // -- Retornar tipo creado e inicializado
     return t;
@@ -154,9 +150,6 @@ void free_type(struct type *type){
     case TYPE_FUNCTION:
         free_type(type->subtype);
         type->subtype = NULL;
-
-        free_list_parameters(type->parameters);
-        type->parameters = NULL;
 
         break;
 

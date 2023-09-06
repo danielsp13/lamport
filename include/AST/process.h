@@ -21,6 +21,8 @@
 #include "statement.h"           ///< Sentencias
 #include "expression.h"          ///< Expresiones
 
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
+
 // ===============================================================
 
 // ----- DEFINICION DE TIPOS DE PROCESOS -----
@@ -55,6 +57,9 @@ struct process{
    char *index_identifier;                   ///< Identificador del índice (si es un vector)
    struct expression *index_start;           ///< Puntero al nodo de expresion de inicio
    struct expression *index_end;             ///< Puntero al nodo de expresion final
+
+   struct symbol *symb_process;              ///< Referencia al símbolo asociado en la tabla de símbolos. (nombre de proceso)
+   struct symbol *symb_index;                ///< Referencia al simbolo asociado en la tabla de simbolos. (indice)
 
    struct process *next;                     ///< Puntero a siguiente proceso
 };

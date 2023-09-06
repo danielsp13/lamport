@@ -67,6 +67,11 @@ struct process * create_process(process_t kind, char *name_process, struct decla
     // -- Asignar puntero a siguiente proceso (NULL)
     proc->next = NULL;
 
+    // -- Asignar referencia a simbolo de tabla de simbolos (id de proceso) (NULL) 
+    proc->symb_process = NULL;
+    // -- Asignar referencia a simbolo de tabla de simbolos (id de indice de proceso) (NULL)
+    proc->symb_index = NULL;
+
     // -- Retornar proceso creado e inicializado
     return proc;
 }
@@ -170,11 +175,19 @@ void free_process(struct process *proc){
         free_expression(proc->index_end);
         proc->index_end = NULL;
 
+        // -- Liberar referencia a simbolo de la tabla de simbolos (id de indice en caso de vector)
+        free_symbol(proc->symb_index);
+        proc->symb_index = NULL;
+
         break;
     
     default:
         break;
     }
+
+    // -- Liberar referencia a simbolo de la tabla de simbolos (id de proceso)
+    free_symbol(proc->symb_process);
+    proc->symb_process = NULL;
 
     // -- Liberar nodo
     free(proc);

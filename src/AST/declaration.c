@@ -31,7 +31,9 @@ struct declaration * create_declaration_variable(char *name, struct type *type, 
     // -- Asignar tipo de dato de la variable declarada
     d->type = type;
     // -- Asignar valor de inicializacion de variable
-    d->value = value; 
+    d->value = value;
+    // -- Asignar referencia a simbolo de tabla de simbolos (NULL) 
+    d->symb = NULL;
     // -- Asignar puntero a siguiente declaracion (NULL)
     d->next = NULL;
 
@@ -76,6 +78,12 @@ void free_declaration(struct declaration *decl){
     if(decl->value){
         free_expression(decl->value);
         decl->value = NULL;
+    }
+
+    // -- Liberar referencia a simbolo
+    if(decl->symb){
+        free_symbol(decl->symb);
+        decl->symb = NULL;
     }
 
     // -- Liberar nodo

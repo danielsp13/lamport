@@ -108,6 +108,9 @@ struct statement * create_statement_assignment(char *variable_name, struct expre
     // -- Asignar expresion
     st->stmt.statement_assignment.expr = expr;
 
+    // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
+    st->stmt.statement_assignment.symb = NULL;
+
     // -- Retornar sentencia creada e inicializada
     return st;
 }
@@ -151,6 +154,9 @@ struct statement * create_statement_for(char *counter_name, struct expression *i
     // -- Asignar cuerpo de bucle
     st->stmt.statement_for.body = body;
 
+    // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
+    st->stmt.statement_for.symb = NULL;
+
     // -- Retornar sentencia creada e inicializada
     return st;
 }
@@ -191,6 +197,9 @@ struct statement * create_statement_procedure_inv(char *procedure_name, struct e
 
     // -- Asignar lista de argumentos de invocacion
     st->stmt.statement_procedure_inv.arguments_list = arguments_list;
+
+    // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
+    st->stmt.statement_procedure_inv.symb = NULL;
     
     // -- Retornar sentencia creada e inicializada
     return st;
@@ -237,6 +246,9 @@ struct statement * create_statement_fork(char *process_name){
         free(st);
         return NULL;
     }
+
+    // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
+    st->stmt.statement_fork.symb = NULL;
 
     // -- Retornar sentencia creada e inicializada
     return st;
@@ -310,6 +322,9 @@ void free_statement(struct statement *stmt){
         free_expression(stmt->stmt.statement_assignment.expr);
         stmt->stmt.statement_assignment.expr = NULL;
 
+        free_symbol(stmt->stmt.statement_assignment.symb);
+        stmt->stmt.statement_assignment.symb = NULL;
+
         break;
 
     case STMT_WHILE:
@@ -334,6 +349,9 @@ void free_statement(struct statement *stmt){
         free_list_statements(stmt->stmt.statement_for.body);
         stmt->stmt.statement_for.body = NULL;
 
+        free_symbol(stmt->stmt.statement_for.symb);
+        stmt->stmt.statement_for.symb = NULL;
+
         break;
 
     case STMT_IF_ELSE:
@@ -342,7 +360,6 @@ void free_statement(struct statement *stmt){
 
         free_list_statements(stmt->stmt.statement_if_else.if_body);
         stmt->stmt.statement_if_else.if_body = NULL;
-
 
         if(stmt->stmt.statement_if_else.else_body){
             free_list_statements(stmt->stmt.statement_if_else.else_body);
@@ -355,11 +372,13 @@ void free_statement(struct statement *stmt){
         free(stmt->stmt.statement_procedure_inv.procedure_name);
         stmt->stmt.statement_procedure_inv.procedure_name = NULL;
 
-
         if(stmt->stmt.statement_procedure_inv.arguments_list){
             free_list_expressions(stmt->stmt.statement_procedure_inv.arguments_list);
             stmt->stmt.statement_procedure_inv.arguments_list = NULL;
         }
+
+        free_symbol(stmt->stmt.statement_procedure_inv.symb);
+        stmt->stmt.statement_procedure_inv.symb = NULL;
 
         break;
 
@@ -378,6 +397,9 @@ void free_statement(struct statement *stmt){
     case STMT_FORK:
         free(stmt->stmt.statement_fork.forked_process);
         stmt->stmt.statement_fork.forked_process = NULL;
+
+        free_symbol(stmt->stmt.statement_fork.symb);
+        stmt->stmt.statement_fork.symb = NULL;
 
         break;
 

@@ -17,8 +17,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "expression.h"     ///< Expresiones
-#include "type.h"           ///< Tipos
+#include "expression.h"         ///< Expresiones
+#include "type.h"               ///< Tipos
+
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
 // ===============================================================
 
@@ -36,6 +38,8 @@ struct declaration{
     struct type *type;          ///< Tipo de la declaracion.
     struct expression *value;   ///< Valor asociado (si es declaracion de variable)
     struct declaration *next;   ///< Puntero a la siguiente declaracion
+    
+    struct symbol *symb;        ///< Referencia al símbolo asociado en la tabla de símbolos.
 };
 
 // ===============================================================

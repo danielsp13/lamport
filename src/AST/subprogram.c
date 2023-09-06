@@ -61,6 +61,9 @@ struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, 
     // -- Asignar puntero a siguiente subprograma (NULL)
     subprog->next = NULL;
 
+    // -- Asignar puntero de simbolo de tabla de simbolos (NULL)
+    subprog->symb = NULL;
+
     // -- Retornar subprograma creado e inicializado
     return subprog;
 }
@@ -117,16 +120,22 @@ void free_subprogram(struct subprogram *subprog){
         subprog->declarations = NULL;
     }
 
-    // -- Liberar
+    // -- Liberar parametros de subprograma (si los tiene)
     if(subprog->parameters){
         free_list_parameters(subprog->parameters);
         subprog->parameters = NULL;
     }
 
-    // -- Liberar
+    // -- Liberar sentencias de subprograma (si los tiene)
     if(subprog->statements){
         free_list_statements(subprog->statements);
         subprog->statements = NULL;
+    }
+
+    // -- Liberar simbolo de la tabla de simbolos
+    if(subprog->symb){
+        free_symbol(subprog->symb);
+        subprog->symb = NULL;
     }
 
     

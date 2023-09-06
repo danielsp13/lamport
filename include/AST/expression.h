@@ -20,6 +20,8 @@
 
 #include "type.h"           ///< Parametros (procedimientos y funciones)
 
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
+
 // ===============================================================
 
 // ----- DEFINICION DE TIPOS DE EXPRESIONES ----
@@ -173,6 +175,8 @@ struct expression{
         struct{
             char *id;                                       ///< Valor de identificador
             struct expression *index_expr;                  ///< Expresion del subindice. NULL si no hay subíndice.
+
+            struct symbol *symb;                            ///< Referencia al símbolo asociado en la tabla de símbolos.
         } expression_identifier;
 
         // Estructura de expresion de literal
@@ -191,6 +195,8 @@ struct expression{
         struct {
             char *function_name;                            ///< Nombre de funcion
             struct expression *arguments_list;              ///< Lista de argumentos para funciones
+
+            struct symbol *symb;                            ///< Referencia al símbolo asociado en la tabla de símbolos.
         } expression_function_inv;
 
         // Expresion entre parentesis

@@ -22,6 +22,8 @@
 #include "type.h"           ///< Tipos
 #include "parameter_list.h" ///< Parametros de subprgramas
 
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
+
 // ===============================================================
 
 // ----- DEFINICION DE TIPOS DE SUBPROGRAMAS ----
@@ -55,6 +57,8 @@ struct subprogram{
     struct statement *statements;           ///< Sentencias del programa
     struct type *type;                      ///< Tipo de retorno (solo funciones)
     struct subprogram *next;                ///< Puntero a siguiente subprograma
+
+    struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
 };
 
 // ===============================================================

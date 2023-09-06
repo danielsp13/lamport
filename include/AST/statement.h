@@ -20,6 +20,8 @@
 #include "expression.h"     ///< Expresiones
 #include "type.h"           ///< Tipos de dato
 
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
+
 // ===============================================================
 
 // ----- DEFINICION DE TIPOS DE SENTENCIAS -----
@@ -129,6 +131,8 @@ struct statement{
             char *variable_name;                    ///< Nombre de la variable
             struct expression *index_expr;          ///< Expresion del subindice. NULL si no hay subíndice.
             struct expression *expr;                ///< Expresion de la asignacion
+
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_assignment;
 
         // Estructura de sentencia de bucle while
@@ -143,6 +147,8 @@ struct statement{
             struct expression *intialization;       ///< Inicializacion de contador de bucle
             struct expression *finish;              ///< Finalizacion del bucle
             struct statement *body;                 ///< Cuerpo del bucle (conjunto de sentencias)
+
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_for;
         
         // Estructura de sentencia de if-else
@@ -156,6 +162,8 @@ struct statement{
         struct {
             char *procedure_name;                   ///< Nombre del procedimiento
             struct expression *arguments_list;      ///< Argumentos de invocacion del procedimiento
+
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_procedure_inv;
 
         // Estructura de sentencia de bloque begin-end o cobegin-coend o atomic
@@ -166,6 +174,7 @@ struct statement{
         // Estructura de sentencia fork
         struct {
             char *forked_process;                   ///< Nombre del proceso
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_fork;
 
         // Estructura de sentencia return (para funciones)

@@ -183,6 +183,9 @@ struct expression * create_expression_identifier(char *id, struct expression *in
     // -- Asignar expresion de indice (acceso a array)
     ex->expr.expression_identifier.index_expr = index_expr;
 
+    // -- Asignar referencia a simbolo de la tabla de simbolos (NULL)
+    ex->expr.expression_identifier.symb = NULL;
+
     // -- Retornar expresion creada e inicializada
     return ex;
 }
@@ -281,6 +284,9 @@ struct expression * create_expression_function_invocation(char *function_name, s
     }
     // -- Asignar lista de argumentos de la invocacion de funcion
     ex->expr.expression_function_inv.arguments_list = arguments_list;
+
+    // -- Asignar referencia a simbolo de la tabla de simbolos (NULL)
+    ex->expr.expression_function_inv.symb = NULL;
     
     // -- Retornar expresion creada e inicializada
     return ex;
@@ -357,6 +363,9 @@ void free_expression(struct expression *expr){
         free_list_expressions(expr->expr.expression_identifier.index_expr);
         expr->expr.expression_identifier.index_expr = NULL;
 
+        free_symbol(expr->expr.expression_identifier.symb);
+        expr->expr.expression_identifier.symb = NULL;
+
         break;
 
     case EXPR_LITERAL:
@@ -380,6 +389,9 @@ void free_expression(struct expression *expr){
 
         free_list_expressions(expr->expr.expression_function_inv.arguments_list);
         expr->expr.expression_function_inv.arguments_list = NULL;
+
+        free_symbol(expr->expr.expression_identifier.symb);
+        expr->expr.expression_identifier.symb = NULL;
 
         break;
 

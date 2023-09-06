@@ -19,6 +19,8 @@
 
 #include "type.h"         ///< Tipos de dato
 
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
+
 // ===============================================================
 
 // ----- DEFINICION DE ESTRUCTURAS DEL AST (NODO DE LISTA DE PARAMETROS) -----
@@ -33,6 +35,8 @@ struct parameter_list{
     char *name_parameter;                   ///< Nombre de parametro
     struct type *type;                      ///< Tipo de parametro
     struct parameter_list *next;            ///< Puntero a siguiente parametro
+
+    struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
 };
 
 // ===============================================================

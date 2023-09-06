@@ -18,7 +18,6 @@
 #include <string.h>
 
 #include "expression.h"         ///< Expresiones
-#include "parameter_list.h"     ///< Parametros de funciones
 
 // ===============================================================
 
@@ -73,7 +72,6 @@ struct type{
     char *kind_str;                         ///< Tipo de dato (en formato string)
     struct type *subtype;                   ///< Subtipo de dato (arrays y funciones)
     struct expression *size;                ///< Size de dato (arrays)
-    struct parameter_list *parameters;      ///< Lista de parametros (para funciones)
 };
 
 // ===============================================================
@@ -93,7 +91,7 @@ struct type * create_basic_type(type_t kind);
  * @param parameters : parametros de la funcion
  * @return puntero con el tipo de dato inicializado
  */
-struct type * create_function_type(struct type *subtype, struct parameter_list *parameters);
+struct type * create_function_type(struct type *subtype);
 
 /**
  * @brief Crea y reserva memoria para el tipo de dato de array

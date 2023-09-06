@@ -33,6 +33,9 @@ struct parameter_list * create_parameter_list(char * name_parameter, struct type
     // -- Asignar puntero al siguiente parametro (null)
     pl->next = NULL;
 
+    // -- Asignar puntero a entrada en la tabla de simbolos (null)
+    pl->symb = NULL;
+
     // -- Retornar lista de parametros reservada
     return pl;
 }
@@ -68,6 +71,12 @@ void free_parameter(struct parameter_list *parameter){
     if(parameter->type){
         free_type(parameter->type);
         parameter->type = NULL;
+    }
+
+    // -- Liberar simbolo de la tabla de simbolos
+    if(parameter->symb){
+        free_symbol(parameter->symb);
+        parameter->symb = NULL;
     }
 
 
