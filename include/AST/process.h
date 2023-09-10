@@ -59,6 +59,7 @@ struct process{
    struct expression *index_start;           ///< Puntero al nodo de expresion de inicio
    struct expression *index_end;             ///< Puntero al nodo de expresion final
 
+   unsigned long line;                       ///< Linea donde se declaro el proceso
    struct symbol *symb_process;              ///< Referencia al símbolo asociado en la tabla de símbolos. (nombre de proceso)
    struct symbol *symb_index;                ///< Referencia al simbolo asociado en la tabla de simbolos. (indice)
 
@@ -75,18 +76,20 @@ struct process{
  * @param name_process : Nombre de proceso
  * @param declarations : Lista de declaraciones del proceso
  * @param statements : Lista de sentencias
+ * @param line : Linea donde se declaro el proceso
  * @return puntero con el proceso inicializado
  */
-struct process * create_process(process_t kind, char *name_process, struct declaration *declarations, struct statement *statements);
+struct process * create_process(process_t kind, char *name_process, struct declaration *declarations, struct statement *statements, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para un proceso individual
  * @param name_process : Nombre de proceso
  * @param declarations : Lista de declaraciones del proceso
  * @param statements : Lista de sentencias
+ * @param line : linea donde se declaro el proceso
  * @return puntero con el proceso inicializado
  */
-struct process * create_process_single(char *name_process, struct declaration *declarations, struct statement *statements);
+struct process * create_process_single(char *name_process, struct declaration *declarations, struct statement *statements, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para un vector de procesos
@@ -96,9 +99,10 @@ struct process * create_process_single(char *name_process, struct declaration *d
  * @param index_identifier : Identificador utilizado para indexar el vector de procesos.
  * @param index_start : Expresión que define el inicio del rango del vector de procesos (debe evaluarse a un valor entero).
  * @param index_end : Expresión que define el final del rango del vector de procesos (debe evaluarse a un valor entero).
+ * @param line : linea donde se declaro el proceso
  * @return puntero con el proceso inicializado
  */
-struct process * create_process_vector(char *name_process, struct declaration *declarations, struct statement *statements, char *index_identifier, struct expression *index_start, struct expression *index_end);
+struct process * create_process_vector(char *name_process, struct declaration *declarations, struct statement *statements, char *index_identifier, struct expression *index_start, struct expression *index_end, unsigned long line);
 
 // ===============================================================
 

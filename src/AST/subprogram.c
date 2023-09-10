@@ -12,7 +12,7 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (SUBPROGRAMAS) -----
 
-struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type){
+struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line){
     struct subprogram *subprog = malloc(sizeof(*subprog));
 
     // -- Comprobar reserva de memoria exitosa
@@ -64,16 +64,19 @@ struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, 
     // -- Asignar puntero de simbolo de tabla de simbolos (NULL)
     subprog->symb = NULL;
 
+    // -- Asignar linea donde se definio el subprograma
+    subprog->line = line;
+
     // -- Retornar subprograma creado e inicializado
     return subprog;
 }
 
-struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements){
-    return create_subprogram(SUBPROGRAM_PROCEDURE, name_procedure, parameters, declarations, statements, NULL);
+struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, unsigned long line){
+    return create_subprogram(SUBPROGRAM_PROCEDURE, name_procedure, parameters, declarations, statements, NULL, line);
 }
 
-struct subprogram * create_subprogram_function(char *name_function, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type){
-    return create_subprogram(SUBPROGRAM_FUNCTION, name_function, parameters, declarations, statements, type);   
+struct subprogram * create_subprogram_function(char *name_function, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line){
+    return create_subprogram(SUBPROGRAM_FUNCTION, name_function, parameters, declarations, statements, type, line);   
 }
 
 // ===============================================================

@@ -59,6 +59,7 @@ struct subprogram{
     struct type *type;                      ///< Tipo de retorno (solo funciones)
     struct subprogram *next;                ///< Puntero a siguiente subprograma
 
+    unsigned long line;                     ///< Linea donde se realizo la declaracion de subprograma
     struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
 };
 
@@ -74,9 +75,10 @@ struct subprogram{
  * @param declarations : Lista de declaraciones
  * @param statements : Lista de sentencias
  * @param type : Tipo de funcion
+ * @param line : linea donde se definio el subprograma
  * @return puntero con el subprograma inicializado
  */
-struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type);
+struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para crear un subprograma de tipo procedure
@@ -84,9 +86,10 @@ struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, 
  * @param parameters : Lista de parametros
  * @param declarations : Lista de declaraciones
  * @param statements : Lista de sentencias
+ * @param line : linea donde se definio el subprograma
  * @return puntero con el procedimiento inicializado
  */
-struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements);
+struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para crear un subprograma de tipo funcion
@@ -94,9 +97,10 @@ struct subprogram * create_subprogram_procedure(char *name_procedure, struct par
  * @param parameters : Lista de parametros
  * @param declarations : Lista de declaraciones
  * @param statements : Lista de sentencias
+ * @param line : linea donde se definio el subprograma
  * @return puntero con la funcion inicializada
  */
-struct subprogram * create_subprogram_function(char *name_function, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type);
+struct subprogram * create_subprogram_function(char *name_function, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line);
 
 // ===============================================================
 

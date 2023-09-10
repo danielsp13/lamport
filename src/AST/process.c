@@ -12,7 +12,7 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (PROCESOS) -----
 
-struct process * create_process(process_t kind, char *name_process, struct declaration *declarations, struct statement *statements){
+struct process * create_process(process_t kind, char *name_process, struct declaration *declarations, struct statement *statements, unsigned long line){
     struct process *proc = malloc(sizeof(*proc));
 
     // -- Comprobar reserva de memoria exitosa
@@ -72,17 +72,20 @@ struct process * create_process(process_t kind, char *name_process, struct decla
     // -- Asignar referencia a simbolo de tabla de simbolos (id de indice de proceso) (NULL)
     proc->symb_index = NULL;
 
+    // -- Asignar linea donde se definio el proceso
+    proc->line = line;
+
     // -- Retornar proceso creado e inicializado
     return proc;
 }
 
-struct process * create_process_single(char *name_process, struct declaration *declarations, struct statement *statements){
+struct process * create_process_single(char *name_process, struct declaration *declarations, struct statement *statements, unsigned long line){
     // -- Retornar proceso creado e inicializado
-    return create_process(PROCESS_SINGLE, name_process, declarations, statements);
+    return create_process(PROCESS_SINGLE, name_process, declarations, statements, line);
 }
 
-struct process * create_process_vector(char *name_process, struct declaration *declarations, struct statement *statements, char *index_identifier, struct expression *index_start, struct expression *index_end){
-    struct process * proc = create_process(PROCESS_VECTOR, name_process, declarations, statements);
+struct process * create_process_vector(char *name_process, struct declaration *declarations, struct statement *statements, char *index_identifier, struct expression *index_start, struct expression *index_end, unsigned long line){
+    struct process * proc = create_process(PROCESS_VECTOR, name_process, declarations, statements, line);
 
     // -- Comprobar creacion del proceso exitosa
     if(!proc)
