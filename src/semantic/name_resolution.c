@@ -517,17 +517,29 @@ void resolve_process(struct process *proc){
     if(!proc)
         return;
 
-    // -- ENTRAR EN UN NUEVO SCOPE
-    push_scope_to_symbol_table();
-
     // -- Aplicar resolucion de nombres al identificador de proceso
     proc->symb_process = lookup_symbol_from_all_scopes(proc->name_process);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!proc->symb_process){
-        // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
-        // TODO
+    if(proc->symb_process){
+        // -- Realizar handling de este error : PROCESO REDEFINIDO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_duplicated_symbol(proc->name_process,proc->line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
+    // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
+    else{
+        // -- Creamos un simbolo de tipo parametro
+        proc->symb_process = create_symbol_global(NULL,proc->name_process);
+
+        // -- Vincular simbolo al scope actual
+        bind_symbol_to_scope(proc->symb_process);
+    }
+
+    // -- ENTRAR EN UN NUEVO SCOPE
+    push_scope_to_symbol_table();
 
     // -- Aplicar resolucion de nombres a declaraciones de proceso
     resolve_list_declarations(proc->declarations);
@@ -567,7 +579,11 @@ void resolve_process_vector(struct process *proc){
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!proc->symb_index){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
-        // TODO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_undefined_symbol(proc->index_identifier, proc->line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
 
     // -- Aplicar resolucion de nombres a la expresion de inicio de indexacion
@@ -661,9 +677,21 @@ void resolve_subprogram(struct subprogram *subprog){
     subprog->symb = lookup_symbol_from_all_scopes(subprog->name_subprogram);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!subprog->symb){
-        // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
-        // TODO
+    if(subprog->symb){
+        // -- Realizar handling de este error : SUBPROGRAMA REDEFINIDO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_duplicated_symbol(subprog->name_subprogram,subprog->line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
+    }
+    // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
+    else{
+        // -- Creamos un simbolo de tipo global
+        subprog->symb = create_symbol_global(NULL, subprog->name_subprogram);
+
+        // -- Vincular simbolo al scope actual
+        bind_symbol_to_scope(subprog->symb);
     }
 
     // -- ENTRAR EN UN NUEVO SCOPE
