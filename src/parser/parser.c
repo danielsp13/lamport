@@ -1569,7 +1569,7 @@ yyreduce:
   case 23: /* subprogram-procedure: S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement  */
 #line 313 "src/parser/parser.y"
                                                                                                              {
-        (yyval.subprog) = create_subprogram_procedure((yyvsp[-5].ident), (yyvsp[-3].param), (yyvsp[-1].decl), (yyvsp[0].stmt));
+        (yyval.subprog) = create_subprogram_procedure((yyvsp[-5].ident), (yyvsp[-3].param), (yyvsp[-1].decl), (yyvsp[0].stmt), yylineno);
     }
 #line 1575 "src/parser/parser.c"
     break;
@@ -1577,7 +1577,7 @@ yyreduce:
   case 24: /* subprogram-procedure: S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO list-declarations block-statement  */
 #line 317 "src/parser/parser.y"
                                                                                                {
-        (yyval.subprog) = create_subprogram_procedure((yyvsp[-4].ident), 0, (yyvsp[-1].decl), (yyvsp[0].stmt));
+        (yyval.subprog) = create_subprogram_procedure((yyvsp[-4].ident), 0, (yyvsp[-1].decl), (yyvsp[0].stmt), yylineno);
     }
 #line 1583 "src/parser/parser.c"
     break;
@@ -1617,7 +1617,7 @@ yyreduce:
   case 28: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement  */
 #line 346 "src/parser/parser.y"
                                                                                                                                   {
-        (yyval.subprog) = create_subprogram_function((yyvsp[-8].ident), (yyvsp[-6].param), (yyvsp[-1].decl), (yyvsp[0].stmt), (yyvsp[-3].type));
+        (yyval.subprog) = create_subprogram_function((yyvsp[-8].ident), (yyvsp[-6].param), (yyvsp[-1].decl), (yyvsp[0].stmt), (yyvsp[-3].type), yylineno);
     }
 #line 1623 "src/parser/parser.c"
     break;
@@ -1625,7 +1625,7 @@ yyreduce:
   case 29: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement  */
 #line 350 "src/parser/parser.y"
                                                                                                                     {
-        (yyval.subprog) = create_subprogram_function((yyvsp[-7].ident), 0, (yyvsp[-1].decl), (yyvsp[0].stmt), (yyvsp[-3].type));
+        (yyval.subprog) = create_subprogram_function((yyvsp[-7].ident), 0, (yyvsp[-1].decl), (yyvsp[0].stmt), (yyvsp[-3].type), yylineno);
     }
 #line 1631 "src/parser/parser.c"
     break;
@@ -1755,7 +1755,7 @@ yyreduce:
   case 43: /* process-def: S_PROCESS process-name DELIM_PC list-declarations block-statement  */
 #line 437 "src/parser/parser.y"
                                                                      {
-        (yyval.proc) = create_process_single((yyvsp[-3].ident), (yyvsp[-1].decl), (yyvsp[0].stmt));
+        (yyval.proc) = create_process_single((yyvsp[-3].ident), (yyvsp[-1].decl), (yyvsp[0].stmt), yylineno);
     }
 #line 1761 "src/parser/parser.c"
     break;
@@ -1775,7 +1775,7 @@ yyreduce:
   case 45: /* process-def-array: S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statement  */
 #line 452 "src/parser/parser.y"
                                                                                                                                           {
-        (yyval.proc) = create_process_vector((yyvsp[-10].ident), (yyvsp[-1].decl), (yyvsp[0].stmt), (yyvsp[-8].ident), (yyvsp[-6].expr), (yyvsp[-4].expr));
+        (yyval.proc) = create_process_vector((yyvsp[-10].ident), (yyvsp[-1].decl), (yyvsp[0].stmt), (yyvsp[-8].ident), (yyvsp[-6].expr), (yyvsp[-4].expr), yylineno);
     }
 #line 1781 "src/parser/parser.c"
     break;

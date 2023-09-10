@@ -311,11 +311,11 @@ subprogram:
 subprogram-procedure:
     // -- Generacion de subprogramas de tipo procedimiento (Con parametros)
     S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement{
-        $$ = create_subprogram_procedure($2, $4, $6, $7);
+        $$ = create_subprogram_procedure($2, $4, $6, $7, yylineno);
     }
     // -- Generacion de subprogramas de tipo procedimiento (sin parametros)
     | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO list-declarations block-statement{
-        $$ = create_subprogram_procedure($2, 0, $5, $6);
+        $$ = create_subprogram_procedure($2, 0, $5, $6, yylineno);
     }
     // <--> ERROR: Procedimiento mal formado
     | S_PROCEDURE error{
@@ -344,11 +344,11 @@ subprogram-procedure-name:
 subprogram-function:
     // -- Generacion de subprogramas de tipo funcion (con parametros)
     S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
-        $$ = create_subprogram_function($2, $4, $9, $10, $7);
+        $$ = create_subprogram_function($2, $4, $9, $10, $7, yylineno);
     }
     // -- Generacion de subprogramas de tipo funcion (sin parametros)
     | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
-        $$ = create_subprogram_function($2, 0, $8, $9, $6);
+        $$ = create_subprogram_function($2, 0, $8, $9, $6, yylineno);
     }
     // <--> ERROR: Funcion mal formado
     | S_FUNCTION error{
@@ -435,7 +435,7 @@ process:
 process-def:
     // process proc_name ....
     S_PROCESS process-name DELIM_PC list-declarations block-statement{
-        $$ = create_process_single($2, $4, $5);
+        $$ = create_process_single($2, $4, $5, yylineno);
     }
     // <--> ERROR : Falta ';'
     | S_PROCESS process-name error list-declarations block-statement{
@@ -450,7 +450,7 @@ process-def:
 process-def-array:
     // process proc_array_name[expr..expr] (?) ...
     S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statement{
-        $$ = create_process_vector($2, $11, $12, $4, $6, $8);
+        $$ = create_process_vector($2, $11, $12, $4, $6, $8, yylineno);
     }
     ;
 
