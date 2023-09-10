@@ -20,10 +20,17 @@
 #include "symbol.h"                 ///< Simbolo
 #include "symbol_table.h"           ///< Tabla de simbolos
 #include "AST/AST.h"                ///< AST
+#include "error/error_semantic.h"   ///< Gestion de errores semanticos
 
 // ===============================================================
 
 // ----- DEFINICION DE CONSTANTES DE CONTROL -----
+
+// Cuenta el total de errores semanticos producidos en la resolucion de nombres
+extern unsigned long TOTAL_ERROR_NAME_RESOLUTION;
+
+// Lista enlazada de errores semanticos producidos en la resolucion de nombres
+extern struct error_semantic *list_error_name_resolution;
 
 // ===============================================================
 
@@ -242,5 +249,26 @@ void resolve_subprogram(struct subprogram *subprog);
  */
 void resolve_program(struct program *prog);
 
+// ===============================================================
+
+// ----- PROTOTIPOS DE FUNCIONES DE GESTION DE ERRORES -----
+
+/**
+ * @brief Incluye un nuevo error semantico en la lista de errores semanticos
+ * producidos en la resolucion de nombres
+ * @param err : error semantico
+ */
+void add_error_semantic_name_resolution_to_list(struct error_semantic * err);
+
+/**
+ * @brief Libera la memoria utilizada para la lista de errores semanticos
+ * producidos en la resolucion de nombres
+ */
+void free_list_error_semantic_name_resolution();
+
+/**
+ * @brief Imprime los errores semanticos producidos en la resolucion de nombres
+ */
+void report_list_error_semantic_name_resolution();
 
 #endif //_LAMPORT_SEMANTIC_NAME_RESOLUTION_DPR_

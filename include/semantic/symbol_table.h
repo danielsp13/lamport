@@ -17,8 +17,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "scope_stack.h"        ///< Pila de tablas hash
-#include "symbol.h"             ///< Simbolo
+#include "scope_stack.h"            ///< Pila de tablas hash
+#include "symbol.h"                 ///< Simbolo
 
 // ===============================================================
 

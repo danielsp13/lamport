@@ -10,6 +10,16 @@
 
 // ===============================================================
 
+// ----- DEFINICION DE CONSTANTES DE CONTROL -----
+
+// Cuenta el total de errores semanticos producidos en la resolucion de nombres
+unsigned long TOTAL_ERROR_NAME_RESOLUTION = 0;
+
+// Lista enlazada de errores semanticos producidos en la resolucion de nombres
+struct error_semantic *list_error_name_resolution = NULL;
+
+// ===============================================================
+
 // ----- IMPLEMENTACION DE FUNCIONES DE RESOLUCION DE NOMBRES (LISTAS) -----
 
 void resolve_list_declarations(struct declaration *list_declarations){
@@ -219,7 +229,11 @@ void resolve_expression_identifier(struct expression *expr){
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!expr->expr.expression_identifier.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
-        // TODO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_undefined_symbol(expr->expr.expression_identifier.id, expr->expr.expression_identifier.line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
 
     // -- Si el identificador tiene asociado una expresion de indice, resolverla
@@ -240,7 +254,11 @@ void resolve_expression_function_inv(struct expression *expr){
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!expr->expr.expression_function_inv.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
-        // TODO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_undefined_symbol(expr->expr.expression_function_inv.function_name, expr->expr.expression_function_inv.line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
 
     // -- Aplicar resolucion de nombres a la lista de expresiones que hacen de argumentos de la funcion
@@ -344,7 +362,11 @@ void resolve_statement_assignment(struct statement *stmt){
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula) 
     if(!stmt->stmt.statement_assignment.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
-        // TODO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_assignment.variable_name,stmt->stmt.statement_assignment.line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
 
     // -- Si el identificador de variable tiene asociado una expresion de indice, resolverla
@@ -381,7 +403,11 @@ void resolve_statement_for(struct statement *stmt){
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!stmt->stmt.statement_for.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
-        // TODO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_for.counter_name,stmt->stmt.statement_for.line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
 
     // -- Aplicar resolucion de nombres a la expresion de inicio del bucle for
@@ -423,7 +449,11 @@ void resolve_statement_procedure_inv(struct statement *stmt){
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!stmt->stmt.statement_procedure_inv.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
-        // TODO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_procedure_inv.procedure_name,stmt->stmt.statement_procedure_inv.line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
 
     // -- Si dispone de argumentos de invocacion, aplicar resolucion de nombres a la lista
@@ -452,7 +482,11 @@ void resolve_statement_fork(struct statement *stmt){
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!stmt->stmt.statement_fork.symb){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
-        // TODO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_fork.forked_process,stmt->stmt.statement_fork.line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
 }
 
@@ -594,7 +628,11 @@ void resolve_parameter(struct parameter_list *parameter, unsigned int position){
     // -- OJO! Aqui queremos que NO se encuentre, si se encuentra tenemos un error de redefinicion
     if(parameter->symb){
         // -- Realizar handling de este error : PARAMETRO REDEFINIDO
-        // TODO
+        // -- Crear error
+        struct error_semantic * error = create_error_semantic_duplicated_symbol(parameter->name_parameter,parameter->line);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_name_resolution_to_list(error);
     }
     // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
     else{
@@ -673,4 +711,50 @@ void resolve_program(struct program *prog){
 
     // -- SALIR DEL SCOPE CREADO
     remove_current_scope_from_symbol_table();
+}
+
+// ===============================================================
+
+// ----- IMPLEMENTACION DE FUNCIONES DE GESTION DE ERRORES -----
+
+void add_error_semantic_name_resolution_to_list(struct error_semantic * err){
+    // -- Comprobar si hay error
+    if(!err)
+        return;
+
+    // -- Comprobar si hay algun elemento en la lista
+    if(!list_error_name_resolution){
+        // -- Si no hay, se asigna como primero
+        list_error_name_resolution = err;
+    }
+    else{
+        // -- En caso contrario, busca la cola y se anida
+        struct error_semantic *current_error = list_error_name_resolution;
+        while(current_error->next){
+            current_error = current_error->next;
+        }
+
+        // -- Asignar error al final del error actual
+        current_error->next = err;
+    }
+
+    // -- Incrementar la lista de errores semanticos
+    TOTAL_ERROR_NAME_RESOLUTION++;
+}
+
+void free_list_error_semantic_name_resolution(){
+    // -- Comprobar que la lista de errores es nula
+    if(!list_error_name_resolution)
+        return;
+
+    // -- Liberar lista de errores
+    free_list_error_semantic(list_error_name_resolution);
+    list_error_name_resolution = NULL;
+
+    // -- Colocar a 0 el contador de errores
+    TOTAL_ERROR_NAME_RESOLUTION = 0;
+}
+
+void report_list_error_semantic_name_resolution(){
+    print_list_error_semantic(list_error_name_resolution);
 }

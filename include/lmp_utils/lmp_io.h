@@ -87,5 +87,13 @@ int abrir_fichero(const char *name_file);
  */
 int cerrar_fichero();
 
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES DE GESTION (STRING REGISTER) -----
+
+/**
+ * @brief Libera la memoria utilizada para el registro de cadenas de caracteres
+ */
+void lmp_free_string_register();
 
 #endif //_LMP_COMPILER_IO_DPR_

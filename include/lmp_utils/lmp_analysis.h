@@ -15,6 +15,9 @@
 #define LMP_PARSING_SUCCESS 0       ///< Indica el exito en el parsing de un fichero de lamport
 #define LMP_PARSING_FAILURE -1      ///< Indica el fallo en el parsing de un fichero de lamport
 
+#define LMP_SEMANTIC_SUCCESS 0   ///< Indica el exito en el procedimiento de analisis semantico
+#define LMP_SEMANTIC_FAILURE -1  ///< Indica el fallo en el procedimiento de analisis semantico
+
 #define LMP_PARSING_ERROR_MSG_HEADER "--- [LMP: PARSING - ERROR]"
 #define LMP_PARSING_ERROR_MSG "Fallo al procesar el fichero"
 
@@ -30,7 +33,8 @@
 
 // ----- INCLUSION DE MODULOS -----
 
-#include "AST/AST.h"            ///< Abstract Syntax Tree (AST)
+#include "AST/AST.h"                    ///< Abstract Syntax Tree (AST)
+#include "semantic/name_resolution.h"   ///< Semantic : Resolucion de nombres
 
 // ===============================================================
 
@@ -74,6 +78,30 @@ int lmp_parsing_file();
 
 // ===============================================================
 
+// ----- PROTOTIPO DE FUNCIONES DE GESTION (SEMANTIC) -----
+
+/**
+ * @brief Realiza el analisis semantico del fichero de lamport abierto
+ * por el compilador
+ * @return LMP_PARSING_SUCCESS si exito, LMP_PARSING_FAILURE en otro caso
+ */
+int lmp_semantic_analysis();
+
+/**
+ * @brief Aplica el metodo de resolucion de nombres sobre el AST generado
+ * en la fase de parsing
+ * @return LMP_PARSING_SUCCESS si exito, LMP_PARSING_FAILURE en otro caso
+ */
+int lmp_semantic_name_resolution();
+
+/**
+ * @brief Libera la memoria de la tabla de simbolos utilizada en el analisis
+ * semantico
+ */
+void lmp_free_symbol_table();
+
+// ===============================================================
+
 // ----- PROTOTIPO DE FUNCIONES DE GESTION (AST) -----
 
 /**
@@ -85,5 +113,19 @@ void lmp_print_AST();
  * @brief Libera la memoria del AST generado por el analizador sintactico
  */
 void lmp_free_AST();
+
+/**
+ * @brief Imprime la informacion de todos los errores semanticos producidos en el analisis
+ */
+void lmp_print_error_semantic();
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES DE GESTION (ERRORES) -----
+
+/**
+ * @brief Libera la memoria utilizada por el modulo de gestion de errores
+ */
+void lmp_free_error_module();
 
 #endif //_LMP_COMPILER_ANALYSIS_DPR_

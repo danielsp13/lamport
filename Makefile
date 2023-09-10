@@ -95,6 +95,7 @@ LEXER_MODULE:=lexer
 PARSER_MODULE:=parser
 AST_MODULE:=AST
 SEMANTIC_MODULE:=semantic
+ERROR_MODULE:=error
 LMP_UTILS_MODULE:=lmp_utils
 TEST_UTILS_MODULE:=test_utils
 
@@ -103,6 +104,7 @@ HEADER_LEXER:=$(HEADER_DIR)/$(LEXER_MODULE)
 HEADER_PARSER:=$(HEADER_DIR)/$(PARSER_MODULE)
 HEADER_AST:=$(HEADER_DIR)/$(AST_MODULE)
 HEADER_SEMANTIC:=$(HEADER_DIR)/$(SEMANTIC_MODULE)
+HEADER_ERROR:=$(HEADER_DIR)/$(ERROR_MODULE)
 HEADER_LMP_UTILS:=$(HEADER_DIR)/$(LMP_UTILS_MODULE)
 HEADER_TEST_UTILS:=$(HEADER_DIR)/$(TEST_UTILS_MODULE)
 
@@ -111,6 +113,7 @@ SOURCE_LEXER:=$(SOURCE_DIR)/$(LEXER_MODULE)
 SOURCE_PARSER:=$(SOURCE_DIR)/$(PARSER_MODULE)
 SOURCE_AST:=$(SOURCE_DIR)/$(AST_MODULE)
 SOURCE_SEMANTIC:=$(SOURCE_DIR)/$(SEMANTIC_MODULE)
+SOURCE_ERROR:=$(SOURCE_DIR)/$(ERROR_MODULE)
 SOURCE_LMP_UTILS:=$(SOURCE_DIR)/$(LMP_UTILS_MODULE)
 SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
 
@@ -129,6 +132,7 @@ INDEX_PARSER_FILES:=parser
 INDEX_AST_FILES:=AST declaration statement expression type parameter_list subprogram process print_assistant
 INDEX_STRING_REGISTER_FILES:=string_register
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution
+INDEX_ERROR_FILES:=error_semantic
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
 
 # -- Indice de ficheros (obj)
@@ -137,9 +141,10 @@ INDEX_OBJ_PARSER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_PARSER_FILES))
 INDEX_OBJ_AST_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_AST_FILES))
 INDEX_OBJ_STRING_REGISTER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_STRING_REGISTER_FILES))
 INDEX_OBJ_SEMANTIC_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_SEMANTIC_FILES))
+INDEX_OBJ_ERROR_FILES:=$(addsuffix $(OBJ_EXT),$(INDEX_ERROR_FILES))
 INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_STRING_REGISTER_FILES) $(INDEX_OBJ_LMP_UTILS_FILES) 
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_STRING_REGISTER_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_UTILS_FILES) 
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -584,6 +589,7 @@ compile_sources:
 	@make -s compile_parser && echo
 	@make -s compile_ast && echo
 	@make -s compile_string_register && echo
+	@make -s compile_error && echo
 	@make -s compile_semantic && echo
 	
 	@make -s compile_lmp_utils && echo	
@@ -609,6 +615,10 @@ compile_string_register: build_obj_dir
 # -- Genera codigo objeto para el analizador semantico
 compile_semantic: build_obj_dir
 	$(call compile_objects_skeleton,$(INDEX_SEMANTIC_FILES),"$(SEMANTIC_MODULE)/","analizador semantico")
+	
+# -- Genera codigo objeto para el modulo de gestion de errores
+compile_error: build_obj_dir
+	$(call compile_objects_skeleton,$(INDEX_ERROR_FILES),"$(ERROR_MODULE)/","gestor de errores de compilacion")
 	
 # -- Genera codigo objeto para las dependencias del compilador Lamport
 compile_lmp_utils: build_obj_dir

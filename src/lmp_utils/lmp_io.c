@@ -75,3 +75,11 @@ int cerrar_fichero(){
     // -- Retornar exito
     return LMP_IO_SUCCESS;
 }
+
+// ===============================================================
+
+// ----- IMPLEMENTACION DE FUNCIONES DE GESTION (STRING REGISTER) -----
+
+void lmp_free_string_register(){
+    free_string_register();
+}
