@@ -126,7 +126,7 @@ INDEX_TEST_UTILS_FILES:=common_functions
 # -- Indice de ficheros
 INDEX_LEXER_FILES:=lexer
 INDEX_PARSER_FILES:=parser
-INDEX_AST_FILES:=AST declaration statement expression type parameter_list subprogram process
+INDEX_AST_FILES:=AST declaration statement expression type parameter_list subprogram process print_assistant
 INDEX_STRING_REGISTER_FILES:=string_register
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis

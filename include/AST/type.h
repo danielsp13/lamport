@@ -17,7 +17,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "expression.h"         ///< Expresiones
+#include "expression.h"          ///< Expresiones
+#include "print_assistant.h"     ///< Asistencia de impresion de AST
 
 // ===============================================================
 
@@ -121,7 +122,8 @@ void free_type(struct type *type);
 /**
  * @brief Imprime un nodo de tipo de dato
  * @param type : Puntero a nodo tipo
+ * @param depth : Profundidad en la impresion del nodo
  */
-void print_AST_type(struct type *type);
+void print_AST_type(struct type *type, unsigned int depth);
 
 #endif //_LAMPORT_AST_TYPE_DPR_

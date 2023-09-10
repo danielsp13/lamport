@@ -197,45 +197,62 @@ void free_process(struct process *proc){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO PROCESO) -----
 
-void print_AST_process(struct process *process_list){
-    const char *IDENT_ARROW = "---->";
+void print_AST_process(struct process *process_list, unsigned int depth){
+    // -- Determinar identacion de nodo
+    char * IDENT_NODE_BRANCH = build_identation_branch(depth);
+    char * IDENT_NODE = build_identation_spaces(depth);
+    // -- Determinar profundidad del siguiente nodo
+    const unsigned int NEXT_NODE_DEPTH = depth+2;
 
     // -- Si NULL, simplemente devolver
     if(!process_list){
-        printf(" %s <NONE>\n", IDENT_ARROW);
+        printf("%s%s %s\n",IDENT_NODE_BRANCH, IDENT_ARROW, NULL_NODE_MSG);
+        
+        // -- Liberar memoria utilizada para la identacion
+        free(IDENT_NODE); IDENT_NODE = NULL; 
+        free(IDENT_NODE_BRANCH); IDENT_NODE_BRANCH = NULL;
+
         return;
     }
 
     struct process *current_process = process_list;
     while(current_process){
         // -- Imprimir nombre y tipo de proceso
-        printf(" %s NOMBRE DE PROCESO: [%s] DE TIPO: [%s]\n", IDENT_ARROW, current_process->name_process, current_process->kind_str);
+        printf("%s%s %c NOMBRE DE PROCESO: [%s] DE TIPO: [%s]\n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_process->name_process, current_process->kind_str);
         // -- Imprimir informacion adicional de proceso (si es necesario)
         switch (current_process->kind)
         {
         case PROCESS_VECTOR:
-            printf(" %s INFORMACION ADICIONAL DEL PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
-            printf(" %s INDEXADOR DE VECTOR DE PROCESOS: [%s]\n", IDENT_ARROW, current_process->index_identifier);
-            printf(" %s RANGO DE INICIO DEL VECTOR: \n", IDENT_ARROW);
-            print_AST_expressions(current_process->index_start);
-            printf(" %s RANGO DE FIN DEL VECTOR: \n", IDENT_ARROW);
-            print_AST_expressions(current_process->index_end);
+            printf("%s%s %c INDEXADOR DE VECTOR DE PROCESOS: [%s]\n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_process->index_identifier);
+            printf("%s%s %c RANGO DE INICIO DEL VECTOR: \n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_process->index_start,NEXT_NODE_DEPTH);
+            printf("%s%s %c RANGO DE FIN DEL VECTOR: \n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_process->index_end,NEXT_NODE_DEPTH);
             break;
         
         default:
             break;
         }
 
+        printf("\n");
+
         // -- Imprimir declaraciones de proceso
-        printf(" %s DECLARACIONES DE PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
-        print_AST_declarations(current_process->declarations);
+        printf("%s%s %c DECLARACIONES DE PROCESO:\n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+        print_AST_declarations(current_process->declarations,NEXT_NODE_DEPTH);
+
+        printf("\n");
+
         // -- Imprimir sentencias de proceso
-        printf(" %s SENTENCIAS DE PROCESO: [%s]\n", IDENT_ARROW, current_process->name_process);
-        print_AST_statements(current_process->statements);
+        printf("%s%s %c SENTENCIAS DE PROCESO:\n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+        print_AST_statements(current_process->statements,NEXT_NODE_DEPTH);
 
         printf("\n");
 
         // Ir al siguiente proceso
         current_process = current_process->next;
     }
+
+    // -- Liberar memoria utilizada para la identacion
+    free(IDENT_NODE); IDENT_NODE = NULL; 
+    free(IDENT_NODE_BRANCH); IDENT_NODE_BRANCH = NULL;
 }

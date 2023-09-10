@@ -88,27 +88,37 @@ void free_parameter(struct parameter_list *parameter){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO SUBPROGRAMAS) -----
 
-void print_AST_parameters(struct parameter_list *parameters_list){
-    const char *IDENT_ARROW = "---------->";
+void print_AST_parameters(struct parameter_list *parameters_list, unsigned int depth){
+    // -- Determinar identacion de nodo
+    char * IDENT_NODE = build_identation_spaces(depth);
+    // -- Determinar profundidad del siguiente nodo
+    const unsigned int NEXT_NODE_DEPTH = depth+1;
 
     // -- Si NULL, simplemente devolver
     if(!parameters_list){
-        printf(" %s <NONE>\n", IDENT_ARROW);
+        printf("%s%s %s\n",IDENT_NODE, IDENT_BLANK_ARROW, NULL_NODE_MSG);
+
+        // -- Liberar memoria utilizada para la identacion
+        free(IDENT_NODE); IDENT_NODE = NULL;
+
         return;
     }
 
     struct parameter_list *current_parameter = parameters_list;
     while(current_parameter){
         // -- Imprimir nombre de parametro
-        printf(" %s PARAMETRO: [%s] \n", IDENT_ARROW, current_parameter->name_parameter);
+        printf("%s%s NOMBRE DE PARAMETRO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_parameter->name_parameter);
 
         // -- Imprimir tipo de parametro
-        printf(" %s TIPO DE DATO DEL PARAMETRO: [%s]\n", IDENT_ARROW, current_parameter->name_parameter);
-        print_AST_type(current_parameter->type);
+        printf("%s%s TIPO DE DATO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_parameter->name_parameter);
+        print_AST_type(current_parameter->type,NEXT_NODE_DEPTH);
 
         printf("\n");
 
         // -- Ir al siguiente parametro
         current_parameter = current_parameter->next;
     }
+
+    // -- Liberar memoria utilizada para la identacion
+    free(IDENT_NODE); IDENT_NODE = NULL;
 }

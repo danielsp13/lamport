@@ -81,30 +81,30 @@ void free_program(struct program *prog){
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST -----
 
 void print_AST(struct program *prog){
-    const char *IDENT_ARROW = "-->";
-
     // -- Si NULL, simplemente devolver
     if(!prog){
-        printf(" %s <NONE>\n", IDENT_ARROW);
+        printf("%s %s\n", IDENT_ARROW, NULL_NODE_MSG);
         return;
     }
 
     // -- Imprimir nombre de programa
-    printf(" %s PROGRAMA LAMPORT DE NOMBRE: [%s]\n", IDENT_ARROW, prog->name_program);
+    printf("%s PROGRAMA LAMPORT DE NOMBRE: [%s]\n", IDENT_ARROW, prog->name_program);
+
+    print_AST_separation();
 
     // -- Imprimir declaraciones
-    printf(" %s DECLARACIONES DE PROGRAMA: [%s]\n", IDENT_ARROW, prog->name_program);
-    print_AST_declarations(prog->declarations);
+    printf("%s %c DECLARACIONES DE PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
+    print_AST_declarations(prog->declarations, DEPTH_PROGRAM_DECLARATIONS);
 
-    printf("\n");
+    print_AST_separation();
 
     // -- Imprimir subprogramas
-    printf(" %s SUBPROGRAMAS DE PROGRAMA: [%s]\n", IDENT_ARROW, prog->name_program);
-    print_AST_subprograms(prog->subprograms);
+    printf("%s %c SUBPROGRAMAS DE PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
+    print_AST_subprograms(prog->subprograms, DEPTH_PROGRAM_SUBPROGRAMS);
 
-    printf("\n");
+    print_AST_separation();
 
     // -- Imprimir sentencias
-    printf(" %s PROCESOS DEL PROGRAMA: [%s]\n", IDENT_ARROW, prog->name_program);
-    print_AST_process(prog->process);
+    printf("%s %c PROCESOS DEL PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
+    print_AST_process(prog->process, DEPTH_PROGRAM_PROCESS);
 }

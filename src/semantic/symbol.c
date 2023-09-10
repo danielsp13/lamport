@@ -119,5 +119,5 @@ void print_symbol(struct symbol * symb){
 
     // -- Imprimir tipo de dato simbolo
     printf(" %s INFORMACION DEL TIPO DE DATO DE SIMBOLO: [%s]\n", IDENT_ARROW, symb->name);
-    print_AST_type(symb->type);
+    print_AST_type(symb->type,0);
 }

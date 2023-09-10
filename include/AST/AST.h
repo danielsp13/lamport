@@ -20,6 +20,7 @@
 #include "declaration.h"        ///< Declaraciones
 #include "subprogram.h"         ///< Subprogramas
 #include "process.h"            ///< Procesos
+#include "print_assistant.h"    ///< Asistencia de impresion de AST
 
 // ===============================================================
 

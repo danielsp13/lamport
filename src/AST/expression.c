@@ -410,85 +410,96 @@ void free_expression(struct expression *expr){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO EXPRESIONES) -----
 
-void print_AST_expressions(struct expression *expressions_list){
-    const char *IDENT_ARROW = "------->";
+void print_AST_expressions(struct expression *expressions_list, unsigned int depth){
+    // -- Determinar identacion de nodo
+    char * IDENT_NODE = build_identation_spaces(depth); 
+    // -- Determinar profundidad del siguiente nodo
+    const unsigned int NEXT_NODE_DEPTH = depth+2;
+
     // -- Si NULL, simplemente devolver
     if(!expressions_list){
-        printf(" %s <NONE>\n", IDENT_ARROW);
+        printf("%s%s %s\n",IDENT_NODE, IDENT_BLANK_ARROW, NULL_NODE_MSG);
+
+        // -- Liberar memoria utilizada para la identacion
+        free(IDENT_NODE); IDENT_NODE = NULL; 
+
         return;
     }
 
     struct expression *current_expression = expressions_list;
     while(current_expression){
         // -- Imprimir tipo de expresion
-        printf(" %s EXPRESION DE TIPO [%s]\n", IDENT_ARROW, current_expression->kind_str);
+        printf("%s%s EXPRESION DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->kind_str);
 
-        printf(" %s CONTENIDO DE LA EXPRESION DE TIPO: [%s]\n", IDENT_ARROW, current_expression->kind_str);
         // -- Imprimir expresion
         switch (current_expression->kind)
         {
         case EXPR_BINARY:
-            printf(" %s SIMBOLO DE OPERACION: [%s]\n", IDENT_ARROW, current_expression->expr.expression_binary_operation.operator);
-            printf(" %s OPERANDO IZQUIERDO: \n", IDENT_ARROW);
-            print_AST_expressions(current_expression->expr.expression_binary_operation.left);
-            printf(" %s OPERANDO DERECHO: \n", IDENT_ARROW);
-            print_AST_expressions(current_expression->expr.expression_binary_operation.right);
+            printf("%s%s SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_binary_operation.operator);
+            printf("%s%s OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.expression_binary_operation.left,NEXT_NODE_DEPTH);
+            printf("%s%s OPERANDO DERECHO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.expression_binary_operation.right,NEXT_NODE_DEPTH);
             break;
         
         case EXPR_UNARY:
-            printf(" %s SIMBOLO DE OPERACION: [%s]\n", IDENT_ARROW, current_expression->expr.expression_unary_operation.operator);
-            printf(" %s OPERANDO IZQUIERDO: \n", IDENT_ARROW);
-            print_AST_expressions(current_expression->expr.expression_unary_operation.left);
+            printf("%s%s SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator);
+            printf("%s%s OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.expression_unary_operation.left,NEXT_NODE_DEPTH);
             break;
 
         case EXPR_IDENTIFIER:
-            printf(" %s NOMBRE DE IDENTIFICADOR: [%s]\n", IDENT_ARROW, current_expression->expr.expression_identifier.id);
+            printf("%s%s NOMBRE DE IDENTIFICADOR: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_identifier.id);
             if(current_expression->expr.expression_identifier.index_expr){
-                printf(" %s EXPRESION DE ACCESO A POSICION DE IDENTIFICADOR: [%s]\n", IDENT_ARROW, current_expression->expr.expression_identifier.id);
-                print_AST_expressions(current_expression->expr.expression_identifier.index_expr);
+                printf("%s%s EXPRESION DE ACCESO A POSICION DE IDENTIFICADOR:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+                print_AST_expressions(current_expression->expr.expression_identifier.index_expr,NEXT_NODE_DEPTH);
             }
             break;
 
         case EXPR_LITERAL:
+            printf("%s%s VALOR DE LITERAL: ",IDENT_NODE, IDENT_BLANK_ARROW);
             switch (current_expression->expr.expression_literal.kind)
             {
             case EXPR_LITERAL_INTEGER:
-                printf(" %s VALOR DE LITERAL: [%d] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.integer_literal);
+                printf("[%d]\n",current_expression->expr.expression_literal.value.integer_literal);
                 break;
             
             case EXPR_LITERAL_REAL:
-                printf(" %s VALOR DE LITERAL: [%f] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.real_literal);
+                printf("[%f]\n",current_expression->expr.expression_literal.value.real_literal);
                 break;
             
             case EXPR_LITERAL_BOOLEAN:
-                printf(" %s VALOR DE LITERAL: [%d] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.boolean_literal);
+                printf("[%d]\n",current_expression->expr.expression_literal.value.boolean_literal);
                 break;
 
             case EXPR_LITERAL_CHARACTER:
-                printf(" %s VALOR DE LITERAL: [%c] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.character_literal);
+                printf("[%c]\n",current_expression->expr.expression_literal.value.character_literal);
                 break;
 
             case EXPR_LITERAL_STRING:
-                printf(" %s VALOR DE LITERAL: [%s] \n", IDENT_ARROW, current_expression->expr.expression_literal.value.string_literal);
+                printf("[%s]\n",current_expression->expr.expression_literal.value.string_literal);
                 break;
+            default:
+                printf("[%s]\n",UNDEFINED_VALUE_MSG);
             }
             break;
 
         case EXPR_FUNCTION_INV:
-            printf(" %s INVOCACION DE FUNCION DE NOMBRE: [%s]\n", IDENT_ARROW, current_expression->expr.expression_function_inv.function_name);
-            printf(" %s ARGUMENTOS DE INVOCACION DE FUNCION: [%s]\n", IDENT_ARROW, current_expression->expr.expression_function_inv.function_name);
-            print_AST_expressions(current_expression->expr.expression_function_inv.arguments_list);
+            printf("%s%s INVOCACION DE FUNCION DE NOMBRE: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_function_inv.function_name);
+            printf("%s%s LISTADO DE ARGUMENTOS DE INVOCACION DE FUNCION:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.expression_function_inv.arguments_list,NEXT_NODE_DEPTH);
             break;
 
         case EXPR_GROUPED:
-            printf(" %s EXPRESION ENTRE ( )\n", IDENT_ARROW);
-            print_AST_expressions(current_expression->expr.grouped_expression);
+            printf("%s%s EXPRESION ENTRE ( )\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.grouped_expression,NEXT_NODE_DEPTH);
             break;
         }
-
-        printf("\n");
 
         // Ir a la siguiente expresion
         current_expression = current_expression->next;
     }
+
+    // -- Liberar memoria utilizada para la identacion
+    free(IDENT_NODE); IDENT_NODE = NULL;
 }

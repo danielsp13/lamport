@@ -17,10 +17,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "declaration.h"    ///< Declaraciones
-#include "statement.h"      ///< Sentencias
-#include "type.h"           ///< Tipos
-#include "parameter_list.h" ///< Parametros de subprgramas
+#include "declaration.h"        ///< Declaraciones
+#include "statement.h"          ///< Sentencias
+#include "type.h"               ///< Tipos
+#include "parameter_list.h"     ///< Parametros de subprgramas
+#include "print_assistant.h"    ///< Asistencia de impresion de AST
 
 #include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
@@ -120,7 +121,8 @@ void free_subprogram(struct subprogram *subprog);
 /**
  * @brief Imprime una lista de nodos de subprogramas
  * @param subprograms_list : Puntero a lista enlazada de subprogramas
+ * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_subprograms(struct subprogram *subprograms_list);
+void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int depth);
 
 #endif //_LAMPORT_AST_SUBPROGRAM_DPR_

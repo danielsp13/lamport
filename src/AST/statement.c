@@ -430,98 +430,109 @@ void free_statement(struct statement *stmt){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO SENTENCIAS) -----
 
-void print_AST_statements(struct statement *statements_list){
-    const char *IDENT_ARROW = "------>";
+void print_AST_statements(struct statement *statements_list, unsigned int depth){
+    // -- Determinar identacion de nodo
+    char * IDENT_NODE_BRANCH = build_identation_branch(depth);
+    char * IDENT_NODE = build_identation_spaces(depth);
+    // -- Determinar profundidad del siguiente nodo
+    const unsigned int NEXT_NODE_DEPTH = depth+2;
+
     // -- Si NULL, simplemente devolver
     if(!statements_list){
-        printf(" %s <NONE>\n", IDENT_ARROW);
+        printf("%s%s %s\n",IDENT_NODE_BRANCH, IDENT_ARROW, NULL_NODE_MSG);
+
+        // -- Liberar memoria utilizada para la identacion
+        free(IDENT_NODE); IDENT_NODE = NULL;
+        free(IDENT_NODE_BRANCH); IDENT_NODE_BRANCH = NULL;
+
         return;
     }
         
     struct statement *current_statement = statements_list;
     while(current_statement){
         // -- Imprimir tipo de sentencia
-        printf(" %s SENTENCIA DE TIPO: [%s]\n", IDENT_ARROW, current_statement->kind_str);
+        printf("%s%s %c SENTENCIA DE TIPO: [%s]\n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->kind_str);
 
-        printf(" %s CONTENIDO DE LA SENTENCIA DE TIPO: [%s]\n", IDENT_ARROW, current_statement->kind_str);
         // -- Imprimir sentencia
         switch (current_statement->kind)
         {
         case STMT_ASSIGNMENT:
-            printf(" %s ASIGNACION A VARIABLE: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_assignment.variable_name);
+            printf("%s%s %c ASIGNACION A VARIABLE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_assignment.variable_name);
             if(current_statement->stmt.statement_assignment.index_expr){
-                printf(" %s EXPRESION DE INDICE DE ACCESO A ARRAY: \n", IDENT_ARROW);
-                print_AST_expressions(current_statement->stmt.statement_assignment.index_expr);
+                printf("%s%s %c EXPRESION DE INDICE DE ACCESO A ARRAY:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+                print_AST_expressions(current_statement->stmt.statement_assignment.index_expr,NEXT_NODE_DEPTH);
             }
 
-            printf(" %s EXPRESION ASIGNADA A VARIABLE: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_assignment.variable_name);
-            print_AST_expressions(current_statement->stmt.statement_assignment.expr);
+            printf("%s%s %c EXPRESION ASIGNADA A VARIABLE:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_assignment.expr,NEXT_NODE_DEPTH);
             break;
 
         case STMT_WHILE:
-            printf(" %s CONDICION DEL BUCLE WHILE\n", IDENT_ARROW);
-            print_AST_expressions(current_statement->stmt.statement_while.condition);
-            printf(" %s CUERPO DEL BUCLE WHILE\n", IDENT_ARROW);
-            print_AST_statements(current_statement->stmt.statement_while.body);
+            printf("%s%s %c CONDICION DEL BUCLE WHILE:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_while.condition,NEXT_NODE_DEPTH);
+            printf("%s%s %c CUERPO DEL BUCLE WHILE:\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_statements(current_statement->stmt.statement_while.body,NEXT_NODE_DEPTH);
             break;
 
         case STMT_FOR:
-            printf(" %s NOMBRE DE CONTADOR DEL BUCLE FOR: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_for.counter_name);
-            printf(" %s EXPRESION DE INICIO DE CONTADOR DE BUCLE FOR\n", IDENT_ARROW);
-            print_AST_expressions(current_statement->stmt.statement_for.intialization);
-            printf(" %s EXPRESION DE FINIALIZACION DE BUCLE FOR\n", IDENT_ARROW);
-            print_AST_expressions(current_statement->stmt.statement_for.finish);
-            printf(" %s CUERPO DEL BUCLE FOR\n", IDENT_ARROW);
-            print_AST_statements(current_statement->stmt.statement_for.body);
+            printf("%s%s %c NOMBRE DE CONTADOR DEL BUCLE FOR: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_for.counter_name);
+            printf("%s%s %c EXPRESION DE INICIO DE CONTADOR DE BUCLE FOR\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_for.intialization,NEXT_NODE_DEPTH);
+            printf("%s%s %c EXPRESION DE FINIALIZACION DE BUCLE FOR\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_for.finish,NEXT_NODE_DEPTH);
+            printf("%s%s %c CUERPO DEL BUCLE FOR\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_statements(current_statement->stmt.statement_for.body,NEXT_NODE_DEPTH);
             break;
 
         case STMT_IF_ELSE:
-            printf(" %s CONDICION DEL IF\n", IDENT_ARROW);
-            print_AST_expressions(current_statement->stmt.statement_if_else.condition);
-            printf(" %s CUERPO DEL IF\n", IDENT_ARROW);
-            print_AST_statements(current_statement->stmt.statement_if_else.if_body);
-            printf(" %s CUERPO DEL ELSE\n", IDENT_ARROW);
-            print_AST_statements(current_statement->stmt.statement_if_else.else_body);
+            printf("%s%s %c CONDICION DEL IF\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_if_else.condition,NEXT_NODE_DEPTH);
+            printf("%s%s %c CUERPO DEL IF\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_statements(current_statement->stmt.statement_if_else.if_body,NEXT_NODE_DEPTH);
+            printf("%s%s %c CUERPO DEL ELSE\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_statements(current_statement->stmt.statement_if_else.else_body,NEXT_NODE_DEPTH);
             break;
 
         case STMT_BLOCK_BEGIN:
-            printf(" %s CONTENIDO DEL BLOQUE BEGIN/END \n", IDENT_ARROW);
-            print_AST_statements(current_statement->stmt.statement_block.body);
+            print_AST_statements(current_statement->stmt.statement_block.body,NEXT_NODE_DEPTH);
             break;
 
         case STMT_BLOCK_COBEGIN:
-            printf(" %s CONTENIDO DEL BLOQUE COBEGIN/COEND \n", IDENT_ARROW);
-            print_AST_statements(current_statement->stmt.statement_block.body);
+            print_AST_statements(current_statement->stmt.statement_block.body,NEXT_NODE_DEPTH);
             break;
 
         case STMT_ATOMIC:
-            printf(" %s CONTENIDO DEL BLOQUE ATOMIC \n", IDENT_ARROW);
-            print_AST_statements(current_statement->stmt.statement_block.body);
+            print_AST_statements(current_statement->stmt.statement_block.body,NEXT_NODE_DEPTH);
             break;
 
         case STMT_PROCEDURE_INV:
-            printf(" %s INVOCACION DE PROCEDIMIENTO DE NOMBRE: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_procedure_inv.procedure_name);
-            printf(" %s ARGUMENTOS DE INVOCACION DEL PROCEDIMIENTO: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_procedure_inv.procedure_name);
-            print_AST_expressions(current_statement->stmt.statement_procedure_inv.arguments_list);
+            printf("%s%s %c INVOCACION DE PROCEDIMIENTO DE NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_procedure_inv.procedure_name);
+            printf("%s%s %c LISTADO DE ARGUMENTOS DE INVOCACION DEL PROCEDIMIENTO:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_procedure_inv.arguments_list,NEXT_NODE_DEPTH);
             break;
 
         case STMT_FORK:
-            printf(" %s FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_ARROW, current_statement->stmt.statement_fork.forked_process);
+            printf("%s%s %c FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_fork.forked_process);
             break;
         
         case STMT_RETURN:
-            printf(" %s EXPRESION DE RETORNO\n", IDENT_ARROW);
-            print_AST_expressions(current_statement->stmt.statement_return.returned_expr);
+            printf("%s%s %c EXPRESION DE RETORNO:\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_return.returned_expr,NEXT_NODE_DEPTH);
             break;
 
         case STMT_PRINT:
-            printf(" %s LISTADO DE EXPRESIONES A IMPRIMIR:\n", IDENT_ARROW);
-            print_AST_expressions(current_statement->stmt.statement_print.expressions_list);
+            printf("%s%s %c LISTADO DE EXPRESIONES A IMPRIMIR:\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_print.expressions_list,NEXT_NODE_DEPTH);
             break;
         }
+
+        printf("\n");
 
         // Ir a la siguiente sentencia
         current_statement = current_statement->next;
     }
-    
+
+    // -- Liberar memoria utilizada para la identacion
+    free(IDENT_NODE); IDENT_NODE = NULL;
+    free(IDENT_NODE_BRANCH); IDENT_NODE_BRANCH = NULL;
 }

@@ -19,6 +19,7 @@
 
 #include "expression.h"         ///< Expresiones
 #include "type.h"               ///< Tipos
+#include "print_assistant.h"    ///< Asistencia de impresion de AST
 
 #include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
@@ -78,8 +79,9 @@ void free_declaration(struct declaration *decl);
 /**
  * @brief Imprime una lista de nodos de declaraciones
  * @param declarations_list : Puntero a lista enlazada de declaraciones
+ * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_declarations(struct declaration *declarations_list);
+void print_AST_declarations(struct declaration *declarations_list, unsigned int depth);
 
 
 #endif //_LAMPORT_AST_DECLARATION_DPR_

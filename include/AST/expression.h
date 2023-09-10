@@ -18,7 +18,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "type.h"           ///< Parametros (procedimientos y funciones)
+#include "type.h"               ///< Tipos de dato
+#include "print_assistant.h"    ///< Asistencia de impresion de AST
 
 #include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
@@ -322,8 +323,9 @@ void free_expression(struct expression *expr);
 /**
  * @brief Imprime una lista de nodos de expresiones
  * @param expressions_list : Puntero a lista enlazada de expresiones
+ * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_expressions(struct expression *expressions_list);
+void print_AST_expressions(struct expression *expressions_list, unsigned int depth);
 
 
 #endif //_LAMPORT_AST_EXPRESSION_DPR_

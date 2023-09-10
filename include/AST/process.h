@@ -20,6 +20,7 @@
 #include "declaration.h"         ///< Declaraciones
 #include "statement.h"           ///< Sentencias
 #include "expression.h"          ///< Expresiones
+#include "print_assistant.h"     ///< Asistencia de impresion de AST
 
 #include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
@@ -122,7 +123,8 @@ void free_process(struct process *proc);
 /**
  * @brief Imprime una lista de nodos de procesos
  * @param process_list : Puntero a lista enlazada de procesos
+ * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_process(struct process *process_list);
+void print_AST_process(struct process *process_list, unsigned int depth);
 
 #endif //_LAMPORT_AST_PROCESS_DPR_
