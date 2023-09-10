@@ -12,7 +12,7 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (DECLARACIONES) -----
 
-struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value){
+struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value, unsigned long line){
     struct declaration *d = malloc(sizeof(*d));
 
     // -- Comprobar reserva de memoria exitosa
@@ -32,6 +32,8 @@ struct declaration * create_declaration_variable(char *name, struct type *type, 
     d->type = type;
     // -- Asignar valor de inicializacion de variable
     d->value = value;
+    // -- Asignar linea donde se realizo la declaracion de variable
+    d->line = line;
     // -- Asignar referencia a simbolo de tabla de simbolos (NULL) 
     d->symb = NULL;
     // -- Asignar puntero a siguiente declaracion (NULL)
@@ -81,10 +83,7 @@ void free_declaration(struct declaration *decl){
     }
 
     // -- Liberar referencia a simbolo
-    if(decl->symb){
-        free_symbol(decl->symb);
-        decl->symb = NULL;
-    }
+    decl->symb = NULL;
 
     // -- Liberar nodo
     free(decl);

@@ -164,7 +164,7 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
     return ex;
 }
 
-struct expression * create_expression_identifier(char *id, struct expression *index_expr){
+struct expression * create_expression_identifier(char *id, struct expression *index_expr, unsigned long line){
     struct expression *ex = create_expression_non_literal(EXPR_IDENTIFIER);
 
     // -- Comprobar reserva de memoria exitosa
@@ -182,6 +182,9 @@ struct expression * create_expression_identifier(char *id, struct expression *in
 
     // -- Asignar expresion de indice (acceso a array)
     ex->expr.expression_identifier.index_expr = index_expr;
+
+    // -- Asignar linea en la que se produjo el uso del identificador
+    ex->expr.expression_identifier.line = line;
 
     // -- Asignar referencia a simbolo de la tabla de simbolos (NULL)
     ex->expr.expression_identifier.symb = NULL;
@@ -267,7 +270,7 @@ struct expression * create_expression_literal_boolean(int value){
 }
 
 
-struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list){
+struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list, unsigned long line){
     struct expression *ex = create_expression_non_literal(EXPR_FUNCTION_INV);
 
     // -- Comprobar reserva de memoria exitosa
@@ -284,6 +287,9 @@ struct expression * create_expression_function_invocation(char *function_name, s
     }
     // -- Asignar lista de argumentos de la invocacion de funcion
     ex->expr.expression_function_inv.arguments_list = arguments_list;
+
+    // -- Asignar linea en la que se produjo el uso del identificador
+    ex->expr.expression_function_inv.line = line;
 
     // -- Asignar referencia a simbolo de la tabla de simbolos (NULL)
     ex->expr.expression_function_inv.symb = NULL;
@@ -363,7 +369,6 @@ void free_expression(struct expression *expr){
         free_list_expressions(expr->expr.expression_identifier.index_expr);
         expr->expr.expression_identifier.index_expr = NULL;
 
-        free_symbol(expr->expr.expression_identifier.symb);
         expr->expr.expression_identifier.symb = NULL;
 
         break;
@@ -390,7 +395,6 @@ void free_expression(struct expression *expr){
         free_list_expressions(expr->expr.expression_function_inv.arguments_list);
         expr->expr.expression_function_inv.arguments_list = NULL;
 
-        free_symbol(expr->expr.expression_identifier.symb);
         expr->expr.expression_identifier.symb = NULL;
 
         break;

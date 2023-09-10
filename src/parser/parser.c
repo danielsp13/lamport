@@ -1452,7 +1452,7 @@ yyreduce:
   case 11: /* declaration-var-with-assignment: declaration-name DELIM_2P type OP_ASSIGN expression DELIM_PC  */
 #line 234 "src/parser/parser.y"
                                                                 {
-        (yyval.decl) = create_declaration_variable((yyvsp[-5].ident), (yyvsp[-3].type), (yyvsp[-1].expr));
+        (yyval.decl) = create_declaration_variable((yyvsp[-5].ident), (yyvsp[-3].type), (yyvsp[-1].expr), yylineno);
     }
 #line 1458 "src/parser/parser.c"
     break;
@@ -1484,7 +1484,7 @@ yyreduce:
   case 14: /* declaration-var: declaration-name DELIM_2P type DELIM_PC  */
 #line 256 "src/parser/parser.y"
                                            {
-        (yyval.decl) = create_declaration_variable((yyvsp[-3].ident), (yyvsp[-1].type), 0);
+        (yyval.decl) = create_declaration_variable((yyvsp[-3].ident), (yyvsp[-1].type), 0, yylineno);
     }
 #line 1490 "src/parser/parser.c"
     break;
@@ -1682,7 +1682,7 @@ yyreduce:
   case 35: /* parameter: parameter-name DELIM_2P type  */
 #line 388 "src/parser/parser.y"
                                 {
-        (yyval.param) = create_parameter_list((yyvsp[-2].ident), (yyvsp[0].type));
+        (yyval.param) = create_parameter_list((yyvsp[-2].ident), (yyvsp[0].type), yylineno);
     }
 #line 1688 "src/parser/parser.c"
     break;
@@ -2012,7 +2012,7 @@ yyreduce:
   case 73: /* assignment-statement: IDENT OP_ASSIGN expression DELIM_PC  */
 #line 576 "src/parser/parser.y"
                                        {
-        (yyval.stmt) = create_statement_assignment((yyvsp[-3].ident), 0, (yyvsp[-1].expr));
+        (yyval.stmt) = create_statement_assignment((yyvsp[-3].ident), 0, (yyvsp[-1].expr), yylineno);
     }
 #line 2018 "src/parser/parser.c"
     break;
@@ -2020,7 +2020,7 @@ yyreduce:
   case 74: /* assignment-statement: IDENT CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC  */
 #line 580 "src/parser/parser.y"
                                                                           {
-        (yyval.stmt) = create_statement_assignment((yyvsp[-6].ident), (yyvsp[-4].expr), (yyvsp[-1].expr));
+        (yyval.stmt) = create_statement_assignment((yyvsp[-6].ident), (yyvsp[-4].expr), (yyvsp[-1].expr), yylineno);
     }
 #line 2026 "src/parser/parser.c"
     break;
@@ -2036,7 +2036,7 @@ yyreduce:
   case 76: /* for-statement: FOR IDENT OP_ASSIGN expression TO expression DO block-statement  */
 #line 592 "src/parser/parser.y"
                                                                    {
-        (yyval.stmt) = create_statement_for((yyvsp[-6].ident), (yyvsp[-4].expr), (yyvsp[-2].expr), (yyvsp[0].stmt));
+        (yyval.stmt) = create_statement_for((yyvsp[-6].ident), (yyvsp[-4].expr), (yyvsp[-2].expr), (yyvsp[0].stmt), yylineno);
     }
 #line 2042 "src/parser/parser.c"
     break;
@@ -2060,7 +2060,7 @@ yyreduce:
   case 79: /* fork-statement: S_FORK IDENT DELIM_PC  */
 #line 607 "src/parser/parser.y"
                          {
-        (yyval.stmt) = create_statement_fork((yyvsp[-1].ident));
+        (yyval.stmt) = create_statement_fork((yyvsp[-1].ident), yylineno);
     }
 #line 2066 "src/parser/parser.c"
     break;
@@ -2109,7 +2109,7 @@ yyreduce:
   case 85: /* procedure-invocation: IDENT PAR_IZDO list-arguments PAR_DCHO DELIM_PC  */
 #line 642 "src/parser/parser.y"
                                                    {
-        (yyval.stmt) = create_statement_procedure_inv((yyvsp[-4].ident), (yyvsp[-2].expr));
+        (yyval.stmt) = create_statement_procedure_inv((yyvsp[-4].ident), (yyvsp[-2].expr), yylineno);
     }
 #line 2115 "src/parser/parser.c"
     break;
@@ -2117,7 +2117,7 @@ yyreduce:
   case 86: /* procedure-invocation: IDENT PAR_IZDO PAR_DCHO DELIM_PC  */
 #line 645 "src/parser/parser.y"
                                       {
-        (yyval.stmt) = create_statement_procedure_inv((yyvsp[-3].ident), 0);
+        (yyval.stmt) = create_statement_procedure_inv((yyvsp[-3].ident), 0, yylineno);
     }
 #line 2123 "src/parser/parser.c"
     break;
@@ -2125,7 +2125,7 @@ yyreduce:
   case 87: /* function-invocation: IDENT PAR_IZDO list-arguments PAR_DCHO  */
 #line 651 "src/parser/parser.y"
                                           {
-        (yyval.expr) = create_expression_function_invocation((yyvsp[-3].ident), (yyvsp[-1].expr));
+        (yyval.expr) = create_expression_function_invocation((yyvsp[-3].ident), (yyvsp[-1].expr), yylineno);
     }
 #line 2131 "src/parser/parser.c"
     break;
@@ -2133,7 +2133,7 @@ yyreduce:
   case 88: /* function-invocation: IDENT PAR_IZDO PAR_DCHO  */
 #line 654 "src/parser/parser.y"
                              {
-        (yyval.expr) = create_expression_function_invocation((yyvsp[-2].ident), 0);
+        (yyval.expr) = create_expression_function_invocation((yyvsp[-2].ident), 0, yylineno);
     }
 #line 2139 "src/parser/parser.c"
     break;
@@ -2402,7 +2402,7 @@ yyreduce:
   case 121: /* identifier: IDENT  */
 #line 799 "src/parser/parser.y"
          {
-        (yyval.expr) = create_expression_identifier((yyvsp[0].ident),0);
+        (yyval.expr) = create_expression_identifier((yyvsp[0].ident),0, yylineno);
     }
 #line 2408 "src/parser/parser.c"
     break;
@@ -2410,7 +2410,7 @@ yyreduce:
   case 122: /* identifier: IDENT CORCH_IZDO expression CORCH_DCHO  */
 #line 802 "src/parser/parser.y"
                                             {
-        (yyval.expr) = create_expression_identifier((yyvsp[-3].ident), (yyvsp[-1].expr));
+        (yyval.expr) = create_expression_identifier((yyvsp[-3].ident), (yyvsp[-1].expr), yylineno);
     }
 #line 2416 "src/parser/parser.c"
     break;

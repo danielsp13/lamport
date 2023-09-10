@@ -176,6 +176,7 @@ struct expression{
         struct{
             char *id;                                       ///< Valor de identificador
             struct expression *index_expr;                  ///< Expresion del subindice. NULL si no hay subíndice.
+            unsigned long line;                             ///< Linea en la que se uso el identificador
 
             struct symbol *symb;                            ///< Referencia al símbolo asociado en la tabla de símbolos.
         } expression_identifier;
@@ -196,6 +197,7 @@ struct expression{
         struct {
             char *function_name;                            ///< Nombre de funcion
             struct expression *arguments_list;              ///< Lista de argumentos para funciones
+            unsigned long line;                             ///< Linea en la que se uso el identificador
 
             struct symbol *symb;                            ///< Referencia al símbolo asociado en la tabla de símbolos.
         } expression_function_inv;
@@ -246,9 +248,10 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
  * @brief Crea y reserva memoria para una expresion de identificador
  * @param id : identificador
  * @param index_expr : Expresion de indice (si se esta referenciando una posicion de array)
+ * @param line : linea en la que aparece el uso del identificador
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_identifier(char *id, struct expression * index_expr);
+struct expression * create_expression_identifier(char *id, struct expression * index_expr, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo literal entero
@@ -289,9 +292,10 @@ struct expression * create_expression_literal_boolean(int value);
  * @brief Crea y reserva memoria para una expresion de invocacion de funcion
  * @param function_name : Nombre de funcion
  * @param arguments_list : Argumentos de invocación de la funcion
+ * @param line : linea en la que aparece el uso del identificador
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list);
+struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion definida entre parentesis

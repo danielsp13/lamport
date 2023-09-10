@@ -133,11 +133,7 @@ void free_subprogram(struct subprogram *subprog){
     }
 
     // -- Liberar simbolo de la tabla de simbolos
-    if(subprog->symb){
-        free_symbol(subprog->symb);
-        subprog->symb = NULL;
-    }
-
+    subprog->symb = NULL;
     
     // -- Liberar nodo
     free(subprog);

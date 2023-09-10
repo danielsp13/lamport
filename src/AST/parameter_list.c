@@ -12,7 +12,7 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (PARAMETROS) -----
 
-struct parameter_list * create_parameter_list(char * name_parameter, struct type * type){
+struct parameter_list * create_parameter_list(char * name_parameter, struct type * type, unsigned long line){
     struct parameter_list *pl = malloc(sizeof(*pl));
 
     // -- Comprobar reserva de memoria exitosa
@@ -30,6 +30,8 @@ struct parameter_list * create_parameter_list(char * name_parameter, struct type
 
     // -- Asignar tipo de dato del parametro
     pl->type = type;
+    // -- Asignar linea donde se declaro el parametro
+    pl->line = line;
     // -- Asignar puntero al siguiente parametro (null)
     pl->next = NULL;
 
@@ -74,11 +76,7 @@ void free_parameter(struct parameter_list *parameter){
     }
 
     // -- Liberar simbolo de la tabla de simbolos
-    if(parameter->symb){
-        free_symbol(parameter->symb);
-        parameter->symb = NULL;
-    }
-
+    parameter->symb = NULL;
 
     // -- Liberar nodo
     free(parameter);

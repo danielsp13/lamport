@@ -232,7 +232,7 @@ declaration:
 
 declaration-var-with-assignment:
     declaration-name DELIM_2P type OP_ASSIGN expression DELIM_PC{
-        $$ = create_declaration_variable($1, $3, $5);
+        $$ = create_declaration_variable($1, $3, $5, yylineno);
     }
     // <--> ERROR: Falta ':' en la declaracion
     | declaration-name error type OP_ASSIGN expression DELIM_PC{
@@ -254,7 +254,7 @@ declaration-var-with-assignment:
 
 declaration-var:
     declaration-name DELIM_2P type DELIM_PC{
-        $$ = create_declaration_variable($1, $3, 0);
+        $$ = create_declaration_variable($1, $3, 0, yylineno);
     }
     // <--> ERROR: Falta ':' en la declaracion
     | declaration-name error type DELIM_PC{
@@ -386,7 +386,7 @@ list-parameters:
 
 parameter:
     parameter-name DELIM_2P type{
-        $$ = create_parameter_list($1, $3);
+        $$ = create_parameter_list($1, $3, yylineno);
     }
     // <--> ERROR : Nombre de parametro incorrecto
     | parameter-name error type{
@@ -574,11 +574,11 @@ cobegin-statement:
 assignment-statement:
     // var_name = expr;
     IDENT OP_ASSIGN expression DELIM_PC{
-        $$ = create_statement_assignment($1, 0, $3);
+        $$ = create_statement_assignment($1, 0, $3, yylineno);
     }
     // var_array_name[index] = expr;
     | IDENT CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC{
-        $$ = create_statement_assignment($1, $3, $6);
+        $$ = create_statement_assignment($1, $3, $6, yylineno);
     }
     ;
 
@@ -590,7 +590,7 @@ while-statement:
 
 for-statement:
     FOR IDENT OP_ASSIGN expression TO expression DO block-statement{
-        $$ = create_statement_for($2, $4, $6, $8);
+        $$ = create_statement_for($2, $4, $6, $8, yylineno);
     }
     ;
 
@@ -605,7 +605,7 @@ if-statement:
 
 fork-statement:
     S_FORK IDENT DELIM_PC{
-        $$ = create_statement_fork($2);
+        $$ = create_statement_fork($2, yylineno);
     }
     ;
 
@@ -640,19 +640,19 @@ list-print:
 // -- Reglas de generacion de invocaciones de funciones y procedimientos
 procedure-invocation:
     IDENT PAR_IZDO list-arguments PAR_DCHO DELIM_PC{
-        $$ = create_statement_procedure_inv($1, $3);
+        $$ = create_statement_procedure_inv($1, $3, yylineno);
     }
     | IDENT PAR_IZDO PAR_DCHO DELIM_PC{
-        $$ = create_statement_procedure_inv($1, 0);
+        $$ = create_statement_procedure_inv($1, 0, yylineno);
     }
     ;
 
 function-invocation:
     IDENT PAR_IZDO list-arguments PAR_DCHO{
-        $$ = create_expression_function_invocation($1, $3);
+        $$ = create_expression_function_invocation($1, $3, yylineno);
     }
     | IDENT PAR_IZDO PAR_DCHO{
-        $$ = create_expression_function_invocation($1, 0);
+        $$ = create_expression_function_invocation($1, 0, yylineno);
     }
     ;
 
@@ -797,10 +797,10 @@ literal:
 
 identifier:
     IDENT{
-        $$ = create_expression_identifier($1,0);
+        $$ = create_expression_identifier($1,0, yylineno);
     }
     | IDENT CORCH_IZDO expression CORCH_DCHO{
-        $$ = create_expression_identifier($1, $3);
+        $$ = create_expression_identifier($1, $3, yylineno);
     }
     ;
 

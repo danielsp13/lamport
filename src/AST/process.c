@@ -176,7 +176,6 @@ void free_process(struct process *proc){
         proc->index_end = NULL;
 
         // -- Liberar referencia a simbolo de la tabla de simbolos (id de indice en caso de vector)
-        free_symbol(proc->symb_index);
         proc->symb_index = NULL;
 
         break;
@@ -186,7 +185,6 @@ void free_process(struct process *proc){
     }
 
     // -- Liberar referencia a simbolo de la tabla de simbolos (id de proceso)
-    free_symbol(proc->symb_process);
     proc->symb_process = NULL;
 
     // -- Liberar nodo

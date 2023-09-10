@@ -38,6 +38,7 @@ struct declaration{
     char *name;                 ///< Nombre de la declaracion.
     struct type *type;          ///< Tipo de la declaracion.
     struct expression *value;   ///< Valor asociado (si es declaracion de variable)
+    unsigned long line;         ///< Linea donde se realizo la declaracion de variable
     struct declaration *next;   ///< Puntero a la siguiente declaracion
     
     struct symbol *symb;        ///< Referencia al símbolo asociado en la tabla de símbolos.
@@ -52,9 +53,10 @@ struct declaration{
  * @param name : Nombre de la declaracion
  * @param type : Tipo de la declaracion
  * @param value : Valor de una expresion (declaraciones de variables)
+ * @param line : linea donde se realizo la declaracion de la variable
  * @return puntero a la declaracion creada
  */
-struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value);
+struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value, unsigned long line);
 
 // ===============================================================
 

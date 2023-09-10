@@ -86,7 +86,7 @@ struct statement * create_statement(statement_t kind){
     return st;
 }
 
-struct statement * create_statement_assignment(char *variable_name, struct expression *index_expr, struct expression *expr){
+struct statement * create_statement_assignment(char *variable_name, struct expression *index_expr, struct expression *expr, unsigned long line){
     struct statement *st = create_statement(STMT_ASSIGNMENT);
 
     // -- Comprobar reserva de memoria exitosa
@@ -107,6 +107,9 @@ struct statement * create_statement_assignment(char *variable_name, struct expre
 
     // -- Asignar expresion
     st->stmt.statement_assignment.expr = expr;
+
+    // -- Asignar linea donde se utilizo el identificador
+    st->stmt.statement_assignment.line = line;
 
     // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
     st->stmt.statement_assignment.symb = NULL;
@@ -131,7 +134,7 @@ struct statement * create_statement_while(struct expression *condition, struct s
     return st;
 }
 
-struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body){
+struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body, unsigned long line){
     struct statement *st = create_statement(STMT_FOR);
 
     // -- Comprobar reserva de memoria exitosa
@@ -154,6 +157,9 @@ struct statement * create_statement_for(char *counter_name, struct expression *i
     // -- Asignar cuerpo de bucle
     st->stmt.statement_for.body = body;
 
+
+    // -- Asignar linea donde se utilizo el identificador de contador
+    st->stmt.statement_for.line = line;
     // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
     st->stmt.statement_for.symb = NULL;
 
@@ -179,7 +185,7 @@ struct statement * create_statement_if_else(struct expression *condition, struct
     return st;
 }
 
-struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list){
+struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list, unsigned long line){
     struct statement *st = create_statement(STMT_PROCEDURE_INV);
 
     // -- Comprobar reserva de memoria exitosa
@@ -198,6 +204,8 @@ struct statement * create_statement_procedure_inv(char *procedure_name, struct e
     // -- Asignar lista de argumentos de invocacion
     st->stmt.statement_procedure_inv.arguments_list = arguments_list;
 
+    // -- Asignar linea donde se uso el identificador de procedimiento
+    st->stmt.statement_procedure_inv.line = line;
     // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
     st->stmt.statement_procedure_inv.symb = NULL;
     
@@ -231,7 +239,7 @@ struct statement * create_statement_atomic(struct statement *body){
     return create_block_of_statements(STMT_ATOMIC, body);
 }
 
-struct statement * create_statement_fork(char *process_name){
+struct statement * create_statement_fork(char *process_name, unsigned long line){
     struct statement *st = create_statement(STMT_FORK);
 
     // -- Comprobar reserva de memoria exitosa
@@ -246,6 +254,9 @@ struct statement * create_statement_fork(char *process_name){
         free(st);
         return NULL;
     }
+
+    // -- Asignar linea donde se uso el identificador de proceso
+    st->stmt.statement_fork.line = line;
 
     // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
     st->stmt.statement_fork.symb = NULL;
@@ -322,7 +333,6 @@ void free_statement(struct statement *stmt){
         free_expression(stmt->stmt.statement_assignment.expr);
         stmt->stmt.statement_assignment.expr = NULL;
 
-        free_symbol(stmt->stmt.statement_assignment.symb);
         stmt->stmt.statement_assignment.symb = NULL;
 
         break;
@@ -349,7 +359,6 @@ void free_statement(struct statement *stmt){
         free_list_statements(stmt->stmt.statement_for.body);
         stmt->stmt.statement_for.body = NULL;
 
-        free_symbol(stmt->stmt.statement_for.symb);
         stmt->stmt.statement_for.symb = NULL;
 
         break;
@@ -377,7 +386,6 @@ void free_statement(struct statement *stmt){
             stmt->stmt.statement_procedure_inv.arguments_list = NULL;
         }
 
-        free_symbol(stmt->stmt.statement_procedure_inv.symb);
         stmt->stmt.statement_procedure_inv.symb = NULL;
 
         break;
@@ -398,7 +406,6 @@ void free_statement(struct statement *stmt){
         free(stmt->stmt.statement_fork.forked_process);
         stmt->stmt.statement_fork.forked_process = NULL;
 
-        free_symbol(stmt->stmt.statement_fork.symb);
         stmt->stmt.statement_fork.symb = NULL;
 
         break;

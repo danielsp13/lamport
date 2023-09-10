@@ -133,6 +133,7 @@ struct statement{
             struct expression *index_expr;          ///< Expresion del subindice. NULL si no hay subíndice.
             struct expression *expr;                ///< Expresion de la asignacion
 
+            unsigned long line;                     ///< Linea donde se uso el identificador
             struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_assignment;
 
@@ -149,6 +150,7 @@ struct statement{
             struct expression *finish;              ///< Finalizacion del bucle
             struct statement *body;                 ///< Cuerpo del bucle (conjunto de sentencias)
 
+            unsigned long line;                     ///< Linea donde se uso el identificador
             struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_for;
         
@@ -164,6 +166,7 @@ struct statement{
             char *procedure_name;                   ///< Nombre del procedimiento
             struct expression *arguments_list;      ///< Argumentos de invocacion del procedimiento
 
+            unsigned long line;                     ///< Linea donde se uso el identificador
             struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_procedure_inv;
 
@@ -175,6 +178,8 @@ struct statement{
         // Estructura de sentencia fork
         struct {
             char *forked_process;                   ///< Nombre del proceso
+
+            unsigned long line;                     ///< Linea donde se uso el identificador
             struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_fork;
 
@@ -207,9 +212,10 @@ struct statement * create_statement(statement_t kind);
  * @param variable_name : Nombre de la variable
  * @param index_expr : Expresion de indice (si se esta realizando la asignacion sobre una posicion de array)
  * @param expr : Expresion a asignar
+ * @param line : linea donde se uso el identificador de variable
  * @return puntero con la sentencia incializada
  */
-struct statement * create_statement_assignment(char *variable_name, struct expression *index_expr, struct expression *expr);
+struct statement * create_statement_assignment(char *variable_name, struct expression *index_expr, struct expression *expr, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de bucle while (STMT_WHILE)
@@ -225,9 +231,10 @@ struct statement * create_statement_while(struct expression *condition, struct s
  * @param initializacion : Expresion para inicializar el contador del bucle
  * @param finish : Expresion para finalizar el contador del bucle
  * @param body : Cuerpo del bucle (conjunto de sentencias)
+ * @param line : linea donde se uso el identificador de contador
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body);
+struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de control de flujo if-else
@@ -242,9 +249,10 @@ struct statement * create_statement_if_else(struct expression *condition, struct
  * @brief Crea y reserva memoria para una sentencia de invocacion de procedimiento
  * @param procedure_name : Nombre del procedimiento
  * @param arguments_list : Lista de argumentos de invocacion procedimiento
+ * @param line : linea donde se uso el identificador de proceso
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list);
+struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de construccion de bloques
@@ -278,9 +286,10 @@ struct statement * create_statement_atomic(struct statement *body);
 /**
  * @brief Crea y reserva memoria para una sentencia fork
  * @param process_name : Nombre del proceso
+ * @param line : linea donde se uso el identificador de proceso
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_fork(char *process_name);
+struct statement * create_statement_fork(char *process_name, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de retorno (para funciones)

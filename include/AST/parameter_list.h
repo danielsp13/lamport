@@ -35,6 +35,7 @@
 struct parameter_list{
     char *name_parameter;                   ///< Nombre de parametro
     struct type *type;                      ///< Tipo de parametro
+    unsigned long line;                     ///< Linea donde se declaro el parametro
     struct parameter_list *next;            ///< Puntero a siguiente parametro
 
     struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
@@ -48,9 +49,10 @@ struct parameter_list{
  * @brief Crea y reserva memoria para crear una lista de parametros de funciones o proc
  * @param name_parameter : nombre del parametro
  * @param type : tipo del parametro
+ * @param line : linea donde se declaro el parametro
  * @return puntero con la lista de parametros inicializada
  */
-struct parameter_list * create_parameter_list(char * name_parameter, struct type * type);
+struct parameter_list * create_parameter_list(char * name_parameter, struct type * type, unsigned long line);
 
 // ===============================================================
 
