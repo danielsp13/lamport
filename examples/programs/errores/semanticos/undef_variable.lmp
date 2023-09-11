@@ -11,7 +11,7 @@ begin
 	return resultadoSuma;
 end
 
-procedure resta(a: integer, b: integer)
+procedure resta(a: integer, b: integer);
 	var resultado : integer;
 begin
 	{ERROR: Uso de variable no definida: c}

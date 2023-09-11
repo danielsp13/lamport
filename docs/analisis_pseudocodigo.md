@@ -35,7 +35,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <process> ::= "process" <identifier> [ "[" <identifier> : <expression>
  	".." <expression> "]" ] ";" [<declarations>] <block-statement>
 <block-statement> ::= "begin" (<statement>)+ "end"
-<procedure-definition> ::= "procedure" <identifier> "(" <parameters> ")"
+<procedure-definition> ::= "procedure" <identifier> "(" <parameters> ")" ";"
  	[<declarations>] <block-statement>
 <function-definition> ::= "function" <identifier> "(" <parameters> ")" ":" <type>
  	";" [<declarations>] <block-statement>

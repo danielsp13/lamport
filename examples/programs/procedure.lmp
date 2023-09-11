@@ -5,7 +5,8 @@
 program IncrementarContador
 	var contador : integer := 0;	{Contador entero a incrementar}
 	
-procedure Incrementa(numveces : integer)
+procedure Incrementa(numveces : integer);
+	var i : integer;
 begin
 	{Bucle que se ejecuta el numero de veces especificado}
 	for i := 0 to numveces do

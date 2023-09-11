@@ -9,7 +9,7 @@ begin
 	return a+b;
 end
 
-procedure resta(a: integer, b: integer)
+procedure resta(a: integer, b: integer);
 	var resultado : integer;
 begin
 	resultado := a - b;

@@ -310,12 +310,12 @@ subprogram:
 
 subprogram-procedure:
     // -- Generacion de subprogramas de tipo procedimiento (Con parametros)
-    S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO list-declarations block-statement{
-        $$ = create_subprogram_procedure($2, $4, $6, $7, yylineno);
+    S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO DELIM_PC list-declarations block-statement{
+        $$ = create_subprogram_procedure($2, $4, $7, $8, yylineno);
     }
     // -- Generacion de subprogramas de tipo procedimiento (sin parametros)
-    | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO list-declarations block-statement{
-        $$ = create_subprogram_procedure($2, 0, $5, $6, yylineno);
+    | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO DELIM_PC list-declarations block-statement{
+        $$ = create_subprogram_procedure($2, 0, $6, $7, yylineno);
     }
     // <--> ERROR: Procedimiento mal formado
     | S_PROCEDURE error{
