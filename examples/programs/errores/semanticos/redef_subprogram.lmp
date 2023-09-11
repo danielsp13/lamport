@@ -10,7 +10,7 @@ begin
 end
 
 {ERROR: Redefinicion de subprograma sumar}
-procedure suma(a: integer, b: integer)
+procedure suma(a: integer, b: integer);
 	var resultado : integer;
 begin
 	resultado := a+b;
