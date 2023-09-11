@@ -1,0 +1,28 @@
+{Fichero: undef_variable.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene un error semantico de tipo: uso de variables no definidas}
+
+program OperaEnteros
+
+function suma(a: integer, b: integer) : integer;
+begin
+	{ERROR: Uso de variable no definida: resultadoSuma}
+	resultadoSuma := a+b;
+	return resultadoSuma;
+end
+
+procedure resta(a: integer, b: integer)
+	var resultado : integer;
+begin
+	{ERROR: Uso de variable no definida: c}
+	resultado := a - c;
+	print(resultado);
+end
+
+process Main;
+begin
+	{ERROR: Uso de variable no definida: resultado}
+	resultado := suma(3,5);
+	{ERROR: Uso de variable no definida: num2}
+	resta(3,num2);
+end

@@ -1,0 +1,20 @@
+{Programa: expressions.lmp}
+{Autor: Daniel Pérez Ruiz}
+{Descripción: Programa de calculo del valor absoluto}
+
+program expressions
+
+process Main;
+	var expr1 : integer;
+	var expr2 : boolean;
+begin
+	expr1 := 2 + 1;
+	expr1 := -expr1;
+	expr2 := true and false;
+	expr2 := not true;
+	expr2 := 2 <= 4;
+	expr2 := 5 > 7;
+	expr2 := 1 != 0;
+	expr1 := -1;
+	expr2 := (expr1 < 0);
+end

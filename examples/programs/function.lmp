@@ -52,7 +52,6 @@ end
 {Proceso principal del programa}
 process Main;
 	var num1 : real := 2.0;	{Primer numero real a operar}
-	var num2 : real := 3.0; {Segundo numero real a operar}
 	
 	var resultado : real := 0; {Resultado de la operación}
 	
@@ -81,4 +80,9 @@ begin
 						end
 				end
 		end	
+end
+
+process Main;
+begin
+	print("hola mundo");
 end

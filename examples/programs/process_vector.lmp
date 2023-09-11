@@ -4,7 +4,8 @@
 
 program SumaIndice
 
-var total: integer := 0;
+var total : integer := 0;
+var index : integer;
 
 process VectorProc[index: 1..3];
 begin

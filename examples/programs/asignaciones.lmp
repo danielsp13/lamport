@@ -5,7 +5,6 @@
 program Asignaciones
 	{VARIABLES GLOBALES}
 	var v1int : integer := 0; 			{Variable global de tipo entero}
-	var v2char : char := 'x';			{Variable global de tipo char}
 	var v3real : real;					{Variable global de tipo real (flotante)}
 	var v4string : string;				{Variable global de tipo cadena de caracteres (string)}
 	var v5vector : array [10] integer;	{Variable global de tipo array (de enteros)}
