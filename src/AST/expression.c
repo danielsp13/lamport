@@ -433,35 +433,35 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
     struct expression *current_expression = expressions_list;
     while(current_expression){
         // -- Imprimir tipo de expresion
-        printf("%s%s EXPRESION DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->kind_str);
+        printf("%s%s> EXPRESION DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->kind_str);
 
         // -- Imprimir expresion
         switch (current_expression->kind)
         {
         case EXPR_BINARY:
-            printf("%s%s SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_binary_operation.operator);
-            printf("%s%s OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            printf("%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_binary_operation.operator);
+            printf("%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_binary_operation.left,NEXT_NODE_DEPTH);
-            printf("%s%s OPERANDO DERECHO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            printf("%s%s  OPERANDO DERECHO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_binary_operation.right,NEXT_NODE_DEPTH);
             break;
         
         case EXPR_UNARY:
-            printf("%s%s SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator);
-            printf("%s%s OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            printf("%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator);
+            printf("%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_unary_operation.left,NEXT_NODE_DEPTH);
             break;
 
         case EXPR_IDENTIFIER:
-            printf("%s%s NOMBRE DE IDENTIFICADOR: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_identifier.id);
+            printf("%s%s  NOMBRE DE IDENTIFICADOR: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_identifier.id);
             if(current_expression->expr.expression_identifier.index_expr){
-                printf("%s%s EXPRESION DE ACCESO A POSICION DE IDENTIFICADOR:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+                printf("%s%s  EXPRESION DE ACCESO A POSICION DE IDENTIFICADOR:\n",IDENT_NODE, IDENT_BLANK_ARROW);
                 print_AST_expressions(current_expression->expr.expression_identifier.index_expr,NEXT_NODE_DEPTH);
             }
             break;
 
         case EXPR_LITERAL:
-            printf("%s%s VALOR DE LITERAL: ",IDENT_NODE, IDENT_BLANK_ARROW);
+            printf("%s%s  VALOR DE LITERAL: ",IDENT_NODE, IDENT_BLANK_ARROW);
             switch (current_expression->expr.expression_literal.kind)
             {
             case EXPR_LITERAL_INTEGER:
@@ -489,13 +489,13 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
             break;
 
         case EXPR_FUNCTION_INV:
-            printf("%s%s INVOCACION DE FUNCION DE NOMBRE: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_function_inv.function_name);
-            printf("%s%s LISTADO DE ARGUMENTOS DE INVOCACION DE FUNCION:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            printf("%s%s  INVOCACION DE FUNCION DE NOMBRE: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_function_inv.function_name);
+            printf("%s%s  LISTADO DE ARGUMENTOS DE INVOCACION DE FUNCION:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_function_inv.arguments_list,NEXT_NODE_DEPTH);
             break;
 
         case EXPR_GROUPED:
-            printf("%s%s EXPRESION ENTRE ( )\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            printf("%s%s  EXPRESION ENTRE ( )\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.grouped_expression,NEXT_NODE_DEPTH);
             break;
         }
