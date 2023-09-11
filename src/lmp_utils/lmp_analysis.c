@@ -39,7 +39,7 @@ int lmp_semantic_name_resolution(){
     resolve_program(AST_program);
 
     // -- Comprobar cuenta de errores de resolucion
-    if(TOTAL_ERROR_NAME_RESOLUTION > 0){
+    if(TOTAL_SEMANTIC_ERRORS > 0){
         return LMP_SEMANTIC_FAILURE;
     }
     
@@ -65,7 +65,7 @@ void lmp_free_symbol_table(){
 
 void lmp_print_error_semantic(){
     // -- Imprimir errores semanticos: resolucion de nombres
-    report_list_error_semantic_name_resolution();
+    report_list_error_semantic();
 }
 
 // ===============================================================
@@ -85,5 +85,5 @@ void lmp_free_AST(){
 // ----- IMPLEMENTACION DE FUNCIONES DE GESTION (ERRORES) -----
 
 void lmp_free_error_module(){
-    free_list_error_semantic_name_resolution();
+    free_list_error_semantic();
 }

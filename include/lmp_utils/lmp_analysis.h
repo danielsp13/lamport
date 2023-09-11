@@ -33,6 +33,7 @@
 
 // ----- INCLUSION DE MODULOS -----
 
+#include "error/error_manager.h"        ///< Manejador de errores
 #include "AST/AST.h"                    ///< Abstract Syntax Tree (AST)
 #include "semantic/name_resolution.h"   ///< Semantic : Resolucion de nombres
 
