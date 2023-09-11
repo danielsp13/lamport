@@ -1,19 +1,19 @@
 /**
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
- * @file parameter_list.c
+ * @file parameter.c
  * @author Daniel Perez Ruiz
  * @brief Implementacion de funciones para creacion y mantenimiento
- * del Arbol Sintactico Abstracto (AST en ingles) : NODO lista parametros
+ * del Arbol Sintactico Abstracto (AST en ingles) : NODO parametro
  */
 
-#include "AST/parameter_list.h"
+#include "AST/parameter.h"
 
 // ===============================================================
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (PARAMETROS) -----
 
-struct parameter_list * create_parameter_list(char * name_parameter, struct type * type, unsigned long line){
-    struct parameter_list *pl = malloc(sizeof(*pl));
+struct parameter * create_parameter(char * name_parameter, struct type * type, unsigned long line){
+    struct parameter *pl = malloc(sizeof(*pl));
 
     // -- Comprobar reserva de memoria exitosa
     if(!pl)
@@ -46,19 +46,19 @@ struct parameter_list * create_parameter_list(char * name_parameter, struct type
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO PARAMETROS) -----
 
-void free_list_parameters(struct parameter_list *parameter_list){
-    struct parameter_list *current_parameter_list = parameter_list;
-    while(current_parameter_list){
+void free_list_parameters(struct parameter *list_parameters){
+    struct parameter *current_parameter = list_parameters;
+    while(current_parameter){
         // -- Seleccionar siguiente en la lista
-        struct parameter_list *next = current_parameter_list->next;
+        struct parameter *next = current_parameter->next;
         // -- Liberar nodo
-        free_parameter(current_parameter_list);
+        free_parameter(current_parameter);
         // -- Nodo actual -> siguiente
-        current_parameter_list = next;
+        current_parameter = next;
     }
 }
 
-void free_parameter(struct parameter_list *parameter){
+void free_parameter(struct parameter *parameter){
     // -- Si NULL, simplemente devolver
     if(!parameter)
         return;
@@ -86,14 +86,14 @@ void free_parameter(struct parameter_list *parameter){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO SUBPROGRAMAS) -----
 
-void print_AST_parameters(struct parameter_list *parameters_list, unsigned int depth){
+void print_AST_parameters(struct parameter *list_parameters, unsigned int depth){
     // -- Determinar identacion de nodo
     char * IDENT_NODE = build_identation_spaces(depth);
     // -- Determinar profundidad del siguiente nodo
     const unsigned int NEXT_NODE_DEPTH = depth+1;
 
     // -- Si NULL, simplemente devolver
-    if(!parameters_list){
+    if(!list_parameters){
         printf("%s%s %s\n",IDENT_NODE, IDENT_BLANK_ARROW, NULL_NODE_MSG);
 
         // -- Liberar memoria utilizada para la identacion
@@ -102,7 +102,7 @@ void print_AST_parameters(struct parameter_list *parameters_list, unsigned int d
         return;
     }
 
-    struct parameter_list *current_parameter = parameters_list;
+    struct parameter *current_parameter = list_parameters;
     while(current_parameter){
         // -- Imprimir nombre de parametro
         printf("%s%s NOMBRE DE PARAMETRO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_parameter->name_parameter);

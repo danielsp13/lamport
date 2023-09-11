@@ -1,9 +1,9 @@
 /**
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
- * @file parameter_list.h
+ * @file parameter.h
  * @author Daniel Perez Ruiz
  * @brief Definicion de estructuras y funciones para creacion y mantenimiento
- * del Arbol Sintactico Abstracto (AST en ingles) : NODO lista parametros
+ * del Arbol Sintactico Abstracto (AST en ingles) : NODO parametro
  */
 
 #ifndef _LAMPORT_AST_PARAMETER_LIST_DPR_
@@ -32,11 +32,11 @@
  * Esta estructura almacena informacion sobre los parametros de los que dispone una funcion
  * o un procedimiento, indicando el tipo de dato de todas ellas
  */
-struct parameter_list{
+struct parameter{
     char *name_parameter;                   ///< Nombre de parametro
     struct type *type;                      ///< Tipo de parametro
     unsigned long line;                     ///< Linea donde se declaro el parametro
-    struct parameter_list *next;            ///< Puntero a siguiente parametro
+    struct parameter *next;            ///< Puntero a siguiente parametro
 
     struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
 };
@@ -52,7 +52,7 @@ struct parameter_list{
  * @param line : linea donde se declaro el parametro
  * @return puntero con la lista de parametros inicializada
  */
-struct parameter_list * create_parameter_list(char * name_parameter, struct type * type, unsigned long line);
+struct parameter * create_parameter(char * name_parameter, struct type * type, unsigned long line);
 
 // ===============================================================
 
@@ -60,15 +60,15 @@ struct parameter_list * create_parameter_list(char * name_parameter, struct type
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo lista de parametros
- * @param parameter_list : Puntero a nodo lista de parametros
+ * @param list_parameters : Puntero a nodo lista de parametros
  */
-void free_list_parameters(struct parameter_list *parameter_list);
+void free_list_parameters(struct parameter *list_parameters);
 
 /**
  * @brief Libera la memoria para un nodo de tipo parametro
  * @param parameter : Puntero a nodo parametro
  */
-void free_parameter(struct parameter_list *parameter);
+void free_parameter(struct parameter *parameter);
 
 // ===============================================================
 
@@ -76,9 +76,9 @@ void free_parameter(struct parameter_list *parameter);
 
 /**
  * @brief Imprime una lista de nodos de parametros
- * @param parameters_list : Puntero a lista enlazada de parametros
+ * @param list_parameters : Puntero a lista enlazada de parametros
  * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_parameters(struct parameter_list *parameters_list, unsigned int depth);
+void print_AST_parameters(struct parameter *list_parameters, unsigned int depth);
 
 #endif //_LAMPORT_AST_PARAMETER_LIST_DPR_

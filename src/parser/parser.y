@@ -1,23 +1,28 @@
-/* ============================================================== */
-/* LAMPORT : SIMULADOR DE SISTEMAS CONCURRENTES Y DISTRIBUIDOS */
-/*  -- Fichero : parser.y */
-/*  -- Autor: Daniel Perez Ruiz */
-/*  -- Descripcion: Definicion del analizador sintactico (bison) */
-/* ============================================================== */
+// ======================================================================
+// LAMPORT : SIMULADOR DE SISTEMAS CONCURRENTES Y DISTRIBUIDOS
+// ======================================================================
+// -- Fichero: parser.y
+// -- Autor: Daniel Perez Ruiz
+// -- Descripcion: Definicion del analizador sintactico (bison)
+// ======================================================================
 
-/* DECLARACIONES */
+// ======================================================================
+// DECLARACIONES
 
 %{
-    //Inclusion de cabeceras
-    #include <stdio.h>
+    // -----------------------------------------------------------------
+    // INCLUSION DE COMPONENTES DE LMP
 
-    //Inclusion de AST
+    // -- Inclusion de AST
     #include "AST/AST.h"
 
-    //Inclusion de mensajes de errores de parser
+    // -- Inclusion de mensajes de errores de parser
     #include "parser/parser_errors.h"
 
-    //Definir prototipos de funciones
+    // -----------------------------------------------------------------
+    // DEFINICION DE FUNCIONES Y ESTRUCTURAS PROPIAS DE BISON
+
+    // -- Variables y funciones a utilizar por el analizador sintactico
     extern int yylex();
     extern FILE *yyin;
     extern int yylineno;
@@ -25,7 +30,8 @@
     void yyerror(const char* s);  
 %}
 
-/* Definiciones de tokens */
+// ======================================================================
+// DEFINICION DE TOKENS
 
 %token S_PROGRAM 258
 %token S_VAR 259
@@ -90,9 +96,12 @@
 %token PRINT 318
 %token UNRECOGNIZED_TOKEN 319
 
-/* Indicar a bison donde encontrar la cabecera de tokens */
+// ---- Indicar a bison donde encontrar la cabecera de tokens
 %define api.header.include { "lexer/token.h" }
 
+
+// ======================================================================
+// ASOCIATIVIDAD DE OPERACIONES
 
 %left OP_OR
 %left OP_AND
@@ -102,7 +111,10 @@
 %left OP_MULT OP_DIV OP_MOD
 %right OP_NOT
 
-/* Informacion para construccion de AST */
+// ======================================================================
+// ESTRUCTURAS PARA CONSTRUCCION DE AST
+
+
 %union {
     struct program *prog;
     struct declaration *decl;
@@ -111,7 +123,7 @@
     struct statement *stmt;
     struct expression *expr;
     struct type *type;
-    struct parameter_list *param;
+    struct parameter *param;
     char *ident;
     char *literal_string;
     char literal_char;
@@ -120,7 +132,8 @@
     int literal_boolean;
 };
 
-// Especificacion de tipos de valor semantico
+// ======================================================================
+// ESPECIFICACION DE TIPOS DE VALOR SEMANTICO
 
 // ---- TIPO program
 %type <prog> program
@@ -144,11 +157,11 @@
 %type <expr> expression 
 %type <expr> binary-expression unary-expression
 %type <expr> term function-invocation 
-%type <expr> literal identifier
+%type <expr> literal expr-identifier
 %type <expr> list-arguments argument
 %type <expr> list-print
 
-// ---- TIPO parameter_list
+// ---- TIPO parameter
 %type <param> list-parameters parameter
 
 // ---- TIPO statement
@@ -172,12 +185,22 @@
 
 %%
 
-// Reglas de traduccion
+// ======================================================================
+// ESPECIFICACION DE REGLAS DE TRADUCCION
 
+// ----------------------------------------------------------------------
 // -- Regla de generacion de programa completo
+
 program:
     S_PROGRAM program-name list-declarations list-subprograms list-process{
-        AST_program = create_program($2,$3,$4,$5);
+        // -- Obtener identificador de programa
+        char * identifier = $2;
+
+        // -- Crear AST
+        AST_program = create_program(identifier,$3,$4,$5);
+
+        // -- Liberar memoria asociada para el identificador
+        free(identifier);
     }
     | error{
         // -- Mostrar error
@@ -232,7 +255,14 @@ declaration:
 
 declaration-var-with-assignment:
     declaration-name DELIM_2P type OP_ASSIGN expression DELIM_PC{
-        $$ = create_declaration_variable($1, $3, $5, yylineno);
+        // -- Obtener identificador de variable
+        char * identifier = $1;
+
+        // -- Crear nodo DECLARACION
+        $$ = create_declaration_variable(identifier, $3, $5, yylineno);
+
+        // -- Liberar la memoria para el identificador
+        free(identifier);
     }
     // <--> ERROR: Falta ':' en la declaracion
     | declaration-name error type OP_ASSIGN expression DELIM_PC{
@@ -254,7 +284,14 @@ declaration-var-with-assignment:
 
 declaration-var:
     declaration-name DELIM_2P type DELIM_PC{
-        $$ = create_declaration_variable($1, $3, 0, yylineno);
+        // -- Obtener identificador de variable
+        char * identifier = $1;
+
+        // -- Crear nodo DECLARACION
+        $$ = create_declaration_variable(identifier, $3, 0, yylineno);
+
+        // -- Liberar la memoria para el identificador
+        free(identifier);
     }
     // <--> ERROR: Falta ':' en la declaracion
     | declaration-name error type DELIM_PC{
@@ -311,11 +348,25 @@ subprogram:
 subprogram-procedure:
     // -- Generacion de subprogramas de tipo procedimiento (Con parametros)
     S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO DELIM_PC list-declarations block-statement{
-        $$ = create_subprogram_procedure($2, $4, $7, $8, yylineno);
+        // -- Obtener identificador de subprograma
+        char * identifier = $2;
+
+        // -- Creacion nodo SUBPROGRAMA (PROCEDURE)
+        $$ = create_subprogram_procedure(identifier, $4, $7, $8, yylineno);
+
+        // -- Liberacion de memoria para identificador
+        free(identifier);
     }
     // -- Generacion de subprogramas de tipo procedimiento (sin parametros)
     | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO DELIM_PC list-declarations block-statement{
-        $$ = create_subprogram_procedure($2, 0, $6, $7, yylineno);
+        // -- Obtener identificador de subprograma
+        char * identifier = $2;
+
+        // -- Creacion nodo SUBPROGRAMA (PROCEDURE)
+        $$ = create_subprogram_procedure(identifier, 0, $6, $7, yylineno);
+
+        // -- Liberacion de memoria para identificador
+        free(identifier);
     }
     // <--> ERROR: Procedimiento mal formado
     | S_PROCEDURE error{
@@ -344,11 +395,25 @@ subprogram-procedure-name:
 subprogram-function:
     // -- Generacion de subprogramas de tipo funcion (con parametros)
     S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
-        $$ = create_subprogram_function($2, $4, $9, $10, $7, yylineno);
+        // -- Obtener identificador de subprograma
+        char * identifier = $2;
+        
+        // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
+        $$ = create_subprogram_function(identifier, $4, $9, $10, $7, yylineno);
+
+        // -- Liberacion de memoria para identificador
+        free(identifier);
     }
     // -- Generacion de subprogramas de tipo funcion (sin parametros)
     | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
-        $$ = create_subprogram_function($2, 0, $8, $9, $6, yylineno);
+        // -- Obtener identificador de subprograma
+        char * identifier = $2;
+        
+        // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
+        $$ = create_subprogram_function(identifier, 0, $8, $9, $6, yylineno);
+
+        // -- Liberacion de memoria para identificador
+        free(identifier);
     }
     // <--> ERROR: Funcion mal formado
     | S_FUNCTION error{
@@ -386,7 +451,14 @@ list-parameters:
 
 parameter:
     parameter-name DELIM_2P type{
-        $$ = create_parameter_list($1, $3, yylineno);
+        // -- Obtener identificador de parametro
+        char * identifier = $1;
+
+        // -- Creacion de nodo PARAMETRO
+        $$ = create_parameter(identifier, $3, yylineno);
+
+        // -- Liberar memoria para identificador
+        free(identifier);
     }
     // <--> ERROR : Nombre de parametro incorrecto
     | parameter-name error type{
@@ -435,7 +507,14 @@ process:
 process-def:
     // process proc_name ....
     S_PROCESS process-name DELIM_PC list-declarations block-statement{
-        $$ = create_process_single($2, $4, $5, yylineno);
+        // -- Obtener identificador de proceso
+        char * identifier = $2;
+
+        // -- Creacion de nodo PROCESO
+        $$ = create_process_single(identifier, $4, $5, yylineno);
+
+        // -- Liberar la memoria para identificador
+        free(identifier);
     }
     // <--> ERROR : Falta ';'
     | S_PROCESS process-name error list-declarations block-statement{
@@ -450,7 +529,14 @@ process-def:
 process-def-array:
     // process proc_array_name[expr..expr] (?) ...
     S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statement{
-        $$ = create_process_vector($2, $11, $12, $4, $6, $8, yylineno);
+        // -- Obtener identificador de proceso
+        char * identifier = $2;
+        
+        // -- Creacion de nodo PROCESO
+        $$ = create_process_vector(identifier, $11, $12, $4, $6, $8, yylineno);
+
+        // -- Liberar la memoria para identificador
+        free(identifier);
     }
     ;
 
@@ -574,11 +660,25 @@ cobegin-statement:
 assignment-statement:
     // var_name = expr;
     IDENT OP_ASSIGN expression DELIM_PC{
-        $$ = create_statement_assignment($1, 0, $3, yylineno);
+        // -- Obtener identificador de variable
+        char * identifier = $1;
+
+        // -- Creacion de nodo STATEMENT (ASSIGNMENT)
+        $$ = create_statement_assignment(identifier, 0, $3, yylineno);
+
+        // -- Liberar la memoria para identificador
+        free(identifier);
     }
     // var_array_name[index] = expr;
     | IDENT CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC{
-        $$ = create_statement_assignment($1, $3, $6, yylineno);
+        // -- Obtener identificador de variable
+        char * identifier = $1;
+
+        // -- Creacion de nodo STATEMENT (ASSIGNMENT)
+        $$ = create_statement_assignment(identifier, $3, $6, yylineno);
+
+        // -- Liberar la memoria para identificador
+        free(identifier);
     }
     ;
 
@@ -590,7 +690,14 @@ while-statement:
 
 for-statement:
     FOR IDENT OP_ASSIGN expression TO expression DO block-statement{
-        $$ = create_statement_for($2, $4, $6, $8, yylineno);
+        // -- Obtener identificador de variable
+        char * identifier = $2;
+
+        // -- Creacion de nodo STATEMENT (ASSIGNMENT)
+        $$ = create_statement_for(identifier, $4, $6, $8, yylineno);
+
+        // -- Liberar la memoria para identificador
+        free(identifier);
     }
     ;
 
@@ -605,7 +712,14 @@ if-statement:
 
 fork-statement:
     S_FORK IDENT DELIM_PC{
-        $$ = create_statement_fork($2, yylineno);
+        // -- Obtener identificador de proceso
+        char * identifier = $2;
+
+        // -- Creacion de nodo STATEMENT (FORK)
+        $$ = create_statement_fork(identifier, yylineno);
+
+        // -- Liberar la memoria para identificador
+        free(identifier);
     }
     ;
 
@@ -640,19 +754,47 @@ list-print:
 // -- Reglas de generacion de invocaciones de funciones y procedimientos
 procedure-invocation:
     IDENT PAR_IZDO list-arguments PAR_DCHO DELIM_PC{
-        $$ = create_statement_procedure_inv($1, $3, yylineno);
+        // -- Obtener identificador de procedimiento
+        char * identifier = $1;
+
+        // -- Creacion de nodo STATEMENT (PROCEDURE INVOCATION)
+        $$ = create_statement_procedure_inv(identifier, $3, yylineno);
+
+        // -- Liberar memoria para el identificador
+        free(identifier);
     }
     | IDENT PAR_IZDO PAR_DCHO DELIM_PC{
-        $$ = create_statement_procedure_inv($1, 0, yylineno);
+        // -- Obtener identificador de procedimiento
+        char * identifier = $1;
+
+        // -- Creacion de nodo STATEMENT (PROCEDURE INVOCATION)
+        $$ = create_statement_procedure_inv(identifier, 0, yylineno);
+
+        // -- Liberar memoria para el identificador
+        free(identifier);
     }
     ;
 
 function-invocation:
     IDENT PAR_IZDO list-arguments PAR_DCHO{
-        $$ = create_expression_function_invocation($1, $3, yylineno);
+        // -- Obtener identificador de funcion
+        char * identifier = $1;
+
+        // -- Creacion de nodo EXPRESSION
+        $$ = create_expression_function_invocation(identifier, $3, yylineno);
+
+        // -- Liberar memoria para el identificador
+        free(identifier);
     }
     | IDENT PAR_IZDO PAR_DCHO{
-        $$ = create_expression_function_invocation($1, 0, yylineno);
+        // -- Obtener identificador de funcion
+        char * identifier = $1;
+
+        // -- Creacion de nodo EXPRESSION
+        $$ = create_expression_function_invocation(identifier, 0, yylineno);
+
+        // -- Liberar memoria para el identificador
+        free(identifier);
     }
     ;
 
@@ -759,7 +901,7 @@ unary-expression:
     ;
 
 term:
-    identifier{
+    expr-identifier{
         $$ = $1;
     }
     | literal{
@@ -776,7 +918,12 @@ term:
 // -- Reglas de generacion de literales
 literal:
     LITERAL{
-        $$ = create_expression_literal_string($1);
+        // -- Obtener literal
+        char * literal_string = $1;
+        // -- Crear expresion literal
+        $$ = create_expression_literal_string(literal_string);
+        // -- Liberar memoria para el literal
+        free(literal_string);
     }
     | L_INTEGER{
         $$ = create_expression_literal_integer($1);
@@ -795,12 +942,22 @@ literal:
     }
     ;
 
-identifier:
+expr-identifier:
     IDENT{
-        $$ = create_expression_identifier($1,0, yylineno);
+        // -- Obtener identificador
+        char * identifier = $1; 
+        // -- Crear expresion
+        $$ = create_expression_identifier(identifier,0, yylineno);
+        // -- Liberar memoria para el identificador
+        free(identifier);
     }
     | IDENT CORCH_IZDO expression CORCH_DCHO{
-        $$ = create_expression_identifier($1, $3, yylineno);
+        // -- Obtener identificador
+        char * identifier = $1;
+        // -- Crear expresion
+        $$ = create_expression_identifier(identifier, $3, yylineno);
+        // -- Liberar memoria para el identificador
+        free(identifier);
     }
     ;
 

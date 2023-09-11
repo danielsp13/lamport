@@ -20,7 +20,7 @@
 #include "declaration.h"        ///< Declaraciones
 #include "statement.h"          ///< Sentencias
 #include "type.h"               ///< Tipos
-#include "parameter_list.h"     ///< Parametros de subprgramas
+#include "parameter.h"     ///< Parametros de subprgramas
 #include "print_assistant.h"    ///< Asistencia de impresion de AST
 
 #include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
@@ -53,7 +53,7 @@ struct subprogram{
     subprogram_t kind;                      ///< Tipo de subprograma
     char *kind_str;                         ///< Tipo de subprograma (string)
     char *name_subprogram;                  ///< Nombre de subprograma
-    struct parameter_list *parameters;      ///< Lista de parametros del subprograma
+    struct parameter *parameters;      ///< Lista de parametros del subprograma
     struct declaration *declarations;       ///< Declaraciones del subprograma
     struct statement *statements;           ///< Sentencias del programa
     struct type *type;                      ///< Tipo de retorno (solo funciones)
@@ -78,7 +78,7 @@ struct subprogram{
  * @param line : linea donde se definio el subprograma
  * @return puntero con el subprograma inicializado
  */
-struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line);
+struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para crear un subprograma de tipo procedure
@@ -89,7 +89,7 @@ struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, 
  * @param line : linea donde se definio el subprograma
  * @return puntero con el procedimiento inicializado
  */
-struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, unsigned long line);
+struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter *parameters, struct declaration *declarations, struct statement *statements, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para crear un subprograma de tipo funcion
@@ -100,7 +100,7 @@ struct subprogram * create_subprogram_procedure(char *name_procedure, struct par
  * @param line : linea donde se definio el subprograma
  * @return puntero con la funcion inicializada
  */
-struct subprogram * create_subprogram_function(char *name_function, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line);
+struct subprogram * create_subprogram_function(char *name_function, struct parameter *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line);
 
 // ===============================================================
 

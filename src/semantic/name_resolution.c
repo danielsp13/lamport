@@ -78,9 +78,9 @@ void resolve_list_process(struct process *list_process){
     }
 }
 
-void resolve_list_parameters(struct parameter_list *list_parameter){
+void resolve_list_parameters(struct parameter *list_parameter){
     // -- Obtener parametro actual de la lista
-    struct parameter_list *current_parameter = list_parameter;
+    struct parameter *current_parameter = list_parameter;
     // -- Definir contador de parametros
     unsigned int position = 0;
 
@@ -631,7 +631,7 @@ void resolve_type_array(struct type *type){
 
 // ----- IMPLEMENTACION DE FUNCIONES DE RESOLUCION DE NOMBRES (NODO LISTA DE PARAMETROS) -----
 
-void resolve_parameter(struct parameter_list *parameter, unsigned int position){
+void resolve_parameter(struct parameter *parameter, unsigned int position){
     // -- Comprobar que el parametro existe
     if(!parameter)
         return;

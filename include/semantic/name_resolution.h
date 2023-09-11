@@ -64,7 +64,7 @@ void resolve_list_process(struct process *list_process);
  * @brief Realiza la resolucion de nombres a una lista de parametros de subprograma
  * @param list_parameter : puntero a lista de parametros
  */
-void resolve_list_parameters(struct parameter_list *list_parameter);
+void resolve_list_parameters(struct parameter *list_parameter);
 
 /**
  * @brief Realiza la resolucion de nombres a una lista de subprogramas
@@ -227,7 +227,7 @@ void resolve_type_array(struct type *type);
  * @param parameter : puntero a parametro
  * @param position : posicion que ocupa el parametro en la lista de parametros
  */
-void resolve_parameter(struct parameter_list *parameter, unsigned int position);
+void resolve_parameter(struct parameter *parameter, unsigned int position);
 
 // ===============================================================
 
