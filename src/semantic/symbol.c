@@ -12,7 +12,7 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES DE CONSTRUCCION DE SIMBOLOS -----
 
-struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, int which){
+struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, int which, unsigned long line){
     struct symbol * symb = malloc(sizeof(*symb));
 
     // -- Comprobar reserva de memoria exitosa
@@ -57,20 +57,23 @@ struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, in
     // -- Asignar posicion en la lista de parametros de simbolo
     symb->which = which;
 
+    // -- Asignar linea en la que se encontro el simbolo
+    symb->line = line;
+
     // -- Retornar simbolo creado e inicializado
     return symb;
 }
 
-struct symbol * create_symbol_local(struct type * type, char * name){
-    return create_symbol(SYMBOL_LOCAL, type, name, -1);
+struct symbol * create_symbol_local(struct type * type, char * name, unsigned long line){
+    return create_symbol(SYMBOL_LOCAL, type, name, -1, line);
 }
 
-struct symbol * create_symbol_global(struct type * type, char * name){
-    return create_symbol(SYMBOL_GLOBAL, type, name, -1);
+struct symbol * create_symbol_global(struct type * type, char * name, unsigned long line){
+    return create_symbol(SYMBOL_GLOBAL, type, name, -1, line);
 }
 
-struct symbol * create_symbol_param(struct type * type, char * name, int which){
-    return create_symbol(SYMBOL_PARAM, type, name, which);
+struct symbol * create_symbol_param(struct type * type, char * name, int which, unsigned long line){
+    return create_symbol(SYMBOL_PARAM, type, name, which, line);
 }
 
 // ===============================================================

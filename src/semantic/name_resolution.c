@@ -128,11 +128,11 @@ void resolve_declaration(struct declaration *decl){
     switch (kind)
     {
     case SYMBOL_LOCAL:
-        decl->symb = create_symbol_local(decl->type, decl->name);
+        decl->symb = create_symbol_local(decl->type, decl->name, decl->line);
         break;
 
     case SYMBOL_GLOBAL:
-        decl->symb = create_symbol_global(decl->type, decl->name);
+        decl->symb = create_symbol_global(decl->type, decl->name, decl->line);
         break;
     
     default:
@@ -230,7 +230,7 @@ void resolve_expression_identifier(struct expression *expr){
     if(!expr->expr.expression_identifier.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_undefined_symbol(expr->expr.expression_identifier.id, expr->expr.expression_identifier.line);
+        struct error_semantic * error = create_error_semantic_undefined_symbol(expr->expr.expression_identifier.id, expr->expr.expression_identifier.line, ERR_UNDEFINED_VARIABLE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -255,7 +255,7 @@ void resolve_expression_function_inv(struct expression *expr){
     if(!expr->expr.expression_function_inv.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_undefined_symbol(expr->expr.expression_function_inv.function_name, expr->expr.expression_function_inv.line);
+        struct error_semantic * error = create_error_semantic_undefined_symbol(expr->expr.expression_function_inv.function_name, expr->expr.expression_function_inv.line, ERR_UNDEFINED_FUNCTION_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -363,7 +363,7 @@ void resolve_statement_assignment(struct statement *stmt){
     if(!stmt->stmt.statement_assignment.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_assignment.variable_name,stmt->stmt.statement_assignment.line);
+        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_assignment.variable_name,stmt->stmt.statement_assignment.line, ERR_UNDEFINED_VARIABLE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -404,7 +404,7 @@ void resolve_statement_for(struct statement *stmt){
     if(!stmt->stmt.statement_for.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_for.counter_name,stmt->stmt.statement_for.line);
+        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_for.counter_name,stmt->stmt.statement_for.line, ERR_UNDEFINED_VARIABLE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -450,7 +450,7 @@ void resolve_statement_procedure_inv(struct statement *stmt){
     if(!stmt->stmt.statement_procedure_inv.symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_procedure_inv.procedure_name,stmt->stmt.statement_procedure_inv.line);
+        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_procedure_inv.procedure_name,stmt->stmt.statement_procedure_inv.line, ERR_UNDEFINED_PROCEDURE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -483,7 +483,7 @@ void resolve_statement_fork(struct statement *stmt){
     if(!stmt->stmt.statement_fork.symb){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_fork.forked_process,stmt->stmt.statement_fork.line);
+        struct error_semantic * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_fork.forked_process,stmt->stmt.statement_fork.line, ERR_UNDEFINED_PROCESS_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -524,7 +524,7 @@ void resolve_process(struct process *proc){
     if(proc->symb_process){
         // -- Realizar handling de este error : PROCESO REDEFINIDO
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_duplicated_symbol(proc->name_process,proc->line);
+        struct error_semantic * error = create_error_semantic_duplicated_symbol(proc->name_process,proc->line, proc->symb_process->line, ERR_DUPLICATED_PROCESS_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -532,7 +532,7 @@ void resolve_process(struct process *proc){
     // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
     else{
         // -- Creamos un simbolo de tipo parametro
-        proc->symb_process = create_symbol_global(NULL,proc->name_process);
+        proc->symb_process = create_symbol_global(NULL,proc->name_process, proc->line);
 
         // -- Vincular simbolo al scope actual
         bind_symbol_to_scope(proc->symb_process);
@@ -580,7 +580,7 @@ void resolve_process_vector(struct process *proc){
     if(!proc->symb_index){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_undefined_symbol(proc->index_identifier, proc->line);
+        struct error_semantic * error = create_error_semantic_undefined_symbol(proc->index_identifier, proc->line, ERR_UNDEFINED_VARIABLE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -645,7 +645,7 @@ void resolve_parameter(struct parameter_list *parameter, unsigned int position){
     if(parameter->symb){
         // -- Realizar handling de este error : PARAMETRO REDEFINIDO
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_duplicated_symbol(parameter->name_parameter,parameter->line);
+        struct error_semantic * error = create_error_semantic_duplicated_symbol_parameter(parameter->name_parameter,parameter->line,parameter->symb->which, ERR_DUPLICATED_PARAMETER_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -653,7 +653,7 @@ void resolve_parameter(struct parameter_list *parameter, unsigned int position){
     // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
     else{
         // -- Creamos un simbolo de tipo parametro
-        parameter->symb = create_symbol_param(parameter->type,parameter->name_parameter,position);
+        parameter->symb = create_symbol_param(parameter->type,parameter->name_parameter,position,parameter->line);
 
         // -- Vincular simbolo al scope actual
         bind_symbol_to_scope(parameter->symb);
@@ -680,7 +680,7 @@ void resolve_subprogram(struct subprogram *subprog){
     if(subprog->symb){
         // -- Realizar handling de este error : SUBPROGRAMA REDEFINIDO
         // -- Crear error
-        struct error_semantic * error = create_error_semantic_duplicated_symbol(subprog->name_subprogram,subprog->line);
+        struct error_semantic * error = create_error_semantic_duplicated_symbol(subprog->name_subprogram,subprog->line, subprog->symb->line, ERR_DUPLICATED_SUBPROGRAM_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_name_resolution_to_list(error);
@@ -688,7 +688,7 @@ void resolve_subprogram(struct subprogram *subprog){
     // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
     else{
         // -- Creamos un simbolo de tipo global
-        subprog->symb = create_symbol_global(NULL, subprog->name_subprogram);
+        subprog->symb = create_symbol_global(NULL, subprog->name_subprogram, subprog->line);
 
         // -- Vincular simbolo al scope actual
         bind_symbol_to_scope(subprog->symb);

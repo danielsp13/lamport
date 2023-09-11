@@ -50,6 +50,7 @@ struct symbol{
     char * kind_str;        ///< Tipo de simbolo (en formato string)
     struct type * type;     ///< Tipo de dato del simbolo
     char * name;            ///< Nombre del simbolo
+    unsigned long line;     ///< Linea donde aparece el simbolo
     int which;              ///< Posicion en la lista de parametros (solo si kind = SYMBOL_PARAM)
 };
 
@@ -63,34 +64,38 @@ struct symbol{
  * @param type : Tipo de dato del simbolo
  * @param name : Nombre del simbolo
  * @param which : Posicion que ocupa en la lista de parametros (solo si kind = SYMBOL_PARAM)
+ * @param line : linea donde aparece el simbolo
  * @return puntero a simbolo inicializado, NULL en otro caso
  */
-struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, int which);
+struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, int which, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para un simbolo local
  * @param type : Tipo de dato del simbolo
  * @param name : Nombre del simbolo
+ * @param line : linea donde aparece el simbolo
  * @return puntero a simbolo inicializado, NULL en otro caso
  */
-struct symbol * create_symbol_local(struct type * type, char * name);
+struct symbol * create_symbol_local(struct type * type, char * name, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para un simbolo global
  * @param type : Tipo de de dato del simbolo
  * @param name : Nombre del simbolo
+ * @param line : linea donde aparece el simbolo
  * @return puntero a simbolo inicializado, NULL en otro caso
  */
-struct symbol * create_symbol_global(struct type * type, char * name);
+struct symbol * create_symbol_global(struct type * type, char * name, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para un simbolo de parametro de funcion/procedimiento
  * @param type : Tipo de dato del simbolo
  * @param name : Nombre del simbolo
  * @param which : Posicion que ocupa en la lista de parametros
+ * @param line : linea donde aparece el simbolo
  * @return puntero a simbolo inicializado, NULL en otro caso
  */
-struct symbol * create_symbol_param(struct type * type, char * name, int which);
+struct symbol * create_symbol_param(struct type * type, char * name, int which, unsigned long line);
 
 // ===============================================================
 
