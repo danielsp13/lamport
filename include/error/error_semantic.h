@@ -19,7 +19,7 @@
 
 // ===============================================================
 
-// ----- DEFINICION DE TIPOS DE ERRORES ----
+// ----- DEFINICION DE MENSAJES DE ERROR ----
 
 // Se indica que se ha usado una variable que no ha sido declarada antes
 #define ERR_UNDEFINED_VARIABLE_MSG "uso de variable no declarada"
