@@ -28,8 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lexer/string_register.h"       ///< Inclusion de registro de cadenas de caracteres
-
 // ===============================================================
 
 // ----- IMPORTACION DE FUNCIONES Y VARIABLES EXTERNAS (FLEX/BISON) -----
@@ -86,14 +84,5 @@ int abrir_fichero(const char *name_file);
  * @return LMP_IO_SUCCESS si se ha cerrado el fichero adecuadamente, LMP_IO_FAILURE en otro caso
  */
 int cerrar_fichero();
-
-// ===============================================================
-
-// ----- PROTOTIPO DE FUNCIONES DE GESTION (STRING REGISTER) -----
-
-/**
- * @brief Libera la memoria utilizada para el registro de cadenas de caracteres
- */
-void lmp_free_string_register();
 
 #endif //_LMP_COMPILER_IO_DPR_

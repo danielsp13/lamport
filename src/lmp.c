@@ -103,10 +103,7 @@ int main(int argc, char **argv){
 void lmp_free(){
     // -- Liberar memoria utilizada por el AST
     lmp_free_AST();
-
-    // -- Liberar registro de cadenas
-    lmp_free_string_register();
-
+    
     // -- Liberar tabla de simbolos
     lmp_free_symbol_table();
 

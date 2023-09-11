@@ -129,8 +129,7 @@ INDEX_TEST_UTILS_FILES:=common_functions
 # -- Indice de ficheros
 INDEX_LEXER_FILES:=lexer
 INDEX_PARSER_FILES:=parser
-INDEX_AST_FILES:=AST declaration statement expression type parameter_list subprogram process print_assistant
-INDEX_STRING_REGISTER_FILES:=string_register
+INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram process print_assistant
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution
 INDEX_ERROR_FILES:=error_semantic
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
@@ -139,12 +138,11 @@ INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
 INDEX_OBJ_PARSER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_PARSER_FILES))
 INDEX_OBJ_AST_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_AST_FILES))
-INDEX_OBJ_STRING_REGISTER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_STRING_REGISTER_FILES))
 INDEX_OBJ_SEMANTIC_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_SEMANTIC_FILES))
 INDEX_OBJ_ERROR_FILES:=$(addsuffix $(OBJ_EXT),$(INDEX_ERROR_FILES))
 INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_STRING_REGISTER_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_UTILS_FILES) 
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_UTILS_FILES) 
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -588,7 +586,6 @@ compile_sources:
 	@make -s compile_lexer && echo
 	@make -s compile_parser && echo
 	@make -s compile_ast && echo
-	@make -s compile_string_register && echo
 	@make -s compile_error && echo
 	@make -s compile_semantic && echo
 	
@@ -607,10 +604,6 @@ compile_parser: build_obj_dir
 # -- Genera codigo objeto para el AST
 compile_ast: build_obj_dir
 	$(call compile_objects_skeleton,$(INDEX_AST_FILES),"$(AST_MODULE)/","Abstract Syntax Tree \(AST\)")
-	
-# -- Genera codigo objeto para registro de cadenas de caracteres
-compile_string_register: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_STRING_REGISTER_FILES),"$(LEXER_MODULE)/","Registro de cadenas de caracteres")
 	
 # -- Genera codigo objeto para el analizador semantico
 compile_semantic: build_obj_dir

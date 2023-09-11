@@ -10,9 +10,6 @@
 %{
     //Inclusion de los tipos de Token
     #include "lexer/token.h"
-
-    //Inclusion de registro de cadenas de caracteres
-    #include "lexer/string_register.h"
 %}
 
 /* Habilitar seguimiento de errores en la linea especifica del programa */
@@ -91,8 +88,7 @@ comentario  "{"[^}]*"}"
 {id}            {
     #ifndef LEXER_TEST 
         // -- Incluir cadena al registro de cadenas
-        if(add_string_to_register(strdup(yytext)) == STRING_REGISTER_SUCCESS)
-            yylval.ident = last_string_register->str;
+        yylval.ident = strdup(yytext);
         
     #endif
     return(IDENT);
@@ -100,8 +96,7 @@ comentario  "{"[^}]*"}"
 {literal}       {
     #ifndef LEXER_TEST
         // -- Incluir cadena al registro de cadenas
-        if(add_string_to_register(strdup(yytext)) == STRING_REGISTER_SUCCESS)
-            yylval.literal_string = last_string_register->str;
+        yylval.literal_string = strdup(yytext);
             
     #endif
     return(LITERAL);
