@@ -37,6 +37,8 @@ typedef enum{
 typedef enum{
     EXPECTED_TOKEN,                 ///< Se esperaba una palabra reservada donde no aparece en el analisis
     EXPECTED_IDENTIFIER,            ///< Se esperaba un identificador donde no aparece en el analisis
+    EXPECTED_EXPR,                  ///< Se esperaba una expresion donde no aparece en el analisis
+    EXPECTED_STMT                   ///< Se esperaba una sentencia donde no aparece en el analisis
 } error_syntax_t;
 
 /**

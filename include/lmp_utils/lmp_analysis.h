@@ -18,9 +18,6 @@
 #define LMP_SEMANTIC_SUCCESS 0   ///< Indica el exito en el procedimiento de analisis semantico
 #define LMP_SEMANTIC_FAILURE -1  ///< Indica el fallo en el procedimiento de analisis semantico
 
-#define LMP_PARSING_ERROR_MSG_HEADER "--- [LMP: PARSING - ERROR]"
-#define LMP_PARSING_ERROR_MSG "Fallo al procesar el fichero"
-
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE C -----
@@ -33,6 +30,7 @@
 
 // ----- INCLUSION DE MODULOS -----
 
+#include "parser/parser_register.h"     ///< Registro de cadenas de caracteres
 #include "error/error_manager.h"        ///< Manejador de errores
 #include "AST/AST.h"                    ///< Abstract Syntax Tree (AST)
 #include "semantic/name_resolution.h"   ///< Semantic : Resolucion de nombres
@@ -115,14 +113,33 @@ void lmp_print_AST();
  */
 void lmp_free_AST();
 
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES DE GESTION (PARSER REGISTER) -----
+
 /**
- * @brief Imprime la informacion de todos los errores semanticos producidos en el analisis
+ * @brief Libera la memoria utilizada por el registro de cadenas
  */
-void lmp_print_error_semantic();
+void lmp_free_string_register();
+
+/**
+ * @brief Libera la memoria utilizada por el registro de nodos AST
+ */
+void lmp_free_AST_node_register();
 
 // ===============================================================
 
 // ----- PROTOTIPO DE FUNCIONES DE GESTION (ERRORES) -----
+
+/**
+ * @brief Imprime la informacion de todos los errores sintacticos producidos
+ */
+void lmp_print_error_syntax();
+
+/**
+ * @brief Imprime la informacion de todos los errores semanticos producidos en el analisis
+ */
+void lmp_print_error_semantic();
 
 /**
  * @brief Libera la memoria utilizada por el modulo de gestion de errores

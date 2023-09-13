@@ -13,10 +13,10 @@
 // ----- DEFINICION DE VARIABLES DE CONTROL -----
 
 // Cuenta el total de errores sintacticos producidos
-unsigned long TOTAL_SYNTAX_ERRORS = 0;
+unsigned int TOTAL_SYNTAX_ERRORS = 0;
 
 // Cuenta el total de errores semanticos producidos
-unsigned long TOTAL_SEMANTIC_ERRORS = 0;
+unsigned int TOTAL_SEMANTIC_ERRORS = 0;
 
 // ===============================================================
 
@@ -82,6 +82,22 @@ void add_error_syntax_to_list(struct error * err){
     TOTAL_SYNTAX_ERRORS++;
 }
 
+void create_and_add_error_syntax_to_list(error_syntax_t kind, unsigned long line, char *msg){
+    // -- Crear error sintactico
+    struct error *err = create_error_syntax(kind, line, msg);
+
+    // -- Comprobar si se definio el error
+    if(!err)
+        return;
+
+    // -- Incluir en la lista de errores
+    add_error_syntax_to_list(err);
+}
+
+unsigned int get_total_error_syntax(){
+    return TOTAL_SYNTAX_ERRORS;
+}
+
 void free_list_error_syntax(){
     // -- Comprobar que la lista de errores es nula
     if(!list_error_syntax)
@@ -127,6 +143,10 @@ void add_error_semantic_to_list(struct error * err){
 
     // -- Incrementar la lista de errores semanticos
     TOTAL_SEMANTIC_ERRORS++;
+}
+
+unsigned int get_total_error_semantic(){
+    return TOTAL_SEMANTIC_ERRORS;
 }
 
 void free_list_error_semantic(){

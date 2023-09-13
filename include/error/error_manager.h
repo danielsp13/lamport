@@ -21,10 +21,10 @@
 // ----- DEFINICION DE VARIABLES DE CONTROL -----
 
 // Cuenta el total de errores sintacticos producidos
-extern unsigned long TOTAL_SYNTAX_ERRORS;
+extern unsigned int TOTAL_SYNTAX_ERRORS;
 
 // Cuenta el total de errores semanticos producidos
-extern unsigned long TOTAL_SEMANTIC_ERRORS;
+extern unsigned int TOTAL_SEMANTIC_ERRORS;
 
 // ===============================================================
 
@@ -51,10 +51,24 @@ void add_error_to_list(struct error * err);
 // ----- PROTOTIPOS DE FUNCIONES DE GESTION DE ERRORES (SINTACTICOS) -----
 
 /**
- * @brief Incluye un nuevo error semantico en la lista de errores sintacticos
+ * @brief Incluye un nuevo error sintactico en la lista de errores sintacticos
  * @param err : error sintactico
  */
 void add_error_syntax_to_list(struct error * err);
+
+/**
+ * @brief Crea e inlcuye un nuevo error sintactico en la lista de errores sintacticos
+ * @param kind : tipo de error sintactico
+ * @param line : linea donde se produjo el error sintactico
+ * @param msg : mensaje de error
+ */
+void create_and_add_error_syntax_to_list(error_syntax_t kind, unsigned long line, char *msg);
+
+/**
+ * @brief Devuelve el total de errores sintacticos producidos
+ * @return total de errores sintacticos
+ */
+unsigned int get_total_error_syntax();
 
 /**
  * @brief Libera la memoria utilizada para la lista de errores sintacticos
@@ -75,6 +89,12 @@ void report_list_error_syntax();
  * @param err : error semantico
  */
 void add_error_semantic_to_list(struct error * err);
+
+/**
+ * @brief Devuelve el total de errores semanticos producidos
+ * @return total de errores semanticos
+ */
+unsigned int get_total_error_semantic();
 
 /**
  * @brief Libera la memoria utilizada para la lista de errores semanticos

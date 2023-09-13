@@ -59,7 +59,26 @@ extern char * file_parsed_name;
 
 // ===============================================================
 
+// ----- VARIABLES COSMETICAS -----
+
+// Cadena para separacion de contenidos
+extern const char *HEADER_SEPARATOR;
+
+// Cadena con la version actual de compilador
+extern const char *COMPILER_VERSION;
+
+// Cadena con el autor del compilador
+extern const char *AUTHOR;
+
+// ===============================================================
+
 // ----- PROTOTIPO DE FUNCIONES DE AYUDA -----
+
+/**
+ * @brief Imprime informacion del compilador
+ * @param compiler : Nombre del compilador
+ */
+void print_header(const char *compiler);
 
 /**
  * @brief Imprime la forma de uso de compilador

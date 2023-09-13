@@ -21,9 +21,10 @@ int lmp_parsing_file(){
     // -- Invocar a yyparse para realizar analisis
     int parse_result = yyparse();
 
-    // -- Comprobar resultado
-    if(parse_result != LMP_PARSING_SUCCESS)
+    // -- Comprobar resultado (con la lista de errores sintacticos)
+    if(get_total_error_syntax() > 0){
         return LMP_PARSING_FAILURE;
+    }
 
     // -- Retornar exito
     return LMP_PARSING_SUCCESS;
@@ -39,7 +40,7 @@ int lmp_semantic_name_resolution(){
     resolve_program(AST_program);
 
     // -- Comprobar cuenta de errores de resolucion
-    if(TOTAL_SEMANTIC_ERRORS > 0){
+    if(get_total_error_semantic() > 0){
         return LMP_SEMANTIC_FAILURE;
     }
     
@@ -63,11 +64,6 @@ void lmp_free_symbol_table(){
     free_symbol_table();
 }
 
-void lmp_print_error_semantic(){
-    // -- Imprimir errores semanticos: resolucion de nombres
-    report_list_error_semantic();
-}
-
 // ===============================================================
 
 // ----- IMPLEMENTACION DE FUNCIONES DE GESTION (AST) -----
@@ -82,8 +78,28 @@ void lmp_free_AST(){
 
 // ===============================================================
 
+// ----- IMPLEMENTACION DE FUNCIONES DE GESTION (STRING REGISTER) -----
+
+void lmp_free_string_register(){
+    free_string_register();
+}
+
+// ===============================================================
+
 // ----- IMPLEMENTACION DE FUNCIONES DE GESTION (ERRORES) -----
 
+void lmp_print_error_syntax(){
+    report_list_error_syntax();
+}
+
+void lmp_print_error_semantic(){
+    report_list_error_semantic();
+}
+
 void lmp_free_error_module(){
+    // -- Liberar listado de errores sintacticos
+    free_list_error_syntax();
+
+    // -- Liberar listado de errores semanticos
     free_list_error_semantic();
 }

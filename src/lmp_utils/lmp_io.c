@@ -22,7 +22,27 @@ char * file_parsed_name = NULL;
 
 // ===============================================================
 
+// ----- VARIABLES COSMETICAS -----
+
+// Cadena para separacion de contenidos
+const char *HEADER_SEPARATOR = "//////////////////////////////////////////////////////////////";
+
+// Cadena con la version actual de compilador
+const char *COMPILER_VERSION = "0.0.6";
+
+// Cadena con el autor del compilador
+const char *AUTHOR = "Daniel Perez Ruiz";
+
+// ===============================================================
+
 // ----- IMPLEMENTACION DE FUNCIONES DE AYUDA -----
+
+void print_header(const char *compiler){
+    printf("%s : Un compilador del lenguaje lamport.\n", compiler);
+    printf("Version de compilador: %s\n", COMPILER_VERSION);
+    printf("Autor: %s\n", AUTHOR);
+    printf("%s\n"," ");
+}
 
 void print_help(const char *compiler){
     printf(">>>> USO DE COMPILADOR: %s <nombre_fichero.lmp>\n", compiler);

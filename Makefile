@@ -128,7 +128,7 @@ INDEX_TEST_UTILS_FILES:=common_functions
 
 # -- Indice de ficheros
 INDEX_LEXER_FILES:=lexer
-INDEX_PARSER_FILES:=parser
+INDEX_PARSER_FILES:=parser parser_assistant parser_register
 INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram process print_assistant
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
@@ -564,7 +564,7 @@ generate_lexer:
 # -- Genera la fuente del analizador sintactico a traves de bison	
 generate_parser:
 	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico: $(COLOR_BLUE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@bison --defines=$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)  $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT) #-Wcounterexamples
+	@bison --defines=$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)  $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT) -Wcounterexamples
 	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)$(COLOR_RESET)"
 	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT)$(COLOR_RESET)"
 

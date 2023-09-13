@@ -10,6 +10,11 @@
 %{
     //Inclusion de los tipos de Token
     #include "lexer/token.h"
+
+    // -- Inclusion de funcion de insercion de cadena a registro de cadenas
+    extern int add_string_to_register(char *str);
+    // -- Inclusion de funcion de obtencion de registro de cadenas
+    extern char * get_last_str_reg();
 %}
 
 /* Habilitar seguimiento de errores en la linea especifica del programa */
@@ -17,6 +22,7 @@
 
 /* Definiciones regulares */
 delim       [ \t\r\n]
+nl          \n
 ws          {delim}+
 letra       [A-Za-z]
 digito      [0-9]
@@ -88,7 +94,8 @@ comentario  "{"[^}]*"}"
 {id}            {
     #ifndef LEXER_TEST 
         // -- Incluir cadena al registro de cadenas
-        yylval.ident = strdup(yytext);
+        if(add_string_to_register(strdup(yytext)))
+            yylval.ident = get_last_str_reg();
         
     #endif
     return(IDENT);
@@ -96,7 +103,8 @@ comentario  "{"[^}]*"}"
 {literal}       {
     #ifndef LEXER_TEST
         // -- Incluir cadena al registro de cadenas
-        yylval.literal_string = strdup(yytext);
+        if(add_string_to_register(strdup(yytext)))
+            yylval.literal_string = get_last_str_reg();
             
     #endif
     return(LITERAL);
@@ -121,7 +129,6 @@ comentario  "{"[^}]*"}"
     }
 {comentario}    { /*IGNORAR*/ }
 {ws}            { /*IGNORAR*/ }
-
 .               {
     /*Regla para patrones no reconocidos */
     return(UNRECOGNIZED_TOKEN);

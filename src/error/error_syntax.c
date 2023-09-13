@@ -39,9 +39,21 @@ void print_list_error_syntax(struct error *list_errors){
 
     // -- Recorrer la lista enlazada de errores
     struct error * current_error = list_errors;
+    char * localized;
     while(current_error){
         // -- Imprimir mensaje de error
-        printf("Error sintactico en la linea [%ld]: %s.\n", current_error->err_line, current_error->msg);
+        switch (current_error->err_data.error_syntax.kind)
+        {
+        case EXPECTED_STMT:
+            localized = strdup("cerca de");
+            break;
+        
+        default:
+            localized = strdup("en");
+            break;
+        }
+        printf("Error sintactico %s la linea [%ld]: %s.\n", localized, current_error->err_line, current_error->msg);
+        free(localized);
 
         // -- Ir al siguiente error
         current_error = current_error->next;
