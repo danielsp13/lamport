@@ -113,7 +113,7 @@ struct type * create_dprocess_type();
  * @brief Libera la memoria asignada para un nodo de tipo type
  * @param type : Puntero a nodo tipo
  */
-void free_type(struct type *type);
+void free_type(struct type **type);
 
 // ===============================================================
 

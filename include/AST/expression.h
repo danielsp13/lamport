@@ -318,7 +318,7 @@ void free_list_expressions(struct expression *expressions_list);
  * @brief Libera la memoria asignada para un nodo de tipo expresion
  * @param expr : Puntero a nodo expresion
  */
-void free_expression(struct expression *expr);
+void free_expression(struct expression **expr);
 
 // ===============================================================
 

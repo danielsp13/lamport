@@ -68,7 +68,7 @@ void free_list_parameters(struct parameter *list_parameters);
  * @brief Libera la memoria para un nodo de tipo parametro
  * @param parameter : Puntero a nodo parametro
  */
-void free_parameter(struct parameter *parameter);
+void free_parameter(struct parameter **parameter);
 
 // ===============================================================
 

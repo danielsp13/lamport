@@ -322,64 +322,60 @@ void free_list_expressions(struct expression *expressions_list){
         // -- Seleccionar siguiente en la lista
         struct expression *next = current_expression->next;
         // -- Liberar nodo
-        free_expression(current_expression);
+        free_expression(&current_expression);
         // -- Nodo actual -> siguiente
         current_expression = next;
     }
 }
 
 
-void free_expression(struct expression *expr){
+void free_expression(struct expression **expr){
+    // -- Obtener expresion
+    struct expression *e = *expr;
+
     // -- Si NULL, simplemente devolver
-    if(!expr)
+    if(!e)
         return;
 
     // -- Liberar tipo de expresion (str)
-    if(expr->kind_str){
-        free(expr->kind_str);
-        expr->kind_str = NULL;
+    if(e->kind_str){
+        free(e->kind_str);
+        e->kind_str = NULL;
     }
 
-    switch (expr->kind)
+    switch (e->kind)
     {
     case EXPR_BINARY:
-        free(expr->expr.expression_binary_operation.operator);
-        expr->expr.expression_binary_operation.operator = NULL;
+        free(e->expr.expression_binary_operation.operator);
+        e->expr.expression_binary_operation.operator = NULL;
 
-        free_expression(expr->expr.expression_binary_operation.left);
-        expr->expr.expression_binary_operation.left = NULL;
-
-        free_expression(expr->expr.expression_binary_operation.right);
-        expr->expr.expression_binary_operation.right = NULL;
-
+        free_expression(&e->expr.expression_binary_operation.left);
+        free_expression(&e->expr.expression_binary_operation.right);
         break;
 
     case EXPR_UNARY:
-        free(expr->expr.expression_unary_operation.operator);
-        expr->expr.expression_unary_operation.operator = NULL;
+        free(e->expr.expression_unary_operation.operator);
+        e->expr.expression_unary_operation.operator = NULL;
 
-        free_expression(expr->expr.expression_unary_operation.left);
-        expr->expr.expression_unary_operation.left = NULL;
+        free_expression(&e->expr.expression_unary_operation.left);
         break;
 
     case EXPR_IDENTIFIER:
-        free(expr->expr.expression_identifier.id);
-        expr->expr.expression_identifier.id = NULL;
+        free(e->expr.expression_identifier.id);
+        e->expr.expression_identifier.id = NULL;
 
-        free_list_expressions(expr->expr.expression_identifier.index_expr);
-        expr->expr.expression_identifier.index_expr = NULL;
+        free_list_expressions(e->expr.expression_identifier.index_expr);
+        e->expr.expression_identifier.index_expr = NULL;
 
-        expr->expr.expression_identifier.symb = NULL;
-
+        e->expr.expression_identifier.symb = NULL;
         break;
 
     case EXPR_LITERAL:
-        switch (expr->expr.expression_literal.kind)
+        switch (e->expr.expression_literal.kind)
         {
         case EXPR_LITERAL_STRING:
-            free(expr->expr.expression_literal.value.string_literal);
-            expr->expr.expression_literal.value.string_literal = NULL;
-
+            free(e->expr.expression_literal.value.string_literal);
+            e->expr.expression_literal.value.string_literal = NULL;
             break;
         
         default:
@@ -389,25 +385,27 @@ void free_expression(struct expression *expr){
         break;
 
     case EXPR_FUNCTION_INV:
-        free(expr->expr.expression_function_inv.function_name);
-        expr->expr.expression_function_inv.function_name = NULL;
+        free(e->expr.expression_function_inv.function_name);
+        e->expr.expression_function_inv.function_name = NULL;
 
-        free_list_expressions(expr->expr.expression_function_inv.arguments_list);
-        expr->expr.expression_function_inv.arguments_list = NULL;
+        free_list_expressions(e->expr.expression_function_inv.arguments_list);
+        e->expr.expression_function_inv.arguments_list = NULL;
 
-        expr->expr.expression_identifier.symb = NULL;
+        e->expr.expression_identifier.symb = NULL;
 
         break;
 
     case EXPR_GROUPED:
-        free_expression(expr->expr.grouped_expression);
-        expr->expr.grouped_expression = NULL;
+        free_expression(&e->expr.grouped_expression);
+        e->expr.grouped_expression = NULL;
 
         break;
     }
 
     // -- Liberar nodo
-    free(expr);
+    free(e);
+    // -- Poner puntero a NULL
+    *expr = NULL;
 }
 
 // ===============================================================

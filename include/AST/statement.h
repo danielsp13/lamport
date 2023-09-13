@@ -321,7 +321,7 @@ void free_list_statements(struct statement *statements_list);
  * @brief Libera la memoria asignada para un nodo de tipo sentencia
  * @param stmt : Puntero a nodo sentencia
  */
-void free_statement(struct statement *stmt);
+void free_statement(struct statement **stmt);
 
 // ===============================================================
 

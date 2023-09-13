@@ -116,7 +116,7 @@ void free_list_subprograms(struct subprogram *subprograms_list);
  * @brief Libera la memoria asignada para un nodo de tipo subprograma
  * @param subprog : Puntero a nodo subprograma
  */
-void free_subprogram(struct subprogram *subprog);
+void free_subprogram(struct subprogram **subprog);
 
 // ===============================================================
 

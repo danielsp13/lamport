@@ -109,25 +109,24 @@ struct type * create_dprocess_type(){
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO TIPOS) -----
 
-void free_type(struct type *type){
+void free_type(struct type **type){
+    // -- Obtener puntero
+    struct type *t = *type;
+
     // -- Si NULL, simplemente devolver
-    if(!type)
+    if(!t)
         return;
 
     // -- Liberar tipo de dato (str)
-    free(type->kind_str);
-    type->kind_str = NULL;
+    free(t->kind_str);
+    t->kind_str = NULL;
 
     // -- Liberar en funcion del tipo
-    switch (type->kind)
+    switch (t->kind)
     {
     case TYPE_ARRAY:
-        free_type(type->subtype);
-        type->subtype = NULL;
-
-        free_expression(type->size);
-        type->size = NULL;
-
+        free_type(&t->subtype);
+        free_expression(&t->size);
         break;
 
     default:
@@ -135,7 +134,9 @@ void free_type(struct type *type){
     }
 
     // -- Liberar nodo
-    free(type);
+    free(t); 
+    // -- Poner puntero de tipo a NULL
+    *type = NULL;
 }
 
 // ===============================================================

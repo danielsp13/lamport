@@ -89,57 +89,61 @@ void free_list_subprograms(struct subprogram *subprograms_list){
         // -- Seleccionar siguiente en la lista
         struct subprogram *next = current_subprogram->next;
         // -- Liberar nodo
-        free_subprogram(current_subprogram);
+        free_subprogram(&current_subprogram);
         // -- Nodo actual -> siguiente
         current_subprogram = next;
     }
 }
 
-void free_subprogram(struct subprogram *subprog){
+void free_subprogram(struct subprogram **subprog){
+    // -- Obtener puntero original
+    struct subprogram *s = *subprog;
+
     // -- Si NULL, simplemente devolver
-    if(!subprog)
+    if(!s)
         return;
 
     // -- Liberar nombre de subprograma
-    if(subprog->name_subprogram){
-        free(subprog->name_subprogram);
-        subprog->name_subprogram = NULL;
+    if(s->name_subprogram){
+        free(s->name_subprogram);
+        s->name_subprogram = NULL;
     }
 
-    if(subprog->kind_str){
-        free(subprog->kind_str);
-        subprog->kind_str = NULL;
+    if(s->kind_str){
+        free(s->kind_str);
+        s->kind_str = NULL;
     }
 
     // -- Liberar tipo de subprograma (solo para funciones)
-    if(subprog->type){
-        free_type(subprog->type);
-        subprog->type = NULL;
+    if(s->type){
+        free_type(&s->type);
     }
 
     // -- Liberar declaraciones del subprograma
-    if(subprog->declarations){
-        free_list_declarations(subprog->declarations);
-        subprog->declarations = NULL;
+    if(s->declarations){
+        free_list_declarations(s->declarations);
+        s->declarations = NULL;
     }
 
     // -- Liberar parametros de subprograma (si los tiene)
-    if(subprog->parameters){
-        free_list_parameters(subprog->parameters);
-        subprog->parameters = NULL;
+    if(s->parameters){
+        free_list_parameters(s->parameters);
+        s->parameters = NULL;
     }
 
     // -- Liberar sentencias de subprograma (si los tiene)
-    if(subprog->statements){
-        free_list_statements(subprog->statements);
-        subprog->statements = NULL;
+    if(s->statements){
+        free_list_statements(s->statements);
+        s->statements = NULL;
     }
 
     // -- Liberar simbolo de la tabla de simbolos
-    subprog->symb = NULL;
+    s->symb = NULL;
     
     // -- Liberar nodo
-    free(subprog);
+    free(s);
+    // -- Poner puntero a NULL
+    *subprog = NULL;
 }
 
 // ===============================================================

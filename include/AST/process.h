@@ -118,7 +118,7 @@ void free_list_process(struct process *process_list);
  * @brief Libera la memoria asignada para un nodo de tipo proceso
  * @param proc : Puntero a nodo proceso
  */
-void free_process(struct process *proc);
+void free_process(struct process **proc);
 
 // ===============================================================
 
