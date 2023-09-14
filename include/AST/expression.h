@@ -160,7 +160,9 @@ struct expression{
         // Estructura de expresion de operacion binaria
         struct {
             expression_binary_t kind;                       ///< Tipo de operacion binaria
+            char *action;                                   ///< Accion de operacion binaria
             char *operator;                                 ///< Operador de operacion
+            unsigned long line;                             ///< Linea donde se definio la expresion
             struct expression *left;                        ///< Expresion izquierda de la operacion
             struct expression *right;                       ///< Expresion derecha de la operacion
         } expression_binary_operation;
@@ -168,7 +170,9 @@ struct expression{
         // Estructura de expresion de operacion unaria
         struct {
             expression_unary_t kind;                        ///< Tipo de la operacion unaria
+            char *action;                                   ///< Accion de operacion
             char *operator;                                 ///< Operador de operacion
+            unsigned long line;                             ///< Linea donde se definio la expresion
             struct expression *left;                        ///< Expresion derecha de la operacion
         } expression_unary_operation;
 
@@ -232,17 +236,19 @@ struct expression * create_expression_literal(expression_literal_t kind);
  * @param operator : Simbolo de operacion
  * @param left : Operando izquierdo
  * @param right : Operando derecho
+ * @param line : linea donde se definio la operacion
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right);
+struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo operacion unaria
  * @param kind : Tipo de operacion unaria
  * @param left : Operando
+ * @param line : linea donde se definio la operacion
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left);
+struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion de identificador
@@ -331,5 +337,15 @@ void free_expression(struct expression **expr);
  */
 void print_AST_expressions(struct expression *expressions_list, unsigned int depth);
 
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES DE GESTION DE NODO (EXPRESIONES) -----
+
+/**
+ * @brief Realiza una copia de un nodo expresion, devolviendo otra con el mismo contenido
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
+struct expression * copy_expression(struct expression *expr);
 
 #endif //_LAMPORT_AST_EXPRESSION_DPR_

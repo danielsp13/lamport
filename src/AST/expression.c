@@ -113,7 +113,7 @@ struct expression * create_expression_literal(expression_literal_t kind){
     return ex;
 }
 
-struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right){
+struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right, unsigned long line){
     struct expression *ex = create_expression_non_literal(EXPR_BINARY);
 
     // -- Comprobar reserva de memoria exitosa
@@ -122,6 +122,35 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
 
     // -- Asignar tipo de operacion binaria
     ex->expr.expression_binary_operation.kind = kind;
+    // -- Asignar accion de operacion
+    switch (ex->expr.expression_binary_operation.kind)
+    {
+    case EXPR_ADD:
+        ex->expr.expression_binary_operation.action = strdup("sumar");
+        break;
+    case EXPR_SUB:
+        ex->expr.expression_binary_operation.action = strdup("restar");
+        break;
+    case EXPR_MULT:
+        ex->expr.expression_binary_operation.action = strdup("multiplicar");
+        break;
+    case EXPR_DIV:
+        ex->expr.expression_binary_operation.action = strdup("dividir");
+        break;
+    case EXPR_MOD:
+        ex->expr.expression_binary_operation.action = strdup("obtener el modulo de");
+        break;
+    default:
+        ex->expr.expression_binary_operation.action = strdup("comparar");
+        break;
+    }
+    // -- Comprobar asignacion de accion exitoso
+    if(!ex->expr.expression_binary_operation.action){
+        // -- Liberar memoria reservada para la expresion
+        free(ex);
+        return NULL;
+    }
+
     // -- Asignar simbolo de operacion binaria
     ex->expr.expression_binary_operation.operator = strdup(operator);
     // -- Comprobar asignacion de simbolo (exitosa)
@@ -135,12 +164,14 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
     ex->expr.expression_binary_operation.left = left;
     // -- Asignar operando derecho de la operacion
     ex->expr.expression_binary_operation.right = right;
+    // -- Asignar linea donde se definio la expresion
+    ex->expr.expression_binary_operation.line = line;
     
     // -- Retornar expresion creada e inicializada
     return ex;
 }
 
-struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left){
+struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left, unsigned long line){
     struct expression *ex = create_expression_non_literal(EXPR_UNARY);
 
     // -- Comprobar reserva de memoria exitosa
@@ -149,6 +180,35 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
 
     // -- Asignar tipo de operacion unaria
     ex->expr.expression_unary_operation.kind = kind;
+    // -- Asignar accion de operacion
+    switch (ex->expr.expression_unary_operation.kind)
+    {
+    case EXPR_NEGATIVE:
+        ex->expr.expression_unary_operation.action = strdup("cambiar de signo");
+        break;
+    case EXPR_NOT:
+        ex->expr.expression_unary_operation.action = strdup("restar");
+        break;
+    case EXPR_MULT:
+        ex->expr.expression_unary_operation.action = strdup("multiplicar");
+        break;
+    case EXPR_DIV:
+        ex->expr.expression_unary_operation.action = strdup("dividir");
+        break;
+    case EXPR_MOD:
+        ex->expr.expression_unary_operation.action = strdup("obtener el modulo de");
+        break;
+    default:
+        ex->expr.expression_unary_operation.action = strdup("comparar");
+        break;
+    }
+    // -- Comprobar asignacion de accion exitoso
+    if(!ex->expr.expression_unary_operation.action){
+        // -- Liberar memoria reservada para la expresion
+        free(ex);
+        return NULL;
+    }
+
     // -- Asignar simbolo de operacion unaria
     ex->expr.expression_unary_operation.operator = strdup(operator);
     if(!ex->expr.expression_unary_operation.operator){
@@ -159,6 +219,8 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
 
     // -- Asignar operando izquierdo de la operacion
     ex->expr.expression_unary_operation.left = left;
+    // -- Asignar linea donde se definio la expresion
+    ex->expr.expression_unary_operation.line = line;
 
     // -- Retornar expresion creada e inicializada
     return ex;
@@ -349,6 +411,9 @@ void free_expression(struct expression **expr){
         free(e->expr.expression_binary_operation.operator);
         e->expr.expression_binary_operation.operator = NULL;
 
+        free(e->expr.expression_binary_operation.action);
+        e->expr.expression_binary_operation.action = NULL;
+
         free_expression(&e->expr.expression_binary_operation.left);
         free_expression(&e->expr.expression_binary_operation.right);
         break;
@@ -356,6 +421,9 @@ void free_expression(struct expression **expr){
     case EXPR_UNARY:
         free(e->expr.expression_unary_operation.operator);
         e->expr.expression_unary_operation.operator = NULL;
+
+        free(e->expr.expression_unary_operation.action);
+        e->expr.expression_unary_operation.action = NULL;
 
         free_expression(&e->expr.expression_unary_operation.left);
         break;
@@ -504,4 +572,133 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
 
     // -- Liberar memoria utilizada para la identacion
     free(IDENT_NODE); IDENT_NODE = NULL;
+}
+
+// ===============================================================
+
+// ----- IMPLEMENTACION DE FUNCIONES DE GESTION DE NODO (EXPRESIONES) -----
+
+struct expression * copy_expression(struct expression *expr){
+    // -- Comprobar que hay expresion
+    if(!expr)
+        return NULL;
+
+    // -- Definir expresion de copia
+    struct expression *expr_copy = malloc(sizeof(*expr_copy));
+
+    // -- Comprobar creacion de expresion exitoso
+    if(!expr_copy)
+        return NULL;
+
+    // -- Realizar copia en funcion del tipo de expresion
+    char *original_operator;
+    struct expression *original_left, *original_right;
+    char *original_id;
+    struct expression *original_index_expr;
+    unsigned long original_line;
+
+    // -- Comprobar diferentes casos de expresiones validos
+    switch (expr->kind)
+    {
+    case EXPR_BINARY:
+        // -- Obtener atributos de la expresion original
+        expression_binary_t original_binary_kind = expr->expr.expression_binary_operation.kind;
+        original_operator = expr->expr.expression_binary_operation.operator;
+        original_left = expr->expr.expression_binary_operation.left;
+        original_right = expr->expr.expression_binary_operation.right;
+        original_line = expr->expr.expression_binary_operation.line;
+
+        // -- Realizar copia de expresion
+        expr_copy = create_expression_binary_operation(original_binary_kind, original_operator, original_left, original_right,original_line);
+        break;
+
+    case EXPR_UNARY:
+        // -- Obtener atributos de la expresion original
+        expression_unary_t original_unary_kind = expr->expr.expression_unary_operation.kind;
+        original_operator = expr->expr.expression_unary_operation.operator;
+        original_left = expr->expr.expression_unary_operation.left;
+        original_line = expr->expr.expression_unary_operation.line;
+
+        // -- Realizar copia de expresion
+        expr_copy = create_expression_unary_operation(original_unary_kind, original_operator, original_left,original_line);
+        break;
+
+    case EXPR_IDENTIFIER:
+        // -- Obtener atributos de la expresion original
+        original_id = expr->expr.expression_identifier.id;
+        original_index_expr = expr->expr.expression_identifier.index_expr;
+        original_line = expr->expr.expression_identifier.line;
+
+        // -- Realizar copia de expresion
+        expr_copy = create_expression_identifier(original_id,original_index_expr,original_line);
+        break;
+
+    case EXPR_LITERAL:
+        // -- Obtener atributos de la expresion original
+        expression_literal_t original_literal_kind = expr->expr.expression_literal.kind;
+        switch (original_literal_kind)
+        {
+        case EXPR_LITERAL_INTEGER:
+            int original_integer_value = expr->expr.expression_literal.value.integer_literal;
+            expr_copy = create_expression_literal_integer(original_integer_value);
+            break;
+        case EXPR_LITERAL_REAL:
+            float original_float_value = expr->expr.expression_literal.value.real_literal;
+            expr_copy = create_expression_literal_real(original_float_value);
+            break;
+        case EXPR_LITERAL_CHARACTER:
+            char original_character_value = expr->expr.expression_literal.value.character_literal;
+            expr_copy = create_expression_literal_char(original_character_value);
+            break;
+        case EXPR_LITERAL_STRING:
+            char *original_string_value = expr->expr.expression_literal.value.string_literal;
+            expr_copy = create_expression_literal_string(original_string_value);
+            break;
+        case EXPR_LITERAL_BOOLEAN:
+            int original_boolean_value = expr->expr.expression_literal.value.boolean_literal;
+            expr_copy = create_expression_literal_boolean(original_boolean_value);
+            break;
+        default:
+            // -- Realizar copia de expresion
+            expr_copy = NULL;
+            break;
+        }
+        break;
+    
+    case EXPR_FUNCTION_INV:
+        // -- Obtener atributos de expresion original
+        char *original_function_name = expr->expr.expression_function_inv.function_name;
+        struct expression *original_list_arguments = expr->expr.expression_function_inv.arguments_list; 
+        original_line = expr->expr.expression_function_inv.line;
+
+        struct expression *copy_list_arguments = NULL;
+        struct expression *current_original_argument = original_list_arguments;
+        while(current_original_argument){
+            if(!copy_list_arguments)
+                copy_list_arguments = copy_expression(current_original_argument);
+            else
+                copy_list_arguments->next = copy_expression(current_original_argument);
+            
+            // -- Ir a siguiente argumento
+            current_original_argument = current_original_argument->next;
+        }
+
+        // -- Realizar copia de expresion
+        expr_copy = create_expression_function_invocation(original_function_name, original_list_arguments, original_line);
+        break;
+
+    case EXPR_GROUPED:
+        // -- Obtener atributos de expresion original
+        struct expression *original_grouped_expr = expr->expr.grouped_expression;
+
+        // -- Realizar copia de expresion
+        expr_copy = create_expression_grouped(original_grouped_expr);
+        break;
+    
+    default:
+        break;
+    }
+
+    // -- Retornar copia de expresion
+    return expr_copy;
 }

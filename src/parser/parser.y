@@ -873,69 +873,69 @@ expression:
     ;
 
 binary-expression:
-    // term + expression
-    term OP_SUM expression{
-        $$ = create_expression_binary_operation(EXPR_ADD, "+", $1, $3);
+    // expression + term
+    expression OP_SUM expression{
+        $$ = create_expression_binary_operation(EXPR_ADD, "+", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term - expression
-    | term OP_MINUS expression{
-        $$ = create_expression_binary_operation(EXPR_SUB, "-", $1, $3);
+    // expression - term
+    | expression OP_MINUS expression{
+        $$ = create_expression_binary_operation(EXPR_SUB, "-", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term * expression
-    | term OP_MULT expression{
-        $$ = create_expression_binary_operation(EXPR_MULT, "*", $1, $3);
+    // expression * term
+    | expression OP_MULT expression{
+        $$ = create_expression_binary_operation(EXPR_MULT, "*", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term / expression
-    | term OP_DIV expression{
-        $$ = create_expression_binary_operation(EXPR_DIV, "/", $1, $3);
+    // expression / term
+    | expression OP_DIV expression{
+        $$ = create_expression_binary_operation(EXPR_DIV, "/", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term % expression
-    | term OP_MOD expression{
-        $$ = create_expression_binary_operation(EXPR_MOD, "%", $1, $3);
+    // expression % term
+    | expression OP_MOD expression{
+        $$ = create_expression_binary_operation(EXPR_MOD, "%", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term < expression
-    | term OP_REL_LT expression{
-        $$ = create_expression_binary_operation(EXPR_LT, "<", $1, $3);
+    // expression < term
+    | expression OP_REL_LT expression{
+        $$ = create_expression_binary_operation(EXPR_LT, "<", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term <= expression
-    | term OP_REL_LTE expression{
-        $$ = create_expression_binary_operation(EXPR_LTE, "<=", $1, $3);
+    // expression <= term
+    | expression OP_REL_LTE expression{
+        $$ = create_expression_binary_operation(EXPR_LTE, "<=", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term > expression
-    | term OP_REL_GT expression{
-        $$ = create_expression_binary_operation(EXPR_GT, ">", $1, $3);
+    // expression > term
+    | expression OP_REL_GT expression{
+        $$ = create_expression_binary_operation(EXPR_GT, ">", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term >= expression
-    | term OP_REL_GTE expression{
-        $$ = create_expression_binary_operation(EXPR_GTE, ">=", $1, $3);
+    // expression >= term
+    | expression OP_REL_GTE expression{
+        $$ = create_expression_binary_operation(EXPR_GTE, ">=", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term == expression
-    | term OP_REL_EQ expression{
-        $$ = create_expression_binary_operation(EXPR_EQ, "==", $1, $3);
+    // expression == term
+    | expression OP_REL_EQ expression{
+        $$ = create_expression_binary_operation(EXPR_EQ, "==", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term != expression
-    | term OP_REL_NEQ expression{
-        $$ = create_expression_binary_operation(EXPR_NEQ, "!=", $1, $3);
+    // expression != term
+    | expression OP_REL_NEQ expression{
+        $$ = create_expression_binary_operation(EXPR_NEQ, "!=", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term and expression
-    | term OP_AND expression{
-        $$ = create_expression_binary_operation(EXPR_AND, "and", $1, $3);
+    // expression and term
+    | expression OP_AND expression{
+        $$ = create_expression_binary_operation(EXPR_AND, "and", $1, $3, yylineno);
         add_expression_to_register($$);
     }
-    // term or expression
-    | term OP_OR expression{
-        $$ = create_expression_binary_operation(EXPR_OR, "or", $1, $3);
+    // expression or term
+    | expression OP_OR expression{
+        $$ = create_expression_binary_operation(EXPR_OR, "or", $1, $3, yylineno);
         add_expression_to_register($$);
     }
     ;
@@ -943,12 +943,12 @@ binary-expression:
 unary-expression:
     // not term
     OP_NOT term{
-        $$ = create_expression_unary_operation(EXPR_NOT, "not", $2);
+        $$ = create_expression_unary_operation(EXPR_NOT, "not", $2,yylineno);
         add_expression_to_register($$);
     }
     // - term
-    | OP_MINUS term{
-        $$ = create_expression_unary_operation(EXPR_NEGATIVE, "-", $2);
+    | OP_MINUS term %prec OP_MINUS{
+        $$ = create_expression_unary_operation(EXPR_NEGATIVE, "-", $2,yylineno);
         add_expression_to_register($$);
     }
     ;
