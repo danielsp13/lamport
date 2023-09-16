@@ -217,7 +217,7 @@ void free_AST_declaration_register(){
         struct AST_declaration_register * next = current_AST_reg->next;
 
         // Liberar contenido
-        free_declaration(&current_AST_reg->decl);
+        free_declaration(current_AST_reg->decl);
 
         // Liberar registro
         free(current_AST_reg);
@@ -284,7 +284,7 @@ void free_AST_expression_register(){
         struct AST_expression_register * next = current_AST_reg->next;
 
         // Liberar contenido
-        free_expression(&current_AST_reg->expr);
+        free_expression(current_AST_reg->expr);
 
         // Liberar registro
         free(current_AST_reg);
@@ -351,7 +351,7 @@ void free_AST_statement_register(){
         struct AST_statement_register * next = current_AST_reg->next;
 
         // Liberar contenido
-        free_statement(&current_AST_reg->stmt);
+        free_statement(current_AST_reg->stmt);
 
         // Liberar registro
         free(current_AST_reg);
@@ -419,7 +419,7 @@ void free_AST_parameter_register(){
         struct AST_parameter_register * next = current_AST_reg->next;
 
         // Liberar contenido
-        free_parameter(&current_AST_reg->param);
+        free_parameter(current_AST_reg->param);
 
         // Liberar registro
         free(current_AST_reg);
@@ -486,7 +486,7 @@ void free_AST_type_register(){
         struct AST_type_register * next = current_AST_reg->next;
 
         // Liberar contenido
-        free_type(&current_AST_reg->type);
+        free_type(current_AST_reg->type);
 
         // Liberar registro
         free(current_AST_reg);
@@ -553,7 +553,7 @@ void free_AST_subprogram_register(){
         struct AST_subprogram_register * next = current_AST_reg->next;
 
         // Liberar contenido
-        free_subprogram(&current_AST_reg->subprog);
+        free_subprogram(current_AST_reg->subprog);
 
         // Liberar registro
         free(current_AST_reg);
@@ -621,7 +621,7 @@ void free_AST_process_register(){
         struct AST_process_register * next = current_AST_reg->next;
 
         // Liberar contenido
-        free_process(&current_AST_reg->proc);
+        free_process(current_AST_reg->proc);
 
         // Liberar registro
         free(current_AST_reg);

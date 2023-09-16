@@ -38,7 +38,8 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <procedure-definition> ::= "procedure" <identifier> "(" <parameters> ")" ";"
  	[<declarations>] <block-statement>
 <function-definition> ::= "function" <identifier> "(" <parameters> ")" ":" <type>
- 	";" [<declarations>] <block-statement>
+ 	";" [<declarations>] <block-statement-function>
+<block-statement-function> ::= "begin" (<statement>)+ <return-statement> "end"
 <parameters> ::= [<parameter> ["," <parameters>]]
 <parameter> ::= <identifier> ":" <type>
 <statement> ::= <assignment-statement>
@@ -50,7 +51,6 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 	| <cobegin-statement>
 	| <fork-statement>
 	| <atomic-statement>
-	| <return-statement>
 	| <print-statement>
 <cobegin-statement> ::= "cobegin" (<statement>)+ "coend"
 <fork-statement> ::= "fork" <identifier> ";"

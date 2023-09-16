@@ -186,7 +186,7 @@
 
 // ---- TIPO statement
 %type <stmt> statement list-statements
-%type <stmt> block-statement
+%type <stmt> block-statement block-statement-function
 %type <stmt> cobegin-statement 
 %type <stmt> assignment-statement 
 %type <stmt> while-statement for-statement
@@ -394,13 +394,13 @@ subprogram-procedure-name:
 
 subprogram-function:
     // ===== CORRECTO: Subprograma funcion completo (con lista de parametros)
-    S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
+    S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement-function{
         // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
         $$ = create_subprogram_function($2, $4, $9, $10, $7, yylineno);
         add_subprogram_to_register($$);
     }
     // ===== CORRECTO: Subprograma funcion completo (sin lista de parametros)
-    | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement{
+    | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement-function{
         // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
         $$ = create_subprogram_function($2, 0, $8, $9, $6, yylineno);
         add_subprogram_to_register($$);
@@ -623,10 +623,7 @@ list-statements:
     ;
 
 statement:
-    block-statement{
-        $$ = $1;
-    }
-    | cobegin-statement{
+    cobegin-statement{
         $$ = $1;
     }
     | assignment-statement{
@@ -650,9 +647,6 @@ statement:
     | atomic-statement{
         $$ = $1;
     }
-    | return-statement{
-        $$ = $1;
-    }
     | print-statement{
         $$ = $1;
     }
@@ -674,6 +668,29 @@ block-statement:
         YYABORT;
     }
     ;
+
+block-statement-function:
+    // ===== CORRECTO: Bloque de sentencias para definicion de funcion
+    B_BEGIN list-statements return-statement B_END{
+        $2->next = $3;
+        $$ = create_statement_block_begin($2);
+        add_statement_to_register($$);
+    }
+    // ===== CORRECTO: Bloque de sentencias para definicion de funcion
+    | B_BEGIN return-statement B_END{
+        $$ = create_statement_block_begin($2);
+        add_statement_to_register($$);
+    }
+    // <--> ERROR: Bloque de sentencias
+    | B_BEGIN B_END{
+        mark_error_syntax_statement_empty_block();
+        YYABORT;
+    }
+    // <--> ERROR: Falta retorno de funcion
+    | B_BEGIN list-statements B_END{
+        mark_error_syntax_statement_non_return_in_block();
+        YYABORT;
+    }
 
 cobegin-statement:
     // ===== CORRECTO: Bloque de sentencias paralelo
@@ -716,7 +733,7 @@ assignment-statement:
 while-statement:
     // ===== CORRECTO: Bucle while
     WHILE expression DO block-statement{
-        $$ = create_statement_while($2, $4);
+        $$ = create_statement_while($2, $4, yylineno);
         add_statement_to_register($$);
     }
     ;
@@ -733,12 +750,12 @@ for-statement:
 if-statement:
     // ===== CORRECTO: Bloque if
     IF expression THEN block-statement{
-        $$ = create_statement_if_else($2, $4, 0);
+        $$ = create_statement_if_else($2, $4, 0, yylineno);
         add_statement_to_register($$);
     }
     // ===== CORRECTO: Bloque if-else
     | IF expression THEN block-statement ELSE block-statement{
-        $$ = create_statement_if_else($2, $4, $6);
+        $$ = create_statement_if_else($2, $4, $6, yylineno);
         add_statement_to_register($$);
     }
     ;
@@ -773,7 +790,7 @@ atomic-statement:
 return-statement:
     // ===== CORRECTO: Sentencia de retorno
     RETURN expression DELIM_PC{
-        $$ = create_statement_return($2);
+        $$ = create_statement_return($2, yylineno);
         add_statement_to_register($$);
     }
     // <--> ERROR: Falta ';'
@@ -1140,6 +1157,11 @@ void mark_error_syntax_statement_expected_statement(){
 void mark_error_syntax_statement_empty_block(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
     create_and_add_error_syntax_to_list(EXPECTED_STMT, yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_NON_EMPTY_BLOCK_MSG);
+}
+
+void mark_error_syntax_statement_non_return_in_block(){
+    // -- Crear error sintactico e incluir en la lista de errores sintacticos
+    create_and_add_error_syntax_to_list(EXPECTED_STMT, yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_RETURN_STATEMENT_MSG);
 }
 
 void mark_error_syntax_statement_expected_delimpc(){
