@@ -52,10 +52,29 @@ struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, 
 
     // -- Asignar parametros del subprograma
     subprog->parameters = parameters;
+    // -- Asignar tipos de dato de subprograma
+    struct parameter *current_parameter = subprog->parameters;
+    subprog->type_parameters = NULL;
+    struct type * last_type_parameter = NULL;
+    while(current_parameter){
+        if(!subprog->type_parameters){
+            subprog->type_parameters = current_parameter->type;
+            last_type_parameter = subprog->type_parameters;
+        }
+        else{
+            last_type_parameter->next = current_parameter->type;
+            last_type_parameter = last_type_parameter->next;
+        }
+
+        current_parameter = current_parameter->next;
+    }
+
     // -- Asignar declaraciones del subprograma
     subprog->declarations = declarations;
     // -- Asignar sentencias del subprograma
     subprog->statements = statements;
+    // -- Asignar sentencia de retorno del subprograma (funciones) (NULL)
+    subprog->ret = NULL;
     // -- Asignar tipo de retorno de subprograma (funciones)
     subprog->type = type;
     // -- Asignar puntero a siguiente subprograma (NULL)
@@ -76,7 +95,21 @@ struct subprogram * create_subprogram_procedure(char *name_procedure, struct par
 }
 
 struct subprogram * create_subprogram_function(char *name_function, struct parameter *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line){
-    return create_subprogram(SUBPROGRAM_FUNCTION, name_function, parameters, declarations, statements, type, line);   
+    struct subprogram *subprog = create_subprogram(SUBPROGRAM_FUNCTION, name_function, parameters, declarations, statements, type, line);   
+
+    // -- Comprobar creacion de subprograma exitoso
+    if(!subprog)
+        return NULL;
+
+    // -- Obtener la sentencia de retorno de la funcion
+    struct statement *current_stmt = statements->stmt.statement_block.body;
+    while(current_stmt->next){
+        current_stmt = current_stmt->next;
+    }
+    subprog->ret = current_stmt;
+
+    // -- Retornar subprograma
+    return subprog;
 }
 
 // ===============================================================
@@ -89,61 +122,61 @@ void free_list_subprograms(struct subprogram *subprograms_list){
         // -- Seleccionar siguiente en la lista
         struct subprogram *next = current_subprogram->next;
         // -- Liberar nodo
-        free_subprogram(&current_subprogram);
+        free_subprogram(current_subprogram);
         // -- Nodo actual -> siguiente
         current_subprogram = next;
     }
 }
 
-void free_subprogram(struct subprogram **subprog){
-    // -- Obtener puntero original
-    struct subprogram *s = *subprog;
-
+void free_subprogram(struct subprogram *subprog){
     // -- Si NULL, simplemente devolver
-    if(!s)
+    if(!subprog)
         return;
 
     // -- Liberar nombre de subprograma
-    if(s->name_subprogram){
-        free(s->name_subprogram);
-        s->name_subprogram = NULL;
+    if(subprog->name_subprogram){
+        free(subprog->name_subprogram);
+        subprog->name_subprogram = NULL;
     }
 
-    if(s->kind_str){
-        free(s->kind_str);
-        s->kind_str = NULL;
+    if(subprog->kind_str){
+        free(subprog->kind_str);
+        subprog->kind_str = NULL;
     }
 
     // -- Liberar tipo de subprograma (solo para funciones)
-    if(s->type){
-        free_type(&s->type);
+    if(subprog->type){
+        free_type(subprog->type);
     }
 
     // -- Liberar declaraciones del subprograma
-    if(s->declarations){
-        free_list_declarations(s->declarations);
-        s->declarations = NULL;
+    if(subprog->declarations){
+        free_list_declarations(subprog->declarations);
+        subprog->declarations = NULL;
     }
 
     // -- Liberar parametros de subprograma (si los tiene)
-    if(s->parameters){
-        free_list_parameters(s->parameters);
-        s->parameters = NULL;
+    if(subprog->parameters){
+        free_list_parameters(subprog->parameters);
+        subprog->parameters = NULL;
+        subprog->type_parameters = NULL;
     }
 
     // -- Liberar sentencias de subprograma (si los tiene)
-    if(s->statements){
-        free_list_statements(s->statements);
-        s->statements = NULL;
+    if(subprog->statements){
+        free_list_statements(subprog->statements);
+        subprog->statements = NULL;
+        subprog->ret = NULL;
     }
 
     // -- Liberar simbolo de la tabla de simbolos
-    s->symb = NULL;
+    if(subprog->symb){
+        free_symbol(subprog->symb);
+        subprog->symb = NULL;
+    }
     
     // -- Liberar nodo
-    free(s);
-    // -- Poner puntero a NULL
-    *subprog = NULL;
+    free(subprog);
 }
 
 // ===============================================================

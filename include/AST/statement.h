@@ -141,6 +141,8 @@ struct statement{
         struct {
             struct expression *condition;           ///< Condicion del bucle
             struct statement *body;                 ///< Cuerpo del bucle (conjunto de sentencias)
+
+            unsigned long line;                     ///< Linea donde se definio la sentencia
         } statement_while;
 
         // Estructura de sentencia de bucle for
@@ -159,6 +161,8 @@ struct statement{
             struct expression *condition;           ///< Condicion de if-else
             struct statement *if_body;              ///< Cuerpo del if [condition se evalua como verdadera] (conjunto de sentencias)
             struct statement *else_body;            ///< Cuerpo del else [condition se evalua como falsa] (conjunto de sentencias)
+
+            unsigned long line;                     ///< Linea donde se definio la sentencia
         } statement_if_else;
 
         // Estructura de sentencia de invocacion de proceso
@@ -186,6 +190,7 @@ struct statement{
         // Estructura de sentencia return (para funciones)
         struct {
             struct expression *returned_expr;       ///< Expresion de retorno
+            unsigned long line;                     ///< Linea donde se definio la sentencia
         } statement_return;
 
         // Estructura de sentencia de impresion
@@ -221,9 +226,10 @@ struct statement * create_statement_assignment(char *variable_name, struct expre
  * @brief Crea y reserva memoria para una sentencia de bucle while (STMT_WHILE)
  * @param condition : Condicion del bucle
  * @param body : Cuerpo del bucle (conjunto de sentencias)
+ * @param line : linea donde se definio la sentencia
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_while(struct expression *condition, struct statement *body);
+struct statement * create_statement_while(struct expression *condition, struct statement *body, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de bucle for (STMT_FOR)
@@ -241,9 +247,10 @@ struct statement * create_statement_for(char *counter_name, struct expression *i
  * @param condition : Expresion de condicion de control
  * @param if_body : Cuerpo de if (conjunto de sentencias)
  * @param else_body : Cuerpo de else (conjunto de sentencias)
+ * @param line : linea donde se definio la sentencia
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_if_else(struct expression *condition, struct statement *if_body, struct statement *else_body);
+struct statement * create_statement_if_else(struct expression *condition, struct statement *if_body, struct statement *else_body, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de invocacion de procedimiento
@@ -294,9 +301,10 @@ struct statement * create_statement_fork(char *process_name, unsigned long line)
 /**
  * @brief Crea y reserva memoria para una sentencia de retorno (para funciones)
  * @param returned_expr : Expresion de retorno
+ * @param line : linea donde se definio la sentencia
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_return(struct expression *returned_expr);
+struct statement * create_statement_return(struct expression *returned_expr, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de impresion de expresiones
@@ -319,9 +327,9 @@ void free_list_statements(struct statement *statements_list);
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo sentencia
- * @param stmt : Puntero a nodo sentencia
+ * @param stmt : nodo sentencia
  */
-void free_statement(struct statement **stmt);
+void free_statement(struct statement *stmt);
 
 // ===============================================================
 

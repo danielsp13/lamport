@@ -70,9 +70,9 @@ void free_list_declarations(struct declaration *declarations_list);
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo declaracion
- * @param decl : Puntero a nodo declaracion
+ * @param decl : nodo declaracion
  */
-void free_declaration(struct declaration **decl);
+void free_declaration(struct declaration *decl);
 
 // ===============================================================
 

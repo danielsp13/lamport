@@ -52,38 +52,38 @@ void free_list_parameters(struct parameter *list_parameters){
         // -- Seleccionar siguiente en la lista
         struct parameter *next = current_parameter->next;
         // -- Liberar nodo
-        free_parameter(&current_parameter);
+        free_parameter(current_parameter);
         // -- Nodo actual -> siguiente
         current_parameter = next;
     }
 }
 
-void free_parameter(struct parameter **parameter){
-    // -- Obtener parametro original
-    struct parameter *p = *parameter;
+void free_parameter(struct parameter *parameter){
 
     // -- Si NULL, simplemente devolver
-    if(!p)
+    if(!parameter)
         return;
 
     // -- Liberar nombre de parametro
-    if(p->name_parameter){
-        free(p->name_parameter);
-        p->name_parameter = NULL;
+    if(parameter->name_parameter){
+        free(parameter->name_parameter);
+        parameter->name_parameter = NULL;
     }
 
     // -- Liberar tipo de parametro
-    if(p->type){
-        free_type(&p->type);
+    if(parameter->type){
+        free_type(parameter->type);
+        parameter->type = NULL;
     }
 
     // -- Liberar simbolo de la tabla de simbolos
-    p->symb = NULL;
+    if(parameter->symb){
+        free_symbol(parameter->symb);
+        parameter->symb = NULL;
+    }
 
     // -- Liberar nodo
-    free(p);
-    // -- Poner puntero a NULL
-    *parameter = NULL;
+    free(parameter);
 }
 
 // ===============================================================

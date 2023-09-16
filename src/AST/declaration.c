@@ -53,43 +53,44 @@ void free_list_declarations(struct declaration *declarations_list){
         // -- Seleccionar siguiente en la lista
         struct declaration *next = current_declaration->next;
         // -- Liberar nodo
-        free_declaration(&current_declaration);
+        free_declaration(current_declaration);
         // -- Nodo actual -> siguiente
         current_declaration = next;
     }
 }
 
-void free_declaration(struct declaration **decl){
-    // -- Obtener puntero de declaracion
-    struct declaration *d = *decl;
+void free_declaration(struct declaration *decl){
 
     // -- Si NULL, simplemente devolver
-    if(!d)
+    if(!decl)
         return;
 
     // -- Liberar nombre de variable
-    if(d->name){
-        free(d->name);
-        d->name = NULL;
+    if(decl->name){
+        free(decl->name);
+        decl->name = NULL;
     }
 
     // -- Liberar tipo de declaracion
-    if(d->type){
-        free_type(&d->type);
+    if(decl->type){
+        free_type(decl->type);
+        decl->type = NULL;
     }
 
     // -- Liberar expresion de valor
-    if(d->value){
-        free_expression(&d->value);
+    if(decl->value){
+        free_expression(decl->value);
+        decl->value = NULL;
     }
 
     // -- Liberar referencia a simbolo
-    d->symb = NULL;
+    if(decl->symb){
+        free_symbol(decl->symb);
+        decl->symb = NULL;
+    }
 
     // -- Liberar nodo
-    free(d);
-    // -- Poner puntero de declaracion a NULL
-    *decl = NULL;
+    free(decl);
 }
 
 // ===============================================================

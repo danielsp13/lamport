@@ -118,7 +118,7 @@ struct statement * create_statement_assignment(char *variable_name, struct expre
     return st;
 }
 
-struct statement * create_statement_while(struct expression *condition, struct statement *body){
+struct statement * create_statement_while(struct expression *condition, struct statement *body, unsigned long line){
     struct statement *st = create_statement(STMT_WHILE);
 
     // -- Comprobar reserva de memoria exitosa
@@ -129,6 +129,9 @@ struct statement * create_statement_while(struct expression *condition, struct s
     st->stmt.statement_while.condition = condition;
     // -- Asignar cuerpo de bucle
     st->stmt.statement_while.body = body;
+
+    // -- Asignar linea
+    st->stmt.statement_while.line = line;
 
     // -- Retornar sentencia creada e inicializada
     return st;
@@ -167,7 +170,7 @@ struct statement * create_statement_for(char *counter_name, struct expression *i
     return st;
 }
 
-struct statement * create_statement_if_else(struct expression *condition, struct statement *if_body, struct statement *else_body){
+struct statement * create_statement_if_else(struct expression *condition, struct statement *if_body, struct statement *else_body, unsigned long line){
     struct statement *st = create_statement(STMT_IF_ELSE);
 
     // -- Comprobar reserva de memoria exitosa
@@ -180,6 +183,9 @@ struct statement * create_statement_if_else(struct expression *condition, struct
     st->stmt.statement_if_else.if_body = if_body;
     // -- Asignar cuerpo de else
     st->stmt.statement_if_else.else_body = else_body;
+
+    // -- Asignar linea
+    st->stmt.statement_if_else.line = line;
     
     // -- Retornar sentencia creada e inicializada
     return st;
@@ -265,7 +271,7 @@ struct statement * create_statement_fork(char *process_name, unsigned long line)
     return st;
 }
 
-struct statement * create_statement_return(struct expression *returned_expr){
+struct statement * create_statement_return(struct expression *returned_expr, unsigned long line){
     struct statement *st = create_statement(STMT_RETURN);
 
     // -- Comprobar reserva de memoria exitosa
@@ -274,6 +280,9 @@ struct statement * create_statement_return(struct expression *returned_expr){
 
     // -- Asignar expresion de retorno
     st->stmt.statement_return.returned_expr = returned_expr;
+
+    // -- Asignar linea donde se definio la expresion de retorno
+    st->stmt.statement_return.line = line;
 
     // -- Retornar sentencia creada e inicializada
     return st;
@@ -303,119 +312,140 @@ void free_list_statements(struct statement *statements_list){
         // -- Seleccionar siguiente en la lista
         struct statement *next = current_statement->next;
         // -- Liberar nodo
-        free_statement(&current_statement);
+        free_statement(current_statement);
         // -- Nodo actual -> siguiente
         current_statement = next;
     }
 }
 
-void free_statement(struct statement **stmt){
-    // -- Obtener puntero original
-    struct statement *s = *stmt;
+void free_statement(struct statement *stmt){
 
     // -- Si NULL, simplemente devolver
-    if(!s)
+    if(!stmt)
         return;
 
     // -- Liberar tipo de sentencia (str)
-    if(s->kind_str){
-        free(s->kind_str);
-        s->kind_str = NULL;
+    if(stmt->kind_str){
+        free(stmt->kind_str);
+        stmt->kind_str = NULL;
     }
 
     // -- Liberar en funcion del tipo de sentencia
-    switch (s->kind)
+    switch (stmt->kind)
     {
     case STMT_ASSIGNMENT:
-        free(s->stmt.statement_assignment.variable_name);
-        s->stmt.statement_assignment.variable_name = NULL;
+        free(stmt->stmt.statement_assignment.variable_name);
+        stmt->stmt.statement_assignment.variable_name = NULL;
 
-        free_expression(&s->stmt.statement_assignment.index_expr);
-        free_expression(&s->stmt.statement_assignment.expr);
+        free_expression(stmt->stmt.statement_assignment.index_expr);
+        stmt->stmt.statement_assignment.index_expr = NULL;
+        free_expression(stmt->stmt.statement_assignment.expr);
+        stmt->stmt.statement_assignment.expr = NULL;
 
-        s->stmt.statement_assignment.symb = NULL;
+        // -- Liberacion de simbolo
+        if(stmt->stmt.statement_assignment.symb){
+            free_symbol(stmt->stmt.statement_assignment.symb);
+            stmt->stmt.statement_assignment.symb = NULL;
+        }
         break;
 
     case STMT_WHILE:
-        free_expression(&s->stmt.statement_while.condition);
+        free_expression(stmt->stmt.statement_while.condition);
+        stmt->stmt.statement_while.condition = NULL;
 
-        free_list_statements(s->stmt.statement_while.body);
-        s->stmt.statement_while.body = NULL;
+        free_list_statements(stmt->stmt.statement_while.body);
+        stmt->stmt.statement_while.body = NULL;
         break;
 
     case STMT_FOR:
-        free(s->stmt.statement_for.counter_name);
-        s->stmt.statement_for.counter_name = NULL;
+        free(stmt->stmt.statement_for.counter_name);
+        stmt->stmt.statement_for.counter_name = NULL;
 
-        free_expression(&s->stmt.statement_for.intialization);
-        free_expression(&s->stmt.statement_for.finish);
+        free_expression(stmt->stmt.statement_for.intialization);
+        stmt->stmt.statement_for.intialization = NULL;
+        free_expression(stmt->stmt.statement_for.finish);
+        stmt->stmt.statement_for.finish = NULL;
 
-        free_list_statements(s->stmt.statement_for.body);
-        s->stmt.statement_for.body = NULL;
+        free_list_statements(stmt->stmt.statement_for.body);
+        stmt->stmt.statement_for.body = NULL;
 
-        s->stmt.statement_for.symb = NULL;
+        // -- Liberacion de simbolo
+        if(stmt->stmt.statement_for.symb){
+            free_symbol(stmt->stmt.statement_for.symb);
+            stmt->stmt.statement_for.symb = NULL;
+        }
         break;
 
     case STMT_IF_ELSE:
-        free_expression(&s->stmt.statement_if_else.condition);
+        free_expression(stmt->stmt.statement_if_else.condition);
+        stmt->stmt.statement_if_else.condition = NULL;
 
-        free_list_statements(s->stmt.statement_if_else.if_body);
-        s->stmt.statement_if_else.if_body = NULL;
+        free_list_statements(stmt->stmt.statement_if_else.if_body);
+        stmt->stmt.statement_if_else.if_body = NULL;
 
-        if(s->stmt.statement_if_else.else_body){
-            free_list_statements(s->stmt.statement_if_else.else_body);
-            s->stmt.statement_if_else.else_body = NULL;
+        if(stmt->stmt.statement_if_else.else_body){
+            free_list_statements(stmt->stmt.statement_if_else.else_body);
+            stmt->stmt.statement_if_else.else_body = NULL;
         }
         break;
 
     case STMT_PROCEDURE_INV:
-        free(s->stmt.statement_procedure_inv.procedure_name);
-        s->stmt.statement_procedure_inv.procedure_name = NULL;
+        free(stmt->stmt.statement_procedure_inv.procedure_name);
+        stmt->stmt.statement_procedure_inv.procedure_name = NULL;
 
-        if(s->stmt.statement_procedure_inv.arguments_list){
-            free_list_expressions(s->stmt.statement_procedure_inv.arguments_list);
-            s->stmt.statement_procedure_inv.arguments_list = NULL;
+        if(stmt->stmt.statement_procedure_inv.arguments_list){
+            free_list_expressions(stmt->stmt.statement_procedure_inv.arguments_list);
+            stmt->stmt.statement_procedure_inv.arguments_list = NULL;
         }
 
-        s->stmt.statement_procedure_inv.symb = NULL;
+
+        // -- Liberacion de simbolo
+        if(stmt->stmt.statement_procedure_inv.symb){
+            free_symbol(stmt->stmt.statement_procedure_inv.symb);
+            stmt->stmt.statement_procedure_inv.symb = NULL;
+        }
+        
         break;
 
     case STMT_BLOCK_BEGIN:
-        free_list_statements(s->stmt.statement_block.body);
-        s->stmt.statement_block.body = NULL;
+        free_list_statements(stmt->stmt.statement_block.body);
+        stmt->stmt.statement_block.body = NULL;
         break;
 
     case STMT_BLOCK_COBEGIN:
-        free_list_statements(s->stmt.statement_block.body);
-        s->stmt.statement_block.body = NULL;
+        free_list_statements(stmt->stmt.statement_block.body);
+        stmt->stmt.statement_block.body = NULL;
         break;
 
     case STMT_FORK:
-        free(s->stmt.statement_fork.forked_process);
-        s->stmt.statement_fork.forked_process = NULL;
+        free(stmt->stmt.statement_fork.forked_process);
+        stmt->stmt.statement_fork.forked_process = NULL;
 
-        s->stmt.statement_fork.symb = NULL;
+        // -- Liberacion de simbolo
+        if(stmt->stmt.statement_fork.symb){
+            free_symbol(stmt->stmt.statement_fork.symb);
+            stmt->stmt.statement_fork.symb = NULL;   
+        }
         break;
 
     case STMT_ATOMIC:
-        free_list_statements(s->stmt.statement_block.body);
-        s->stmt.statement_block.body = NULL;
+        free_list_statements(stmt->stmt.statement_block.body);
+        stmt->stmt.statement_block.body = NULL;
         break;
 
     case STMT_RETURN:
-        free_expression(&s->stmt.statement_return.returned_expr);
+        free_expression(stmt->stmt.statement_return.returned_expr);
+        stmt->stmt.statement_return.returned_expr = NULL;
         break;
 
     case STMT_PRINT:
-        free_list_expressions(s->stmt.statement_print.expressions_list);
-        s->stmt.statement_print.expressions_list = NULL;
+        free_list_expressions(stmt->stmt.statement_print.expressions_list);
+        stmt->stmt.statement_print.expressions_list = NULL;
         break;
     }
     
     // -- Liberar nodo
-    free(s);
-    // -- Poner puntero a NULL
-    *stmt = NULL;
+    free(stmt);
 }
 
 // ===============================================================

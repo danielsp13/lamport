@@ -127,60 +127,60 @@ void free_list_process(struct process *process_list){
         // -- Seleccionar siguiente en la lista
         struct process *next = current_process->next;
         // -- Liberar nodo
-        free_process(&current_process);
+        free_process(current_process);
         // -- Nodo actual -> siguiente
         current_process = next;
     }
 }
 
-void free_process(struct process **proc){
-    // -- Obtener puntero original
-    struct process *p = *proc;
-
+void free_process(struct process *proc){
     // -- Si NULL, simplemente devolver
-    if(!p)
+    if(!proc)
         return;
 
     // -- Liberar tipo de proceso (str)
-    if(p->kind_str){
-        free(p->kind_str);
-        p->kind_str = NULL;
+    if(proc->kind_str){
+        free(proc->kind_str);
+        proc->kind_str = NULL;
     }
 
     // -- Liberar nombre de proceso
-    if(p->name_process){
-        free(p->name_process);
-        p->name_process = NULL;
+    if(proc->name_process){
+        free(proc->name_process);
+        proc->name_process = NULL;
     }
 
     // -- Liberar declaraciones de proceso
-    if(p->declarations){
-        free_list_declarations(p->declarations);
-        p->declarations = NULL;
+    if(proc->declarations){
+        free_list_declarations(proc->declarations);
+        proc->declarations = NULL;
     }
 
     // -- Liberar sentencias de proceso
-    if(p->statements){
-        free_list_statements(p->statements);
-        p->statements = NULL;
+    if(proc->statements){
+        free_list_statements(proc->statements);
+        proc->statements = NULL;
     }
 
     // -- Comprobar tipo de proceso para definir mas liberaciones
-    switch (p->kind)
+    switch (proc->kind)
     {
     case PROCESS_VECTOR:
         // -- Liberar identificador de indexacion de proceso
-        free(p->index_identifier);
-        p->index_identifier = NULL;
+        free(proc->index_identifier);
+        proc->index_identifier = NULL;
 
         // -- Liberar rango de inicio
-        free_expression(&p->index_start);
+        free_expression(proc->index_start);
+        proc->index_start = NULL;
 
         // -- Liberar rango de fin
-        free_expression(&p->index_end);
+        free_expression(proc->index_end);
+        proc->index_end = NULL;
 
         // -- Liberar referencia a simbolo de la tabla de simbolos (id de indice en caso de vector)
-        p->symb_index = NULL;
+        free_symbol(proc->symb_index);
+        proc->symb_index = NULL;
 
         break;
     
@@ -189,12 +189,14 @@ void free_process(struct process **proc){
     }
 
     // -- Liberar referencia a simbolo de la tabla de simbolos (id de proceso)
-    p->symb_process = NULL;
+    if(proc->symb_process){
+        free_symbol(proc->symb_process);
+        proc->symb_process = NULL;
+    }
+        
 
     // -- Liberar nodo
-    free(p);
-    // -- Poner puntero a NULL
-    *proc = NULL;
+    free(proc);
 }
 
 // ===============================================================

@@ -53,9 +53,11 @@ struct subprogram{
     subprogram_t kind;                      ///< Tipo de subprograma
     char *kind_str;                         ///< Tipo de subprograma (string)
     char *name_subprogram;                  ///< Nombre de subprograma
-    struct parameter *parameters;      ///< Lista de parametros del subprograma
+    struct parameter *parameters;           ///< Lista de parametros del subprograma
+    struct type *type_parameters;           ///< Lista de tipos de parametros
     struct declaration *declarations;       ///< Declaraciones del subprograma
     struct statement *statements;           ///< Sentencias del programa
+    struct statement *ret;                  ///< Sentencia de retorno del programa
     struct type *type;                      ///< Tipo de retorno (solo funciones)
     struct subprogram *next;                ///< Puntero a siguiente subprograma
 
@@ -114,9 +116,9 @@ void free_list_subprograms(struct subprogram *subprograms_list);
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo subprograma
- * @param subprog : Puntero a nodo subprograma
+ * @param subprog : nodo subprograma
  */
-void free_subprogram(struct subprogram **subprog);
+void free_subprogram(struct subprogram *subprog);
 
 // ===============================================================
 

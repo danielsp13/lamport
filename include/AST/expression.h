@@ -322,9 +322,9 @@ void free_list_expressions(struct expression *expressions_list);
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo expresion
- * @param expr : Puntero a nodo expresion
+ * @param expr : nodo expresion
  */
-void free_expression(struct expression **expr);
+void free_expression(struct expression *expr);
 
 // ===============================================================
 
@@ -341,11 +341,25 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
 
 // ----- PROTOTIPO DE FUNCIONES DE GESTION DE NODO (EXPRESIONES) -----
 
+struct expression * copy_list_expressions(struct expression *list_expressions);
+
 /**
  * @brief Realiza una copia de un nodo expresion, devolviendo otra con el mismo contenido
  * @param expr : expresion a copiar
  * @return puntero a copia de expresion inicializado
  */
 struct expression * copy_expression(struct expression *expr);
+
+struct expression * copy_expression_binary(struct expression *expr);
+
+struct expression * copy_expression_unary(struct expression *expr);
+
+struct expression * copy_expression_identifier(struct expression *expr);
+
+struct expression * copy_expression_literal(struct expression *expr);
+
+struct expression * copy_expression_function_inv(struct expression *expr);
+
+struct expression * copy_expression_grouped(struct expression *expr);
 
 #endif //_LAMPORT_AST_EXPRESSION_DPR_
