@@ -1169,74 +1169,61 @@ case 57:
 YY_RULE_SETUP
 #line 94 "src/lexer/lexer.l"
 {
-    #ifndef LEXER_TEST 
-        // -- Incluir cadena al registro de cadenas
-        if(add_string_to_register(strdup(yytext)))
-            yylval.ident = get_last_str_reg();
-        
-    #endif
+    // -- Incluir cadena al registro de cadenas
+    if(add_string_to_register(strdup(yytext)))
+        yylval.ident = get_last_str_reg();
     return(IDENT);
     }
 	YY_BREAK
 case 58:
 /* rule 58 can match eol */
 YY_RULE_SETUP
-#line 103 "src/lexer/lexer.l"
+#line 100 "src/lexer/lexer.l"
 {
-    #ifndef LEXER_TEST
-        // -- Incluir cadena al registro de cadenas
-        if(add_string_to_register(strdup(yytext)))
-            yylval.literal_string = get_last_str_reg();
-            
-    #endif
+    if(add_string_to_register(strdup(yytext)))
+        yylval.literal_string = get_last_str_reg();
     return(LITERAL);
     }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 112 "src/lexer/lexer.l"
+#line 105 "src/lexer/lexer.l"
 {
-    #ifndef LEXER_TEST
-        yylval.literal_int = atoi(yytext); 
-    #endif 
+    yylval.literal_int = atoi(yytext); 
     return(L_INTEGER);
     }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 118 "src/lexer/lexer.l"
+#line 109 "src/lexer/lexer.l"
 {
-    #ifndef LEXER_TEST
-        yylval.literal_float = atof(yytext); 
-    #endif
+    yylval.literal_float = atof(yytext); 
     return(L_REAL);
     }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 124 "src/lexer/lexer.l"
+#line 113 "src/lexer/lexer.l"
 {
-    #ifndef LEXER_TEST
-        yylval.literal_char = yytext[1]; 
-    #endif
+    yylval.literal_char = yytext[1]; 
     return(L_CHAR);
     }
 	YY_BREAK
 case 62:
 /* rule 62 can match eol */
 YY_RULE_SETUP
-#line 130 "src/lexer/lexer.l"
+#line 117 "src/lexer/lexer.l"
 { /*IGNORAR*/ }
 	YY_BREAK
 case 63:
 /* rule 63 can match eol */
 YY_RULE_SETUP
-#line 131 "src/lexer/lexer.l"
+#line 118 "src/lexer/lexer.l"
 { /*IGNORAR*/ }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 132 "src/lexer/lexer.l"
+#line 119 "src/lexer/lexer.l"
 {
     /*Regla para patrones no reconocidos */
     return(UNRECOGNIZED_TOKEN);
@@ -1244,10 +1231,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 137 "src/lexer/lexer.l"
+#line 124 "src/lexer/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1251 "src/lexer/lexer.c"
+#line 1238 "src/lexer/lexer.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2264,7 +2251,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 137 "src/lexer/lexer.l"
+#line 124 "src/lexer/lexer.l"
 
 
 /* FUNCIONES AUXILIARES */

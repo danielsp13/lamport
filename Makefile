@@ -41,7 +41,7 @@ VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex libfl-dev bison
-TEST_DEPENDENCIES=libcmocka-dev cppcheck valgrind
+TEST_DEPENDENCIES=cppcheck valgrind
 
 # -- Variables referentes a compilacion/comprobacion de ficheros
 GXX:=gcc
@@ -142,7 +142,7 @@ INDEX_OBJ_SEMANTIC_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_SEMANTIC_FILES))
 INDEX_OBJ_ERROR_FILES:=$(addsuffix $(OBJ_EXT),$(INDEX_ERROR_FILES))
 INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_UTILS_FILES) 
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES)
 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -474,7 +474,6 @@ help:
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 	@printf "%-30s %s\n" "make compile" "Compila todos los fuentes del proyecto."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
-	@printf "%-30s %s\n" "make tests" "Compila y ejecuta los tests sobre los fuentes del proyecto."
 	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 	@echo "$(COLOR_RESET)"
 
@@ -616,25 +615,6 @@ compile_error: build_obj_dir
 # -- Genera codigo objeto para las dependencias del compilador Lamport
 compile_lmp_utils: build_obj_dir
 	$(call compile_objects_skeleton,$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
-	
-	
-	
-# ========================================================================================
-# DEFINICION DE REGLAS DE COMPILACION DE FICHEROS DE TESTS
-# ========================================================================================
-
-# -- Compila los ficheros de tests
-compile_tests:
-	@echo "$(COLOR_BLUE)Compilando ficheros de test sobre fuentes...$(COLOR_RESET)"	
-	@make -s compile_tests_lexer
-	
-# -- Compila los ficheros de tests sobre modulo: lexer
-compile_tests_lexer: build_bin_dir build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_TEST_UTILS_FILES),"$(TEST_UTILS_MODULE)/","common tests resources",$(LDFLAGS))
-	@echo
-	$(call compile_tests_skeleton,$(INDEX_TEST_LEXER_FILES),"analizador lexico",$(LDFLEX), $(UNDEFINED_MACROS))
-	@echo
-	@make -s clean_objects
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE TESTEO DE FUENTES
@@ -643,16 +623,6 @@ compile_tests_lexer: build_bin_dir build_obj_dir
 # -- Comprueba la sintaxis de los fuentes del proyecto
 check:
 	$(call parse_and_check_files_skeleton,$(INDEX_DIRS),$(EXCLUDE_CHECK_FILES))
-
-# -- Ejecuta los tests sobre los fuentes del proyecto
-tests:
-	@printf "$(COLOR_BLUE)\nEjecutando tests sobre fuentes del proyecto...\n$(COLOR_RESET)"
-	@make -s test_lexer
-
-# -- Ejecuta los tests sobre modulo: lexer
-test_lexer: 
-	$(call check_compiled_files_skeleton,$(INDEX_TEST_LEXER_FILES),compile_tests_lexer)
-	$(call exec_tests_skeleton,lexer,$(INDEX_TEST_LEXER_FILES))
 	
 mem_check:
 	@valgrind --leak-check=full $(BIN_DIR)/$(LMP_MAIN_NAME) $(LMP_FILE)

@@ -92,39 +92,26 @@ comentario  "{"[^}]*"}"
 "<<"            {return(ATOM_INI);}
 ">>"            {return(ATOM_FIN);}
 {id}            {
-    #ifndef LEXER_TEST 
-        // -- Incluir cadena al registro de cadenas
-        if(add_string_to_register(strdup(yytext)))
-            yylval.ident = get_last_str_reg();
-        
-    #endif
+    // -- Incluir cadena al registro de cadenas
+    if(add_string_to_register(strdup(yytext)))
+        yylval.ident = get_last_str_reg();
     return(IDENT);
     }
 {literal}       {
-    #ifndef LEXER_TEST
-        // -- Incluir cadena al registro de cadenas
-        if(add_string_to_register(strdup(yytext)))
-            yylval.literal_string = get_last_str_reg();
-            
-    #endif
+    if(add_string_to_register(strdup(yytext)))
+        yylval.literal_string = get_last_str_reg();
     return(LITERAL);
     }
 {entero}        {
-    #ifndef LEXER_TEST
-        yylval.literal_int = atoi(yytext); 
-    #endif 
+    yylval.literal_int = atoi(yytext); 
     return(L_INTEGER);
     }
 {real}          {
-    #ifndef LEXER_TEST
-        yylval.literal_float = atof(yytext); 
-    #endif
+    yylval.literal_float = atof(yytext); 
     return(L_REAL);
     }
 {caracter}      {
-    #ifndef LEXER_TEST
-        yylval.literal_char = yytext[1]; 
-    #endif
+    yylval.literal_char = yytext[1]; 
     return(L_CHAR);
     }
 {comentario}    { /*IGNORAR*/ }

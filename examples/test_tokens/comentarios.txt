@@ -1,2 +1,0 @@
-{esto es un comentario de una linea} 12
-{esto es un comentario de \n tres \n lineas} 123

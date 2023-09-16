@@ -160,7 +160,7 @@ Esto limpiará también todos los ficheros de tests generados
 
 ### :white_check_mark: <a name="lamport-test"></a> Testeo de módulos
 
-Todo el código que se desarrolle, debe ser probado. Para ello en este proyecto se ha utilizado un test framework ([cmocka](https://cmocka.org/)) que ejecuta tests unitarios sobre cada implementación, asegurando la calidad e integración del código. Además, también se ha utilizado una herramienta de análisis ([cppcheck](https://cppcheck.sourceforge.io/)) para realizar análisis sobre las clases en búsqueda de errores / fallos que el compilador no es capaz de detectar.
+Todo el código que se desarrolle, debe ser probado. Para ello en este proyecto se ha utilizado una herramienta de análisis ([cppcheck](https://cppcheck.sourceforge.io/)) para realizar análisis sobre las clases en búsqueda de errores / fallos que el compilador no es capaz de detectar.
 
 
 
@@ -168,12 +168,4 @@ Si desea comprobar la sintaxis y lanzar un análisis (sin compilación) de todas
 
 ~~~bash
 $ make check
-~~~
-
-
-
-Si desea lanzar los tests definidos para las clases implementadas:
-
-~~~bash
-$ make tests
 ~~~
