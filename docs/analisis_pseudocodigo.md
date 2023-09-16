@@ -13,72 +13,134 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 * **[Sintaxis del Lenguaje](#sintaxis-bnf)** : Ha sido definida utilizando la [Notación de Backus-Naur (BNF)](https://www.cs.umsl.edu/~janikow/cs4280/bnf.pdf).
 * **[Tabla de prioridad de operadores](#prioridad-operadores)** : Para evitar ambigüedades y definir correctamente el orden de evaluación de expresiones, siguiendo, por ejemplo, el enfoque utilizado en el [lenguaje C](https://en.cppreference.com/w/c/language/operator_precedence).
 * **[Tabla de Tokens](#tabla-tokens)** : Esencial para el funcionamiento del analizador léxico, para definir y reconocer los diferentes tipos de tokens que pueden aparecer en el código fuente.
-* **[Descripción de las reglas de producción (Bison)](#sintaxis-bison)** : Para poder generar el analizador sintáctico, es necesario reajustar la sintaxis adaptando la notación BNF.
+* **[Descripción semántica del Lenguaje](#semantic-lamport)** : Para dar coherencia a las instrucciones del lenguaje, es necesario definir ciertas reglas 
 
 ****
 
 #### <a name="sintaxis-bnf"></a> Sintaxis del lenguaje Lamport utilizando la notación BNF
 
 ~~~bash
+# Definicion de reglas de sintaxis de creacion de programas
 <program> ::= "program" <identifier> [<declarations>] (<subprogram>)* <process>+
-<declarations> ::= ("var" <identifier> ":" <type> [:= <expression>] ";")+
-<subprogram> ::= <procedure-definition>
-	| <function-definition>
-<type> ::= "integer"
-	| "boolean"
+# Definion de reglas de sintaxis de creacion de declaraciones de variable
+# Las declaraciones de variables se pueden encontrar:
+#  --- Al principio de un programa: variables globales
+#  --- Al principio de un subprograma: variables locales
+#  --- Al principio de un proceso: variables locales
+<declarations> ::= ("var" <identifier> ":" <type> [":=" <expression>] ";")+
+# Definicion de reglas de sintaxis de creacion de tipos
+# Los tipos pueden ser:
+#  --- Atómicos (básicos) : INTEGER, REAL, CHAR, STRING, BOOLEAN
+#  --- Compuestos : ARRAY [size].
+#  --- Especiales : SEMAPHORE, DPROCESS
+<type> ::= <basic-type-or-array>
+	| <special-type>
+
+<basic-type-or-array> ::= <basic-type>
+	| "array" "[" <expression> "]" <basic-type>
+
+<special-type> ::= "semaphore"
+	| "dprocess"
+
+<basic-type> ::= "integer"
+	| "real"
 	| "char"
 	| "string"
-	| "real"
- 	| "array" "[" <expression> "]" <type>
- 	| "semaphore"
- 	| "dprocess"
-<process> ::= "process" <identifier> [ "[" <identifier> : <expression>
- 	".." <expression> "]" ] ";" [<declarations>] <block-statement>
-<block-statement> ::= "begin" (<statement>)+ "end"
+	| "boolean"
+# Definicion de reglas de sintaxis de creacion de subprogramas
+# Los subprogramas pueden ser:
+#  --- Funciones : retornan tipo de dato (o basicos, o ARRAY)
+#  --- Procedimientos : no retornan datos (funciones void)
+<subprogram> ::= <procedure-definition>
+	| <function-definition>
+
 <procedure-definition> ::= "procedure" <identifier> "(" <parameters> ")" ";"
- 	[<declarations>] <block-statement>
-<function-definition> ::= "function" <identifier> "(" <parameters> ")" ":" <type>
- 	";" [<declarations>] <block-statement-function>
-<block-statement-function> ::= "begin" (<statement>)+ <return-statement> "end"
+	[<declarations>] <block-statements-begin-end>
+	
+<procedure-function> ::= "function" <identifier> "(" <parameters> ")" ":" <basic-type-or-array>
+	";" [<declarations>] <block-statements-function>
+# Definicion de reglas de sintaxis de creacion de parametros
+# Los parametros son listas de identificadores seguidos de un tipo de dato
 <parameters> ::= [<parameter> ["," <parameters>]]
-<parameter> ::= <identifier> ":" <type>
+<parameter> ::= <identifier> ":" <basic-type-or-array>
+# Definicion de reglas de sintaxis de creacion de procesos
+# Los procesos pueden ser:
+#   --- Normales (Single).
+#	--- Vectorizados. Definen una serie de procesos con base en un indexador
+<process> ::= "process" <identifier> [ "[" <identifier> : <expression>
+ 	".." <expression> "]" ] ";" [<declarations>] <block-statements-process>
+# Definicion de reglas de sintaxis de sentencias
+# Las diferentes sentencias disponibles para el lenguaje son:
+#   --- Bloque de sentencias BEGIN/END
+#   --- Bloque de sentencias COBEGIN/COEND
+#   --- Bloque de sentencias ATOMICAS
+#   --- Asignacion
+#   --- Bucle for
+#   --- Bucle while
+#   --- If/else
+#   --- Fork
+#   --- Join
+#   --- Llamada a procedimiento
+#   --- Impresion de contenido (print)
+<block-statement> ::= <block-statements-begin-end>
+	| <block-statements-cobegin-coend>
+	| <block-statements-atomic>
+	| <block-statements-function>
+	| <block-statements-process>
+	
+<block-statements-begin-end> ::= "begin" (<statement>)+ "end"
+<block-statements-cobegin-coend> ::= "cobegin" (<statement>)+ "coend"
+<block-statements-atomic> ::= "<<" (statement)+ ">>"
+<block-statements-function> ::= "begin" (<statement>)+ <return-statement> "end"
+<block-statements-process> ::= <block-statements-begin-end>
+	| <block-statements-cobegin-coend>
+	
 <statement> ::= <assignment-statement>
- 	| <while-statement>
+	| <while-statement>
 	| <for-statement>
 	| <if-statement>
-	| <procedure-invocation>
-	| <block-statement>
-	| <cobegin-statement>
+	| <procedure-call-statement>
 	| <fork-statement>
-	| <atomic-statement>
+	| <join-statement>
 	| <print-statement>
-<cobegin-statement> ::= "cobegin" (<statement>)+ "coend"
-<fork-statement> ::= "fork" <identifier> ";"
-<atomic-statement> ::= "<<" (<statement>)+ ">>"
+	
 <assignment-statement> ::= <identifier> ["[" <expression> "]"] ":=" <expression> ";"
-<while-statement> ::= "while" <expression> "do" <block-statement>
+<while-statement> ::= "while" <expression> "do" <block-statements-begin-end>
 <for-statement> ::= "for" <identifier> ":=" <expression> "to" <expression> "do"
- 	<block-statement>
-<if-statement> ::= "if" <expression> "then" <block-statement>
-	["else" <block-statement>]
-<procedure-invocation> ::= <identifier> "(" <arguments> ")" ";"
-<function-invocation> ::= <identifier> "(" <arguments> ")"
-<arguments> ::= [<expression> ["," <arguments>]]
-<return-statement> ::= "return" <expression> ";"
+ 	<block-statements-begin-end>
+<if-statement> ::= "if" <expression> "then" <block-statements-begin-end>
+	["else" <block-statements-begin-end>]
+<procedure-call-statement> ::= <identifier> "(" <arguments> ")" ";"
+<fork-statement> ::= "fork" <identifier> ";"
+<join-statement> ::= "join" <identifier> ";"
+
 <print-statement> ::= "print" "(" <print-list> ")" ";"
 <print-list> ::= <expression> ("," <expression>)*
+
+<return-statement> ::= "return" <expression> ";"
+# Definicion de reglas de sintaxis de expresiones
+# Las diferentes expresiones disponibles para el lenguaje son:
+#   --- binarias (<expression> simbolo <expresion>)
+#   --- unarias  (simbolo <expression>)
+# 	--- literales (INTEGER, REAL, CHAR, STRING, BOOLEAN)
+#   --- identificador (variable de tipo básico/ARRAY)
+# 	--- llamada a función
+#   --- expresion entre parentesis
 <expression> ::= <term> <binary-operator> <expression>
 	| <unary-operator> <term>
 	| <term>
+
 <term> ::= <identifier> ["[" <expression> "]"]
-	| <literal>
-	| <function-invocation>
+	| <literal-expression>
+	| <function-call-expression>
 	| "(" <expression> ")"
-<literal> ::= <integer-literal>
-	| <boolean-literal>
+	
+<literal-expression> ::= <integer-literal>
+	| <real-literal>
 	| <string-literal>
 	| <char-literal>
-	| <real-literal>
+	| <boolean-literal>
+	
 <integer-literal> ::= <digit>+
 <boolean-literal> ::= "true" | "false"
 <string-literal> ::= cualquier secuencia de caracteres del juego de caracteres
@@ -90,11 +152,18 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 <letter-or-digit> ::= <letter> | <digit>
 <letter> ::= [a-zA-Z]
 <digit> ::= [0-9]
+
+<function-call-expression> ::= <identifier> "(" <arguments> ")"
+
 <binary-operator> ::= "*" | "/" | "+" | "-" | "%" |
  	| ">" | "<" | "<=" | ">=" | "==" | "!="
 	| "and" | "or"
 <unary-operator> ::= "-" | "not"
+# Definicion de reglas de sintaxis de generacion de argumentos
+<arguments> ::= [<expression> ["," <arguments>]]
 ~~~
+
+
 
 ****
 
@@ -187,222 +256,31 @@ Para la designación de las clases de los tokens, se ha decidido utilizar un con
 
 ****
 
-#### <a name="sintaxis-bison"></a> Descripción de las reglas de producción (Bison)
+#### <a name="semantic-lamport"></a> Descripción semántica del lenguaje
 
-~~~C
-// -- Regla de generacion de programa completo
-program:
-    S_PROGRAM identifier opt-declarations opt-subprograms program-process
-    ;
+En lenguaje **Lamport** se puede describir como _inseguro_, _estático_ y _explícito_. Esto quiere decir que:
 
-// -- Reglas de generacion de declaraciones del programa
-opt-declarations:
-    declarations
-    | /* epsilon */
-    ;
+* ***Inseguro***: En un lenguaje de programación no seguro, se permiten escribir programas válidos que pueden tener un comportamiento indefinido que viola la estructura básica del programa. Esto por ejemplo se puede ver en los accesos a un ARRAY, donde si tiene tamaño 100 y se accede a una posición fuera de ese rango, compilará, pero puede que su comportamiento será indecible.
+* ***Estático***: La comprobación de tipos se realiza en tiempo de compilación. Cuando llegue el momento de traducir el código a binario, no será necesario mantener información del tipo de dato de cada variable, subprograma o parámetro, porque todas las operaciones se habrán verificado y determinado como seguras.
+* ***Explícito***: El programador es responsable de indicar los tipos de variables o de otros elementos de código explícitamente.
 
-declarations:
-    S_VAR list-variable-declarations
-    ;
+Con respecto a los tipos de dato del lenguaje Lamport:
 
-list-variable-declarations:
-    variable-declaration
-    | list-variable-declarations variable-declaration
-    ;
+* **Tipos básicos (atómicos):**
+  * `integer` : entero con signo de 32 bits.
+  * `real`  : número flotante con signo de 32 bits.
+  * `char` : caracteres ASCII.
+  * `string` : cadena de caracteres ASCII, terminados en "\0".
+  * `boolean` : símbolos *true* y *false*.
+* **Tipos compuestos:**
+  * `array [size] basic-type` : array de tamaño *size* y de tipo atómico *basic-type*.
 
-variable-declaration:
-    identifier DELIM_2P type variable-assignation DELIM_PC
-    ;
+Finalmente, con respecto a las reglas de validación de operaciones:
 
-variable-assignation:
-    OP_ASSIGN expression
-    | /* epsilon */
-    ;
-
-// -- Reglas de generacion de subprogramas del programa
-opt-subprograms:
-    list-subprograms
-    | /* epsilon */
-    ;
-
-list-subprograms:
-    subprogram
-    | list-subprograms subprogram
-    ;
-
-subprogram:
-    procedure-definition
-    | function-definition
-    ;
-
-// -- Reglas de generacion de procesos del programa
-program-process:
-    process
-    | program-process process
-    ;
-
-process:
-    S_PROCESS identifier array-of-process DELIM_PC opt-declarations block-statement
-    ;
-
-array-of-process:
-    CORCH_IZDO identifier DELIM_2P L_INTEGER DELIM_ARR L_INTEGER CORCH_DCHO
-    | /* epsilon */
-    ;
-
-// -- Reglas de generacion de tipos de dato
-type:
-    T_INTEGER
-    | T_BOOLEAN
-    | T_CHAR
-    | T_STRING
-    | T_REAL
-    | T_ARRAY CORCH_IZDO expression CORCH_DCHO type
-    | T_SEMAPHORE
-    | T_DPROCESS
-    ;
-
-// -- Reglas de generacion de definicion de funciones y procedimientos
-procedure-definition:
-    S_PROCEDURE identifier PAR_IZDO opt-parameters PAR_DCHO opt-declarations block-statement
-    ;
-
-function-definition:
-    S_FUNCTION identifier PAR_IZDO opt-parameters PAR_DCHO DELIM_2P type DELIM_PC opt-declarations block-statement
-    ;
-
-opt-parameters:
-    list-parameters
-    | /* epsilon */
-    ;
-
-list-parameters:
-    parameter
-    | list-parameters DELIM_C parameter
-    ;
-
-parameter:
-    identifier DELIM_2P type
-    ;
-
-// -- Reglas de generacion de sentencias
-list-statements:
-    statement
-    | list-statements statement
-    ;
-
-statement:
-    block-statement
-    | cobegin-statement
-    | assignment-statement
-    | while-statement
-    | for-statement
-    | if-statement
-    | procedure-invocation
-    | fork-statement
-    | atomic-statement
-    | return-statement
-    ;
-
-block-statement:
-    B_BEGIN list-statements B_END
-    ;
-
-cobegin-statement:
-    B_COBEGIN list-statements B_COEND
-    ;
-
-assignment-statement:
-    identifier array-assignment-statement OP_ASSIGN expression DELIM_PC
-    ;
-
-array-assignment-statement:
-    CORCH_IZDO expression CORCH_DCHO
-    | /* epsilon */
-    ;
-
-while-statement:
-    WHILE expression DO block-statement
-    ;
-
-for-statement:
-    FOR identifier OP_ASSIGN expression TO expression DO block-statement
-    ;
-
-if-statement:
-    IF expression THEN block-statement
-    | IF expression THEN block-statement ELSE block-statement
-    ;
-
-fork-statement:
-    S_FORK identifier statement
-    ;
-
-atomic-statement:
-    ATOM_INI list-statements ATOM_FIN
-    ;
-
-return-statement:
-    RETURN expression DELIM_PC
-    ;
-
-// -- Reglas de generacion de invocaciones de funciones y procedimientos
-procedure-invocation:
-    identifier PAR_IZDO opt-parameters PAR_DCHO DELIM_PC
-    ;
-
-function-invocation:
-    identifier PAR_IZDO opt-parameters PAR_DCHO
-    ;
-
-// -- Reglas de generacion de expresiones
-expression:
-    term binary-operator expression
-    | unary-operator term
-    | term
-    ;
-
-term:
-    identifier
-    | literal
-    | function-invocation
-    | PAR_IZDO expression PAR_DCHO
-    ;
-    
-// -- Reglas de generacion de literales
-literal:
-    LITERAL
-    | L_INTEGER
-    | L_BOOLEAN_TRUE
-    | L_BOOLEAN_FALSE
-    | L_CHAR
-    | L_REAL
-    ;
-
-identifier:
-    IDENT
-    ;
-
-// -- Reglas de generacion de operadores binarios y unarios
-binary-operator:
-    OP_MULT
-    | OP_DIV
-    | OP_SUM
-    | OP_MINUS
-    | OP_MOD
-    | OP_REL_GT
-    | OP_REL_LT
-    | OP_REL_GTE
-    | OP_REL_LTE
-    | OP_REL_EQ
-    | OP_REL_NEQ
-    | OP_AND
-    | OP_OR
-    ;
-
-unary-operator:
-    OP_MINUS
-    | OP_NOT
-    ;
-~~~
-
+* Sólo se puede asignar un único valor a un variable al mismo tiempo. Definir dos asignaciones diferentes, efectivamente, son dos operaciones distintas.
+* Un parámetro de función sólo acepta un un valor al mismo tiempo.
+* En un subprograma función, el tipo de dato que devuelve debe coincidir con el tipo de dato de su sentencia de retorno `return-statement`.
+* Los operadores de comparación de igualdad `!=` y `==` pueden aceptar cualquier tipo de dato *básico*.
+* Los operadores de comparación `<`, `>`, `<=`, `>=` sólo aceptan o números enteros `integer` o reales `real` en ambos miembros de la comparación, y además, deben coincidir en tipo.
+* Los operadores aritméticos `+`, `-`, `*`, `/`, sólo aceptan números enteros `integer` o reales `real` en ambos miembros de la comparación, y además, deben coincidir en tipo. Es decir, no se pueden aplicar a `integer` y `real` simultáneamente.
+* El operador aritmético `%` sólo acepta números enteros `integer`.
