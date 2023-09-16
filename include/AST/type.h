@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "expression.h"          ///< Expresiones
 #include "print_assistant.h"     ///< Asistencia de impresion de AST
@@ -72,6 +73,7 @@ struct type{
     char *kind_str;                         ///< Tipo de dato (en formato string)
     struct type *subtype;                   ///< Subtipo de dato (arrays)
     struct expression *size;                ///< Size de dato (arrays)
+    struct type *next;                      ///< Puntero a siguiente tipo (NULL)
 };
 
 // ===============================================================
@@ -110,10 +112,16 @@ struct type * create_dprocess_type();
 // ----- PROTOTIPO DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO TIPOS) ------
 
 /**
- * @brief Libera la memoria asignada para un nodo de tipo type
- * @param type : Puntero a nodo tipo
+ * @brief Libera la memoria asignada para una lista de nodos
+ * @param list_types : lista de nodos
  */
-void free_type(struct type **type);
+void free_list_types(struct type *list_types);
+
+/**
+ * @brief Libera la memoria asignada para un nodo de tipo type
+ * @param type : nodo tipo
+ */
+void free_type(struct type *type);
 
 // ===============================================================
 
@@ -125,5 +133,32 @@ void free_type(struct type **type);
  * @param depth : Profundidad en la impresion del nodo
  */
 void print_AST_type(struct type *type, unsigned int depth);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES DE ASISTENCIA DE USO DE TIPOS -----
+
+/**
+ * @brief Comprueba que dos tipos de dato son iguales
+ * @param type_a : tipo de dato a
+ * @param type_b : tipo de dato b
+ * @return TRUE si son iguales, FALSE en otro caso
+ */
+bool equals_type(struct type *type_a, struct type *type_b);
+
+/**
+ * @brief Realiza una copia completa del tipo de dato pasado como argumento
+ * @param type : tipo de dato
+ * @return puntero a copia de tipo de dato
+ */
+struct type * copy_type(struct type *type);
+
+/**
+ * @brief Realiza una copia completa de la lista de tipos pasada como argumento
+ * @param list_types : lista de tipos de dato
+ * @return puntero a lista de tipos
+ */
+struct type * copy_list_types(struct type *list_types);
+
 
 #endif //_LAMPORT_AST_TYPE_DPR_

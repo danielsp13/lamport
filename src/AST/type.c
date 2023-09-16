@@ -51,7 +51,7 @@ struct type * create_basic_type(type_t kind){
         t->kind_str = strdup("semaphore");
         break;
     case TYPE_DPROCESS:
-        t->kind_str = strdup("dprocess");
+        t->kind_str = strdup("dinamic process");
         break;
     }
 
@@ -109,24 +109,41 @@ struct type * create_dprocess_type(){
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO TIPOS) -----
 
-void free_type(struct type **type){
-    // -- Obtener puntero
-    struct type *t = *type;
+void free_list_types(struct type *list_types){
+    if(!list_types)
+        return;
 
+    struct type * current_type = list_types;
+    while(current_type){
+        struct type * next = current_type->next;
+        free_type(current_type);
+        current_type = next;
+    }
+}
+
+void free_type(struct type *type){
     // -- Si NULL, simplemente devolver
-    if(!t)
+    if(!type)
         return;
 
     // -- Liberar tipo de dato (str)
-    free(t->kind_str);
-    t->kind_str = NULL;
+    free(type->kind_str);
+    type->kind_str = NULL;
 
     // -- Liberar en funcion del tipo
-    switch (t->kind)
+    switch (type->kind)
     {
     case TYPE_ARRAY:
-        free_type(&t->subtype);
-        free_expression(&t->size);
+        // -- Liberar tipo
+        if(type->size){
+            free_expression(type->size);
+            type->size = NULL;
+        }
+        if(type->subtype){
+            free_type(type->subtype);
+            type->subtype = NULL;
+        }
+        
         break;
 
     default:
@@ -134,9 +151,7 @@ void free_type(struct type **type){
     }
 
     // -- Liberar nodo
-    free(t); 
-    // -- Poner puntero de tipo a NULL
-    *type = NULL;
+    free(type);
 }
 
 // ===============================================================
@@ -173,4 +188,104 @@ void print_AST_type(struct type *type, unsigned int depth){
 
     // -- Liberar memoria utilizada para la identacion
     free(IDENT_NODE); IDENT_NODE = NULL;
+}
+
+// ===============================================================
+
+// ----- IMPLEMENTACION DE FUNCIONES DE ASISTENCIA DE USO DE TIPOS -----
+
+bool equals_type(struct type *type_a, struct type *type_b){
+    // -- Resultado de comprobacion
+    bool result = false;    ///< Se inicializa como falso buscando casos correctos
+
+    // -- Comprobacion 0: Comprobamos que hay dos tipos
+    if(!type_a || !type_b)
+        return result;
+
+    // -- Comprobacion 1: Comprobamos que los tipos son iguales
+    if(type_a->kind == type_b->kind){
+        // -- Comprobacion 2: Comprobamos si son array 
+        //(con referirnos a un tipo es suficiente, pero se comprueban los dos para mayor legibilidad)
+        if(type_a->kind == TYPE_ARRAY && type_b->kind == TYPE_ARRAY){
+            // -- Comprobacion 3: Comprobamos los subtipos de dato (RECURSIVO)
+            return equals_type(type_a->subtype, type_b->subtype);
+        }
+        else{
+            // -- Son datos atomicos (INTEGER, CHAR, STRING,...)
+            // -- Actualizar resultado a true
+            result = true;
+        }
+    }
+    // -- Comprobacion 3: Uno es un array y otro no
+    else if(type_a->kind == TYPE_ARRAY){
+        return equals_type(type_a->subtype,type_b);
+    }
+    else if(type_b->kind == TYPE_ARRAY){
+        return equals_type(type_a,type_b->subtype);
+    }
+
+    // -- Retornar resultado de comprobacion
+    return result;
+}
+
+struct type * copy_type(struct type *type){
+    // -- Comprobar que hay tipo
+    if(!type)
+        return NULL;
+
+    // -- Definir estructura nueva de tipo
+    struct type *type_copy = malloc(sizeof(*type_copy));
+
+    // -- Comprobar creacion exitosa
+    if(!type_copy)
+        return NULL;
+
+    // -- Copiar tipo de dato (kind)
+    type_copy->kind = type->kind;
+    // -- Copiar tipo de dato kind_str (kind_str)
+    type_copy->kind_str = strdup(type->kind_str);
+    // -- Comprobar que se copio el tipo str exitosamente
+    if(!type_copy->kind_str){
+        free(type_copy);
+        return NULL;
+    }
+
+    // -- Copiar subtipo de dato (recursivamete)
+    type_copy->subtype = copy_type(type->subtype);
+
+    // -- Copiar expresion (solo si tipo es array)
+    type_copy->size = NULL;
+    if(type_copy->kind == TYPE_ARRAY)
+        type_copy->size = copy_expression(type->size);
+
+    // -- Asignar puntero siguiente a NULL
+    type_copy->next = NULL;
+
+    // -- Retornar copia de tipo
+    return type_copy;
+}
+
+struct type * copy_list_types(struct type *list_types){
+    if(!list_types)
+        return NULL;
+
+    struct type *list_copy = NULL;
+    struct type *last_copy = NULL;
+
+    struct type *current_type = list_types;
+    while(current_type){
+        if(!list_copy){
+            list_copy = copy_type(current_type);
+            last_copy = list_copy;
+        }
+        else{
+            last_copy->next = copy_type(current_type);
+            last_copy = last_copy->next;
+        }
+
+        current_type = current_type->next;
+    }
+
+    // -- Retornar copia
+    return list_copy;
 }
