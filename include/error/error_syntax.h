@@ -71,6 +71,7 @@
 #define ERR_SYNTAX_STATEMENT_EXPECTED_DELIMPC_MSG "falta ';' al final de la sentencia"
 #define ERR_SYNTAX_STATEMENT_EXPECTED_STATEMENT_MSG "se esperaba una sentencia valida"
 #define ERR_SYNTAX_STATEMENT_EXPECTED_NON_EMPTY_BLOCK_MSG "bloque de sentencias vacio"
+#define ERR_SYNTAX_STATEMENT_EXPECTED_RETURN_STATEMENT_MSG "falta sentencia de retorno (return)"
 
 // ===============================================================
 
@@ -157,6 +158,8 @@ extern void mark_error_syntax_statement_expected_statement();
 extern void mark_error_syntax_statement_empty_block();
 
 extern void mark_error_syntax_statement_expected_delimpc();
+
+extern void mark_error_syntax_statement_non_return_in_block();
 
 // ----/////----------------------------------------------------------
 // FUNCIONES DE MANEJO DE ERRORES (EXPRESIONES)

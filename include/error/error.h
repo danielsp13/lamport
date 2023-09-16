@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "error_type.h"     ///< Tipos de errores
+
 // ===============================================================
 
 // ----- DEFINICION DE TIPOS DE ERRORES -----
@@ -29,27 +31,6 @@ typedef enum{
     ERROR_SYNTAX,           ///< Error sintactico
     ERROR_SEMANTIC          ///< Error semantico
 } error_t;
-
-/**
- * @brief Estructura que representa los diferentes tipos de errores sintacticos
- * del lenguaje lamport
- */
-typedef enum{
-    EXPECTED_TOKEN,                 ///< Se esperaba una palabra reservada donde no aparece en el analisis
-    EXPECTED_IDENTIFIER,            ///< Se esperaba un identificador donde no aparece en el analisis
-    EXPECTED_EXPR,                  ///< Se esperaba una expresion donde no aparece en el analisis
-    EXPECTED_STMT                   ///< Se esperaba una sentencia donde no aparece en el analisis
-} error_syntax_t;
-
-/**
- * @brief Estructura que representa los diferentes tipos de errores semanticos
- * del lenguaje lamport
- */
-typedef enum{
-    UNDEFINED_SYMBOL,                   ///< Se ha detectado el uso de un simbolo no definido
-    DUPLICATED_SYMBOL,                  ///< Se ha detectado la declaracion de un mismo simbolo mas de una vez
-    DUPLICATED_SYMBOL_PARAM             ///< Se ha detectado la declaracion de un parametro mas de una vez
-} error_semantic_t;
 
 // ===============================================================
 

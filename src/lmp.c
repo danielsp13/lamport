@@ -36,6 +36,19 @@ unsigned int LMP_SEMANTIC_ERROR = 0;
 
 // ===============================================================
 
+// ----- PROTOTIPO DE FUNCION COMPILADOR -----
+
+/**
+ * @brief Funcion principal compilador
+ * @param num_args : numero de argumentos
+ * @param compiler_name : nombre de compilador
+ * @param lmp_file : nombre de fichero lamport
+ * @return LMP_SUCCESS si la compilacion es exitosa
+ */
+int lmp(int num_args, char *compiler_name, char *lmp_file);
+
+// ===============================================================
+
 // ----- PROTOTIPO DE FUNCIONES DE GESTION DE COMPILADOR -----
 
 /**
@@ -64,19 +77,29 @@ void lmp_free();
 // ----- PROGRAMA PRINCIPAL -----
 
 int main(int argc, char **argv){
+    //test();
+    // -- Utilizar compilador
+    return lmp(argc,argv[0],argv[1]);
+}
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCION COMPILADOR -----
+
+int lmp(int num_args, char *compiler_name, char *lmp_file){
     // -- 0.A Imprimir cabecera
-    print_header(argv[0]);
+    print_header(compiler_name);
 
     // -- 0.B Comprobar numero de argumentos
-    if(argc < N_ARGUMENTS_REQUIRED){
+    if(num_args < N_ARGUMENTS_REQUIRED){
         // -- Imprimir mensaje de uso
-        print_help(argv[0]);
+        print_help(compiler_name);
         // -- Salir con error
         exit(EXIT_FAILURE);
     }
 
     // -- 1. Abrir fichero 
-    if(abrir_fichero(argv[1]) < LMP_IO_SUCCESS){
+    if(abrir_fichero(lmp_file) < LMP_IO_SUCCESS){
         // -- Salir con error
         exit(EXIT_FAILURE);
     }
@@ -126,7 +149,7 @@ int main(int argc, char **argv){
     lmp_print_AST();
 
     // -- Imprimir exito en la resolucion de nombres
-    printf("\nRESOLUCION DE NOMBRES REALIZADA CON EXITO!!!\n");
+    printf("\nRESOLUCION DE NOMBRES Y TYPE_CHECKING REALIZADOS CON EXITO!!!\n");
 
     // -- Liberar memoria utilizada por los modulos
     lmp_free();

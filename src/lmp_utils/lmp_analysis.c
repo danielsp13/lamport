@@ -47,6 +47,16 @@ int lmp_semantic_name_resolution(){
     return LMP_SEMANTIC_SUCCESS;
 }
 
+int lmp_semantic_type_checking(){
+    // -- Aplicar typechecking a programa completo
+    typecheck_program(AST_program);
+
+    if(get_total_error_semantic() > 0)
+        return LMP_SEMANTIC_FAILURE;
+
+    return LMP_SEMANTIC_SUCCESS;
+}
+
 int lmp_semantic_analysis(){
     int semantic_result = LMP_SEMANTIC_SUCCESS;
 
@@ -55,6 +65,10 @@ int lmp_semantic_analysis(){
 
     // -- Realizar analisis: resolucion de nombres
     semantic_result += lmp_semantic_name_resolution();
+
+    // -- Realizar analisis: typechecking
+    if(get_total_error_semantic() == 0)
+        semantic_result += lmp_semantic_type_checking();
 
     // -- Retornar resultado de analisis
     return semantic_result;

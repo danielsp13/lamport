@@ -28,9 +28,10 @@
  * @brief Estructura que representa los tipos de simbolos del lenguaje lamport
  */
 typedef enum{
-    SYMBOL_LOCAL,       ///< El simbolo es una variable local
-    SYMBOL_PARAM,       ///< El simbolo es el parametro de una funcion/procedimiento
-    SYMBOL_GLOBAL       ///< El simbolo es una variable global
+    SYMBOL_LOCAL,            ///< El simbolo es una variable local
+    SYMBOL_PARAM,            ///< El simbolo es el parametro de una funcion/procedimiento
+    SYMBOL_GLOBAL,           ///< El simbolo es una variable global
+    SYMBOL_GLOBAL_SUBPROGRAM ///< El simbolo es una variable global (nombre de) funcion/procedimiento
 } symbol_t;
 
 // ===============================================================
@@ -46,12 +47,13 @@ typedef enum{
  * parametro de una funcion/procedimiento, la posicion que este ocupa.
  */
 struct symbol{
-    symbol_t kind;          ///< Tipo de simbolo
-    char * kind_str;        ///< Tipo de simbolo (en formato string)
-    struct type * type;     ///< Tipo de dato del simbolo
-    char * name;            ///< Nombre del simbolo
-    unsigned long line;     ///< Linea donde aparece el simbolo
-    int which;              ///< Posicion en la lista de parametros (solo si kind = SYMBOL_PARAM)
+    symbol_t kind;                          ///< Tipo de simbolo
+    char * kind_str;                        ///< Tipo de simbolo (en formato string)
+    struct type * type;                     ///< Tipo de dato del simbolo
+    struct type * list_type_parameters;     ///< Tipos de dato de parametros de simbolo (solo si kind = SYMBOL_GLOBAL_SUBPROGRAM)
+    char * name;                            ///< Nombre del simbolo
+    unsigned long line;                     ///< Linea donde aparece el simbolo
+    int which;                              ///< Posicion en la lista de parametros (solo si kind = SYMBOL_PARAM)
 };
 
 // ===============================================================
@@ -116,5 +118,16 @@ void free_symbol(struct symbol * symb);
  * @param symb : Simbolo a imprimir
  */
 void print_symbol(struct symbol * symb);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES DE ASISTENCIA DE USO DE SIMBOLOS -----
+
+/**
+ * @brief Realiza la copia del contenido del simbolo
+ * @param symb : simbolo a copiar
+ * @return puntero a simbolo copiado
+ */
+struct symbol * copy_symbol(struct symbol *symb);
 
 #endif //_LAMPORT_SEMANTIC_SYMBOL_DPR_

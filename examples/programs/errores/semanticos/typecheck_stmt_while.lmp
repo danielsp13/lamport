@@ -1,0 +1,33 @@
+{Fichero: typecheck_stmt_while.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: sentencias (while)}
+
+program While
+	var v1 : boolean := false;
+	
+process Main;
+	var v3 : char;
+	var v4 : string := "hola";
+begin
+	while(2 + 3 > 5 and 2 < 7) do
+	begin
+		print("hola");
+	end
+	
+	while(2 + 3 > 5 and not v1) do
+	begin
+		print("hola");
+	end
+	
+	{ERROR}
+	while(v4) do
+	begin
+		print("hola");
+	end
+	
+	{ERROR}
+	while(2 + v3) do
+	begin
+		print("hola");
+	end
+end

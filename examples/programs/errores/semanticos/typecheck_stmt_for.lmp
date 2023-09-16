@@ -1,0 +1,23 @@
+{Fichero: typecheck_stmt_for.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: sentencias (for)}
+
+program Sentencias
+	var v1 : boolean := false;
+	
+process Main;
+	var v3 : char;
+	var v4 : string := "hola";
+	var i : integer;
+begin
+	for i := 1 to (2*(5+1)) do
+	begin
+		print("hola");
+	end
+	
+	{ERROR}
+	for i := v3 to v1 do
+	begin
+		print("hola");
+	end
+end

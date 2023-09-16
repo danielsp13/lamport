@@ -257,7 +257,7 @@ void free_entry(entry * entry){
 
     // -- Liberar simbolo de entrada actual
     if(entry->value){
-        free_symbol(entry->value);
+        //free_symbol(entry->value);
         entry->value = NULL;
     }
 

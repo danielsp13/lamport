@@ -43,7 +43,9 @@ struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, in
     }
 
     // -- Asignar tipo de dato de simbolo
-    symb->type = type;
+    symb->type = copy_type(type);
+    // -- Asignar lista de tipos de parametro
+    symb->list_type_parameters = NULL;
 
     // -- Asignar nombre de variable de simbolo
     symb->name = strdup(name);
@@ -72,6 +74,20 @@ struct symbol * create_symbol_global(struct type * type, char * name, unsigned l
     return create_symbol(SYMBOL_GLOBAL, type, name, -1, line);
 }
 
+struct symbol * create_symbol_global_subprogram(struct type * type, char *name, unsigned long line, struct type *list_type_parameters){
+    struct symbol * symb = create_symbol(SYMBOL_GLOBAL_SUBPROGRAM, type, name, -1, line);
+
+    // -- Comprobar creacion de simbolo exitoso
+    if(!symb)
+        return NULL;
+
+    // -- Definir lista de simbolos para subprograma (simplemente asignacion de punteros)
+    symb->list_type_parameters = list_type_parameters;
+
+    // -- Retornar creacion de simbolo
+    return symb;
+}
+
 struct symbol * create_symbol_param(struct type * type, char * name, int which, unsigned long line){
     return create_symbol(SYMBOL_PARAM, type, name, which, line);
 }
@@ -95,6 +111,17 @@ void free_symbol(struct symbol * symb){
     if(symb->name){
         free(symb->name);
         symb->name = NULL;
+    }
+
+    if(symb->type){
+        free_type(symb->type);
+        symb->type = NULL;
+    }
+
+    // -- Apuntar a NULL la lista de tipos de parametros
+    if(symb->list_type_parameters){
+        free_list_types(symb->list_type_parameters);
+        symb->list_type_parameters = NULL;
     }
 
     // -- Liberar simbolo
@@ -123,4 +150,33 @@ void print_symbol(struct symbol * symb){
     // -- Imprimir tipo de dato simbolo
     printf(" %s INFORMACION DEL TIPO DE DATO DE SIMBOLO: [%s]\n", IDENT_ARROW, symb->name);
     print_AST_type(symb->type,0);
+}
+
+// ===============================================================
+
+// ----- IMPLEMENTACION DE FUNCIONES DE ASISTENCIA DE USO DE SIMBOLOS -----
+
+struct symbol * copy_symbol(struct symbol *symb){
+    if(!symb)
+        return NULL;
+
+    // -- Definir copia
+    struct symbol *symbol_copy = NULL;
+
+    // -- Obtener atributos originales de simbolo
+    symbol_t copy_kind = symb->kind;
+    struct type *copy_type_symb = symb->type;
+    char *copy_name = symb->name;
+    int copy_which = symb->which;
+    unsigned long copy_line = symb->line;
+
+    // -- Crear simbolo
+    symbol_copy = create_symbol(copy_kind,copy_type_symb,copy_name,copy_which,copy_line);
+
+    // -- Incluir informacion extra
+    if(symb->list_type_parameters)
+        symbol_copy->list_type_parameters = copy_list_types(symb->list_type_parameters);
+
+    // -- Retornar copia
+    return symbol_copy;
 }

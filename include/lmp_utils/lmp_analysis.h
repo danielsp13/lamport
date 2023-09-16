@@ -34,6 +34,7 @@
 #include "error/error_manager.h"        ///< Manejador de errores
 #include "AST/AST.h"                    ///< Abstract Syntax Tree (AST)
 #include "semantic/name_resolution.h"   ///< Semantic : Resolucion de nombres
+#include "semantic/type_checking.h"     ///< Semantic : Type Checking
 
 // ===============================================================
 
@@ -82,16 +83,23 @@ int lmp_parsing_file();
 /**
  * @brief Realiza el analisis semantico del fichero de lamport abierto
  * por el compilador
- * @return LMP_PARSING_SUCCESS si exito, LMP_PARSING_FAILURE en otro caso
+ * @return LMP_SEMANTIC_SUCCESS si exito, LMP_SEMANTIC_FAILURE en otro caso
  */
 int lmp_semantic_analysis();
 
 /**
  * @brief Aplica el metodo de resolucion de nombres sobre el AST generado
  * en la fase de parsing
- * @return LMP_PARSING_SUCCESS si exito, LMP_PARSING_FAILURE en otro caso
+ * @return LMP_SEMANTIC_SUCCESS si exito, LMP_SEMANTIC_FAILURE en otro caso
  */
 int lmp_semantic_name_resolution();
+
+/**
+ * @brief Aplica el metodo de typechecking sobre el AST generado
+ * en la fase de parsing
+ * @return LMP_SEMANTIC_SUCCESS si exito, LMP_SEMANTIC_FAILURE en otro caso
+ */
+int lmp_semantic_type_checking();
 
 /**
  * @brief Libera la memoria de la tabla de simbolos utilizada en el analisis

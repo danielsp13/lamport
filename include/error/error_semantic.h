@@ -46,7 +46,7 @@
 
 // ===============================================================
 
-// ----- PROTOTIPO DE FUNCIONES DE GESTION DE ERRORES (SEMANTICOS) ----
+// ----- PROTOTIPO DE FUNCIONES DE GESTION DE ERRORES (SEMANTICOS : NAME RESOLUTION) ----
 
 /**
  * @brief Crea y reserva memoria para un error semantico
@@ -85,6 +85,57 @@ struct error * create_error_semantic_duplicated_symbol(char *id, unsigned long e
  * @param msg : mensaje de error
  */
 struct error * create_error_semantic_duplicated_symbol_parameter(char *id, unsigned long line, int which, char *msg);
+
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES DE GESTION DE ERRORES (SEMANTICOS : TYPE CHECKING) ----
+
+/**
+ * 
+ */
+char * create_message_error_semantic_unmatched_types(error_semantic_type_checking_t kind, char *action, char *type_a, char *type_b);
+
+/**
+ * 
+ */
+struct error * create_error_semantic_unmatched_types(unsigned long err_line, char **msg);
+
+/**
+ * 
+ */
+struct error * create_error_semantic_unmatched_types_expression_binary(unsigned long err_line, char *type_a, char *type_b, char *operation);
+
+/**
+ * 
+ */
+struct error * create_error_semantic_unmatched_types_expression_unary(unsigned long err_line, char *type, char *operation);
+
+/**
+ * 
+ */
+struct error * create_error_semantic_unmatched_types_declaration(unsigned long err_line, char *type_a, char *type_b);
+
+/**
+ * 
+ */
+struct error * create_error_semantic_unmatched_types_statement_assignment(error_semantic_type_checking_t kind, unsigned long err_line,char *type_a, char *type_b);
+
+struct error * create_error_semantic_unmatched_types_statement_while(unsigned long err_line, char *type);
+
+struct error * create_error_semantic_unmatched_types_statement_for(error_semantic_type_checking_t kind, unsigned long err_line, char *type_a, char *type_b);
+
+struct error * create_error_semantic_unmatched_types_statement_ifelse(unsigned long err_line, char *type);
+
+struct error * create_error_semantic_unmatched_types_statement_fork(unsigned long err_line, char *type);
+
+struct error * create_error_semantic_unmatched_types_statement_procedure_inv(unsigned long err_line, char *name, int position, char *type_a, char *type_b);
+
+struct error * create_error_semantic_unmatched_types_expression_function_inv(unsigned long err_line, char *name , int position, char *type_a, char *type_b);
+
+struct error * create_error_semantic_unmatched_types_process_vector(error_semantic_type_checking_t kind, unsigned long line, char *type);
+
+struct error * create_error_semantic_unmatched_types_subprogram_function_return(unsigned long err_line, char *name, char *type_a, char *type_b);
+
 
 // ===============================================================
 

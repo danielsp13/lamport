@@ -1,0 +1,19 @@
+{Fichero: typecheck_stmt_fork.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: sentencias (fork)}
+
+program Sentencias
+	var v1 : boolean := false;
+	
+process P1;
+begin
+	print(v1);
+end
+	
+process Main;
+	var v3 : char;
+	var v4 : string := "hola";
+begin
+	fork P1;
+	fork v4; {ERROR}
+end

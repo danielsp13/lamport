@@ -214,16 +214,20 @@ void resolve_expression_identifier(struct expression *expr){
 
     // -- Asignar referencia de simbolo a esta expresion, buscandolo de la tabla
     // -- Se busca el simbolo en todos los scopes existentes en la tabla
-    expr->expr.expression_identifier.symb = lookup_symbol_from_all_scopes(expr->expr.expression_identifier.id);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(expr->expr.expression_identifier.id);; 
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!expr->expr.expression_identifier.symb){
+    if(!target_symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
         struct error * error = create_error_semantic_undefined_symbol(expr->expr.expression_identifier.id, expr->expr.expression_identifier.line, ERR_UNDEFINED_VARIABLE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
+    }
+    else{
+        // -- Asignar simbolo
+        expr->expr.expression_identifier.symb = target_symb;
     }
 
     // -- Si el identificador tiene asociado una expresion de indice, resolverla
@@ -239,16 +243,20 @@ void resolve_expression_function_inv(struct expression *expr){
         return;
 
     // -- Asignar referencia de simbolo a esta expresion, buscandolo de la tabla
-    expr->expr.expression_function_inv.symb = lookup_symbol_from_all_scopes(expr->expr.expression_function_inv.function_name);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(expr->expr.expression_function_inv.function_name);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!expr->expr.expression_function_inv.symb){
+    if(!target_symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
         struct error * error = create_error_semantic_undefined_symbol(expr->expr.expression_function_inv.function_name, expr->expr.expression_function_inv.line, ERR_UNDEFINED_FUNCTION_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
+    }
+    else{
+        // -- Asignar simbolo
+        expr->expr.expression_function_inv.symb = copy_symbol(target_symb);
     }
 
     // -- Aplicar resolucion de nombres a la lista de expresiones que hacen de argumentos de la funcion
@@ -347,16 +355,20 @@ void resolve_statement_assignment(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres a identificador de variable
     // -- Asignar referencia de simbolo a esta sentencia
-    stmt->stmt.statement_assignment.symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_assignment.variable_name);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_assignment.variable_name);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula) 
-    if(!stmt->stmt.statement_assignment.symb){
+    if(!target_symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
         struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_assignment.variable_name,stmt->stmt.statement_assignment.line, ERR_UNDEFINED_VARIABLE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
+    }
+    else{
+        // -- Asignar simbolo
+        stmt->stmt.statement_assignment.symb = copy_symbol(target_symb);
     }
 
     // -- Si el identificador de variable tiene asociado una expresion de indice, resolverla
@@ -388,16 +400,20 @@ void resolve_statement_for(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de contador de bucle
     // -- Asignar referencia de simbolo a esta sentencia
-    stmt->stmt.statement_for.symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_for.counter_name);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_for.counter_name);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!stmt->stmt.statement_for.symb){
+    if(!target_symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
         struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_for.counter_name,stmt->stmt.statement_for.line, ERR_UNDEFINED_VARIABLE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
+    }
+    else{
+        // -- Asignar simbolo
+        stmt->stmt.statement_for.symb = copy_symbol(target_symb);
     }
 
     // -- Aplicar resolucion de nombres a la expresion de inicio del bucle for
@@ -434,16 +450,19 @@ void resolve_statement_procedure_inv(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de procedimiento
     // -- Asignar referencia de simbolo a esta sentencia
-    stmt->stmt.statement_procedure_inv.symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_procedure_inv.procedure_name);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_procedure_inv.procedure_name);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!stmt->stmt.statement_procedure_inv.symb){
+    if(!target_symb){
         // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
         struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_procedure_inv.procedure_name,stmt->stmt.statement_procedure_inv.line, ERR_UNDEFINED_PROCEDURE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
+    }
+    else{
+        stmt->stmt.statement_procedure_inv.symb = copy_symbol(target_symb);
     }
 
     // -- Si dispone de argumentos de invocacion, aplicar resolucion de nombres a la lista
@@ -467,16 +486,20 @@ void resolve_statement_fork(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de proceso
     // -- Asignar referencia de simbolo a este proceso
-    stmt->stmt.statement_fork.symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_fork.forked_process);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_fork.forked_process);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!stmt->stmt.statement_fork.symb){
+    if(!target_symb){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
         struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_fork.forked_process,stmt->stmt.statement_fork.line, ERR_UNDEFINED_PROCESS_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
+    }
+    // -- Asignar simbolo
+    else{
+        stmt->stmt.statement_fork.symb = copy_symbol(target_symb);
     }
 }
 
@@ -508,10 +531,10 @@ void resolve_process(struct process *proc){
         return;
 
     // -- Aplicar resolucion de nombres al identificador de proceso
-    proc->symb_process = lookup_symbol_from_all_scopes(proc->name_process);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(proc->name_process);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(proc->symb_process){
+    if(target_symb){
         // -- Realizar handling de este error : PROCESO REDEFINIDO
         // -- Crear error
         struct error * error = create_error_semantic_duplicated_symbol(proc->name_process,proc->line, proc->symb_process->line, ERR_DUPLICATED_PROCESS_MSG);
@@ -521,19 +544,25 @@ void resolve_process(struct process *proc){
     }
     // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
     else{
+        struct type * dproc_type = create_dprocess_type();
         // -- Creamos un simbolo de tipo parametro
-        proc->symb_process = create_symbol_global(NULL,proc->name_process, proc->line);
+        proc->symb_process = create_symbol_global(dproc_type,proc->name_process, proc->line);
+        
+        // -- Liberar tipo
+        free_type(dproc_type);
 
         // -- Vincular simbolo al scope actual
         bind_symbol_to_scope(proc->symb_process);
     }
+
+    // -- Liberar simbolo
+    free_symbol(target_symb);
 
     // -- ENTRAR EN UN NUEVO SCOPE
     push_scope_to_symbol_table();
 
     // -- Aplicar resolucion de nombres a declaraciones de proceso
     resolve_list_declarations(proc->declarations);
-
 
     switch (proc->kind)
     {
@@ -564,16 +593,20 @@ void resolve_process_vector(struct process *proc){
         return;
 
     // -- Aplicar resolucion de nombres al identificador de indexador de procesos
-    proc->symb_index = lookup_symbol_from_all_scopes(proc->index_identifier);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(proc->index_identifier);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!proc->symb_index){
+    if(!target_symb){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
         struct error * error = create_error_semantic_undefined_symbol(proc->index_identifier, proc->line, ERR_UNDEFINED_VARIABLE_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
+    }
+    else{
+        // -- Asignar simbolo
+        proc->symb_index = target_symb;
     }
 
     // -- Aplicar resolucion de nombres a la expresion de inicio de indexacion
@@ -664,21 +697,24 @@ void resolve_subprogram(struct subprogram *subprog){
 
     // -- Asignar referencia de simbolo a este subprograma, buscandolo en la tabla
     // -- Se busca el simbolo en todos los scopes existentes
-    subprog->symb = lookup_symbol_from_all_scopes(subprog->name_subprogram);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(subprog->name_subprogram);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(subprog->symb){
+    if(target_symb){
         // -- Realizar handling de este error : SUBPROGRAMA REDEFINIDO
         // -- Crear error
         struct error * error = create_error_semantic_duplicated_symbol(subprog->name_subprogram,subprog->line, subprog->symb->line, ERR_DUPLICATED_SUBPROGRAM_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
+
+        // -- Liberar simbolo
+        free_symbol(target_symb);
     }
     // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
     else{
         // -- Creamos un simbolo de tipo global
-        subprog->symb = create_symbol_global(NULL, subprog->name_subprogram, subprog->line);
+        subprog->symb = create_symbol_global(subprog->type, subprog->name_subprogram, subprog->line);
 
         // -- Vincular simbolo al scope actual
         bind_symbol_to_scope(subprog->symb);
@@ -701,6 +737,9 @@ void resolve_subprogram(struct subprogram *subprog){
         // -- Aplicar resolucion de nombres a tipo de dato de retorno de funcion
         resolve_type(subprog->type);
     }
+
+    // -- Tras resolver resolucion de parametros, incluir el tipo de dato de los parametros en el simbolo del subprograma
+    subprog->symb->list_type_parameters = copy_list_types(subprog->type_parameters);
 
     // -- SALIR DEL SCOPE CREADO
     remove_current_scope_from_symbol_table();
