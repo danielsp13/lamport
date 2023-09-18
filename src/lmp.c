@@ -77,7 +77,6 @@ void lmp_free();
 // ----- PROGRAMA PRINCIPAL -----
 
 int main(int argc, char **argv){
-    //test();
     // -- Utilizar compilador
     return lmp(argc,argv[0],argv[1]);
 }
