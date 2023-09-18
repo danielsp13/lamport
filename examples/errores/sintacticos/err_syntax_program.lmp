@@ -1,0 +1,15 @@
+{Fichero: err_syntax_program.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Errores sintacticos de programa (definicion)}
+
+{ERROR}
+program 2SyntaxErrors
+
+process Main;
+	{ERROR}
+	var v1 : invent;
+begin
+	print("Syntax Errors!");
+end
+
+

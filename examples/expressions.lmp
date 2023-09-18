@@ -17,4 +17,5 @@ begin
 	expr2 := 1 != 0;
 	expr1 := -1;
 	expr2 := (expr1 < 0);
+	expr1 := (2 + -3) * 7 - 1;
 end

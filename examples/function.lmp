@@ -37,15 +37,7 @@ end
 {Return : division de los dos numeros}
 function dividir(a : real, b : real) : real;
 begin
-	if b != 0 then
-		begin
-			return a / b;
-		end
-	
-	else
-		begin
-			return false;
-		end
+	return a/b;
 end
 
 
@@ -54,7 +46,7 @@ process Main;
 	var num1 : real := 2.0;	{Primer numero real a operar}
 	var num2 : real := 3.0; {Segundo numero real a operar}
 	
-	var resultado : real := 0; {Resultado de la operación}
+	var resultado : real := 0.0; {Resultado de la operación}
 	
 	var opcion : string := "multiplicar"; {Indica la acción a realizar por la calculadora}
 begin

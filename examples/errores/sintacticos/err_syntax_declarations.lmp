@@ -1,0 +1,24 @@
+{Fichero: err_syntax_declarations.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Errores sintacticos de declaraciones}
+
+program SyntaxErrors
+	{CORRECTO}
+	var v1 : integer;
+	var v2 : string := "Hola";
+	{ERROR}
+	v3 : real;
+	var 4v : boolean;
+	var v5 char;
+	var v6: string
+
+process Main;
+	{ERROR}
+	var v7 : inventado;
+	var v9 : array [5] invent;
+	var v10 : integer := ;
+	var v11 : integer 2+3;
+	var v12 : integer := 1
+begin
+	print("Syntax errors!");
+end

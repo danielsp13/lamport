@@ -1,0 +1,24 @@
+{Fichero: err_syntax_expressions.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Errores sintacticos de expresiones}
+
+program SyntaxErrors
+
+{ERROR}
+procedure expressiones();
+	var v1 : real;
+	var v2 : boolean := false;
+begin
+	v1 := ( 2 + 3;
+	v1 := 2 * 3);
+	v2 := no v2;
+	v2 := 2 +< 3 ;
+	v1 := 2 * / 4 + v7 - +v1;
+end
+
+process Main;
+	{ERROR}
+	var v1 : invent;
+begin
+	print("Syntax Errors!");
+end

@@ -1,0 +1,96 @@
+{Fichero: err_syntax_statements.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Errores sintacticos de sentencias}
+
+program SyntaxErrors
+
+{ERROR : WHILE}
+procedure bucleWhile();
+begin
+	wile(true) do
+	begin
+		print("fallo");
+	end
+	
+	while(true) 
+	begin
+		print("fallo");
+	end
+end
+
+{ERROR : FOR}
+procedure bucleFor();
+begin
+	or i:=1 to 3 do
+	begin
+		print("fallo");
+	end
+	
+	for i to 4 do
+	begin
+		print("fallo");
+	end
+	
+	for 2 := 2 to 7 do
+	begin
+		print("fallo");
+	end
+	
+	for i := 2 8 do
+	begin
+		print("fallo");
+	end
+	
+	for i := 4 to 8
+	begin
+		print("fallo");
+	end
+end
+
+{ERROR : IF/ELSE}
+procedure conditionalIfElse();
+begin
+	fi false then
+	begin
+		print("fallo");
+	end
+	
+	if false
+	begin
+		print("fallo");
+	end
+	
+	if (2+2 < 5) then
+	begin
+		print("ok");
+	end
+	eese
+	begin
+		print("fallo");
+	end
+end
+
+{ERROR : ASSIGNMENT}
+procedure assignment();
+	var v1 : integer;
+	var v2 : array [2] integer;
+begin
+	v1 := 2
+	v2[0] := 1
+end
+
+{ERROR : FORK/JOIN}
+procedure procForkJoin();
+begin
+	fork P1
+	join P2
+end
+
+process Main;
+	{ERROR}
+	var v1 : invent;
+begin
+	print("Syntax Errors!");
+end
+
+
