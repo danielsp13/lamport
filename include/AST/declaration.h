@@ -17,8 +17,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "expression.h"     ///< Expresiones
-#include "type.h"           ///< Tipos
+#include "expression.h"         ///< Expresiones
+#include "type.h"               ///< Tipos
+#include "print_assistant.h"    ///< Asistencia de impresion de AST
+
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
 // ===============================================================
 
@@ -35,7 +38,10 @@ struct declaration{
     char *name;                 ///< Nombre de la declaracion.
     struct type *type;          ///< Tipo de la declaracion.
     struct expression *value;   ///< Valor asociado (si es declaracion de variable)
+    unsigned long line;         ///< Linea donde se realizo la declaracion de variable
     struct declaration *next;   ///< Puntero a la siguiente declaracion
+    
+    struct symbol *symb;        ///< Referencia al símbolo asociado en la tabla de símbolos.
 };
 
 // ===============================================================
@@ -47,9 +53,10 @@ struct declaration{
  * @param name : Nombre de la declaracion
  * @param type : Tipo de la declaracion
  * @param value : Valor de una expresion (declaraciones de variables)
+ * @param line : linea donde se realizo la declaracion de la variable
  * @return puntero a la declaracion creada
  */
-struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value);
+struct declaration * create_declaration_variable(char *name, struct type *type, struct expression *value, unsigned long line);
 
 // ===============================================================
 
@@ -63,7 +70,7 @@ void free_list_declarations(struct declaration *declarations_list);
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo declaracion
- * @param decl : Puntero a nodo declaracion
+ * @param decl : nodo declaracion
  */
 void free_declaration(struct declaration *decl);
 
@@ -74,8 +81,9 @@ void free_declaration(struct declaration *decl);
 /**
  * @brief Imprime una lista de nodos de declaraciones
  * @param declarations_list : Puntero a lista enlazada de declaraciones
+ * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_declarations(struct declaration *declarations_list);
+void print_AST_declarations(struct declaration *declarations_list, unsigned int depth);
 
 
 #endif //_LAMPORT_AST_DECLARATION_DPR_

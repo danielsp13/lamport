@@ -1,0 +1,14 @@
+{Fichero: typecheck_declarations.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: declaraciones}
+
+program Asignaciones
+	var v1 : integer := true; {ERROR}
+	var v2 : integer;
+	var v3 : char;
+	
+process Main;
+	var v4 : string := 'x'; {ERROR}
+begin
+	print("declaraciones!!");	
+end

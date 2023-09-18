@@ -1,6 +1,0 @@
-"hola
-????
-@
-#$
-{ Comentario sin cerrar
-'not a character'

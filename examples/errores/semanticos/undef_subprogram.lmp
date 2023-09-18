@@ -1,0 +1,26 @@
+{Fichero: undef_subprogram.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene un error semantico de tipo: uso de subprograma no definido}
+
+program OperaEnteros
+
+function suma(a: integer, b: integer) : integer;
+begin
+	return a+b;
+end
+
+procedure resta(a: integer, b: integer);
+	var resultado : integer;
+begin
+	resultado := a - b;
+	print(resultado);
+end
+
+process Main;
+	var resultado : integer := 0;
+begin
+	{ERROR: Uso de subprograma funcion no definido}
+	resultado := sumador(3,5); {El subprograma se llama: suma}
+	{ERROR: Uso de subprograma procedimiento no definido}
+	restador(3,5); {El subprograma se llama: resta}
+end

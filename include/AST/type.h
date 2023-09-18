@@ -3,7 +3,7 @@
  * @file type.h
  * @author Daniel Perez Ruiz
  * @brief Definicion de estructuras y funciones para creacion y mantenimiento
- * del Arbol Sintactico Abstracto (AST en ingles) : NODO tipos y NODO lista parametros
+ * del Arbol Sintactico Abstracto (AST en ingles) : NODO tipos
  */
 
 #ifndef _LAMPORT_AST_TYPE_DPR_
@@ -16,6 +16,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+
+#include "expression.h"          ///< Expresiones
+#include "print_assistant.h"     ///< Asistencia de impresion de AST
 
 // ===============================================================
 
@@ -33,7 +37,6 @@ typedef enum{
     TYPE_ARRAY,             ///< Tipo de dato array
     TYPE_SEMAPHORE,         ///< Tipo de dato semaforo
     TYPE_DPROCESS,          ///< Tipo de dato proceso dinamico
-    TYPE_FUNCTION           ///< Tipo de dato de funciones
 } type_t;
 
 // ===============================================================
@@ -68,24 +71,9 @@ typedef enum{
 struct type{
     type_t kind;                            ///< Tipo de dato
     char *kind_str;                         ///< Tipo de dato (en formato string)
-    struct type *subtype;                   ///< Subtipo de dato (arrays y funciones)
-    struct parameter_list *parameters;      ///< Lista de parametros (para funciones)
-};
-
-// ===============================================================
-
-// ----- DEFINICION DE ESTRUCTURAS DEL AST (NODO DE LISTA DE PARAMETROS) -----
-
-/**
- * @brief Estructura que representa a una lista de parametros de una funcion/procedimiento en lamport.
- * 
- * Esta estructura almacena informacion sobre los parametros de los que dispone una funcion
- * o un procedimiento, indicando el tipo de dato de todas ellas
- */
-struct parameter_list{
-    char *name_parameter;                   ///< Nombre de parametro
-    struct type *type;                      ///< Tipo de parametro
-    struct parameter_list *next;            ///< Puntero a siguiente parametro
+    struct type *subtype;                   ///< Subtipo de dato (arrays)
+    struct expression *size;                ///< Size de dato (arrays)
+    struct type *next;                      ///< Puntero a siguiente tipo (NULL)
 };
 
 // ===============================================================
@@ -100,19 +88,12 @@ struct parameter_list{
 struct type * create_basic_type(type_t kind);
 
 /**
- * @brief Crea y reserva memoria para el tipo de dato de una funcion
- * @param subtype : subtipo de dato (para especificar el retorno de la funcion)
- * @param parameters : parametros de la funcion
- * @return puntero con el tipo de dato inicializado
- */
-struct type * create_function_type(struct type *subtype, struct parameter_list *parameters);
-
-/**
  * @brief Crea y reserva memoria para el tipo de dato de array
  * @param subtype : tipo de dato almacenado en el array
+ * @param size : dimension del array
  * @return puntero con el tipo de dato inicializado
  */
-struct type * create_array_type(struct type *subtype);
+struct type * create_array_type(struct type *subtype, struct expression *size);
 
 /**
  * @brief Crea y reserva memoria para el tipo de dato semaphore
@@ -128,41 +109,19 @@ struct type * create_dprocess_type();
 
 // ===============================================================
 
-// ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (LISTA DE PARAMETROS) -----
-
-/**
- * @brief Crea y reserva memoria para crear una lista de parametros de funciones o proc
- * @param name_parameter : nombre del parametro
- * @param type : tipo del parametro
- * @return puntero con la lista de parametros inicializada
- */
-struct parameter_list * create_parameter_list(char * name_parameter, struct type * type);
-
-// ===============================================================
-
 // ----- PROTOTIPO DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO TIPOS) ------
 
 /**
+ * @brief Libera la memoria asignada para una lista de nodos
+ * @param list_types : lista de nodos
+ */
+void free_list_types(struct type *list_types);
+
+/**
  * @brief Libera la memoria asignada para un nodo de tipo type
- * @param type : Puntero a nodo tipo
+ * @param type : nodo tipo
  */
 void free_type(struct type *type);
-
-// ===============================================================
-
-// ----- PROTOTIPO DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO LISTA DE PARAMETROS) ------
-
-/**
- * @brief Libera la memoria asignada para un nodo de tipo lista de parametros
- * @param parameter_list : Puntero a nodo lista de parametros
- */
-void free_list_parameters(struct parameter_list *parameter_list);
-
-/**
- * @brief Libera la memoria para un nodo de tipo parametro
- * @param parameter : Puntero a nodo parametro
- */
-void free_parameter(struct parameter_list *parameter);
 
 // ===============================================================
 
@@ -171,18 +130,35 @@ void free_parameter(struct parameter_list *parameter);
 /**
  * @brief Imprime un nodo de tipo de dato
  * @param type : Puntero a nodo tipo
+ * @param depth : Profundidad en la impresion del nodo
  */
-void print_AST_type(struct type *type);
+void print_AST_type(struct type *type, unsigned int depth);
 
 // ===============================================================
 
-// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO PARAMETROS) -----
+// ----- PROTOTIPO DE FUNCIONES DE ASISTENCIA DE USO DE TIPOS -----
 
 /**
- * @brief Imprime una lista de nodos de parametros
- * @param parameters_list : Puntero a lista enlazada de parametros
+ * @brief Comprueba que dos tipos de dato son iguales
+ * @param type_a : tipo de dato a
+ * @param type_b : tipo de dato b
+ * @return TRUE si son iguales, FALSE en otro caso
  */
-void print_AST_parameters(struct parameter_list *parameters_list);
+bool equals_type(struct type *type_a, struct type *type_b);
+
+/**
+ * @brief Realiza una copia completa del tipo de dato pasado como argumento
+ * @param type : tipo de dato
+ * @return puntero a copia de tipo de dato
+ */
+struct type * copy_type(struct type *type);
+
+/**
+ * @brief Realiza una copia completa de la lista de tipos pasada como argumento
+ * @param list_types : lista de tipos de dato
+ * @return puntero a lista de tipos
+ */
+struct type * copy_list_types(struct type *list_types);
 
 
 #endif //_LAMPORT_AST_TYPE_DPR_

@@ -1,0 +1,75 @@
+{Fichero: err_syntax_procedure.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Errores sintacticos de procedimientos}
+
+program SyntaxErrors
+
+{CORRECTO}
+procedure imprimeEdad(a : string, b : integer);
+begin
+	print("Hola ",a,", tu edad es: ",b);
+end
+
+{CORRECTO}
+procedure saluda();
+begin
+	print("hola");
+end
+
+{ERROR}
+procedure proc1()
+begin
+	print("proc1");
+end
+
+{ERROR}
+procedure 2proc();
+	var v2 : invent;
+begin
+	print("fallo");
+end
+
+{ERROR}
+procedure proc3(a : integer)
+begin
+	print("valor: ",a);
+end
+
+{ERROR}
+procedure proc4(2 : integer);
+begin
+	print("fallo");
+end
+
+{ERROR}
+procedure proc5(a char);
+begin
+	print("fallo");
+end
+
+{ERROR}
+procedure proc6(a : invent);
+begin
+	print("fallo");
+end
+
+{ERROR}
+procedure proc7(a : integer, b : invent);
+begin
+	print("fallo");
+end
+
+{ERROR}
+procedure proc8(a : char,);
+begin
+	print("fallo");
+end
+
+process Main;
+	{ERROR}
+	var v1 : invent;
+begin
+	print("Syntax Errors!");
+end
+
+

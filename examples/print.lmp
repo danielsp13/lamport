@@ -1,0 +1,12 @@
+{Programa: print.lmp}
+{Autor: Daniel Pérez Ruiz}
+{Descripción: Proceso que saluda al usuario}
+
+program HolaMundo
+
+process Main;
+	var user : string := "Daniel";
+begin
+	print("Imprimiendo saludo...");
+	print("Hola ", user, " : ¿Qué tal estás?");
+end

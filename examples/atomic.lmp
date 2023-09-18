@@ -1,0 +1,24 @@
+{Fichero: atomic.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: sentencias (fork/join)}
+
+program Sentencias
+	var v1 : integer := 0;
+	
+process P1;
+begin
+	<< v1 := v1 + 1; >>
+end
+
+process P2;
+begin
+	<< v1 := v1 - 1; >>
+end
+	
+process Main;
+begin
+	fork P1;
+	fork P2;
+	join P1;
+	join P2;
+end

@@ -18,7 +18,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "type.h"           ///< Parametros (procedimientos y funciones)
+#include "type.h"               ///< Tipos de dato
+#include "print_assistant.h"    ///< Asistencia de impresion de AST
+
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
 // ===============================================================
 
@@ -30,7 +33,7 @@
 typedef enum{
     EXPR_BINARY,            ///< Expresion de operacion binaria
     EXPR_UNARY,             ///< Expresion de operacion unaria
-    EXPR_IDENTIFIER,        ///< Expresion de identificador     
+    EXPR_IDENTIFIER,        ///< Expresion de identificador
     EXPR_LITERAL,           ///< Expresion literal
     EXPR_FUNCTION_INV,      ///< Expresion de invocacion de funciones
     EXPR_GROUPED            ///< Expresion entre parentesis
@@ -157,7 +160,9 @@ struct expression{
         // Estructura de expresion de operacion binaria
         struct {
             expression_binary_t kind;                       ///< Tipo de operacion binaria
+            char *action;                                   ///< Accion de operacion binaria
             char *operator;                                 ///< Operador de operacion
+            unsigned long line;                             ///< Linea donde se definio la expresion
             struct expression *left;                        ///< Expresion izquierda de la operacion
             struct expression *right;                       ///< Expresion derecha de la operacion
         } expression_binary_operation;
@@ -165,13 +170,19 @@ struct expression{
         // Estructura de expresion de operacion unaria
         struct {
             expression_unary_t kind;                        ///< Tipo de la operacion unaria
+            char *action;                                   ///< Accion de operacion
             char *operator;                                 ///< Operador de operacion
+            unsigned long line;                             ///< Linea donde se definio la expresion
             struct expression *left;                        ///< Expresion derecha de la operacion
         } expression_unary_operation;
 
         // Estructura de expresion de identificador
         struct{
             char *id;                                       ///< Valor de identificador
+            struct expression *index_expr;                  ///< Expresion del subindice. NULL si no hay subíndice.
+            unsigned long line;                             ///< Linea en la que se uso el identificador
+
+            struct symbol *symb;                            ///< Referencia al símbolo asociado en la tabla de símbolos.
         } expression_identifier;
 
         // Estructura de expresion de literal
@@ -190,6 +201,9 @@ struct expression{
         struct {
             char *function_name;                            ///< Nombre de funcion
             struct expression *arguments_list;              ///< Lista de argumentos para funciones
+            unsigned long line;                             ///< Linea en la que se uso el identificador
+
+            struct symbol *symb;                            ///< Referencia al símbolo asociado en la tabla de símbolos.
         } expression_function_inv;
 
         // Expresion entre parentesis
@@ -203,29 +217,47 @@ struct expression{
 // ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (EXPRESIONES) -----
 
 /**
+ * @brief Crea y reserva memoria para inicializar una expresion (no literal)
+ * @param kind : Tipo de expresion
+ * @return puntero con la expresion inicializada
+ */
+struct expression * create_expression_non_literal(expression_t kind);
+
+/**
+ * @brief Crea y reserva memoria para inicializar una expresion (solo literal)
+ * @param kind : Tipo de expresion literal
+ * @return puntero con la expresion inicializada
+ */
+struct expression * create_expression_literal(expression_literal_t kind);
+
+/**
  * @brief Crea y reserva memoria para una expresion de tipo operacion binaria
  * @param kind : Tipo de operacion binaria
  * @param operator : Simbolo de operacion
  * @param left : Operando izquierdo
  * @param right : Operando derecho
+ * @param line : linea donde se definio la operacion
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right);
+struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo operacion unaria
  * @param kind : Tipo de operacion unaria
  * @param left : Operando
+ * @param line : linea donde se definio la operacion
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left);
+struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion de identificador
  * @param id : identificador
+ * @param index_expr : Expresion de indice (si se esta referenciando una posicion de array)
+ * @param line : linea en la que aparece el uso del identificador
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_identifier(char *id);
+struct expression * create_expression_identifier(char *id, struct expression * index_expr, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo literal entero
@@ -266,9 +298,10 @@ struct expression * create_expression_literal_boolean(int value);
  * @brief Crea y reserva memoria para una expresion de invocacion de funcion
  * @param function_name : Nombre de funcion
  * @param arguments_list : Argumentos de invocación de la funcion
+ * @param line : linea en la que aparece el uso del identificador
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list);
+struct expression * create_expression_function_invocation(char *function_name, struct expression *arguments_list, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion definida entre parentesis
@@ -289,7 +322,7 @@ void free_list_expressions(struct expression *expressions_list);
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo expresion
- * @param expr : Puntero a nodo expresion
+ * @param expr : nodo expresion
  */
 void free_expression(struct expression *expr);
 
@@ -300,8 +333,33 @@ void free_expression(struct expression *expr);
 /**
  * @brief Imprime una lista de nodos de expresiones
  * @param expressions_list : Puntero a lista enlazada de expresiones
+ * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_expressions(struct expression *expressions_list);
+void print_AST_expressions(struct expression *expressions_list, unsigned int depth);
 
+// ===============================================================
+
+// ----- PROTOTIPO DE FUNCIONES DE GESTION DE NODO (EXPRESIONES) -----
+
+struct expression * copy_list_expressions(struct expression *list_expressions);
+
+/**
+ * @brief Realiza una copia de un nodo expresion, devolviendo otra con el mismo contenido
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
+struct expression * copy_expression(struct expression *expr);
+
+struct expression * copy_expression_binary(struct expression *expr);
+
+struct expression * copy_expression_unary(struct expression *expr);
+
+struct expression * copy_expression_identifier(struct expression *expr);
+
+struct expression * copy_expression_literal(struct expression *expr);
+
+struct expression * copy_expression_function_inv(struct expression *expr);
+
+struct expression * copy_expression_grouped(struct expression *expr);
 
 #endif //_LAMPORT_AST_EXPRESSION_DPR_

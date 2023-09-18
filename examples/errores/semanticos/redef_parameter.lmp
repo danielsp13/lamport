@@ -1,0 +1,18 @@
+{Fichero: redef_parameter.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene un error semantico de tipo: redefinicion de parametro}
+
+program SumaEnteros
+
+{ERROR: Redefinicion de parametro a}
+function suma(a: integer, a: integer) : integer;
+begin
+	return a+b;
+end
+
+process Main;
+	var resultado : integer := 0;
+begin
+	{Invoca a la funcion para obtener el resultado}
+	resultado := suma(3,5);
+end

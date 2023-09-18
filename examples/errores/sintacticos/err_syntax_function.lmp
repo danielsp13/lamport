@@ -1,0 +1,74 @@
+{Fichero: err_syntax_function.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Errores sintacticos de funciones}
+
+program SyntaxErrors
+
+{CORRECTO}
+function sumaNumeros(a : integer, b : integer) : integer;
+	var resultado : integer;
+begin
+	print("suma de: ", a, "+ ", b);
+	return a + b;
+end
+
+{CORRECTO}
+function devuelveHola() : string;
+	var saludo : string := "hola";
+begin
+	return saludo;
+end
+
+{ERROR}
+function 2sumaNumeros(a : integer, b : integer) : integer;
+	var resultado : integer;
+begin
+	return a+b;
+end
+
+{ERROR}
+function 3devolverNumero() : integer;
+begin
+	return 3;
+end
+
+{ERROR}
+function restaNumeros(2 : integer, b : integer) : integer;
+begin
+	print("fallo");
+	return -1;
+end
+
+{ERROR}
+function restaNumerosV2(a : integer, b : invent) : integer ;
+begin
+	return a-b;
+end
+
+{ERROR}
+function restaNumerosV3(a : integer,) : integer ;
+begin
+	return a-b;
+end
+
+{ERROR}
+function multiplicaNumeros(a : real, b : real) : real;
+	var resultado : real := a * b;
+begin
+	print("falta return");
+end
+
+{ERROR}
+function devuelveValor() string;
+begin
+	return "fallo";
+end
+
+process Main;
+	{ERROR}
+	var v1 : invent;
+begin
+	print("Syntax Errors!");
+end
+
+

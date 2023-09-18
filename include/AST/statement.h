@@ -17,8 +17,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "expression.h"     ///< Expresiones
-#include "type.h"           ///< Parametros (procedimientos y funciones)
+#include "expression.h"          ///< Expresiones
+#include "type.h"                ///< Tipos de dato
+#include "print_assistant.h"     ///< Asistencia de impresion de AST
+
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
 // ===============================================================
 
@@ -36,8 +39,10 @@ typedef enum{
     STMT_BLOCK_BEGIN,    ///< Sentencia de bloque begin-end
     STMT_BLOCK_COBEGIN,  ///< Sentencia de bloque cobegin-coend
     STMT_FORK,           ///< Sentencia fork
+    STMT_JOIN,           ///< Sentencia join
     STMT_ATOMIC,         ///< Sentencia atomica
-    STMT_RETURN          ///< Sentencia de retorno (para funciones)
+    STMT_RETURN,         ///< Sentencia de retorno (para funciones)
+    STMT_PRINT           ///< Sentencia de impresion de expresiones
 } statement_t;
 
 // ===============================================================
@@ -99,6 +104,12 @@ typedef enum{
  *          ///> kind       -> STMT_FORK
  *          ///> stmt       -> statement_fork
  * 
+ * STMT_JOIN :
+ *    --> Descripcion: Indica la realizacion de un join a un proceso
+ *    --> Estado de los atributos del struct:
+ *          ///> kind       -> STMT_JOIN
+ *          ///> stmt       -> statement_join
+ * 
  * STMT_ATOMIC :
  *    --> Descripcion: Indica la consecucion de un bloque atomico
  *    --> Estado de los atributos del struct:
@@ -110,6 +121,12 @@ typedef enum{
  *    --> Estado de los atributos del struct:
  *          ///> kind       -> STMT_RETURN
  *          ///> stmt       -> statement_return
+ * 
+ * STMT_PRINT :
+ *    --> Descripcion: Indica la impresion de una serie de expresiones en pantalla
+ *    --> Estado de los atributos del struct:
+ *          ///> kind       -> STMT_PRINT
+ *          ///> stmt       -> statement_print
  */
 struct statement{
     statement_t kind;                               ///< Tipo de sentencia
@@ -120,13 +137,19 @@ struct statement{
         // Estructura de sentencia de asignacion
         struct {
             char *variable_name;                    ///< Nombre de la variable
+            struct expression *index_expr;          ///< Expresion del subindice. NULL si no hay subíndice.
             struct expression *expr;                ///< Expresion de la asignacion
+
+            unsigned long line;                     ///< Linea donde se uso el identificador
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_assignment;
 
         // Estructura de sentencia de bucle while
         struct {
             struct expression *condition;           ///< Condicion del bucle
             struct statement *body;                 ///< Cuerpo del bucle (conjunto de sentencias)
+
+            unsigned long line;                     ///< Linea donde se definio la sentencia
         } statement_while;
 
         // Estructura de sentencia de bucle for
@@ -135,6 +158,9 @@ struct statement{
             struct expression *intialization;       ///< Inicializacion de contador de bucle
             struct expression *finish;              ///< Finalizacion del bucle
             struct statement *body;                 ///< Cuerpo del bucle (conjunto de sentencias)
+
+            unsigned long line;                     ///< Linea donde se uso el identificador
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_for;
         
         // Estructura de sentencia de if-else
@@ -142,12 +168,17 @@ struct statement{
             struct expression *condition;           ///< Condicion de if-else
             struct statement *if_body;              ///< Cuerpo del if [condition se evalua como verdadera] (conjunto de sentencias)
             struct statement *else_body;            ///< Cuerpo del else [condition se evalua como falsa] (conjunto de sentencias)
+
+            unsigned long line;                     ///< Linea donde se definio la sentencia
         } statement_if_else;
 
         // Estructura de sentencia de invocacion de proceso
         struct {
             char *procedure_name;                   ///< Nombre del procedimiento
             struct expression *arguments_list;      ///< Argumentos de invocacion del procedimiento
+
+            unsigned long line;                     ///< Linea donde se uso el identificador
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_procedure_inv;
 
         // Estructura de sentencia de bloque begin-end o cobegin-coend o atomic
@@ -158,13 +189,28 @@ struct statement{
         // Estructura de sentencia fork
         struct {
             char *forked_process;                   ///< Nombre del proceso
-            struct statement *stmt;                 ///< Sentencia
+
+            unsigned long line;                     ///< Linea donde se uso el identificador
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_fork;
+
+        struct{
+            char *joined_process;                   ///< Nombre del proceso
+
+            unsigned long line;                     ///< Linea donde se uso el identificador
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
+        } statement_join;
 
         // Estructura de sentencia return (para funciones)
         struct {
             struct expression *returned_expr;       ///< Expresion de retorno
+            unsigned long line;                     ///< Linea donde se definio la sentencia
         } statement_return;
+
+        // Estructura de sentencia de impresion
+        struct{
+            struct expression *expressions_list;    ///< Lista de expresiones a imprimir
+        } statement_print;
     } stmt;                                         ///< Sentencia
     
 };
@@ -174,20 +220,30 @@ struct statement{
 // ----- PROTOTIPO DE FUNCIONES PARA CONSTRUCCION DEL AST (SENTENCIAS) -----
 
 /**
+ * @brief Crea y reserva memoria para una sentencia
+ * @param kind : Tipo de sentencia
+ * @return puntero con la sentencia creada
+ */
+struct statement * create_statement(statement_t kind);
+
+/**
  * @brief Crea y reserva memoria para una sentencia de asignacion (STMT_ASSIGNMENT).
  * @param variable_name : Nombre de la variable
+ * @param index_expr : Expresion de indice (si se esta realizando la asignacion sobre una posicion de array)
  * @param expr : Expresion a asignar
+ * @param line : linea donde se uso el identificador de variable
  * @return puntero con la sentencia incializada
  */
-struct statement * create_statement_assignment(char *variable_name, struct expression *expr);
+struct statement * create_statement_assignment(char *variable_name, struct expression *index_expr, struct expression *expr, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de bucle while (STMT_WHILE)
  * @param condition : Condicion del bucle
  * @param body : Cuerpo del bucle (conjunto de sentencias)
+ * @param line : linea donde se definio la sentencia
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_while(struct expression *condition, struct statement *body);
+struct statement * create_statement_while(struct expression *condition, struct statement *body, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de bucle for (STMT_FOR)
@@ -195,26 +251,29 @@ struct statement * create_statement_while(struct expression *condition, struct s
  * @param initializacion : Expresion para inicializar el contador del bucle
  * @param finish : Expresion para finalizar el contador del bucle
  * @param body : Cuerpo del bucle (conjunto de sentencias)
+ * @param line : linea donde se uso el identificador de contador
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body);
+struct statement * create_statement_for(char *counter_name, struct expression *initialization, struct expression *finish, struct statement *body, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de control de flujo if-else
  * @param condition : Expresion de condicion de control
  * @param if_body : Cuerpo de if (conjunto de sentencias)
  * @param else_body : Cuerpo de else (conjunto de sentencias)
+ * @param line : linea donde se definio la sentencia
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_if_else(struct expression *condition, struct statement *if_body, struct statement *else_body);
+struct statement * create_statement_if_else(struct expression *condition, struct statement *if_body, struct statement *else_body, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de invocacion de procedimiento
  * @param procedure_name : Nombre del procedimiento
  * @param arguments_list : Lista de argumentos de invocacion procedimiento
+ * @param line : linea donde se uso el identificador de proceso
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list);
+struct statement * create_statement_procedure_inv(char *procedure_name, struct expression *arguments_list, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de construccion de bloques
@@ -248,17 +307,33 @@ struct statement * create_statement_atomic(struct statement *body);
 /**
  * @brief Crea y reserva memoria para una sentencia fork
  * @param process_name : Nombre del proceso
- * @param stmt : Sentencia
+ * @param line : linea donde se uso el identificador de proceso
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_fork(char *process_name, struct statement *stmt);
+struct statement * create_statement_fork(char *process_name, unsigned long line);
+
+/**
+ * @brief Crea y reserva memoria para una sentencia join
+ * @param process_name : Nombre del proceso
+ * @param line : linea donde se uso el identificador de proceso
+ * @return puntero con la sentencia inicializada
+ */
+struct statement * create_statement_join(char *process_name, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de retorno (para funciones)
  * @param returned_expr : Expresion de retorno
+ * @param line : linea donde se definio la sentencia
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_return(struct expression *returned_expr);
+struct statement * create_statement_return(struct expression *returned_expr, unsigned long line);
+
+/**
+ * @brief Crea y reserva memoria para una sentencia de impresion de expresiones
+ * @param expressions_list : Lista de expresiones a imprimir
+ * @return puntero con la sentencia inicializada
+ */
+struct statement * create_statement_print(struct expression *expressions_list);
 
 
 
@@ -274,7 +349,7 @@ void free_list_statements(struct statement *statements_list);
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo sentencia
- * @param stmt : Puntero a nodo sentencia
+ * @param stmt : nodo sentencia
  */
 void free_statement(struct statement *stmt);
 
@@ -285,8 +360,9 @@ void free_statement(struct statement *stmt);
 /**
  * @brief Imprime una lista de nodos de sentencias
  * @param statements_list : Puntero a lista enlazada de sentencias
+ * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_statements(struct statement *statements_list);
+void print_AST_statements(struct statement *statements_list, unsigned int depth);
 
 
 #endif //_LAMPORT_AST_STATEMENT_DPR_

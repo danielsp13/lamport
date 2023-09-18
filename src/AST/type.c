@@ -15,13 +15,18 @@
 struct type * create_basic_type(type_t kind){
     struct type *t = malloc(sizeof(*t));
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
+    // -- Asignar tipo de dato
     t->kind = kind;
+    // -- Asignar subtipo de dato (NULL)
     t->subtype = NULL;
-    t->parameters = NULL;
+    // -- Asignar size de dato (NULL)
+    t->size = NULL;
 
+    // -- Asignar tipo de dato (str)
     switch (t->kind)
     {
     case TYPE_INTEGER:
@@ -42,124 +47,109 @@ struct type * create_basic_type(type_t kind){
     case TYPE_ARRAY:
         t->kind_str = strdup("array");
         break;
-    case TYPE_FUNCTION:
-        t->kind_str = strdup("function");
-        break;
     case TYPE_SEMAPHORE:
         t->kind_str = strdup("semaphore");
         break;
     case TYPE_DPROCESS:
-        t->kind_str = strdup("dprocess");
+        t->kind_str = strdup("dinamic process");
         break;
     }
 
+    // -- Comprobar asignacion de tipo de dato exitoso
     if(!t->kind_str){
-        free(t->kind_str); free(t);
+        // -- Liberar memoria reservada al tipo de dato
+        free(t);
         return NULL;
     }
 
+    // -- Asignar puntero a siguiente tipo (NULL)
+    t->next = NULL;
+
+    // -- Retornar tipo creado
     return t;
 }
 
-struct type * create_function_type(struct type *subtype, struct parameter_list *parameters){
-    struct type *t = malloc(sizeof(*t));
+struct type * create_array_type(struct type *subtype, struct expression *size){
+    struct type *t = create_basic_type(TYPE_ARRAY);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
-    t->kind = TYPE_FUNCTION;
-    t->subtype = subtype;
-    t->parameters = parameters;
+    // -- Asignar subtipo de dato
+    t->subtype = copy_type(subtype);
 
-    return t;
-}
+    // -- Asignar size de array
+    t->size = size;
 
-struct type * create_array_type(struct type *subtype){
-    struct type *t = malloc(sizeof(*t));
-
-    if(!t)
-        return NULL;
-
-    t->kind = TYPE_ARRAY;
-    t->subtype = subtype;
-    t->parameters = NULL;
-
+    // -- Retornar tipo creado e inicializado
     return t;
 }
 
 struct type * create_semaphore_type(){
-    struct type *t = malloc(sizeof(*t));
+    struct type *t = create_basic_type(TYPE_SEMAPHORE);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
-    t->kind = TYPE_SEMAPHORE;
-    t->subtype = NULL;
-    t->parameters = NULL;
-
+    // -- Retornar tipo creado e inicializado
     return t;
 }
 
 struct type * create_dprocess_type(){
-    struct type *t = malloc(sizeof(*t));
+    struct type *t = create_basic_type(TYPE_DPROCESS);
 
+    // -- Comprobar reserva de memoria exitosa
     if(!t)
         return NULL;
 
-    t->kind = TYPE_DPROCESS;
-    t->subtype = NULL;
-    t->parameters = NULL;
-
+    // -- Retornar tipo creado e inicializado
     return t;
-}
-
-// ===============================================================
-
-// ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (PARAMETROS) -----
-
-struct parameter_list * create_parameter_list(char * name_parameter, struct type * type){
-    struct parameter_list *pl = malloc(sizeof(*pl));
-
-    if(!pl)
-        return NULL;
-
-    pl->name_parameter = strdup(name_parameter);
-    if(!pl->name_parameter){
-        free(pl->name_parameter);
-        return NULL;
-    }
-
-    pl->type = type;
-    pl->next = NULL;
-
-    return pl;
 }
 
 // ===============================================================
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO TIPOS) -----
 
+void free_list_types(struct type *list_types){
+    if(!list_types)
+        return;
+
+    struct type * current_type = list_types;
+    while(current_type){
+        struct type * next = current_type->next;
+        free_type(current_type);
+        current_type = next;
+    }
+}
+
 void free_type(struct type *type){
     // -- Si NULL, simplemente devolver
     if(!type)
         return;
 
+    // -- Liberar tipo de dato (str)
+    free(type->kind_str);
+    type->kind_str = NULL;
+
     // -- Liberar en funcion del tipo
     switch (type->kind)
     {
     case TYPE_ARRAY:
-        free(type->kind_str);
-        free_type(type->subtype);
-        break;
-
-    case TYPE_FUNCTION:
-        free(type->kind_str);
-        free_type(type->subtype);
-        free_list_parameters(type->parameters);
+        // -- Liberar tipo
+        if(type->size){
+            free_expression(type->size);
+            type->size = NULL;
+        }
+        if(type->subtype){
+            free_type(type->subtype);
+            type->subtype = NULL;
+        }
+        
         break;
 
     default:
-        free(type->kind_str);
         break;
     }
 
@@ -169,92 +159,136 @@ void free_type(struct type *type){
 
 // ===============================================================
 
-// ----- IMPLEMENTACION DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO PARAMETROS) -----
-
-void free_list_parameters(struct parameter_list *parameter_list){
-    struct parameter_list *current_parameter_list = parameter_list;
-    while(current_parameter_list){
-        // -- Seleccionar siguiente en la lista
-        struct parameter_list *next = current_parameter_list->next;
-        // -- Liberar nodo
-        free_parameter(current_parameter_list);
-        // -- Nodo actual -> siguiente
-        current_parameter_list = next;
-    }
-}
-
-void free_parameter(struct parameter_list *parameter){
-    // -- Si NULL, simplemente devolver
-    if(!parameter)
-        return;
-
-    // -- Liberar nombre de parametro
-    if(parameter->name_parameter)
-        free(parameter->name_parameter);
-
-    // -- Liberar tipo de parametro
-    if(parameter->type)
-        free_type(parameter->type);
-
-
-    // -- Liberar nodo
-    free(parameter);
-}
-
-// ===============================================================
-
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO TIPO) -----
 
-void print_AST_type(struct type *type){
-    const char *IDENT_ARROW = "------------>";
+void print_AST_type(struct type *type, unsigned int depth){
+    // -- Determinar identacion de nodo
+    char * IDENT_NODE = build_identation_spaces(depth);
+    // -- Determinar profundidad del siguiente nodo
+    const unsigned int NEXT_NODE_DEPTH = depth+1;
 
     // -- Si NULL, simplemente devolver
     if(!type){
-        printf(" %s <NONE>\n", IDENT_ARROW);
+        printf("%s%s %s\n",IDENT_NODE, IDENT_ARROW, NULL_NODE_MSG);
+
+        // -- Liberar memoria utilizada para la identacion
+        free(IDENT_NODE); IDENT_NODE = NULL;
+        
         return;
     }
 
     switch (type->kind)
     {
     case TYPE_ARRAY:
-        printf(" %s ARRAY DE TIPO: [%s]\n", IDENT_ARROW, type->subtype->kind_str);
+        printf("%s%s ARRAY DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->subtype->kind_str);
+        printf("%s%s DIMENSION DEL ARRAY:\n", IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_expressions(type->size,NEXT_NODE_DEPTH);
         break;
-
-    case TYPE_FUNCTION:
-        printf(" %s FUNCION DE TIPO: [%s]\n", IDENT_ARROW, type->subtype->kind_str);
-        break;
-
     default:
-        printf(" %s TIPO: [%s]\n", IDENT_ARROW, type->kind_str);
+        printf("%s%s TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->kind_str);
         break;
     }
+
+    // -- Liberar memoria utilizada para la identacion
+    free(IDENT_NODE); IDENT_NODE = NULL;
 }
 
 // ===============================================================
 
-// ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO SUBPROGRAMAS) -----
+// ----- IMPLEMENTACION DE FUNCIONES DE ASISTENCIA DE USO DE TIPOS -----
 
-void print_AST_parameters(struct parameter_list *parameters_list){
-    const char *IDENT_ARROW = "---------->";
+bool equals_type(struct type *type_a, struct type *type_b){
+    // -- Resultado de comprobacion
+    bool result = false;    ///< Se inicializa como falso buscando casos correctos
 
-    // -- Si NULL, simplemente devolver
-    if(!parameters_list){
-        printf(" %s <NONE>\n", IDENT_ARROW);
-        return;
+    // -- Comprobacion 0: Comprobamos que hay dos tipos
+    if(!type_a || !type_b)
+        return result;
+
+    // -- Comprobacion 1: Comprobamos que los tipos son iguales
+    if(type_a->kind == type_b->kind){
+        // -- Comprobacion 2: Comprobamos si son array 
+        //(con referirnos a un tipo es suficiente, pero se comprueban los dos para mayor legibilidad)
+        if(type_a->kind == TYPE_ARRAY && type_b->kind == TYPE_ARRAY){
+            // -- Comprobacion 3: Comprobamos los subtipos de dato (RECURSIVO)
+            return equals_type(type_a->subtype, type_b->subtype);
+        }
+        else{
+            // -- Son datos atomicos (INTEGER, CHAR, STRING,...)
+            // -- Actualizar resultado a true
+            result = true;
+        }
+    }
+    // -- Comprobacion 3: Uno es un array y otro no
+    else if(type_a->kind == TYPE_ARRAY){
+        return equals_type(type_a->subtype,type_b);
+    }
+    else if(type_b->kind == TYPE_ARRAY){
+        return equals_type(type_a,type_b->subtype);
     }
 
-    struct parameter_list *current_parameter = parameters_list;
-    while(current_parameter){
-        // -- Imprimir nombre de parametro
-        printf(" %s PARAMETRO: [%s] \n", IDENT_ARROW, current_parameter->name_parameter);
+    // -- Retornar resultado de comprobacion
+    return result;
+}
 
-        // -- Imprimir tipo de parametro
-        printf(" %s TIPO DE DATO DEL PARAMETRO: [%s]\n", IDENT_ARROW, current_parameter->name_parameter);
-        print_AST_type(current_parameter->type);
+struct type * copy_type(struct type *type){
+    // -- Comprobar que hay tipo
+    if(!type)
+        return NULL;
 
-        printf("\n");
+    // -- Definir estructura nueva de tipo
+    struct type *type_copy = malloc(sizeof(*type_copy));
 
-        // -- Ir al siguiente parametro
-        current_parameter = current_parameter->next;
+    // -- Comprobar creacion exitosa
+    if(!type_copy)
+        return NULL;
+
+    // -- Copiar tipo de dato (kind)
+    type_copy->kind = type->kind;
+    // -- Copiar tipo de dato kind_str (kind_str)
+    type_copy->kind_str = strdup(type->kind_str);
+    // -- Comprobar que se copio el tipo str exitosamente
+    if(!type_copy->kind_str){
+        free(type_copy);
+        return NULL;
     }
+
+    // -- Copiar subtipo de dato (recursivamete)
+    type_copy->subtype = copy_type(type->subtype);
+
+    // -- Copiar expresion (solo si tipo es array)
+    type_copy->size = NULL;
+    if(type_copy->kind == TYPE_ARRAY)
+        type_copy->size = copy_expression(type->size);
+
+    // -- Asignar puntero siguiente a NULL
+    type_copy->next = NULL;
+
+    // -- Retornar copia de tipo
+    return type_copy;
+}
+
+struct type * copy_list_types(struct type *list_types){
+    if(!list_types)
+        return NULL;
+
+    struct type *list_copy = NULL;
+    struct type *last_copy = NULL;
+
+    struct type *current_type = list_types;
+    while(current_type){
+        if(!list_copy){
+            list_copy = copy_type(current_type);
+            last_copy = list_copy;
+        }
+        else{
+            last_copy->next = copy_type(current_type);
+            last_copy = last_copy->next;
+        }
+
+        current_type = current_type->next;
+    }
+
+    // -- Retornar copia
+    return list_copy;
 }

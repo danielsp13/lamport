@@ -1,0 +1,24 @@
+{Fichero: redef_process.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene un error semantico de tipo: redefinicion de proceso}
+
+program SumaEnteros
+
+function suma(a: integer, b: integer) : integer;
+begin
+	return a+b;
+end
+
+process Main;
+	var resultado : integer := 0;
+begin
+	{Invoca a la funcion para obtener el resultado}
+	resultado := suma(3,5);
+end
+
+{ERROR: Redefinicion de proceso}
+process Main;
+begin
+	{Imprime directamente por pantalla el resultado de la suma}
+	print(suma(3,5));
+end

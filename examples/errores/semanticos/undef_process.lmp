@@ -1,0 +1,18 @@
+{Fichero: undef_process.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene un error semantico de tipo: uso de proceso no definido}
+
+program SumaEnteros
+	var suma : integer := 0; {Variable global}
+
+process Sumador;
+begin
+	suma := suma + 2;
+end
+
+process Main;
+begin
+	{ERROR: Uso de proceso no definido}
+	fork ProcesoSuma; {El proceso se llama: "Sumador"}
+	print(suma);
+end

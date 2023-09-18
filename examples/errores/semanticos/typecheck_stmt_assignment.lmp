@@ -1,0 +1,16 @@
+{Fichero: typecheck_stmt_assignment.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: sentencias (asignaciones)}
+
+program Asignaciones
+	var v1 : integer := 1;
+	var v2 : integer;
+	var v3 : array [2] integer;
+	
+process Main;
+	var v4 : string := "hola";
+begin
+	v3 := 2; {ERROR}
+	v3[1] := "hola"; {ERROR}
+	v4 := false; {ERROR}
+end

@@ -1,0 +1,21 @@
+{Fichero: typecheck_stmt_procedure_inv.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: sentencias (procedure invocation)}
+
+program Sentencias
+	var v1 : integer := 0;
+	
+procedure sumar(a : integer, b : integer);
+begin
+	v1 := a + b;
+end
+
+process Main;
+	var n1 : integer := 4;
+	var n2 : integer := 3;
+	var n3 : string;
+begin
+	sumar(n1,n2);
+	sumar(n1,3.0); {ERROR}
+	sumar(n3,true); {ERROR}
+end

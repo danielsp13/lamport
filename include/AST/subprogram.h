@@ -17,9 +17,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "declaration.h"    ///< Declaraciones
-#include "statement.h"      ///< Sentencias
-#include "type.h"           ///< Tipos
+#include "declaration.h"        ///< Declaraciones
+#include "statement.h"          ///< Sentencias
+#include "type.h"               ///< Tipos
+#include "parameter.h"     ///< Parametros de subprgramas
+#include "print_assistant.h"    ///< Asistencia de impresion de AST
+
+#include "semantic/symbol.h"    ///< Simbolo (para resolucion de nombres)
 
 // ===============================================================
 
@@ -49,11 +53,16 @@ struct subprogram{
     subprogram_t kind;                      ///< Tipo de subprograma
     char *kind_str;                         ///< Tipo de subprograma (string)
     char *name_subprogram;                  ///< Nombre de subprograma
-    struct parameter_list *parameters;      ///< Lista de parametros del subprograma
+    struct parameter *parameters;           ///< Lista de parametros del subprograma
+    struct type *type_parameters;           ///< Lista de tipos de parametros
     struct declaration *declarations;       ///< Declaraciones del subprograma
     struct statement *statements;           ///< Sentencias del programa
+    struct statement *ret;                  ///< Sentencia de retorno del programa
     struct type *type;                      ///< Tipo de retorno (solo funciones)
     struct subprogram *next;                ///< Puntero a siguiente subprograma
+
+    unsigned long line;                     ///< Linea donde se realizo la declaracion de subprograma
+    struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
 };
 
 // ===============================================================
@@ -68,9 +77,10 @@ struct subprogram{
  * @param declarations : Lista de declaraciones
  * @param statements : Lista de sentencias
  * @param type : Tipo de funcion
+ * @param line : linea donde se definio el subprograma
  * @return puntero con el subprograma inicializado
  */
-struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type);
+struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, struct parameter *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para crear un subprograma de tipo procedure
@@ -78,9 +88,10 @@ struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, 
  * @param parameters : Lista de parametros
  * @param declarations : Lista de declaraciones
  * @param statements : Lista de sentencias
+ * @param line : linea donde se definio el subprograma
  * @return puntero con el procedimiento inicializado
  */
-struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements);
+struct subprogram * create_subprogram_procedure(char *name_procedure, struct parameter *parameters, struct declaration *declarations, struct statement *statements, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para crear un subprograma de tipo funcion
@@ -88,9 +99,10 @@ struct subprogram * create_subprogram_procedure(char *name_procedure, struct par
  * @param parameters : Lista de parametros
  * @param declarations : Lista de declaraciones
  * @param statements : Lista de sentencias
+ * @param line : linea donde se definio el subprograma
  * @return puntero con la funcion inicializada
  */
-struct subprogram * create_subprogram_function(char *name_function, struct parameter_list *parameters, struct declaration *declarations, struct statement *statements, struct type *type);
+struct subprogram * create_subprogram_function(char *name_function, struct parameter *parameters, struct declaration *declarations, struct statement *statements, struct type *type, unsigned long line);
 
 // ===============================================================
 
@@ -104,7 +116,7 @@ void free_list_subprograms(struct subprogram *subprograms_list);
 
 /**
  * @brief Libera la memoria asignada para un nodo de tipo subprograma
- * @param subprog : Puntero a nodo subprograma
+ * @param subprog : nodo subprograma
  */
 void free_subprogram(struct subprogram *subprog);
 
@@ -115,7 +127,8 @@ void free_subprogram(struct subprogram *subprog);
 /**
  * @brief Imprime una lista de nodos de subprogramas
  * @param subprograms_list : Puntero a lista enlazada de subprogramas
+ * @param depth : Profundidad en la impresion de la lista de nodos
  */
-void print_AST_subprograms(struct subprogram *subprograms_list);
+void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int depth);
 
 #endif //_LAMPORT_AST_SUBPROGRAM_DPR_

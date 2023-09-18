@@ -1,0 +1,24 @@
+{Programa: procedure.lmp}
+{Autor: Daniel Pérez Ruiz}
+{Descripción: Programa que incrementa un contador usando un bucle for, dentro de un procedimiento}
+
+program IncrementarContador
+	var contador : integer := 0;	{Contador entero a incrementar}
+	
+procedure Incrementa(numveces : integer);
+	var i : integer;
+begin
+	{Bucle que se ejecuta el numero de veces especificado}
+	for i := 0 to numveces do
+	begin
+		{Incrementar contador}
+		contador := contador + 1;
+	end
+end
+
+{Proceso principal del programa}
+process Main;
+	var totalVeces : integer := 10;
+begin
+	Incrementa(totalVeces); {Se incrementará tantas veces como totalVeces tenga valor}
+end

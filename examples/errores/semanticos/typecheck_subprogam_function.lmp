@@ -1,0 +1,35 @@
+{Fichero: typecheck_subprogram_function.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: sentencias (subrogram function)}
+
+program Sentencias
+	var v1 : integer := 0;
+	
+function sumar(a : integer, b : integer) : integer;
+begin
+	return a + b;
+end
+
+function sumarReales(a : real, b : real) : real;
+begin
+	return a + b;
+end
+
+{ERROR}
+function obtener5() : integer;
+	var valor : real := 5.0;
+begin
+	return valor;
+end
+
+process Main;
+	var n1 : integer := 4;
+	var n2 : integer := 3;
+	var n3 : string;
+	var resultado : integer;
+begin
+	resultado := sumar(n1,n2) * 10;
+	resultado := sumarReales(4.0,-2.0); {ERROR}
+	resultado := sumar(n1,3.0) + 7; {ERROR}
+	resultado := sumar(n3,true) - 20; {ERROR}
+end

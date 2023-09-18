@@ -1,0 +1,25 @@
+{Fichero: redef_subprogram.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene un error semantico de tipo: redefinicion de subprograma}
+
+program SumaEnteros
+
+function suma(a: integer, b: integer) : integer;
+begin
+	return a+b;
+end
+
+{ERROR: Redefinicion de subprograma sumar}
+procedure suma(a: integer, b: integer);
+	var resultado : integer;
+begin
+	resultado := a+b;
+	print(resultado);
+end
+
+process Main;
+	var resultado : integer := 0;
+begin
+	{Invoca a la funcion para obtener el resultado}
+	resultado := suma(3,5);
+end
