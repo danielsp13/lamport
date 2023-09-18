@@ -62,6 +62,9 @@ struct type * create_basic_type(type_t kind){
         return NULL;
     }
 
+    // -- Asignar puntero a siguiente tipo (NULL)
+    t->next = NULL;
+
     // -- Retornar tipo creado
     return t;
 }
@@ -74,7 +77,7 @@ struct type * create_array_type(struct type *subtype, struct expression *size){
         return NULL;
 
     // -- Asignar subtipo de dato
-    t->subtype = subtype;
+    t->subtype = copy_type(subtype);
 
     // -- Asignar size de array
     t->size = size;
