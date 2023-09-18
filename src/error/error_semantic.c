@@ -133,6 +133,9 @@ char * create_message_error_semantic_unmatched_types(error_semantic_type_checkin
     case UNMATCHED_TYPES_STMT_FORK:
         sprintf(sub_buff,"fork a un identificador que no es un proceso. se encontro (%s)",type_a);
         break;
+    case UNMATCHED_TYPES_STMT_JOIN:
+        sprintf(sub_buff,"join a un identificador que no es un proceso. se encontro (%s)",type_a);
+        break;
     case UNMATCHED_TYPES_STMT_PROCEDURE_INV:
         sprintf(sub_buff,"argumento de funcion [%s] es de tipo (%s). se encontro (%s)",action,type_b,type_a);
         break;
@@ -261,6 +264,13 @@ struct error * create_error_semantic_unmatched_types_statement_fork(unsigned lon
     return create_error_semantic_unmatched_types(err_line, &msg);
 }
 
+struct error * create_error_semantic_unmatched_types_statement_join(unsigned long err_line, char *type){
+    // -- Construir mensaje de error
+    char *msg = create_message_error_semantic_unmatched_types(UNMATCHED_TYPES_STMT_JOIN,NULL,type,NULL);
+    
+    return create_error_semantic_unmatched_types(err_line, &msg);
+}
+
 struct error * create_error_semantic_unmatched_types_statement_procedure_inv(unsigned long err_line, char *name, int position, char *type_a, char *type_b){
     // -- Construir mensaje de error
     const unsigned int BUFF_SIZE = 512;
@@ -336,7 +346,7 @@ void print_list_error_semantic(struct error *list_errors){
     struct error * current_error = list_errors;
     while(current_error){
         // -- Imprimir mensaje de error
-        printf("Error semantico en la linea [%ld]: %s", current_error->err_line, current_error->msg);
+        printf("Error semantico en la linea [%ld]: \n --> %s", current_error->err_line, current_error->msg);
 
         switch (current_error->err_data.error_semantic.kind)
         {
@@ -345,16 +355,16 @@ void print_list_error_semantic(struct error *list_errors){
             break;
         
         default:
-            printf("\t: [%s].", current_error->err_data.error_semantic.id);
+            printf(": [%s].", current_error->err_data.error_semantic.id);
             // -- Especificar mas detalles del error dependiendo de casos
             switch (current_error->err_data.error_semantic.kind)
             {
             case DUPLICATED_SYMBOL:
-                printf("Primero se definio aqui: linea [%ld].\n", current_error->err_data.error_semantic.def_line);
+                printf(" Primero se definio aqui: linea [%ld].\n", current_error->err_data.error_semantic.def_line);
                 break;
 
             case DUPLICATED_SYMBOL_PARAM:
-                printf("Primero se definio aqui: posicion de lista [%d].\n", current_error->err_data.error_semantic.which);
+                printf(" Primero se definio aqui: posicion de lista [%d].\n", current_error->err_data.error_semantic.which);
                 break;
             
             default:
@@ -364,7 +374,7 @@ void print_list_error_semantic(struct error *list_errors){
             break;
         }
         
-
+        printf("\n");
         
 
         // -- Ir al siguiente error

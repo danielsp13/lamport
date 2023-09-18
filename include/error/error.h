@@ -49,6 +49,8 @@ struct error{
         // Datos adicionales para error sintactico
         struct{
             error_syntax_t kind;        ///< Tipo de error sintactico
+            char *kind_str;             ///< Tipo de error sintactico (str)
+            char *identifier;           ///< Identificador de funcion/procedimiento/proceso/declaracion donde se produjo error sintactico
         } error_syntax;
         
         // Datos adicionales para error semantico

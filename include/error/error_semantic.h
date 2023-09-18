@@ -128,6 +128,8 @@ struct error * create_error_semantic_unmatched_types_statement_ifelse(unsigned l
 
 struct error * create_error_semantic_unmatched_types_statement_fork(unsigned long err_line, char *type);
 
+struct error * create_error_semantic_unmatched_types_statement_join(unsigned long err_line, char *type);
+
 struct error * create_error_semantic_unmatched_types_statement_procedure_inv(unsigned long err_line, char *name, int position, char *type_a, char *type_b);
 
 struct error * create_error_semantic_unmatched_types_expression_function_inv(unsigned long err_line, char *name , int position, char *type_a, char *type_b);

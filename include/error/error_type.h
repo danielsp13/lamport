@@ -17,10 +17,20 @@
  * del lenguaje lamport
  */
 typedef enum{
-    EXPECTED_TOKEN,                 ///< Se esperaba una palabra reservada donde no aparece en el analisis
-    EXPECTED_IDENTIFIER,            ///< Se esperaba un identificador donde no aparece en el analisis
-    EXPECTED_EXPR,                  ///< Se esperaba una expresion donde no aparece en el analisis
-    EXPECTED_STMT                   ///< Se esperaba una sentencia donde no aparece en el analisis
+    ERR_SYNTAX_IN_DECLARATION,              ///< Error sintactico detectado en declaracion
+    ERR_SYNTAX_IDENT_IN_DECLARATION,        ///< Error sintactico detectado en declaracion (identifier)
+    ERR_SYNTAX_IN_PROCEDURE,                ///< Error sintactico detectado en procedimiento
+    ERR_SYNTAX_IDENT_IN_PROCEDURE,          ///< Error sintactico detectado en procedimiento (identifier)
+    ERR_SYNTAX_IN_FUNCTION,                 ///< Error sintactico detectado en funcion
+    ERR_SYNTAX_IDENT_IN_FUNCTION,           ///< Error sintactico detectado en funcion (identifier)
+    ERR_SYNTAX_IN_PARAMETER,                ///< Error sintactico detectado en parametro
+    ERR_SYNTAX_IN_PROCESS,                  ///< Error sintactico detectado en proceso
+    ERR_SYNTAX_IDENT_IN_PROCESS,            ///< Error sintactico detectado en proceso (identifier)
+    ERR_SYNTAX_IN_TYPE,                     ///< Error sintactico detectado en tipo de dato
+    ERR_SYNTAX_IN_EXPRESSION,               ///< Error sintactico detectado en expresion
+    ERR_SYNTAX_IN_STATEMENT,                ///< Error sintactico detectado en sentencia
+    ERR_SYNTAX_IN_PROGRAM,                  ///< Error sintactico detectado en programa
+    ERR_SYNTAX_IDENT_IN_PROGRAM,            ///< Error sintactico detectado en programa (identifier)
 } error_syntax_t;
 
 // ===============================================================
@@ -56,6 +66,7 @@ typedef enum{
     UNMATCHED_TYPES_STMT_FOR_END_EXR,
     UNMATCHED_TYPES_STMT_IF_ELSE,
     UNMATCHED_TYPES_STMT_FORK,
+    UNMATCHED_TYPES_STMT_JOIN,
     UNMATCHED_TYPES_STMT_PROCEDURE_INV,
     UNMATCHED_TYPES_PROC_VECTOR_INDEX,
     UNMATCHED_TYPES_PROC_VECTOR_START_RANGE,

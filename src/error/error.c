@@ -103,7 +103,12 @@ void free_error(struct error *error){
     switch (error->kind)
     {
     case ERROR_SYNTAX:
-        // -- No hacer nada
+        // -- Liberar identificador de declaracion/subprograma/proceso
+        free(error->err_data.error_syntax.identifier);
+        error->err_data.error_syntax.identifier = NULL;
+
+        free(error->err_data.error_syntax.kind_str);
+        error->err_data.error_syntax.kind_str = NULL;
         break;
 
     case ERROR_SEMANTIC:

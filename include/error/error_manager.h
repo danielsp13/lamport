@@ -59,10 +59,11 @@ void add_error_syntax_to_list(struct error * err);
 /**
  * @brief Crea e inlcuye un nuevo error sintactico en la lista de errores sintacticos
  * @param kind : tipo de error sintactico
+ * @param identifier : identificador de declaracion/subprograma/proceso donde se produjo el error sintactico
  * @param line : linea donde se produjo el error sintactico
  * @param msg : mensaje de error
  */
-void create_and_add_error_syntax_to_list(error_syntax_t kind, unsigned long line, char *msg);
+void create_and_add_error_syntax_to_list(error_syntax_t kind, char *identifier, unsigned long line, char *msg);
 
 /**
  * @brief Devuelve el total de errores sintacticos producidos

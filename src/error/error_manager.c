@@ -82,9 +82,9 @@ void add_error_syntax_to_list(struct error * err){
     TOTAL_SYNTAX_ERRORS++;
 }
 
-void create_and_add_error_syntax_to_list(error_syntax_t kind, unsigned long line, char *msg){
+void create_and_add_error_syntax_to_list(error_syntax_t kind, char * identifier, unsigned long line, char *msg){
     // -- Crear error sintactico
-    struct error *err = create_error_syntax(kind, line, msg);
+    struct error *err = create_error_syntax(kind, identifier, line, msg);
 
     // -- Comprobar si se definio el error
     if(!err)
