@@ -59,6 +59,10 @@ struct statement * create_statement(statement_t kind){
         st->kind_str = strdup("fork process");
         break;
 
+    case STMT_JOIN:
+        st->kind_str = strdup("join process");
+        break;
+
     case STMT_RETURN:
         st->kind_str = strdup("return statement");
         break;
@@ -271,6 +275,32 @@ struct statement * create_statement_fork(char *process_name, unsigned long line)
     return st;
 }
 
+struct statement * create_statement_join(char *process_name, unsigned long line){
+    struct statement *st = create_statement(STMT_JOIN);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asignar nombre de proceso
+    st->stmt.statement_join.joined_process = strdup(process_name);
+    // -- Comprobar asignacion de nombre de proceso exitosa
+    if(!st->stmt.statement_join.joined_process){
+        // -- Liberar memoria reservada para la sentencia
+        free(st);
+        return NULL;
+    }
+
+    // -- Asignar linea donde se uso el identificador de proceso
+    st->stmt.statement_join.line = line;
+
+    // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
+    st->stmt.statement_join.symb = NULL;
+
+    // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
 struct statement * create_statement_return(struct expression *returned_expr, unsigned long line){
     struct statement *st = create_statement(STMT_RETURN);
 
@@ -428,6 +458,17 @@ void free_statement(struct statement *stmt){
         }
         break;
 
+    case STMT_JOIN:
+        free(stmt->stmt.statement_join.joined_process);
+        stmt->stmt.statement_join.joined_process = NULL;
+
+        // -- Liberacion de simbolo
+        if(stmt->stmt.statement_join.symb){
+            free_symbol(stmt->stmt.statement_join.symb);
+            stmt->stmt.statement_join.symb = NULL;   
+        }
+        break;
+
     case STMT_ATOMIC:
         free_list_statements(stmt->stmt.statement_block.body);
         stmt->stmt.statement_block.body = NULL;
@@ -535,6 +576,10 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth)
 
         case STMT_FORK:
             printf("%s%s %c FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_fork.forked_process);
+            break;
+
+        case STMT_JOIN:
+            printf("%s%s %c JOIN DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_join.joined_process);
             break;
         
         case STMT_RETURN:

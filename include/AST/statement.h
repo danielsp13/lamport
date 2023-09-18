@@ -39,6 +39,7 @@ typedef enum{
     STMT_BLOCK_BEGIN,    ///< Sentencia de bloque begin-end
     STMT_BLOCK_COBEGIN,  ///< Sentencia de bloque cobegin-coend
     STMT_FORK,           ///< Sentencia fork
+    STMT_JOIN,           ///< Sentencia join
     STMT_ATOMIC,         ///< Sentencia atomica
     STMT_RETURN,         ///< Sentencia de retorno (para funciones)
     STMT_PRINT           ///< Sentencia de impresion de expresiones
@@ -102,6 +103,12 @@ typedef enum{
  *    --> Estado de los atributos del struct:
  *          ///> kind       -> STMT_FORK
  *          ///> stmt       -> statement_fork
+ * 
+ * STMT_JOIN :
+ *    --> Descripcion: Indica la realizacion de un join a un proceso
+ *    --> Estado de los atributos del struct:
+ *          ///> kind       -> STMT_JOIN
+ *          ///> stmt       -> statement_join
  * 
  * STMT_ATOMIC :
  *    --> Descripcion: Indica la consecucion de un bloque atomico
@@ -186,6 +193,13 @@ struct statement{
             unsigned long line;                     ///< Linea donde se uso el identificador
             struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_fork;
+
+        struct{
+            char *joined_process;                   ///< Nombre del proceso
+
+            unsigned long line;                     ///< Linea donde se uso el identificador
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
+        } statement_join;
 
         // Estructura de sentencia return (para funciones)
         struct {
@@ -297,6 +311,14 @@ struct statement * create_statement_atomic(struct statement *body);
  * @return puntero con la sentencia inicializada
  */
 struct statement * create_statement_fork(char *process_name, unsigned long line);
+
+/**
+ * @brief Crea y reserva memoria para una sentencia join
+ * @param process_name : Nombre del proceso
+ * @param line : linea donde se uso el identificador de proceso
+ * @return puntero con la sentencia inicializada
+ */
+struct statement * create_statement_join(char *process_name, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de retorno (para funciones)
