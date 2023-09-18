@@ -82,12 +82,6 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 #   --- Join
 #   --- Llamada a procedimiento
 #   --- Impresion de contenido (print)
-<block-statement> ::= <block-statements-begin-end>
-	| <block-statements-cobegin-coend>
-	| <block-statements-atomic>
-	| <block-statements-function>
-	| <block-statements-process>
-	
 <block-statements-begin-end> ::= "begin" (<statement>)+ "end"
 <block-statements-cobegin-coend> ::= "cobegin" (<statement>)+ "coend"
 <block-statements-atomic> ::= "<<" (statement)+ ">>"
@@ -279,7 +273,7 @@ Finalmente, con respecto a las reglas de validación de operaciones:
 
 * Sólo se puede asignar un único valor a un variable al mismo tiempo. Definir dos asignaciones diferentes, efectivamente, son dos operaciones distintas.
 * Un parámetro de función sólo acepta un un valor al mismo tiempo.
-* En un subprograma función, el tipo de dato que devuelve debe coincidir con el tipo de dato de su sentencia de retorno `return-statement`.
+* En un subprograma función, el tipo de dato que devuelve debe coincidir con el tipo de dato de su sentencia de retorno `return-statement`. Además, esta sentencia `return` debe ser **la última que aparezca en el cuerpo de una función.**
 * Los operadores de comparación de igualdad `!=` y `==` pueden aceptar cualquier tipo de dato *básico*.
 * Los operadores de comparación `<`, `>`, `<=`, `>=` sólo aceptan o números enteros `integer` o reales `real` en ambos miembros de la comparación, y además, deben coincidir en tipo.
 * Los operadores aritméticos `+`, `-`, `*`, `/`, sólo aceptan números enteros `integer` o reales `real` en ambos miembros de la comparación, y además, deben coincidir en tipo. Es decir, no se pueden aplicar a `integer` y `real` simultáneamente.

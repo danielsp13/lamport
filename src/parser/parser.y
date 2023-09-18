@@ -168,16 +168,21 @@
 %type <subprog> subprogram-function
 
 // ---- TIPO process
-%type <proc> list-process process process-def process-def-array
+%type <proc> list-process process 
+%type <proc> process-def process-def-array
 
 // ---- TIPO type
 %type <type> type
+%type <type> basic-or-array-type
+%type <type> basic-type
+%type <type> special-type
 
 // ---- TIPO expression
 %type <expr> expression 
-%type <expr> binary-expression unary-expression
-%type <expr> term function-invocation 
-%type <expr> literal expr-identifier
+%type <expr> binary-expression unary-expression term
+%type <expr> function-call-expression 
+%type <expr> literal 
+%type <expr> expr-identifier
 %type <expr> list-arguments argument
 %type <expr> list-print
 
@@ -186,15 +191,27 @@
 
 // ---- TIPO statement
 %type <stmt> statement list-statements
-%type <stmt> block-statement block-statement-function
-%type <stmt> cobegin-statement 
+%type <stmt> block-statements-begin-end
+%type <stmt> block-statements-cobegin-coend
+%type <stmt> block-statements-atomic
+%type <stmt> block-statements-function
+%type <stmt> block-statements-process
 %type <stmt> assignment-statement 
-%type <stmt> while-statement for-statement
-%type <stmt> if-statement procedure-invocation fork-statement atomic-statement return-statement print-statement
+%type <stmt> while-statement 
+%type <stmt> for-statement
+%type <stmt> if-statement 
+%type <stmt> procedure-call-statement 
+%type <stmt> fork-statement join-statement
+%type <stmt> return-statement 
+%type <stmt> print-statement
 
 // ---- TIPO identifier
 %type <ident> IDENT
-%type <ident> program-name subprogram-procedure-name subprogram-function-name parameter-name process-name
+%type <ident> program-name
+%type <ident> subprogram-procedure-name 
+%type <ident> subprogram-function-name 
+%type <ident> parameter-name 
+%type <ident> process-name
 
 // ---- TIPO LITERALS
 %type <literal_string> LITERAL
@@ -202,6 +219,11 @@
 %type <literal_int> L_INTEGER
 %type <literal_float> L_REAL
 %type <literal_boolean> L_BOOLEAN_TRUE L_BOOLEAN_FALSE
+
+// ======================================================================
+// ESPECIFICACION DE SIMBOLO INICIAL
+
+%start program
 
 %%
 
@@ -215,25 +237,26 @@ program:
     // ===== CORRECTO: Programa lamport completo
     S_PROGRAM program-name list-declarations list-subprograms list-process{
         // -- Crear AST (solo si no hay errores sintacticos)
-        AST_program = create_program($2,$3,$4,$5);
+        if(!have_syntax_errors())
+            AST_program = create_program($2,$3,$4,$5);
     }
     // <-> ERROR: Falta 'program' al comienzo del programa
-    | error{
-        mark_error_syntax_program_expected_program();
+    | program-name list-declarations list-subprograms list-process{
+        mark_error_syntax_program_expected_program($1);
         // -- Abortar inmediatamente el analisis
-        YYABORT;
+        //YYABORT;
+    }
+    // <--> ERROR : Nombre de programa incorrecto
+    | S_PROGRAM error list-declarations list-subprograms list-process{
+        mark_error_syntax_program_expected_identifier();
+        // -- Abortar inmediatamente el analisis
+        //YYABORT;
     }
     ;
 
 program-name:
     IDENT{ 
         $$ = $1;
-    }
-    // <--> ERROR : Nombre de programa incorrecto
-    | error { 
-        mark_error_syntax_program_expected_identifier();
-        // -- Abortar inmediatamente el analisis
-        YYABORT;
     }
     ;
 
@@ -242,8 +265,13 @@ program-name:
 
 list-declarations:
     declaration list-declarations{
-        $$ = $1;
-        $1->next = $2;
+        if(!have_syntax_errors()){
+            $$ = $1;
+            $1->next = $2;
+        }
+        else{
+            $$ = 0;
+        }
     }
     | /* epsilon */{
         $$ = 0;
@@ -253,63 +281,60 @@ list-declarations:
 declaration:
     // ===== CORRECTO: Declaracion completa con asignacion
     S_VAR IDENT DELIM_2P type OP_ASSIGN expression DELIM_PC{
-        char * decl_identifier = $2;
-        struct type * decl_type = $4;
-        struct expression *decl_expr = $6;
-
-        // -- Crear nodo
-        $$ = create_declaration_variable(decl_identifier, decl_type, decl_expr, yylineno);
-
-        // -- Incluir en cache
-        add_declaration_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_declaration_variable($2, $4, $6, yylineno);
+            add_declaration_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // ===== CORRECTO: Declaracion completa sin asignacion
     | S_VAR IDENT DELIM_2P type DELIM_PC{
-        char * decl_identifier = $2;
-        struct type * decl_type = $4;
-
-        // -- Crear nodo
-        $$ = create_declaration_variable(decl_identifier, decl_type, 0, yylineno);
-
-        // -- Incluir en cache
-        add_declaration_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_declaration_variable($2, $4, 0, yylineno);
+            add_declaration_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // <-> ERROR: se esperaba 'var'
-    | error DELIM_PC{
-        mark_error_syntax_declaration_expected_var();
+    | IDENT DELIM_2P type DELIM_PC{
+        mark_error_syntax_declaration_expected_var($1);
         // Recuperar
-        YYABORT;
+        //YYABORT;
     }
     // <-> ERROR: se esperaba identificador despues de 'var'
     | S_VAR error DELIM_PC{
         mark_error_syntax_declaration_expected_identifier();
-        YYABORT;
+        //YYABORT;
     }
     // <-> ERROR: se esperaba ':'
     | S_VAR IDENT error DELIM_PC{
-        mark_error_syntax_declaration_expected_delim2p();
-        YYABORT;
+        mark_error_syntax_declaration_expected_delim2p($2);
+        //YYABORT;
     };
     // <-> ERROR: se esperaba tipo de dato
     | S_VAR IDENT DELIM_2P DELIM_PC{
-        mark_error_syntax_type_expected_type();
-        YYABORT;
+        mark_error_syntax_type_expected_type($2);
+        //YYABORT;
     }
     // <-> ERROR: se esperaba ';'
     | S_VAR IDENT DELIM_2P type error{
-        mark_error_syntax_declaration_expected_delimpc();
-        free_AST_type_register();
-        YYABORT;
+        mark_error_syntax_declaration_expected_delimpc($2);
+        free_AST_type_register($4);
+        //YYABORT;
     }
     // <-> ERROR: se esperaba operador de asignacion
     | S_VAR IDENT DELIM_2P type expression DELIM_PC{
-        mark_error_syntax_declaration_expected_opassign();
-        YYABORT;
+        mark_error_syntax_declaration_expected_opassign($2);
+        //YYABORT;
     }
     // <-> ERROR: se esperaba ';'
     | S_VAR IDENT DELIM_2P type OP_ASSIGN expression error{
-        mark_error_syntax_declaration_expected_delimpc();
-        YYABORT;
+        mark_error_syntax_declaration_expected_delimpc($2);
+        //YYABORT;
     }
     ;
 
@@ -318,8 +343,13 @@ declaration:
 
 list-subprograms:
     subprogram list-subprograms{
-        $$ = $1;
-        $1->next = $2;
+        if(!have_syntax_errors()){
+            $$ = $1;
+            $1->next = $2;
+        }
+        else{
+            $$ = 0;
+        }
     }
     | /* epsilon */{
         $$ = 0;
@@ -337,45 +367,56 @@ subprogram:
 
 subprogram-procedure:
     // ===== CORRECTO: Subprograma procedimiento completo (con lista de parametros)
-    S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO DELIM_PC list-declarations block-statement{
+    S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO DELIM_PC list-declarations block-statements-begin-end{
         // -- Creacion nodo SUBPROGRAMA (PROCEDURE)
-        $$ = create_subprogram_procedure($2, $4, $7, $8, yylineno);
-        add_subprogram_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_subprogram_procedure($2, $4, $7, $8, yylineno);
+            add_subprogram_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // ===== CORRECTO: Subprograma procedimiento completo (sin lista de parametros)
-    | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO DELIM_PC list-declarations block-statement{
+    | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO DELIM_PC list-declarations block-statements-begin-end{
         // -- Creacion nodo SUBPROGRAMA (PROCEDURE)
-        $$ = create_subprogram_procedure($2, 0, $6, $7, yylineno);
-        add_subprogram_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_subprogram_procedure($2, 0, $6, $7, yylineno);
+            add_subprogram_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+        
     }
-    // <--> ERROR: Falta '('
-    | S_PROCEDURE subprogram-procedure-name error DELIM_PC{
-        mark_error_syntax_subprogram_expected_parizdo();
-        YYABORT;
+    // <--> ERROR: Error de identificador de procedure
+    | S_PROCEDURE error PAR_IZDO list-parameters PAR_DCHO DELIM_PC list-declarations block-statements-begin-end{
+        mark_error_syntax_subprogram_procedure_expected_identifier();
+        //YYABORT;
     }
-    // <--> ERROR: Falta ')'
-    | S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters error {
-        mark_error_syntax_subprogram_expected_pardcho();
-        free_AST_parameter_register();
-        YYABORT;
+    // <--> ERROR: Error de identificador de procedure
+    | S_PROCEDURE error PAR_IZDO PAR_DCHO DELIM_PC list-declarations block-statements-begin-end{
+        // -- Mostrar error
+        mark_error_syntax_subprogram_procedure_expected_identifier();
+        // -- Abortar inmediatmente el analisis
+        //YYABORT;
     }
-    // <--> ERROR: Falta ')'
-    | S_PROCEDURE subprogram-procedure-name PAR_IZDO error {
-        mark_error_syntax_subprogram_expected_pardcho();
-        free_AST_parameter_register();
-        YYABORT;
+    // <--> ERROR: Parametros mal definidos
+    | S_PROCEDURE subprogram-procedure-name PAR_IZDO error PAR_DCHO DELIM_PC list-declarations block-statements-begin-end{
+        mark_error_syntax_subprogram_procedure_expected_parameters($2);
+        //YYABORT;
     }
     // <--> ERROR: Falta ';'
-    | S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO error{
-        mark_error_syntax_subprogram_expected_delimpc();
+    | S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO list-declarations block-statements-begin-end{
+        mark_error_syntax_subprogram_procedure_expected_delimpc($2);
         free_AST_parameter_register();
-        YYABORT;
+        //YYABORT;
     }
     // <--> ERROR: Falta ';'
-    | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO error{
-        mark_error_syntax_subprogram_expected_delimpc();
+    | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO list-declarations block-statements-begin-end{
+        mark_error_syntax_subprogram_procedure_expected_delimpc($2);
         free_AST_parameter_register();
-        YYABORT;
+        //YYABORT;
     } 
     ;
 
@@ -383,61 +424,77 @@ subprogram-procedure-name:
     IDENT{
         $$ = $1;
     }
-    // <--> ERROR : Nombre de subprograma procedimiento incorrecto
-    | error{
-        // -- Mostrar error
-        mark_error_syntax_subprogram_procedure_expected_identifier();
-        // -- Abortar inmediatmente el analisis
-        YYABORT;
-    }
     ;
 
 subprogram-function:
     // ===== CORRECTO: Subprograma funcion completo (con lista de parametros)
-    S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement-function{
+    S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function{
         // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
-        $$ = create_subprogram_function($2, $4, $9, $10, $7, yylineno);
-        add_subprogram_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_subprogram_function($2, $4, $9, $10, $7, yylineno);
+            add_subprogram_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+
+        
     }
     // ===== CORRECTO: Subprograma funcion completo (sin lista de parametros)
-    | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P type DELIM_PC list-declarations block-statement-function{
+    | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function{
         // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
-        $$ = create_subprogram_function($2, 0, $8, $9, $6, yylineno);
-        add_subprogram_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_subprogram_function($2, 0, $8, $9, $6, yylineno);
+            add_subprogram_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+
+        
     }
-    // <--> ERROR: Falta '('
-    | S_FUNCTION subprogram-function-name error DELIM_PC{
-        mark_error_syntax_subprogram_expected_parizdo();
-        YYABORT;
+    // <--> ERROR: Error de identificador de function
+    | S_FUNCTION error PAR_IZDO list-parameters PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function{
+        mark_error_syntax_subprogram_function_expected_identifier();
+        //YYABORT;
     }
-    // <--> ERROR: Falta ')'
-    | S_FUNCTION subprogram-function-name PAR_IZDO list-parameters error DELIM_PC{
-        mark_error_syntax_subprogram_expected_pardcho();
-        YYABORT;
+    // <--> ERROR: Error de identificador de function
+    | S_FUNCTION error PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function{
+        mark_error_syntax_subprogram_function_expected_identifier();
+        //YYABORT;
+    }
+    // <--> ERROR: Parametros mal definidos
+    | S_FUNCTION subprogram-function-name PAR_IZDO error PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function{
+        mark_error_syntax_subprogram_function_expected_parameters($2);
+        //YYABORT;
     }
     // <--> ERROR: Falta ':'
-    | S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO type DELIM_PC{
-        mark_error_syntax_subprogram_function_expected_delim2p();
-        YYABORT;
+    | S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO basic-or-array-type DELIM_PC list-declarations block-statements-function{
+        mark_error_syntax_subprogram_function_expected_delim2p($2);
+        //YYABORT;
+    }
+    // <--> ERROR: Falta ':'
+    | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO basic-or-array-type DELIM_PC list-declarations block-statements-function{
+        mark_error_syntax_subprogram_function_expected_delim2p($2);
+        //YYABORT;
     }
     // <--> ERROR: Falta ';'
-    | S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P type error{
-        mark_error_syntax_subprogram_expected_delimpc();
+    | S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P basic-or-array-type list-declarations block-statements-function{
+        mark_error_syntax_subprogram_function_expected_delimpc($2);
         free_AST_parameter_register();
-        YYABORT;
+        //YYABORT;
+    }
+    // <--> ERROR: Falta ';'
+    | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type list-declarations block-statements-function{
+        mark_error_syntax_subprogram_function_expected_delimpc($2);
+        free_AST_parameter_register();
+        //YYABORT;
     }
     ;
 
 subprogram-function-name:
     IDENT{
         $$ = $1;
-    }
-    // <--> ERROR : Nombre de subprograma funcion incorrecto
-    | error{
-        // -- Mostrar error
-        mark_error_syntax_subprogram_function_expected_identifier();
-        // -- Abortar inmediatmente el analisis
-        YYABORT;
     }
     ;
 
@@ -446,11 +503,21 @@ subprogram-function-name:
 
 list-parameters:
     parameter DELIM_C list-parameters{
-        $$ = $1;
-        $1->next = $3;
+        if(!have_syntax_errors()){
+            $$ = $1;
+            $1->next = $3;
+        }
+        else{
+            $$ = 0;
+        }
     }
     | parameter{
-        $$ = $1;
+        if(!have_syntax_errors()){
+            $$ = $1;
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
@@ -458,26 +525,20 @@ parameter:
     // ===== CORRECTO: Parametro definido con su tipo de dato
     parameter-name DELIM_2P type{
         // -- Creacion de nodo PARAMETRO
-        $$ = create_parameter($1, $3, yylineno);
-        add_parameter_to_register($$);
-    }
-    // <--> ERROR : Falta ':'
-    | parameter-name error type{
-        mark_error_syntax_parameter_expected_delim2p();
-        YYABORT;
+        if(!have_syntax_errors()){
+            $$ = create_parameter($1, $3, yylineno);
+            add_parameter_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+        
     }
     ;
 
 parameter-name:
     IDENT{
         $$ = $1;
-    }
-    // <--> ERROR : Nombre de parametro incorrecto
-    | error{
-        // -- Mostrar error
-        mark_error_syntax_parameter_expected_identifier();
-        // -- Abortar inmediatmente el analisis
-        YYABORT;
     }
     ;
 
@@ -486,11 +547,21 @@ parameter-name:
 
 list-process:
     process{
-        $$ = $1;
+        if(!have_syntax_errors()){
+            $$ = $1;
+        }
+        else{
+            $$ = 0;
+        }
     }
     | process list-process{
-        $$ = $1;
-        $1->next = $2;
+        if(!have_syntax_errors()){
+            $$ = $1;
+            $1->next = $2;
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
@@ -505,50 +576,55 @@ process:
 
 process-def:
     // ===== CORRECTO: Proceso definido de tipo single
-    S_PROCESS process-name DELIM_PC list-declarations block-statement{
+    S_PROCESS process-name DELIM_PC list-declarations block-statements-process{
         // -- Creacion de nodo PROCESO
-        $$ = create_process_single($2, $4, $5, yylineno);
-        add_process_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_process_single($2, $4, $5, yylineno);
+            add_process_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+        
+    }
+    // <--> ERROR : Nombre de proceso incorrecto
+    | S_PROCESS error DELIM_PC list-declarations block-statements-process{
+        mark_error_syntax_process_expected_identifier();
+        //YYABORT;
     }
     // <--> ERROR : Falta ';'
-    | S_PROCESS process-name{
-        mark_error_syntax_process_expected_delimpc();
-        // -- Abortar inmediatmente el analisis
-        YYABORT;
+    | S_PROCESS process-name list-declarations block-statements-process{
+        mark_error_syntax_process_expected_delimpc($2);
+        //YYABORT;
     }
     ;
 
 process-def-array:
     // ===== CORRECTO: Proceso definido de tipo vector
-    S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statement{
+    S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statements-process{
         // -- Creacion de nodo PROCESO
-        $$ = create_process_vector($2, $11, $12, $4, $6, $8, yylineno);
-        add_process_to_register($$);
-    }
-    // <--> ERROR: Falta '['
-    | S_PROCESS process-name IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC{
-        mark_error_syntax_process_expected_corchizdo();
-        YYABORT;
+        if(!have_syntax_errors()){
+            $$ = create_process_vector($2, $11, $12, $4, $6, $8, yylineno);
+            add_process_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // <--> ERROR: Identificador de indexador de proceso incorrecto
-    | S_PROCESS process-name CORCH_IZDO error CORCH_DCHO{
-        mark_error_syntax_process_expected_index_identifier();
-        YYABORT;
+    | S_PROCESS process-name CORCH_IZDO error CORCH_DCHO DELIM_PC list-declarations block-statements-process{
+        mark_error_syntax_process_expected_index_identifier($2);
+        //YYABORT;
     }
     // <--> ERROR: Falta ':'
-    | S_PROCESS process-name CORCH_IZDO IDENT error CORCH_DCHO{
-        mark_error_syntax_process_expected_delim2p();
-        YYABORT;
+    | S_PROCESS process-name CORCH_IZDO IDENT error CORCH_DCHO DELIM_PC list-declarations block-statements-process{
+        mark_error_syntax_process_expected_delim2p($2);
+        //YYABORT;
     }
     // <--> ERROR: Falta '..'
-    | S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression error expression CORCH_DCHO DELIM_PC{
-        mark_error_syntax_process_expected_delimarr();
-        YYABORT;
-    }
-    // <--> ERROR: Falta ']'
-    | S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression{
-        mark_error_syntax_process_expected_corchdcho();
-        YYABORT;
+    | S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression error expression CORCH_DCHO DELIM_PC list-declarations block-statements-process{
+        mark_error_syntax_process_expected_delimarr($2);
+        //YYABORT;
     }
     ;
 
@@ -556,77 +632,231 @@ process-name:
     IDENT{
         $$ = $1;
     }
-    // <--> ERROR : Nombre de variable incorrecto
-    | error{
-        mark_error_syntax_process_expected_identifier();
-        // -- Abortar inmediatmente el analisis
-        YYABORT;
-    }
     ;
 
 // ----/////----------------------------------------------------------
 // -- Reglas de generacion de tipos de dato
 
 type:
-    T_INTEGER{
-        // -- Crear nodo de tipo
-        $$ = create_basic_type(TYPE_INTEGER);
-
-        // -- Incluir en el registro
-        add_type_to_register($$);
+    basic-or-array-type{
+        $$ = $1;
     }
-    | T_BOOLEAN{
-        $$ = create_basic_type(TYPE_BOOLEAN);
-        add_type_to_register($$);
-    }
-    | T_CHAR{
-        $$ = create_basic_type(TYPE_CHAR);
-        add_type_to_register($$);
-    }
-    | T_STRING{
-        $$ = create_basic_type(TYPE_STRING);
-        add_type_to_register($$);
-    }
-    | T_REAL{
-        $$ = create_basic_type(TYPE_REAL);
-        add_type_to_register($$);
-    }
-    | T_ARRAY CORCH_IZDO expression CORCH_DCHO type{
-        $$ = create_array_type($5,$3);
-        add_type_to_register($$);
-    }
-    | T_SEMAPHORE{
-        $$ = create_semaphore_type();
-        add_type_to_register($$);
-    }
-    | T_DPROCESS{
-        $$ = create_dprocess_type();
-        add_type_to_register($$);
+    | special-type{
+        $$ = $1;
     }
     | error{
         mark_error_syntax_type_expected_type();
-        YYABORT;
+        //YYABORT;
+    }
+    ;
+
+basic-or-array-type:
+    basic-type{
+        $$ = $1;
+    }
+    | T_ARRAY CORCH_IZDO expression CORCH_DCHO basic-type{
+        if(!have_syntax_errors()){
+            $$ = create_array_type($5,$3);
+            add_type_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // <--> ERROR: Tipo de dato incorrecto
+    | T_ARRAY CORCH_IZDO expression CORCH_DCHO{
+        mark_error_syntax_type_expected_type();
+        //YYABORT;
+    } 
+    ;
+
+basic-type:
+    T_INTEGER{
+        if(!have_syntax_errors()){
+            $$ = create_basic_type(TYPE_INTEGER);
+            add_type_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    | T_BOOLEAN{
+        if(!have_syntax_errors()){
+            $$ = create_basic_type(TYPE_BOOLEAN);
+            add_type_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    | T_CHAR{
+        if(!have_syntax_errors()){
+            $$ = create_basic_type(TYPE_CHAR);
+            add_type_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    | T_STRING{
+        if(!have_syntax_errors()){
+            $$ = create_basic_type(TYPE_STRING);
+            add_type_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    | T_REAL{
+        if(!have_syntax_errors()){
+            $$ = create_basic_type(TYPE_REAL);
+            add_type_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    ;
+
+special-type:
+    T_SEMAPHORE{
+        if(!have_syntax_errors()){
+            $$ = create_semaphore_type();
+            add_type_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    | T_DPROCESS{
+        if(!have_syntax_errors()){
+            $$ = create_dprocess_type();
+            add_type_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
 // ----/////----------------------------------------------------------
 // -- Reglas de generacion de sentencias de programa
 
-list-statements:
-    statement{
+block-statements-begin-end:
+    // ===== CORRECTO: Bloque de sentencias
+    B_BEGIN list-statements B_END{
+        if(!have_syntax_errors()){
+            $$ = create_statement_block_begin($2);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // <--> ERROR: Bloque de sentencias vacio
+    | B_BEGIN B_END{
+        mark_error_syntax_statement_empty_block();
+        //YYABORT;
+    }
+    ;
+
+block-statements-cobegin-coend:
+    // ===== CORRECTO: Bloque de sentencias
+    B_COBEGIN list-statements B_COEND{
+        if(!have_syntax_errors()){
+            $$ = create_statement_block_cobegin($2);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // <--> ERROR: Bloque de sentencias vacio
+    | B_COBEGIN B_COEND{
+        mark_error_syntax_statement_empty_block();
+        //YYABORT;
+    }
+    ;
+
+block-statements-atomic:
+    // ===== CORRECTO: Bloque de sentencias
+    ATOM_INI list-statements ATOM_FIN{
+        if(!have_syntax_errors()){
+            $$ = create_statement_atomic($2);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // <--> ERROR: Bloque de sentencias vacio
+    | ATOM_INI ATOM_FIN{
+        mark_error_syntax_statement_empty_block();
+        //YYABORT;
+    }
+    ;
+
+block-statements-function:
+    // ===== CORRECTO: Bloque de sentencias + return
+    B_BEGIN list-statements return-statement B_END{
+        if(!have_syntax_errors()){
+            $2->next = $3;
+            $$ = create_statement_block_begin($2);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // ===== CORRECTO: Bloque de sentencias + return
+    | B_BEGIN return-statement B_END{
+        if(!have_syntax_errors()){
+            $$ = create_statement_block_begin($2);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // <--> ERROR: Falta return
+    | B_BEGIN list-statements B_END{
+        mark_error_syntax_statement_non_return_in_block();
+        //YYABORT;
+    }
+    ;
+
+block-statements-process:
+    block-statements-begin-end{
         $$ = $1;
     }
-    | statement list-statements{
+    | block-statements-cobegin-coend{
         $$ = $1;
-        $1->next = $2;
+    }
+    ;
+
+list-statements:
+    statement{
+        if(!have_syntax_errors()){
+            $$ = $1;
+        }
+        else{
+            $$ = 0;
+        }
+        
+    }
+    | statement list-statements{
+        if(!have_syntax_errors()){
+            $$ = $1;
+            $1->next = $2;
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
 statement:
-    cobegin-statement{
-        $$ = $1;
-    }
-    | assignment-statement{
+    assignment-statement{
         $$ = $1;
     }
     | while-statement{
@@ -638,70 +868,23 @@ statement:
     | if-statement{
         $$ = $1;
     }
-    | procedure-invocation{
+    | procedure-call-statement{
         $$ = $1;
     }
     | fork-statement{
         $$ = $1;
     }
-    | atomic-statement{
+    | join-statement{
         $$ = $1;
     }
     | print-statement{
         $$ = $1;
     }
-    | error{
+    | block-statements-atomic{
+        $$ = $1;
+    }
+    | error block-statements-begin-end{
         mark_error_syntax_statement_expected_statement();
-        YYABORT;
-    }
-    ;
-
-block-statement:
-    // ===== CORRECTO: Bloque de sentencias
-    B_BEGIN list-statements B_END{
-        $$ = create_statement_block_begin($2);
-        add_statement_to_register($$);
-    }
-    // <--> ERROR: Bloque de sentencias vacio
-    | B_BEGIN B_END{
-        mark_error_syntax_statement_empty_block();
-        YYABORT;
-    }
-    ;
-
-block-statement-function:
-    // ===== CORRECTO: Bloque de sentencias para definicion de funcion
-    B_BEGIN list-statements return-statement B_END{
-        $2->next = $3;
-        $$ = create_statement_block_begin($2);
-        add_statement_to_register($$);
-    }
-    // ===== CORRECTO: Bloque de sentencias para definicion de funcion
-    | B_BEGIN return-statement B_END{
-        $$ = create_statement_block_begin($2);
-        add_statement_to_register($$);
-    }
-    // <--> ERROR: Bloque de sentencias
-    | B_BEGIN B_END{
-        mark_error_syntax_statement_empty_block();
-        YYABORT;
-    }
-    // <--> ERROR: Falta retorno de funcion
-    | B_BEGIN list-statements B_END{
-        mark_error_syntax_statement_non_return_in_block();
-        YYABORT;
-    }
-
-cobegin-statement:
-    // ===== CORRECTO: Bloque de sentencias paralelo
-    B_COBEGIN list-statements B_COEND{
-        $$ = create_statement_block_cobegin($2);
-        add_statement_to_register($$);
-    }
-    // <--> ERROR: Bloque de sentencias vacio
-    | B_COBEGIN B_COEND{
-        mark_error_syntax_statement_empty_block();
-        YYABORT;
     }
     ;
 
@@ -709,164 +892,204 @@ assignment-statement:
     // ===== CORRECTO: Asignacion a variable
     IDENT OP_ASSIGN expression DELIM_PC{
         // -- Creacion de nodo STATEMENT (ASSIGNMENT)
-        $$ = create_statement_assignment($1, 0, $3, yylineno);
-        add_statement_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_statement_assignment($1, 0, $3, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // ===== CORRECTO: Asignacion a variable indexada
     | IDENT CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC{
         // -- Creacion de nodo STATEMENT (ASSIGNMENT)
-        $$ = create_statement_assignment($1, $3, $6, yylineno);
-        add_statement_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_statement_assignment($1, $3, $6, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // <--> ERROR: Sentencia invalida
+    | IDENT CORCH_IZDO expression CORCH_DCHO{
+        mark_error_syntax_statement_expected_statement();
+        //YYABORT;
     }
     // <--> ERROR: Falta ';'
     | IDENT OP_ASSIGN expression{
         mark_error_syntax_statement_expected_delimpc();
-        YYABORT;
+        //YYABORT;
     }
     // <--> ERROR: Falta ';'
     | IDENT CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression{
         mark_error_syntax_statement_expected_delimpc();
-        YYABORT;
+        //YYABORT;
     }
     ;
 
 while-statement:
     // ===== CORRECTO: Bucle while
-    WHILE expression DO block-statement{
-        $$ = create_statement_while($2, $4, yylineno);
-        add_statement_to_register($$);
+    WHILE expression DO block-statements-begin-end{
+        if(!have_syntax_errors()){
+            $$ = create_statement_while($2, $4, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
 for-statement:
     // ===== CORRECTO: Bucle for
-    FOR IDENT OP_ASSIGN expression TO expression DO block-statement{
-        // -- Creacion de nodo STATEMENT (FOR)
-        $$ = create_statement_for($2, $4, $6, $8, yylineno);
-        add_statement_to_register($$);
+    FOR IDENT OP_ASSIGN expression TO expression DO block-statements-begin-end{
+        if(!have_syntax_errors()){
+            $$ = create_statement_for($2, $4, $6, $8, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
+    // <--> ERROR: Falta 'for'
     ;
 
 if-statement:
     // ===== CORRECTO: Bloque if
-    IF expression THEN block-statement{
-        $$ = create_statement_if_else($2, $4, 0, yylineno);
-        add_statement_to_register($$);
+    IF expression THEN block-statements-begin-end{
+        if(!have_syntax_errors()){
+            $$ = create_statement_if_else($2, $4, 0, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // ===== CORRECTO: Bloque if-else
-    | IF expression THEN block-statement ELSE block-statement{
-        $$ = create_statement_if_else($2, $4, $6, yylineno);
-        add_statement_to_register($$);
+    | IF expression THEN block-statements-begin-end ELSE block-statements-begin-end{
+        if(!have_syntax_errors()){
+            $$ = create_statement_if_else($2, $4, $6, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
 fork-statement:
     // ===== CORRECTO: Fork de proceso
     S_FORK IDENT DELIM_PC{
-        // -- Creacion de nodo STATEMENT (FORK)
-        $$ = create_statement_fork($2, yylineno);
-        add_statement_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_statement_fork($2, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // <--> ERROR: Falta ';'
     | S_FORK IDENT{
         mark_error_syntax_statement_expected_delimpc();
-        YYABORT;
+        //YYABORT;
     }
     ;
 
-atomic-statement:
-    // ===== CORRECTO: Bloque de sentencias atomicas
-    ATOM_INI list-statements ATOM_FIN{
-        $$ = create_statement_atomic($2);
-        add_statement_to_register($$);
+join-statement:
+    // ===== CORRECTO: Join de proceso
+    JOIN IDENT DELIM_PC{
+        if(!have_syntax_errors()){
+            $$ = create_statement_join($2, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
-    // ===== CORRECTO: Bloque de sentencias paralelo
-    | ATOM_INI ATOM_FIN{
-        mark_error_syntax_statement_empty_block();
-        YYABORT;
+    // <--> ERROR: Falta ';'
+    | JOIN IDENT{
+        mark_error_syntax_statement_expected_delimpc();
+        //YYABORT;
     }
     ;
 
 return-statement:
     // ===== CORRECTO: Sentencia de retorno
     RETURN expression DELIM_PC{
-        $$ = create_statement_return($2, yylineno);
-        add_statement_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_statement_return($2, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // <--> ERROR: Falta ';'
     | RETURN expression{
         mark_error_syntax_statement_expected_delimpc();
-        YYABORT;
+        //YYABORT;
     }
     ;
 
 print-statement:
     // ===== CORRECTO: Sentencia de impresion
     PRINT PAR_IZDO list-print PAR_DCHO DELIM_PC{
-        $$ = create_statement_print($3);
-        add_statement_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_statement_print($3);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // <--> ERROR: Falta ';'
     | PRINT PAR_IZDO list-print PAR_DCHO{
         mark_error_syntax_statement_expected_delimpc();
-        YYABORT;
+        //YYABORT;
     }
     ;
 
 list-print:
     expression DELIM_C list-print{
-        $$ = $1;
-        $1->next = $3;
+        if(!have_syntax_errors()){
+            $$ = $1;
+            $1->next = $3;
+        }
+        else{
+            $$ = 0;
+        }
     }
     | expression{
-        $$ = $1;
+        if(!have_syntax_errors()){
+            $$ = $1;
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
-procedure-invocation:
+procedure-call-statement:
     // ===== CORRECTO: Invocacion de proceso (Con argumentos)
     IDENT PAR_IZDO list-arguments PAR_DCHO DELIM_PC{
-        // -- Creacion de nodo STATEMENT (PROCEDURE INVOCATION)
-        $$ = create_statement_procedure_inv($1, $3, yylineno);
-        add_statement_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_statement_procedure_inv($1, $3, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // ===== CORRECTO: Invocacion de proceso (sin argumentos)
     | IDENT PAR_IZDO PAR_DCHO DELIM_PC{
-        // -- Creacion de nodo STATEMENT (PROCEDURE INVOCATION)
-        $$ = create_statement_procedure_inv($1, 0, yylineno);
-        add_statement_to_register($$);
-    }
-    ;
-
-function-invocation:
-    // ===== CORRECTO: Invocacion de funcion (con argumentos)
-    IDENT PAR_IZDO list-arguments PAR_DCHO{
-        // -- Creacion de nodo EXPRESSION
-        $$ = create_expression_function_invocation($1, $3, yylineno);
-        add_expression_to_register($$);
-
-    }
-    // ===== CORRECTO: Invocacion de funcion (sin argumentos)
-    | IDENT PAR_IZDO PAR_DCHO{
-        // -- Creacion de nodo EXPRESSION
-        $$ = create_expression_function_invocation($1, 0, yylineno);
-        add_expression_to_register($$);
-    }
-    ;
-
-list-arguments:
-    argument DELIM_C list-arguments{
-        $$ = $1;
-        $1->next = $3;
-    }
-    | argument{
-        $$ = $1;
-    }
-    ;
-
-argument:
-    expression{
-        $$ = $1;
+        if(!have_syntax_errors()){
+            $$ = create_statement_procedure_inv($1, 0, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
@@ -883,7 +1106,7 @@ expression:
     | term{
         $$ = $1;
     }
-    | error{
+    | error {
         mark_error_syntax_expression_expected_expr();
         YYABORT;
     }
@@ -892,81 +1115,157 @@ expression:
 binary-expression:
     // expression + term
     expression OP_SUM expression{
-        $$ = create_expression_binary_operation(EXPR_ADD, "+", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_ADD, "+", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression - term
     | expression OP_MINUS expression{
-        $$ = create_expression_binary_operation(EXPR_SUB, "-", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_SUB, "-", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression * term
     | expression OP_MULT expression{
-        $$ = create_expression_binary_operation(EXPR_MULT, "*", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_MULT, "*", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression / term
     | expression OP_DIV expression{
-        $$ = create_expression_binary_operation(EXPR_DIV, "/", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_DIV, "/", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression % term
     | expression OP_MOD expression{
-        $$ = create_expression_binary_operation(EXPR_MOD, "%", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_MOD, "%", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression < term
     | expression OP_REL_LT expression{
-        $$ = create_expression_binary_operation(EXPR_LT, "<", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_LT, "<", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression <= term
     | expression OP_REL_LTE expression{
-        $$ = create_expression_binary_operation(EXPR_LTE, "<=", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_LTE, "<=", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression > term
     | expression OP_REL_GT expression{
-        $$ = create_expression_binary_operation(EXPR_GT, ">", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_GT, ">", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression >= term
     | expression OP_REL_GTE expression{
-        $$ = create_expression_binary_operation(EXPR_GTE, ">=", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_GTE, ">=", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression == term
     | expression OP_REL_EQ expression{
-        $$ = create_expression_binary_operation(EXPR_EQ, "==", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_EQ, "==", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression != term
     | expression OP_REL_NEQ expression{
-        $$ = create_expression_binary_operation(EXPR_NEQ, "!=", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_NEQ, "!=", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+       
     }
     // expression and term
     | expression OP_AND expression{
-        $$ = create_expression_binary_operation(EXPR_AND, "and", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_AND, "and", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // expression or term
     | expression OP_OR expression{
-        $$ = create_expression_binary_operation(EXPR_OR, "or", $1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_binary_operation(EXPR_OR, "or", $1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
     
 unary-expression:
     // not term
     OP_NOT term{
-        $$ = create_expression_unary_operation(EXPR_NOT, "not", $2,yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_unary_operation(EXPR_NOT, "not", $2,yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     // - term
     | OP_MINUS term %prec OP_MINUS{
-        $$ = create_expression_unary_operation(EXPR_NEGATIVE, "-", $2,yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_unary_operation(EXPR_NEGATIVE, "-", $2,yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
@@ -977,54 +1276,149 @@ term:
     | literal{
         $$ = $1;
     }
-    | function-invocation{
+    | function-call-expression{
         $$ = $1;
     }
     | PAR_IZDO expression PAR_DCHO{
-        $$ = create_expression_grouped($2);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_grouped($2);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
     
 // -- Reglas de generacion de literales
 literal:
     LITERAL{
-        // -- Crear expresion literal
-        $$ = create_expression_literal_string($1);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_literal_string($1);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     | L_INTEGER{
-        $$ = create_expression_literal_integer($1);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_literal_integer($1);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     | L_BOOLEAN_TRUE{
-        $$ = create_expression_literal_boolean(1);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_literal_boolean(1);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     | L_BOOLEAN_FALSE{
-        $$ = create_expression_literal_boolean(0);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_literal_boolean(0);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     | L_CHAR{
-        $$ = create_expression_literal_char($1);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_literal_char($1);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     | L_REAL{
-        $$ = create_expression_literal_real($1);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_literal_real($1);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     ;
 
 expr-identifier:
     IDENT{
-        // -- Crear expresion
-        $$ = create_expression_identifier($1,0, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_identifier($1,0, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
     }
     | IDENT CORCH_IZDO expression CORCH_DCHO{
-        // -- Crear expresion
-        $$ = create_expression_identifier($1, $3, yylineno);
-        add_expression_to_register($$);
+        if(!have_syntax_errors()){
+            $$ = create_expression_identifier($1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    ;
+
+function-call-expression:
+    // ===== CORRECTO: Invocacion de funcion (con argumentos)
+    IDENT PAR_IZDO list-arguments PAR_DCHO{
+        if(!have_syntax_errors()){
+            $$ = create_expression_function_invocation($1, $3, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // ===== CORRECTO: Invocacion de funcion (sin argumentos)
+    | IDENT PAR_IZDO PAR_DCHO{
+        if(!have_syntax_errors()){
+            $$ = create_expression_function_invocation($1, 0, yylineno);
+            add_expression_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+
+    }
+    ;
+
+// ----/////----------------------------------------------------------
+// -- Reglas de generacion de argumentos
+
+list-arguments:
+    argument DELIM_C list-arguments{
+        if(!have_syntax_errors()){
+            $$ = $1;
+            $1->next = $3;
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    | argument{
+        if(!have_syntax_errors()){
+            $$ = $1;
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    ;
+
+argument:
+    expression{
+        $$ = $1;
     }
     ;
 
@@ -1046,72 +1440,77 @@ int have_syntax_errors(){
 // ----/////----------------------------------------------------------
 // IMPLEMENTACION DE FUNCIONES DE MANEJO DE ERRORES (DECLARACIONES)
 
-void mark_error_syntax_declaration_expected_var(){
+void mark_error_syntax_declaration_expected_var(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_VAR_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_DECLARATION, id, yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_VAR_TOKEN_MSG);
 }  
 
 void mark_error_syntax_declaration_expected_identifier(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_IDENTIFIER, yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_IDENTIFIER_AFTER_VAR_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_DECLARATION, "unknown", yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_IDENTIFIER_AFTER_VAR_MSG);
 }
 
-void mark_error_syntax_declaration_expected_delim2p(){
+void mark_error_syntax_declaration_expected_delim2p(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_DELIM2P_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_DECLARATION, id, yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_DELIM2P_TOKEN_MSG);
 }
 
-void mark_error_syntax_declaration_expected_opassign(){
+void mark_error_syntax_declaration_expected_opassign(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_EXPR, yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_OPASSIGN_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_DECLARATION, id, yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_OPASSIGN_TOKEN_MSG);
 }
 
-void mark_error_syntax_declaration_expected_delimpc(){
+void mark_error_syntax_declaration_expected_delimpc(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_DECLARATION_EXPECTED_DELIMPC_DECL_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_DECLARATION, id, yylineno-1, ERR_SYNTAX_DECLARATION_EXPECTED_DELIMPC_DECL_MSG);
 }
 
 // ----/////----------------------------------------------------------
 // IMPLEMENTACION DE FUNCIONES DE MANEJO DE ERRORES (SUBPROGRAMAS)
 
-void mark_error_syntax_subprogram_expected_procedure(){
+void mark_error_syntax_subprogram_expected_procedure(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PROCEDURE_EXPECTED_PROCEDURE_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_PROCEDURE, id, yylineno, ERR_SYNTAX_PROCEDURE_EXPECTED_PROCEDURE_TOKEN_MSG);
 }
 
 void mark_error_syntax_subprogram_procedure_expected_identifier(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_IDENTIFIER, yylineno, ERR_SYNTAX_PROCEDURE_EXPECTED_IDENTIFIER_AFTER_PROCEDURE_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_PROCEDURE, "unknown", yylineno, ERR_SYNTAX_PROCEDURE_EXPECTED_IDENTIFIER_AFTER_PROCEDURE_MSG);
 }
 
-void mark_error_syntax_subprogram_function_expected_function(){
+void mark_error_syntax_subprogram_procedure_expected_parameters(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_FUNCTION_EXPECTED_FUNCTION_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_PROCEDURE, id, yylineno, ERR_SYNTAX_PROCEDURE_EXPECTED_PARAMETERS_MSG);
+}
+
+void mark_error_syntax_subprogram_procedure_expected_delimpc(char *id){
+    // -- Crear error sintactico e incluir en la lista de errores sintacticos
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_PROCEDURE, id, yylineno, ERR_SYNTAX_SUBPROGRAM_EXPECTED_DELIMPC_TOKEN_MSG);
+}
+
+void mark_error_syntax_subprogram_function_expected_function(char *id){
+    // -- Crear error sintactico e incluir en la lista de errores sintacticos
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_FUNCTION, id, yylineno, ERR_SYNTAX_FUNCTION_EXPECTED_FUNCTION_TOKEN_MSG);
 }
 
 void mark_error_syntax_subprogram_function_expected_identifier(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_IDENTIFIER, yylineno, ERR_SYNTAX_FUNCTION_EXPECTED_IDENTIFIER_AFTER_FUNCTION_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_FUNCTION, "unknown", yylineno, ERR_SYNTAX_FUNCTION_EXPECTED_IDENTIFIER_AFTER_FUNCTION_MSG);
 }
 
-void mark_error_syntax_subprogram_function_expected_delim2p(){
+void mark_error_syntax_subprogram_function_expected_parameters(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_FUNCTION_EXPECTED_DELIM2P_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_FUNCTION, id, yylineno, ERR_SYNTAX_FUNCTION_EXPECTED_PARAMETERS_MSG);
 }
 
-void mark_error_syntax_subprogram_expected_parizdo(){
+void mark_error_syntax_subprogram_function_expected_delim2p(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_SUBPROGRAM_EXPECTED_PARIZDO_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_FUNCTION, id, yylineno, ERR_SYNTAX_FUNCTION_EXPECTED_DELIM2P_TOKEN_MSG);
 }
 
-void mark_error_syntax_subprogram_expected_pardcho(){
+void mark_error_syntax_subprogram_function_expected_delimpc(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_SUBPROGRAM_EXPECTED_PARDCHO_TOKEN_MSG);
-}
-
-void mark_error_syntax_subprogram_expected_delimpc(){
-    // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_SUBPROGRAM_EXPECTED_DELIMPC_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_FUNCTION, id, yylineno, ERR_SYNTAX_SUBPROGRAM_EXPECTED_DELIMPC_TOKEN_MSG);
 }
 
 // ----/////----------------------------------------------------------
@@ -1119,54 +1518,44 @@ void mark_error_syntax_subprogram_expected_delimpc(){
 
 void mark_error_syntax_type_expected_type(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_TYPE_EXPECTED_TYPE_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_TYPE, "unknown", yylineno, ERR_SYNTAX_TYPE_EXPECTED_TYPE_TOKEN_MSG);
 }
 
 
 // ----/////----------------------------------------------------------
 // IMPLEMENTACION DE FUNCIONES DE MANEJO DE ERRORES (PARAMETROS)
 
-void mark_error_syntax_parameter_expected_parameter(){
-    // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PARAMETER_EXPECTED_PARAMETER_MSG);
-}
-
-void mark_error_syntax_parameter_expected_identifier(){
-    // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_IDENTIFIER, yylineno, ERR_SYNTAX_PARAMETER_EXPECTED_IDENTIFIER_MSG);
-}
-
-void mark_error_syntax_parameter_expected_delim2p(){
-    // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PARAMETER_EXPECTED_DELIM2P_MSG);
-}
-
-void mark_error_syntax_parameter_expected_delimc(){
-    // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PARAMETER_EXPECTED_DELIMC_MSG);
-}
-
 // ----/////----------------------------------------------------------
 // IMPLEMENTACION DE FUNCIONES DE MANEJO DE ERRORES (SENTENCIAS)
 
 void mark_error_syntax_statement_expected_statement(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_STMT, yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_STATEMENT_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_STATEMENT, "unknown", yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_STATEMENT_MSG);
 }
 
 void mark_error_syntax_statement_empty_block(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_STMT, yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_NON_EMPTY_BLOCK_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_STATEMENT, "unknown", yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_NON_EMPTY_BLOCK_MSG);
 }
 
 void mark_error_syntax_statement_non_return_in_block(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_STMT, yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_RETURN_STATEMENT_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_STATEMENT, "unknown", yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_RETURN_STATEMENT_MSG);
 }
 
 void mark_error_syntax_statement_expected_delimpc(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_EXPR, yylineno, ERR_SYNTAX_STATEMENT_EXPECTED_DELIMPC_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_STATEMENT, "unknown", yylineno-1, ERR_SYNTAX_STATEMENT_EXPECTED_DELIMPC_MSG);
+}
+
+void mark_error_syntax_statement_while_expected_while(){
+    // -- Crear error sintactico e incluir en la lista de errores sintacticos
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_STATEMENT, "unknown", yylineno, ERR_SYNTAX_STATEMENT_WHILE_EXPECTED_WHILE_MSG);
+}
+
+void mark_error_syntax_statement_while_expected_do(){
+    // -- Crear error sintactico e incluir en la lista de errores sintacticos
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_STATEMENT, "unknown", yylineno, ERR_SYNTAX_STATEMENT_WHILE_EXPECTED_DO_MSG);
 }
 
 // ----/////----------------------------------------------------------
@@ -1174,7 +1563,7 @@ void mark_error_syntax_statement_expected_delimpc(){
 
 void mark_error_syntax_expression_expected_expr(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_EXPR, yylineno, ERR_SYNTAX_EXPRESSION_EXPECTED_EXPRESSION_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_EXPRESSION, "unknown", yylineno, ERR_SYNTAX_EXPRESSION_EXPECTED_EXPRESSION_MSG);
 }
 
 // ----/////----------------------------------------------------------
@@ -1182,48 +1571,38 @@ void mark_error_syntax_expression_expected_expr(){
 
 void mark_error_syntax_process_expected_identifier(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_IDENTIFIER, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_IDENTIFIER_AFTER_PROCESS_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_PROCESS, "unknown", yylineno, ERR_SYNTAX_PROCESS_EXPECTED_IDENTIFIER_AFTER_PROCESS_MSG);
 }
 
-void mark_error_syntax_process_expected_delimpc(){
+void mark_error_syntax_process_expected_delimpc(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_DELIMPC_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_PROCESS, id, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_DELIMPC_MSG);
 }
 
-void mark_error_syntax_process_expected_corchizdo(){
+void mark_error_syntax_process_expected_index_identifier(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_CORCHIZDO_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_PROCESS, id, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_IDENTIFIER_INDEXER_MSG);
 }
 
-void mark_error_syntax_process_expected_corchdcho(){
+void mark_error_syntax_process_expected_delim2p(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_CORCHDCHO_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_PROCESS, id, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_DELIM2P_MSG);
 }
 
-void mark_error_syntax_process_expected_index_identifier(){
+void mark_error_syntax_process_expected_delimarr(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_IDENTIFIER, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_IDENTIFIER_INDEXER_MSG);
-}
-
-void mark_error_syntax_process_expected_delim2p(){
-    // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_DELIM2P_MSG);
-}
-
-void mark_error_syntax_process_expected_delimarr(){
-    // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_DELIMARR_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_PROCESS, id, yylineno, ERR_SYNTAX_PROCESS_EXPECTED_DELIMARR_MSG);
 }
 
 // ----/////----------------------------------------------------------
 // FUNCIONES DE MANEJO DE ERRORES (PROGRAMAS)
 
-void mark_error_syntax_program_expected_program(){
+void mark_error_syntax_program_expected_program(char *id){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_TOKEN, yylineno, ERR_SYNTAX_PROGRAM_EXPECTED_PROGRAM_TOKEN_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_PROGRAM, id, yylineno, ERR_SYNTAX_PROGRAM_EXPECTED_PROGRAM_TOKEN_MSG);
 }
 
 void mark_error_syntax_program_expected_identifier(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
-    create_and_add_error_syntax_to_list(EXPECTED_IDENTIFIER, yylineno, ERR_SYNTAX_PROGRAM_EXPECTED_IDENTIFIER_AFTER_PROGRAM_MSG);
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_PROGRAM, "unknown", yylineno, ERR_SYNTAX_PROGRAM_EXPECTED_IDENTIFIER_AFTER_PROGRAM_MSG);
 }
