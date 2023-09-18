@@ -91,51 +91,142 @@ struct error * create_error_semantic_duplicated_symbol_parameter(char *id, unsig
 // ----- PROTOTIPO DE FUNCIONES DE GESTION DE ERRORES (SEMANTICOS : TYPE CHECKING) ----
 
 /**
- * 
+ * @brief Crea y reserva memoria para un MENSAJE de error semantico de tipo: comparacion de tipos incorrecta
+ * @param kind : tipo de error semantico de typechecking
+ * @param action : accion de operacion
+ * @param type_a : nombre de tipo de dato
+ * @param type_b : nombre de tipo de dato
+ * @return mensaje especificando error semantico de typechecking
  */
 char * create_message_error_semantic_unmatched_types(error_semantic_type_checking_t kind, char *action, char *type_a, char *type_b);
 
 /**
- * 
+ * @brief Crea y reserva memoria para un error semantico de tipo: comparacion de tipos incorrecta
+ * @param err_line : linea donde se produjo el error
+ * @param msg : mensaje de error
+ * @return puntero a error inicializado
  */
 struct error * create_error_semantic_unmatched_types(unsigned long err_line, char **msg);
 
 /**
- * 
+ * @brief Crea y reserva memoria para un error semantico de tipo: comparacion de tipos incorrecta (OPERACIONES BINARIAS)
+ * @param err_line : linea donde se produjo el error
+ * @param type_a : nombre de tipo de dato de operando izquierdo
+ * @param type_b : nombre de tipo de dato de operando derecho
+ * @param operation : operacion
+ * @return puntero a error incializado
  */
 struct error * create_error_semantic_unmatched_types_expression_binary(unsigned long err_line, char *type_a, char *type_b, char *operation);
 
 /**
- * 
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (OPERACIONES UNARIAS)
+ * @param err_line : linea donde se produjo el error
+ * @param type : nombre de tipo de dato de operando
+ * @param operation : operacion
+ * @return puntero a error inicializado
  */
 struct error * create_error_semantic_unmatched_types_expression_unary(unsigned long err_line, char *type, char *operation);
 
 /**
- * 
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (DECLARACIONES DE VARIABLE)
+ * @param err_line : linea donde se produjo el error
+ * @param type_a : nombre de tipo de dato de variable
+ * @param type_b : nombre de tipo de dato de expresion de asignacion
+ * @return puntero a error inicializado
  */
 struct error * create_error_semantic_unmatched_types_declaration(unsigned long err_line, char *type_a, char *type_b);
 
 /**
- * 
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SENTENCIA DE ASIGNACION)
+ * @param kind : tipo de asignacion
+ * @param err_line : linea donde se produjo el error
+ * @param type_a : nombre de tipo de dato de miembro izquierdo
+ * @param type_b : nombre de tipo de dato de miembro derecho
+ * @return puntero a error inicializado
  */
 struct error * create_error_semantic_unmatched_types_statement_assignment(error_semantic_type_checking_t kind, unsigned long err_line,char *type_a, char *type_b);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SENTENCIA WHILE)
+ * @param err_line : linea donde se produjo el error
+ * @param type : nombre de tipo de dato de condicion de bucle
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_statement_while(unsigned long err_line, char *type);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SENTENCIA FOR)
+ * @param kind : tipo de error en bucle
+ * @param err_line : linea donde se produjo el error
+ * @param type_a : nombre de tipo de dato
+ * @param type_b : nombre de tipo de dato
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_statement_for(error_semantic_type_checking_t kind, unsigned long err_line, char *type_a, char *type_b);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SENTENCIA IF/ELSE)
+ * @param err_line : linea donde se produjo el error
+ * @param type : nombre de tipo de dato
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_statement_ifelse(unsigned long err_line, char *type);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SENTENCIA FORK)
+ * @param err_line : linea donde se produjo el error
+ * @param type : nombre de tipo de dato
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_statement_fork(unsigned long err_line, char *type);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SENTENCIA JOIN)
+ * @param err_line : linea donde se produjo el error
+ * @param type : nombre de tipo de dato
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_statement_join(unsigned long err_line, char *type);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SENTENCIA PROCEDURE INV)
+ * @param err_line : linea donde se produjo el error
+ * @param name : nombre de procedimiento
+ * @param position : posicion de parametro
+ * @param type_a : nombre de tipo de dato
+ * @param type_b : nombre de tipo de dato
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_statement_procedure_inv(unsigned long err_line, char *name, int position, char *type_a, char *type_b);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (EXPRESION FUNCTION INV)
+ * @param err_line : linea donde se produjo el error
+ * @param name : nombre de procedimiento
+ * @param position : posicion de parametro
+ * @param type_a : nombre de tipo de dato
+ * @param type_b : nombre de tipo de dato
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_expression_function_inv(unsigned long err_line, char *name , int position, char *type_a, char *type_b);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (PROCESO VECTOR)
+ * @param kind : tipo de error en proceso
+ * @param line : linea donde se produjo el error
+ * @param type : nombre de tipo de dato
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_process_vector(error_semantic_type_checking_t kind, unsigned long line, char *type);
 
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (FUNCTION VS RETURN STATEMENT)
+ * @param err_line : linea donde se produjo el error semantico
+ * @param name : nombre de funcion
+ * @param type_a : nombre de tipo de dato de funcion
+ * @param type_b : nombre de tipo de dato de return
+ * @return puntero a error inicializado
+ */
 struct error * create_error_semantic_unmatched_types_subprogram_function_return(unsigned long err_line, char *name, char *type_a, char *type_b);
 
 
