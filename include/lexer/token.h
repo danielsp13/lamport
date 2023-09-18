@@ -125,7 +125,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 143 "src/parser/parser.y"
+#line 137 "src/parser/parser.y"
 
     struct program *prog;
     struct declaration *decl;
