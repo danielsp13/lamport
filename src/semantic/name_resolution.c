@@ -327,6 +327,11 @@ void resolve_statement(struct statement *stmt){
         resolve_statement_fork(stmt);
         break;
 
+    case STMT_JOIN:
+        // -- Aplicar resolucion de nombres a sentencias de tipo join
+        resolve_statement_join(stmt);
+        break;
+
     case STMT_ATOMIC:
         // -- Aplicar resolucion de nombres a sentencias de tipo bloque
         resolve_statement_block(stmt);
@@ -503,6 +508,31 @@ void resolve_statement_fork(struct statement *stmt){
     }
 }
 
+void resolve_statement_join(struct statement *stmt){
+    // -- Comprobar que la sentencia existe
+    if(!stmt)
+        return;
+
+
+    // -- Aplicar resolucion de nombres al identificador de proceso
+    // -- Asignar referencia de simbolo a este proceso
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_join.joined_process);
+
+    // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
+    if(!target_symb){
+        // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
+        // -- Crear error
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_join.joined_process,stmt->stmt.statement_join.line, ERR_UNDEFINED_PROCESS_MSG);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
+    }
+    // -- Asignar simbolo
+    else{
+        stmt->stmt.statement_join.symb = copy_symbol(target_symb);
+    }
+}
+
 void resolve_statement_return(struct statement *stmt){
     // -- Comprobar que la sentencia existe
     if(!stmt)
@@ -537,7 +567,7 @@ void resolve_process(struct process *proc){
     if(target_symb){
         // -- Realizar handling de este error : PROCESO REDEFINIDO
         // -- Crear error
-        struct error * error = create_error_semantic_duplicated_symbol(proc->name_process,proc->line, proc->symb_process->line, ERR_DUPLICATED_PROCESS_MSG);
+        struct error * error = create_error_semantic_duplicated_symbol(proc->name_process,proc->line, target_symb->line, ERR_DUPLICATED_PROCESS_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
@@ -556,7 +586,7 @@ void resolve_process(struct process *proc){
     }
 
     // -- Liberar simbolo
-    free_symbol(target_symb);
+    //free_symbol(target_symb);
 
     // -- ENTRAR EN UN NUEVO SCOPE
     push_scope_to_symbol_table();
@@ -661,14 +691,14 @@ void resolve_parameter(struct parameter *parameter, unsigned int position){
 
     // -- Asignar referencia de simbolo a este parametro, buscandolo de la tabla
     // -- Se busca el simbolo solo en el scope actual
-    parameter->symb = lookup_symbol_from_current_scope(parameter->name_parameter);
+    struct symbol * target_symb = lookup_symbol_from_current_scope(parameter->name_parameter);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     // -- OJO! Aqui queremos que NO se encuentre, si se encuentra tenemos un error de redefinicion
-    if(parameter->symb){
+    if(target_symb){
         // -- Realizar handling de este error : PARAMETRO REDEFINIDO
         // -- Crear error
-        struct error * error = create_error_semantic_duplicated_symbol_parameter(parameter->name_parameter,parameter->line,parameter->symb->which, ERR_DUPLICATED_PARAMETER_MSG);
+        struct error * error = create_error_semantic_duplicated_symbol_parameter(parameter->name_parameter,parameter->line,target_symb->which, ERR_DUPLICATED_PARAMETER_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
@@ -703,21 +733,28 @@ void resolve_subprogram(struct subprogram *subprog){
     if(target_symb){
         // -- Realizar handling de este error : SUBPROGRAMA REDEFINIDO
         // -- Crear error
-        struct error * error = create_error_semantic_duplicated_symbol(subprog->name_subprogram,subprog->line, subprog->symb->line, ERR_DUPLICATED_SUBPROGRAM_MSG);
+        struct error * error = create_error_semantic_duplicated_symbol(subprog->name_subprogram,subprog->line, target_symb->line, ERR_DUPLICATED_SUBPROGRAM_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
 
         // -- Liberar simbolo
-        free_symbol(target_symb);
+        //free_symbol(target_symb);
     }
     // -- En caso de que no se encuentre, realizamos la insercion en la tabla de simbolos
     else{
         // -- Creamos un simbolo de tipo global
-        subprog->symb = create_symbol_global(subprog->type, subprog->name_subprogram, subprog->line);
+        struct symbol * new_symb = create_symbol_global(subprog->type, subprog->name_subprogram, subprog->line);
+        if(new_symb){
+            // -- incluir el tipo de dato de los parametros en el simbolo del subprograma
+            new_symb->list_type_parameters = copy_list_types(subprog->type_parameters);
 
-        // -- Vincular simbolo al scope actual
-        bind_symbol_to_scope(subprog->symb);
+            // -- Asignar simbolo a subprograma
+            subprog->symb = new_symb;
+
+            // -- Vincular simbolo al scope actual
+            bind_symbol_to_scope(subprog->symb);
+        }
     }
 
     // -- ENTRAR EN UN NUEVO SCOPE
@@ -737,9 +774,6 @@ void resolve_subprogram(struct subprogram *subprog){
         // -- Aplicar resolucion de nombres a tipo de dato de retorno de funcion
         resolve_type(subprog->type);
     }
-
-    // -- Tras resolver resolucion de parametros, incluir el tipo de dato de los parametros en el simbolo del subprograma
-    subprog->symb->list_type_parameters = copy_list_types(subprog->type_parameters);
 
     // -- SALIR DEL SCOPE CREADO
     remove_current_scope_from_symbol_table();

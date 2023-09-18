@@ -165,6 +165,12 @@ void resolve_statement_block(struct statement *stmt);
 void resolve_statement_fork(struct statement *stmt);
 
 /**
+ * @brief Realiza la resolucion de nombres en una sentencia de tipo join
+ * @param stmt : puntero a sentencia (join)
+ */
+void resolve_statement_join(struct statement *stmt);
+
+/**
  * @brief Realiza la resolucion de nombres en una sentencia de tipo return
  * @param stmt : puntero a sentencia (return)
  */

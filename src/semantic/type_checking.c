@@ -455,6 +455,21 @@ void typecheck_statement(struct statement *stmt){
         free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
+
+    case STMT_JOIN:
+        // -- Realizar typechecking al simbolo de proceso
+        type_a = copy_type(stmt->stmt.statement_join.symb->type);
+
+        if(type_a->kind != TYPE_DPROCESS){
+            // -- Realizar handling de error: no join a proceso
+            struct error *err = create_error_semantic_unmatched_types_statement_join(stmt->stmt.statement_join.line,type_a->kind_str);
+            add_error_semantic_to_list(err);
+        }
+
+        // -- Liberar tipos
+        free_type(type_a); free_type(type_b); free_type(type_c);
+
+        break;
     case STMT_PROCEDURE_INV:
         // -- Realizar typechecking a lista de argumentos
         struct expression *current_argument = stmt->stmt.statement_procedure_inv.arguments_list;
