@@ -28,7 +28,7 @@ char * file_parsed_name = NULL;
 const char *HEADER_SEPARATOR = "//////////////////////////////////////////////////////////////";
 
 // Cadena con la version actual de compilador
-const char *COMPILER_VERSION = "0.0.6";
+const char *COMPILER_VERSION = "0.0.7";
 
 // Cadena con el autor del compilador
 const char *AUTHOR = "Daniel Perez Ruiz";
