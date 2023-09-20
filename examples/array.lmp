@@ -3,7 +3,7 @@
 {Descripción: Programa que define un array e imprime sus posiciones}
 
 program ImprimeArray
-	var tam : integer := 5;
+	var tam : integer := 10;
 
 process Main;
 	var vector : array [tam] integer;
