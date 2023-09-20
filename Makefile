@@ -41,7 +41,7 @@ VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc flex libfl-dev bison
-TEST_DEPENDENCIES=cppcheck valgrind
+TEST_DEPENDENCIES=cppcheck valgrind parallel
 
 # -- Variables referentes a compilacion/comprobacion de ficheros
 GXX:=gcc
@@ -123,6 +123,7 @@ SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
 # -- Variables de ficheros
 TOKEN_TYPE_NAME:=token
 LMP_MAIN_NAME:=lmp
+TEST_VALGRIND_SCRIPT=test_valgrind_lmp_files.sh
 EXCLUDE_CHECK_FILES="$(LEXER_MODULE)$(FLEX_EXT) $(LEXER_MODULE)$(SOURCE_EXT) $(PARSER_MODULE)$(BISON_EXT) $(PARSER_MODULE)$(SOURCE_EXT)"
 
 # -- Variables de ficheros (tests)
@@ -480,6 +481,7 @@ help:
 	@printf "%-30s %s\n" "make compile" "Compila todos los fuentes del proyecto."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
 	@printf "%-30s %s\n" "make tests" "Ejecuta tests automaticos de fugas de memoria en compilador utilizando ficheros de prueba."
+	@printf "%-30s %s\n" "make tests_parallel" "Ejecuta los mismos tests que la orden anterior pero en paralelo."
 	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 	@echo "$(COLOR_RESET)"
 
@@ -634,6 +636,20 @@ compile_ir: build_obj_dir
 # -- Comprueba la sintaxis de los fuentes del proyecto
 check:
 	$(call parse_and_check_files_skeleton,$(INDEX_DIRS),$(EXCLUDE_CHECK_FILES))
+	
+# -- Ejecuta tests automaticos de valgrind utilizando ficheros de prueba
+tests:
+	@echo "$(COLOR_BLUE)Realizando testeo de compilador usando ficheros lamport correctos...$(COLOR_RESET)"
+	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples && echo
+	@echo "$(COLOR_BLUE)Realizando testeo de compilador usando ficheros lamport con errores sintacticos...$(COLOR_RESET)"
+	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples/errores/sintacticos && echo
+	@echo "$(COLOR_BLUE)Realizando testeo de compilador usando ficheros lamport con errores semanticos...$(COLOR_RESET)"
+	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples/errores/semanticos && echo
+
+# -- Ejecuta tests automaticos de valgrind utilizando ficheros de prueba (ejecucion en paralelo)	
+tests_parallel:
+	@echo "$(COLOR_BLUE)Realizando testeo de compilador usando ficheros lamport...$(COLOR_RESET)"
+	@parallel ./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) ::: examples examples/errores/sintacticos examples/errores/semanticos
 
 # -- Ejecuta valgrind para realizar test de fugas de memoria utilizando un fichero
 mem_check:
