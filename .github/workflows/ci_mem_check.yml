@@ -28,6 +28,9 @@ jobs:
          - name: Instalar dependencias de compilación y testeo
            if: steps.cache-apt.outputs.cache-hit != 'true'
            run: make install_source_dependencies
+         
+         - name: Construir compilador
+           run: make
            
          - name: Ejecutar tests de Valgrind con parallel
            run: make tests_parallel
