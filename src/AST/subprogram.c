@@ -24,14 +24,20 @@ struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, 
     switch (subprog->kind)
     {
     case SUBPROGRAM_PROCEDURE:
+    {
         subprog->kind_str = strdup("procedure");
         break;
+    }
     case SUBPROGRAM_FUNCTION:
+    {
         subprog->kind_str = strdup("function");
         break;
+    }
     default:
+    {
         subprog->kind_str = NULL;
         break;
+    }
     }
 
     // -- Comprobar asignacion de tipo de subprograma (str) exitosa

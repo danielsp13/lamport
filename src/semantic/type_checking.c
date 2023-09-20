@@ -21,26 +21,40 @@ struct type * typecheck_expression(struct expression *expr){
     switch (expr->kind)
     {
     case EXPR_BINARY:
+    {
         return typecheck_expression_binary(expr);
         break;
+    }
     case EXPR_UNARY:
+    {
         return typecheck_expression_unary(expr);
         break;
+    }
     case EXPR_IDENTIFIER:
+    {
         return typecheck_expression_identifier(expr);
         break;
+    }
     case EXPR_LITERAL:
+    {
         return typecheck_expression_literal(expr);
         break;
+    }
     case EXPR_FUNCTION_INV:
+    {
         return typecheck_expression_function_inv(expr);
         break;
+    }
     case EXPR_GROUPED:
+    {
         return typecheck_expression_grouped(expr);
         break;
+    }
     default:
+    {
         return NULL;
         break;
+    }
     }
 }
 
@@ -61,44 +75,70 @@ struct type * typecheck_expression_binary(struct expression *expr){
     switch (expr->expr.expression_binary_operation.kind)
     {
     case EXPR_ADD:
+    {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_SUB:
+    {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_MULT:
+    {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_DIV:
+    {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_MOD:
+    {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_GT:
+    {
         result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_LT:
+    {
         result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_GTE:
+    {
         result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_LTE:
+    {
         result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_EQ:
+    {
         result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_NEQ:
+    {
         result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_AND:
+    {
         result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
         break;
+    }
     case EXPR_OR:
+    {
         result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
         break;
+    }
     default:
         break;
     }
@@ -127,11 +167,15 @@ struct type * typecheck_expression_unary(struct expression *expr){
     switch (expr->expr.expression_binary_operation.kind)
     {
     case EXPR_NEGATIVE:
+    {
         result = typecheck_expression_unary_arithmetic(action,type_left,def_line);
         break;
+    }
     case EXPR_NOT:
+    {
         result = typecheck_expression_unary_logical(action,type_left,def_line);
         break;
+    }
     default:
         break;
     }
@@ -163,20 +207,30 @@ struct type * typecheck_expression_literal(struct expression *expr){
     switch (expr->expr.expression_literal.kind)
     {
     case EXPR_LITERAL_INTEGER:
+    {
         result = create_basic_type(TYPE_INTEGER);
         break;
+    }
     case EXPR_LITERAL_REAL:
+    {
         result = create_basic_type(TYPE_REAL);
         break;
+    }
     case EXPR_LITERAL_CHARACTER:
+    {
         result = create_basic_type(TYPE_CHAR);
         break;
+    }
     case EXPR_LITERAL_STRING:
+    {
         result = create_basic_type(TYPE_STRING);
         break;
+    }
     case EXPR_LITERAL_BOOLEAN:
+    {
         result = create_basic_type(TYPE_BOOLEAN);
         break;
+    }
     
     default:
         break;
@@ -325,6 +379,7 @@ void typecheck_statement(struct statement *stmt){
     switch (stmt->kind)
     {
     case STMT_ASSIGNMENT:
+    {
         // -- Si es una variable indexada, comprobar que el indexador es un entero
         if(stmt->stmt.statement_assignment.index_expr){
             type_c = typecheck_expression(stmt->stmt.statement_assignment.index_expr);
@@ -355,7 +410,9 @@ void typecheck_statement(struct statement *stmt){
         free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
+    }
     case STMT_WHILE:
+    {
         // -- Comprobar que la condicion del while es booleana
         type_a = typecheck_expression(stmt->stmt.statement_while.condition);
 
@@ -372,7 +429,9 @@ void typecheck_statement(struct statement *stmt){
         typecheck_list_statements(stmt->stmt.statement_for.body);
 
         break;
+    }
     case STMT_FOR:
+    {
         // -- Comprobar que el la variable y la expresion de inicio coinciden en tipos
         type_a = copy_type(stmt->stmt.statement_for.symb->type);
         type_b = typecheck_expression(stmt->stmt.statement_for.intialization);
@@ -405,7 +464,9 @@ void typecheck_statement(struct statement *stmt){
         typecheck_list_statements(stmt->stmt.statement_for.body);
 
         break;
+    }
     case STMT_IF_ELSE:
+    {
         // -- Comprobar condicion de if, boolean
         type_a = typecheck_expression(stmt->stmt.statement_if_else.condition);
 
@@ -425,7 +486,9 @@ void typecheck_statement(struct statement *stmt){
         typecheck_list_statements(stmt->stmt.statement_if_else.else_body);
 
         break;
+    }
     case STMT_BLOCK_BEGIN:
+    {
         // -- Realizar typechecking al contenido del cuerpo
         typecheck_list_statements(stmt->stmt.statement_block.body);
 
@@ -433,15 +496,21 @@ void typecheck_statement(struct statement *stmt){
         free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
+    }
     case STMT_BLOCK_COBEGIN:
+    {
         // -- Realizar typechecking al contenido del cuerpo
         typecheck_list_statements(stmt->stmt.statement_block.body);
         break;
+    }
     case STMT_ATOMIC:
+    {
         // -- Realizar typechecking al contenido del cuerpo
         typecheck_list_statements(stmt->stmt.statement_block.body);
         break;
+    }
     case STMT_FORK:
+    {
         // -- Realizar typechecking al simbolo de proceso
         type_a = copy_type(stmt->stmt.statement_fork.symb->type);
 
@@ -455,8 +524,10 @@ void typecheck_statement(struct statement *stmt){
         free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
+    }
 
     case STMT_JOIN:
+    {
         // -- Realizar typechecking al simbolo de proceso
         type_a = copy_type(stmt->stmt.statement_join.symb->type);
 
@@ -470,7 +541,9 @@ void typecheck_statement(struct statement *stmt){
         free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
+    }
     case STMT_PROCEDURE_INV:
+    {
         // -- Realizar typechecking a lista de argumentos
         struct expression *current_argument = stmt->stmt.statement_procedure_inv.arguments_list;
         struct type *current_type_parameter = stmt->stmt.statement_procedure_inv.symb->list_type_parameters;
@@ -492,13 +565,18 @@ void typecheck_statement(struct statement *stmt){
         }
 
         break;
+    }
     case STMT_RETURN:
+    {
         // -- Realizar typechecking a expresion de retorno
         // -- NO HACER AQUI, TYPECHECK EN SUBPROGRAM
         break;
+    }
     case STMT_PRINT:
+    {
         // -- No se hace nada aqui
         break;
+    }
     default:
         break;
     }

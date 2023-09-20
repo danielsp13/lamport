@@ -25,16 +25,22 @@ struct process * create_process(process_t kind, char *name_process, struct decla
     // -- Asignar tipo de proceso (str)
     switch (proc->kind){
     case PROCESS_SINGLE:
+    {
         proc->kind_str = strdup("individual process");
         break;
+    }
     
     case PROCESS_VECTOR:
+    {
         proc->kind_str = strdup("vector process");
         break;
+    }
 
     default:
+    {
         proc->kind_str = NULL;
         break;
+    }
     }
     // -- Comprobar asignacion de tipo de proceso (str) exitoso
     if(!proc->kind_str){
@@ -166,6 +172,7 @@ void free_process(struct process *proc){
     switch (proc->kind)
     {
     case PROCESS_VECTOR:
+    {
         // -- Liberar identificador de indexacion de proceso
         free(proc->index_identifier);
         proc->index_identifier = NULL;
@@ -183,6 +190,7 @@ void free_process(struct process *proc){
         proc->symb_index = NULL;
 
         break;
+    }
     
     default:
         break;
@@ -229,12 +237,14 @@ void print_AST_process(struct process *process_list, unsigned int depth){
         switch (current_process->kind)
         {
         case PROCESS_VECTOR:
+        {
             printf("%s%s %c INDEXADOR DE VECTOR DE PROCESOS: [%s]\n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_process->index_identifier);
             printf("%s%s %c RANGO DE INICIO DEL VECTOR: \n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_process->index_start,NEXT_NODE_DEPTH);
             printf("%s%s %c RANGO DE FIN DEL VECTOR: \n", IDENT_NODE_BRANCH, IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_process->index_end,NEXT_NODE_DEPTH);
             break;
+        }
         
         default:
             break;

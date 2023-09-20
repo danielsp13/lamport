@@ -28,47 +28,75 @@ struct error * create_error_syntax(error_syntax_t kind, char *identifier, unsign
     switch (err->err_data.error_syntax.kind)
     {
     case ERR_SYNTAX_IN_DECLARATION:
+    {
         err->err_data.error_syntax.kind_str = strdup("declaracion de variable");
         break;
+    }
     case ERR_SYNTAX_IDENT_IN_DECLARATION:
+    {
         err->err_data.error_syntax.kind_str = strdup("declaracion de variable");
         break;
+    }
     case ERR_SYNTAX_IN_PROCEDURE:
+    {
         err->err_data.error_syntax.kind_str = strdup("procedimiento");
         break;
+    }
     case ERR_SYNTAX_IDENT_IN_PROCEDURE:
+    {
         err->err_data.error_syntax.kind_str = strdup("procedimiento");
         break;
+    }
     case ERR_SYNTAX_IN_FUNCTION:
+    {
         err->err_data.error_syntax.kind_str = strdup("funcion");
         break;
+    }
     case ERR_SYNTAX_IDENT_IN_FUNCTION:
+    {
         err->err_data.error_syntax.kind_str = strdup("funcion");
         break;
+    }
     case ERR_SYNTAX_IN_PARAMETER:
+    {
         err->err_data.error_syntax.kind_str = strdup("parametro");
         break;
+    }
     case ERR_SYNTAX_IN_PROCESS:
+    {
         err->err_data.error_syntax.kind_str = strdup("proceso");
         break;
+    }
     case ERR_SYNTAX_IDENT_IN_PROCESS:
+    {
         err->err_data.error_syntax.kind_str = strdup("proceso");
         break;
+    }
     case ERR_SYNTAX_IN_TYPE:
+    {
         err->err_data.error_syntax.kind_str = strdup("tipo de dato");
         break;
+    }
     case ERR_SYNTAX_IN_EXPRESSION:
+    {
         err->err_data.error_syntax.kind_str = strdup("expresion");
         break;
+    }
     case ERR_SYNTAX_IN_STATEMENT:
+    {
         err->err_data.error_syntax.kind_str = strdup("sentencia");
         break;
+    }
     case ERR_SYNTAX_IN_PROGRAM:
+    {
         err->err_data.error_syntax.kind_str = strdup("programa");
         break;
+    }
     case ERR_SYNTAX_IDENT_IN_PROGRAM:
+    {
         err->err_data.error_syntax.kind_str = strdup("programa");
         break;
+    }
     
     default:
         break;
@@ -111,47 +139,75 @@ void print_list_error_syntax(struct error *list_errors){
         switch (current_error->err_data.error_syntax.kind)
         {
         case ERR_SYNTAX_IN_DECLARATION:
+        {
             printf(" [%s]",current_error->err_data.error_syntax.identifier);
             break;
+        }
         case ERR_SYNTAX_IDENT_IN_DECLARATION:
+        {
             printf(" ");
             break;
+        }
         case ERR_SYNTAX_IN_PROCEDURE:
+        {
             printf(" [%s]",current_error->err_data.error_syntax.identifier);
             break;
+        }
         case ERR_SYNTAX_IDENT_IN_PROCEDURE:
+        {
             printf(" ");
             break;
+        }
         case ERR_SYNTAX_IN_FUNCTION:
+        {
             printf(" [%s]",current_error->err_data.error_syntax.identifier);
             break;
+        }
         case ERR_SYNTAX_IDENT_IN_FUNCTION:
+        {
             printf(" ");
             break;
+        }
         case ERR_SYNTAX_IN_PARAMETER:
+        {
             printf(" ");
             break;
+        }
         case ERR_SYNTAX_IN_PROCESS:
+        {
             printf(" [%s]",current_error->err_data.error_syntax.identifier);
             break;
+        }
         case ERR_SYNTAX_IDENT_IN_PROCESS:
+        {
             printf(" ");
             break;
+        }
         case ERR_SYNTAX_IN_TYPE:
+        {
             printf(" ");
             break;
+        }
         case ERR_SYNTAX_IN_EXPRESSION:
+        {
             printf(" ");
             break;
+        }
         case ERR_SYNTAX_IN_STATEMENT:
+        {
             printf(" ");
             break;
+        }
         case ERR_SYNTAX_IN_PROGRAM:
+        {
             printf(" [%s]",current_error->err_data.error_syntax.identifier);
             break;
+        }
         case ERR_SYNTAX_IDENT_IN_PROGRAM:
+        {
             printf(" ");
             break;
+        }
         
         default:
             break;

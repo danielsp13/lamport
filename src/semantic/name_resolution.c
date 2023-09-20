@@ -118,12 +118,16 @@ void resolve_declaration(struct declaration *decl){
     switch (kind)
     {
     case SYMBOL_LOCAL:
+    {
         decl->symb = create_symbol_local(decl->type, decl->name, decl->line);
         break;
+    }
 
     case SYMBOL_GLOBAL:
+    {
         decl->symb = create_symbol_global(decl->type, decl->name, decl->line);
         break;
+    }
     
     default:
         break;
@@ -152,37 +156,51 @@ void resolve_expression(struct expression *expr){
     switch (expr->kind)
     {
     case EXPR_BINARY:
+    {
         // -- Aplicar resolucion de nombres a expresiones de tipo operacion binaria
         resolve_expression_binary_operation(expr);
         break;
+    }
 
     case EXPR_UNARY:
+    {
         // -- Aplicar resolucion de nombres a expresiones de tipo operacion unaria
         resolve_expression_unary_operation(expr);
         break;
+    }
 
     case EXPR_IDENTIFIER:
+    {
         // -- Aplicar resolucion de nombres a expresiones de tipo identificador
         resolve_expression_identifier(expr);
         break;
+    }
     
     case EXPR_FUNCTION_INV:
+    {
         // -- Aplicar resolucion de nombres a expresiones de tipo invocacion de funciones
         resolve_expression_function_inv(expr);
         break;
+    }
 
     case EXPR_LITERAL:
+    {
         // -- No se necesita resolucion de nombres en este tipo de expresion
         break;
+    }
 
     case EXPR_GROUPED:
+    {
         // -- Aplicar resolucion de nombres a expresiones entre parentesis
         resolve_expression_grouped(expr);
         break;
+    }
     
     default:
+    {
         // -- No se deberia caer en este caso
         break;
+    }
     }
 }
 
@@ -288,68 +306,94 @@ void resolve_statement(struct statement *stmt){
     switch (stmt->kind)
     {
     case STMT_ASSIGNMENT:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo asignacion
         resolve_statement_assignment(stmt);
         break;
+    }
 
     case STMT_WHILE:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo while
         resolve_statement_while(stmt);
         break;
+    }
 
     case STMT_FOR:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo for
         resolve_statement_for(stmt);
         break;
+    }
 
     case STMT_IF_ELSE:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo if-else
         resolve_statement_if_else(stmt);
         break;
+    }
 
     case STMT_PROCEDURE_INV:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo invocacion de procedimiento
         resolve_statement_procedure_inv(stmt);
         break;
+    }
 
     case STMT_BLOCK_BEGIN:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo bloque
         resolve_statement_block(stmt);
         break;
+    }
 
     case STMT_BLOCK_COBEGIN:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo bloque
         resolve_statement_block(stmt);
         break;
+    }
 
     case STMT_FORK:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo fork
         resolve_statement_fork(stmt);
         break;
+    }
 
     case STMT_JOIN:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo join
         resolve_statement_join(stmt);
         break;
+    }
 
     case STMT_ATOMIC:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo bloque
         resolve_statement_block(stmt);
         break;
+    }
 
     case STMT_RETURN:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo retorno
         resolve_statement_return(stmt);
         break;
+    }
 
     case STMT_PRINT:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo print
         resolve_statement_print(stmt);
         break;
+    }
     
     default:
+    {
         // -- No se deberia caer en este caso
         break;
+    }
     }
 }
 
@@ -597,17 +641,23 @@ void resolve_process(struct process *proc){
     switch (proc->kind)
     {
     case PROCESS_SINGLE:
+    {
         // -- Aqui no se hace nada, pues ya se hizo toda la resolucion que se debia
         break;
+    }
 
     case PROCESS_VECTOR:
+    {
         // -- Aplicar resolucion de nombres a proceso de tipo vector
         resolve_process_vector(proc);
         break;
+    }
     
     default:
+    {
         // -- No deberia caer en este caso
         break;
+    }
     }
 
     // -- Aplicar resolucion de nombres a las sentencias del proceso
@@ -658,13 +708,17 @@ void resolve_type(struct type *type){
     switch (type->kind)
     {
     case TYPE_ARRAY:
+    {
         // -- Aplicar resolucion de nombres al tipo de dato array
         resolve_type_array(type);
         break;
+    }
     
     default:
+    {
         // -- En el resto de casos, no es necesario aplicar resolucion de nombres
         break;
+    }
     }
 }
 

@@ -24,16 +24,22 @@ struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, in
     switch (symb->kind)
     {
     case SYMBOL_LOCAL:
+    {
         symb->kind_str = strdup("SYMBOL_LOCAL");
         break;
+    }
     
     case SYMBOL_GLOBAL:
+    {
         symb->kind_str = strdup("SYMBOL_GLOBAL");
         break;
+    }
 
     case SYMBOL_PARAM:
+    {
         symb->kind_str = strdup("SYMBOL_PARAM");
         break;
+    }
     }
     // -- Comprobar asignacion de tipo de simbolo (str) exitosa
     if(!symb->kind_str){

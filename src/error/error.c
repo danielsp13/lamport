@@ -26,16 +26,22 @@ struct error * create_error(error_t kind, unsigned long err_line, char *msg){
     switch (err->kind)
     {
     case ERROR_SYNTAX:
+    {
         err->kind_str = strdup("sintactico");
         break;
+    }
 
     case ERROR_SEMANTIC:
+    {
         err->kind_str = strdup("semantico");
         break;
+    }
     
     default:
+    {
         err->kind_str = NULL;
         break;
+    }
     }
 
     // -- Comprobar asignacion de tipo de error exitoso
@@ -103,6 +109,7 @@ void free_error(struct error *error){
     switch (error->kind)
     {
     case ERROR_SYNTAX:
+    {
         // -- Liberar identificador de declaracion/subprograma/proceso
         free(error->err_data.error_syntax.identifier);
         error->err_data.error_syntax.identifier = NULL;
@@ -110,13 +117,16 @@ void free_error(struct error *error){
         free(error->err_data.error_syntax.kind_str);
         error->err_data.error_syntax.kind_str = NULL;
         break;
+    }
 
     case ERROR_SEMANTIC:
+    {
         // -- Liberar identificador de simbolo
         free(error->err_data.error_semantic.id);
         error->err_data.error_semantic.id = NULL;
 
         break;
+    }
     
     default:
         break;

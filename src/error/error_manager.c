@@ -41,12 +41,16 @@ void add_error_to_list(struct error * err){
     switch (err->kind)
     {
     case ERROR_SYNTAX:
+    {
         add_error_syntax_to_list(err);
         break;
+    }
 
     case ERROR_SEMANTIC:
+    {
         add_error_semantic_to_list(err);
         break;
+    }
     
     default:
         break;

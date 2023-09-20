@@ -24,56 +24,82 @@ struct statement * create_statement(statement_t kind){
     switch (st->kind)
     {
     case STMT_ASSIGNMENT:
+    {
         st->kind_str = strdup("assignment");
         break;
+    }
 
     case STMT_WHILE:
+    {
         st->kind_str = strdup("while");
         break;
+    }
     
     case STMT_FOR:
+    {
         st->kind_str = strdup("for");
         break;
+    }
 
     case STMT_IF_ELSE:
+    {
         st->kind_str = strdup("if/else");
         break;
+    }
 
     case STMT_PROCEDURE_INV:
+    {
         st->kind_str = strdup("procedure invocation");
         break;
+    }
 
     case STMT_BLOCK_BEGIN:
+    {
         st->kind_str = strdup("begin/end block");
         break;
+    }
     
     case STMT_BLOCK_COBEGIN:
+    {
         st->kind_str = strdup("cobegin/coend block");
         break;
+    }
 
     case STMT_ATOMIC:
+    {
         st->kind_str = strdup("atomic block");
         break;
+    }
 
     case STMT_FORK:
+    {
         st->kind_str = strdup("fork process");
         break;
+    }
 
     case STMT_JOIN:
+    {
         st->kind_str = strdup("join process");
         break;
+    }
 
     case STMT_RETURN:
+    {
         st->kind_str = strdup("return statement");
         break;
+    }
 
     case STMT_PRINT:
+    {
         st->kind_str = strdup("print statement");
         break;
+    }
 
     default:
+    {
         st->kind_str = NULL;
         break;
+    }
     }
 
     // -- Comprobar asignacion de tipo de sentencia (str) exitosa
@@ -364,6 +390,7 @@ void free_statement(struct statement *stmt){
     switch (stmt->kind)
     {
     case STMT_ASSIGNMENT:
+    {
         free(stmt->stmt.statement_assignment.variable_name);
         stmt->stmt.statement_assignment.variable_name = NULL;
 
@@ -378,16 +405,20 @@ void free_statement(struct statement *stmt){
             stmt->stmt.statement_assignment.symb = NULL;
         }
         break;
+    }
 
     case STMT_WHILE:
+    {
         free_expression(stmt->stmt.statement_while.condition);
         stmt->stmt.statement_while.condition = NULL;
 
         free_list_statements(stmt->stmt.statement_while.body);
         stmt->stmt.statement_while.body = NULL;
         break;
+    }
 
     case STMT_FOR:
+    {
         free(stmt->stmt.statement_for.counter_name);
         stmt->stmt.statement_for.counter_name = NULL;
 
@@ -405,8 +436,10 @@ void free_statement(struct statement *stmt){
             stmt->stmt.statement_for.symb = NULL;
         }
         break;
+    }
 
     case STMT_IF_ELSE:
+    {
         free_expression(stmt->stmt.statement_if_else.condition);
         stmt->stmt.statement_if_else.condition = NULL;
 
@@ -418,8 +451,10 @@ void free_statement(struct statement *stmt){
             stmt->stmt.statement_if_else.else_body = NULL;
         }
         break;
+    }
 
     case STMT_PROCEDURE_INV:
+    {
         free(stmt->stmt.statement_procedure_inv.procedure_name);
         stmt->stmt.statement_procedure_inv.procedure_name = NULL;
 
@@ -436,18 +471,24 @@ void free_statement(struct statement *stmt){
         }
         
         break;
+    }
 
     case STMT_BLOCK_BEGIN:
+    {
         free_list_statements(stmt->stmt.statement_block.body);
         stmt->stmt.statement_block.body = NULL;
         break;
+    }
 
     case STMT_BLOCK_COBEGIN:
+    {
         free_list_statements(stmt->stmt.statement_block.body);
         stmt->stmt.statement_block.body = NULL;
         break;
+    }
 
     case STMT_FORK:
+    {
         free(stmt->stmt.statement_fork.forked_process);
         stmt->stmt.statement_fork.forked_process = NULL;
 
@@ -457,8 +498,10 @@ void free_statement(struct statement *stmt){
             stmt->stmt.statement_fork.symb = NULL;   
         }
         break;
+    }
 
     case STMT_JOIN:
+    {
         free(stmt->stmt.statement_join.joined_process);
         stmt->stmt.statement_join.joined_process = NULL;
 
@@ -468,21 +511,28 @@ void free_statement(struct statement *stmt){
             stmt->stmt.statement_join.symb = NULL;   
         }
         break;
+    }
 
     case STMT_ATOMIC:
+    {
         free_list_statements(stmt->stmt.statement_block.body);
         stmt->stmt.statement_block.body = NULL;
         break;
+    }
 
     case STMT_RETURN:
+    {
         free_expression(stmt->stmt.statement_return.returned_expr);
         stmt->stmt.statement_return.returned_expr = NULL;
         break;
+    }
 
     case STMT_PRINT:
+    {
         free_list_expressions(stmt->stmt.statement_print.expressions_list);
         stmt->stmt.statement_print.expressions_list = NULL;
         break;
+    }
     }
     
     // -- Liberar nodo
@@ -520,6 +570,7 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth)
         switch (current_statement->kind)
         {
         case STMT_ASSIGNMENT:
+        {
             printf("%s%s %c ASIGNACION A VARIABLE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_assignment.variable_name);
             if(current_statement->stmt.statement_assignment.index_expr){
                 printf("%s%s %c EXPRESION DE INDICE DE ACCESO A ARRAY:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
@@ -529,15 +580,19 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth)
             printf("%s%s %c EXPRESION ASIGNADA A VARIABLE:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_assignment.expr,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_WHILE:
+        {
             printf("%s%s %c CONDICION DEL BUCLE WHILE:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_while.condition,NEXT_NODE_DEPTH);
             printf("%s%s %c CUERPO DEL BUCLE WHILE:\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_statements(current_statement->stmt.statement_while.body,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_FOR:
+        {
             printf("%s%s %c NOMBRE DE CONTADOR DEL BUCLE FOR: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_for.counter_name);
             printf("%s%s %c EXPRESION DE INICIO DE CONTADOR DE BUCLE FOR\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_for.intialization,NEXT_NODE_DEPTH);
@@ -546,8 +601,10 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth)
             printf("%s%s %c CUERPO DEL BUCLE FOR\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_statements(current_statement->stmt.statement_for.body,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_IF_ELSE:
+        {
             printf("%s%s %c CONDICION DEL IF\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_if_else.condition,NEXT_NODE_DEPTH);
             printf("%s%s %c CUERPO DEL IF\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
@@ -555,42 +612,59 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth)
             printf("%s%s %c CUERPO DEL ELSE\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_statements(current_statement->stmt.statement_if_else.else_body,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_BLOCK_BEGIN:
+        {
             print_AST_statements(current_statement->stmt.statement_block.body,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_BLOCK_COBEGIN:
+        {
             print_AST_statements(current_statement->stmt.statement_block.body,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_ATOMIC:
+        {
             print_AST_statements(current_statement->stmt.statement_block.body,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_PROCEDURE_INV:
+        {
             printf("%s%s %c INVOCACION DE PROCEDIMIENTO DE NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_procedure_inv.procedure_name);
             printf("%s%s %c LISTADO DE ARGUMENTOS DE INVOCACION DEL PROCEDIMIENTO:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_procedure_inv.arguments_list,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_FORK:
+        {
             printf("%s%s %c FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_fork.forked_process);
             break;
+        }
 
         case STMT_JOIN:
+        {
             printf("%s%s %c JOIN DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_join.joined_process);
             break;
+        }
         
         case STMT_RETURN:
+        {
             printf("%s%s %c EXPRESION DE RETORNO:\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_return.returned_expr,NEXT_NODE_DEPTH);
             break;
+        }
 
         case STMT_PRINT:
+        {
             printf("%s%s %c LISTADO DE EXPRESIONES A IMPRIMIR:\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_print.expressions_list,NEXT_NODE_DEPTH);
             break;
+        }
         }
 
         printf("\n");

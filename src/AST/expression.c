@@ -24,28 +24,35 @@ struct expression * create_expression_non_literal(expression_t kind){
     switch (ex->kind)
     {
     case EXPR_BINARY:
+    {
         ex->kind_str = strdup("binary operation");
         break;
-    
+    }
     case EXPR_UNARY:
+    {
         ex->kind_str = strdup("unary operation");
         break;
-
+    }
     case EXPR_IDENTIFIER:
+    {
         ex->kind_str = strdup("identifier");
         break;
-
+    }
     case EXPR_FUNCTION_INV:
+    {
         ex->kind_str = strdup("function invocation");
         break;
-
+    }
     case EXPR_GROUPED:
+    {
         ex->kind_str = strdup("grouped expression");
         break;
-    
+    }
     default:
+    {
         ex->kind_str = NULL;
         break;
+    }
     }
 
     // -- Comprobar asignacion de tipo de expresion (str) exitosa
@@ -75,28 +82,40 @@ struct expression * create_expression_literal(expression_literal_t kind){
     switch (ex->expr.expression_literal.kind)
     {
     case EXPR_LITERAL_INTEGER:
+    {
         ex->kind_str = strdup("literal integer");
         break;
+    }
     
     case EXPR_LITERAL_REAL:
+    {
         ex->kind_str = strdup("literal real");
         break;
+    }
 
     case EXPR_LITERAL_STRING:
+    {
         ex->kind_str = strdup("literal string");
         break;
+    }
 
     case EXPR_LITERAL_CHARACTER:
+    {
         ex->kind_str = strdup("literal char");
         break;
+    }
 
     case EXPR_LITERAL_BOOLEAN:
+    {
         ex->kind_str = strdup("literal boolean");
         break;
+    }
 
     default:
+    {
         ex->kind_str = NULL;
         break;
+    }
     }
 
     // -- Comprobar asignacion de tipo de expresion (str) exitosa
@@ -126,23 +145,35 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
     switch (ex->expr.expression_binary_operation.kind)
     {
     case EXPR_ADD:
+    {
         ex->expr.expression_binary_operation.action = strdup("sumar");
         break;
+    }
     case EXPR_SUB:
+    {
         ex->expr.expression_binary_operation.action = strdup("restar");
         break;
+    }
     case EXPR_MULT:
+    {
         ex->expr.expression_binary_operation.action = strdup("multiplicar");
         break;
+    }
     case EXPR_DIV:
+    {
         ex->expr.expression_binary_operation.action = strdup("dividir");
         break;
+    }
     case EXPR_MOD:
+    {
         ex->expr.expression_binary_operation.action = strdup("obtener el modulo de");
         break;
+    }
     default:
+    {
         ex->expr.expression_binary_operation.action = strdup("comparar");
         break;
+    }
     }
     // -- Comprobar asignacion de accion exitoso
     if(!ex->expr.expression_binary_operation.action){
@@ -184,11 +215,15 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
     switch (ex->expr.expression_unary_operation.kind)
     {
     case EXPR_NEGATIVE:
+    {
         ex->expr.expression_unary_operation.action = strdup("cambiar de signo");
         break;
+    }
     case EXPR_NOT:
+    {
         ex->expr.expression_unary_operation.action = strdup("negacion logica");
         break;
+    }
     default:
         break;
     }
@@ -395,6 +430,7 @@ void free_expression(struct expression *expr){
     switch (expr->kind)
     {
     case EXPR_BINARY:
+    {
         free(expr->expr.expression_binary_operation.operator);
         expr->expr.expression_binary_operation.operator = NULL;
 
@@ -406,8 +442,10 @@ void free_expression(struct expression *expr){
         free_expression(expr->expr.expression_binary_operation.right);
         expr->expr.expression_binary_operation.right = NULL;
         break;
+    }
 
     case EXPR_UNARY:
+    {
         free(expr->expr.expression_unary_operation.operator);
         expr->expr.expression_unary_operation.operator = NULL;
 
@@ -417,8 +455,10 @@ void free_expression(struct expression *expr){
         free_expression(expr->expr.expression_unary_operation.left);
         expr->expr.expression_unary_operation.left = NULL;
         break;
+    }
 
     case EXPR_IDENTIFIER:
+    {
         free(expr->expr.expression_identifier.id);
         expr->expr.expression_identifier.id = NULL;
 
@@ -427,22 +467,28 @@ void free_expression(struct expression *expr){
 
         expr->expr.expression_identifier.symb = NULL;
         break;
+    }
 
     case EXPR_LITERAL:
+    {
         switch (expr->expr.expression_literal.kind)
         {
         case EXPR_LITERAL_STRING:
+        {
             free(expr->expr.expression_literal.value.string_literal);
             expr->expr.expression_literal.value.string_literal = NULL;
             break;
+        }
         
         default:
             break;
         }
         
         break;
+    }
 
     case EXPR_FUNCTION_INV:
+    {
         free(expr->expr.expression_function_inv.function_name);
         expr->expr.expression_function_inv.function_name = NULL;
 
@@ -453,12 +499,15 @@ void free_expression(struct expression *expr){
         expr->expr.expression_function_inv.symb = NULL;
 
         break;
+    }
 
     case EXPR_GROUPED:
+    {
         free_expression(expr->expr.grouped_expression);
         expr->expr.grouped_expression = NULL;
 
         break;
+    }
     }
 
     // -- Liberar nodo
@@ -494,65 +543,89 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
         switch (current_expression->kind)
         {
         case EXPR_BINARY:
+        {
             printf("%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_binary_operation.operator);
             printf("%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_binary_operation.left,NEXT_NODE_DEPTH);
             printf("%s%s  OPERANDO DERECHO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_binary_operation.right,NEXT_NODE_DEPTH);
             break;
+        }
         
         case EXPR_UNARY:
+        {
             printf("%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator);
             printf("%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_unary_operation.left,NEXT_NODE_DEPTH);
             break;
+        }
 
         case EXPR_IDENTIFIER:
+        {
             printf("%s%s  NOMBRE DE IDENTIFICADOR: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_identifier.id);
             if(current_expression->expr.expression_identifier.index_expr){
                 printf("%s%s  EXPRESION DE ACCESO A POSICION DE IDENTIFICADOR:\n",IDENT_NODE, IDENT_BLANK_ARROW);
                 print_AST_expressions(current_expression->expr.expression_identifier.index_expr,NEXT_NODE_DEPTH);
             }
             break;
+        }
 
         case EXPR_LITERAL:
+        {
             printf("%s%s  VALOR DE LITERAL: ",IDENT_NODE, IDENT_BLANK_ARROW);
             switch (current_expression->expr.expression_literal.kind)
             {
             case EXPR_LITERAL_INTEGER:
+            {
                 printf("[%d]\n",current_expression->expr.expression_literal.value.integer_literal);
                 break;
+            }
             
             case EXPR_LITERAL_REAL:
+            {
                 printf("[%f]\n",current_expression->expr.expression_literal.value.real_literal);
                 break;
+            }
             
             case EXPR_LITERAL_BOOLEAN:
+            {
                 printf("[%d]\n",current_expression->expr.expression_literal.value.boolean_literal);
                 break;
+            }
 
             case EXPR_LITERAL_CHARACTER:
+            {
                 printf("[%c]\n",current_expression->expr.expression_literal.value.character_literal);
                 break;
+            }
 
             case EXPR_LITERAL_STRING:
+            {
                 printf("[%s]\n",current_expression->expr.expression_literal.value.string_literal);
                 break;
+            }
             default:
+            {
                 printf("[%s]\n",UNDEFINED_VALUE_MSG);
             }
+            }
             break;
+        }
 
         case EXPR_FUNCTION_INV:
+        {
             printf("%s%s  INVOCACION DE FUNCION DE NOMBRE: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_function_inv.function_name);
             printf("%s%s  LISTADO DE ARGUMENTOS DE INVOCACION DE FUNCION:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_function_inv.arguments_list,NEXT_NODE_DEPTH);
             break;
+        }
 
         case EXPR_GROUPED:
+        {
             printf("%s%s  EXPRESION ENTRE ( )\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.grouped_expression,NEXT_NODE_DEPTH);
             break;
+        }
         }
 
         // Ir a la siguiente expresion
@@ -600,34 +673,46 @@ struct expression * copy_expression(struct expression *expr){
     switch (expr->kind)
     {
     case EXPR_BINARY:
+    {
         // -- Realizar copia de expresion
         expr_copy = copy_expression_binary(expr);
         break;
+    }
 
     case EXPR_UNARY:
+    {
         // -- Realizar copia de expresion
         expr_copy = copy_expression_unary(expr);
         break;
+    }
 
     case EXPR_IDENTIFIER:
+    {
         // -- Realizar copia de expresion
         expr_copy = copy_expression_identifier(expr);
         break;
+    }
 
     case EXPR_LITERAL:
+    {
         // -- Realizar copia de expresion
         expr_copy = copy_expression_literal(expr);
         break;
+    }
     
     case EXPR_FUNCTION_INV:
+    {
         // -- Realizar copia de expresion
         expr_copy = copy_expression_function_inv(expr);
         break;
+    }
 
     case EXPR_GROUPED:
+    {
         // -- Realizar copia de expresion
         expr_copy = copy_expression_grouped(expr);
         break;
+    }
     
     default:
         break;
@@ -688,28 +773,40 @@ struct expression * copy_expression_literal(struct expression *expr){
     switch (copy_literal_kind)
     {
     case EXPR_LITERAL_INTEGER:
+    {
         int copy_integer_value = expr->expr.expression_literal.value.integer_literal;
         return create_expression_literal_integer(copy_integer_value);
         break;
+    }
     case EXPR_LITERAL_REAL:
+    {
         float copy_float_value = expr->expr.expression_literal.value.real_literal;
         return create_expression_literal_real(copy_float_value);
         break;
+    }
     case EXPR_LITERAL_CHARACTER:
+    {
         char copy_character_value = expr->expr.expression_literal.value.character_literal;
         return create_expression_literal_char(copy_character_value);
         break;
+    }
     case EXPR_LITERAL_STRING:
+    {
         char *copy_string_value = expr->expr.expression_literal.value.string_literal;
         return create_expression_literal_string(copy_string_value);
         break;
+    }
     case EXPR_LITERAL_BOOLEAN:
+    {
         int copy_boolean_value = expr->expr.expression_literal.value.boolean_literal;
         return create_expression_literal_boolean(copy_boolean_value);
         break;
+    }
     default:
+    {
         return NULL;
         break;
+    }
     }
 }
 
