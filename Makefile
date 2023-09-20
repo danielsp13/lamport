@@ -97,6 +97,7 @@ AST_MODULE:=AST
 SEMANTIC_MODULE:=semantic
 ERROR_MODULE:=error
 LMP_UTILS_MODULE:=lmp_utils
+IR_MODULE:=IR
 TEST_UTILS_MODULE:=test_utils
 
 # -- Variables referentes a directorios de modulos (cabeceras)
@@ -106,6 +107,7 @@ HEADER_AST:=$(HEADER_DIR)/$(AST_MODULE)
 HEADER_SEMANTIC:=$(HEADER_DIR)/$(SEMANTIC_MODULE)
 HEADER_ERROR:=$(HEADER_DIR)/$(ERROR_MODULE)
 HEADER_LMP_UTILS:=$(HEADER_DIR)/$(LMP_UTILS_MODULE)
+HEADER_IR:=$(HEADER_DIR)/$(IR_MODULE)
 HEADER_TEST_UTILS:=$(HEADER_DIR)/$(TEST_UTILS_MODULE)
 
 # -- Variables referentes a directorios de modulos (sources)
@@ -115,6 +117,7 @@ SOURCE_AST:=$(SOURCE_DIR)/$(AST_MODULE)
 SOURCE_SEMANTIC:=$(SOURCE_DIR)/$(SEMANTIC_MODULE)
 SOURCE_ERROR:=$(SOURCE_DIR)/$(ERROR_MODULE)
 SOURCE_LMP_UTILS:=$(SOURCE_DIR)/$(LMP_UTILS_MODULE)
+SOURCE_IR:=$(SOURCE_DIR)/$(IR_MODULE)
 SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
 
 # -- Variables de ficheros
@@ -133,6 +136,7 @@ INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram 
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
+INDEX_IR_FILES:=literal operand instruction
 
 # -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
@@ -141,6 +145,7 @@ INDEX_OBJ_AST_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_AST_FILES))
 INDEX_OBJ_SEMANTIC_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_SEMANTIC_FILES))
 INDEX_OBJ_ERROR_FILES:=$(addsuffix $(OBJ_EXT),$(INDEX_ERROR_FILES))
 INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
+INDEX_OBJ_IR_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_IR_FILES))
 
 INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES)
 
@@ -474,6 +479,7 @@ help:
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 	@printf "%-30s %s\n" "make compile" "Compila todos los fuentes del proyecto."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
+	@printf "%-30s %s\n" "make tests" "Ejecuta tests automaticos de fugas de memoria en compilador utilizando ficheros de prueba."
 	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 	@echo "$(COLOR_RESET)"
 
@@ -587,6 +593,7 @@ compile_sources:
 	@make -s compile_ast && echo
 	@make -s compile_error && echo
 	@make -s compile_semantic && echo
+	#@make -s compile_ir && echo
 	
 	@make -s compile_lmp_utils && echo	
 	
@@ -615,6 +622,10 @@ compile_error: build_obj_dir
 # -- Genera codigo objeto para las dependencias del compilador Lamport
 compile_lmp_utils: build_obj_dir
 	$(call compile_objects_skeleton,$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
+	
+# -- Genera codigo objeto para el modulo de gestion de representacion intermedia de codigo
+compile_ir: build_obj_dir
+	$(call compile_objects_skeleton,$(INDEX_IR_FILES),"$(IR_MODULE)/","gestor de representacion intermedia de codigo")
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE TESTEO DE FUENTES
@@ -623,6 +634,7 @@ compile_lmp_utils: build_obj_dir
 # -- Comprueba la sintaxis de los fuentes del proyecto
 check:
 	$(call parse_and_check_files_skeleton,$(INDEX_DIRS),$(EXCLUDE_CHECK_FILES))
-	
+
+# -- Ejecuta valgrind para realizar test de fugas de memoria utilizando un fichero
 mem_check:
 	@valgrind --leak-check=full $(BIN_DIR)/$(LMP_MAIN_NAME) $(LMP_FILE)
