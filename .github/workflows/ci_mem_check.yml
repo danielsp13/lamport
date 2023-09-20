@@ -9,7 +9,7 @@ on:
          - 'Makefile'
          
 jobs:
-  check_and_scan:
+  mem_check:
       runs-on: ubuntu-latest
       
       steps:
