@@ -686,7 +686,7 @@ void resolve_process_vector(struct process *proc){
     }
     else{
         // -- Asignar simbolo
-        proc->symb_index = target_symb;
+        proc->symb_index = copy_symbol(target_symb);
     }
 
     // -- Aplicar resolucion de nombres a la expresion de inicio de indexacion
