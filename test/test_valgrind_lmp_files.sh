@@ -18,7 +18,7 @@ COMPILER="$COMPILER_DIR/$COMPILER_NAME"
 LMP_FILES_DIR="$1"
 
 # >>> Forma de ejecucion de valgrind
-ERR_VALGRIND_EXIT_CODE=1000
+ERR_VALGRIND_EXIT_CODE=20
 VALGRIND_OPTIONS="--leak-check=full --error-exitcode=$ERR_VALGRIND_EXIT_CODE"
 
 # >>> Variable contadora de fugas y de exitos
