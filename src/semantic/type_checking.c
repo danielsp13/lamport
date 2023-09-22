@@ -631,9 +631,9 @@ void typecheck_process(struct process *proc){
             add_error_semantic_to_list(err);
         }
 
-        free(type_a); type_a = NULL;
-        free(type_b); type_b = NULL;
-        free(type_c); type_c = NULL;
+        free_type(type_a); type_a = NULL;
+        free_type(type_b); type_b = NULL;
+        free_type(type_c); type_c = NULL;
     }
 
     // -- Realizar typecheck a lista de declaraciones
