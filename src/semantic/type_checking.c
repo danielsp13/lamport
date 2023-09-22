@@ -426,7 +426,7 @@ void typecheck_statement(struct statement *stmt){
         free_type(type_a); free_type(type_b); free_type(type_c);
 
         // -- Realizar typechecking al contenido del cuerpo
-        typecheck_list_statements(stmt->stmt.statement_for.body);
+        typecheck_list_statements(stmt->stmt.statement_while.body);
 
         break;
     }
