@@ -97,7 +97,7 @@ void free_declaration(struct declaration *decl){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO DECLARACIONES) -----
 
-void print_AST_declarations(struct declaration *declarations_list, unsigned int depth){
+void print_AST_declarations(struct declaration *declarations_list, unsigned int depth, FILE * output){
     // -- Determinar identacion de nodo
     char * IDENT_NODE_BRANCH = build_identation_branch(depth);
     char * IDENT_NODE = build_identation_spaces(depth);
@@ -106,7 +106,7 @@ void print_AST_declarations(struct declaration *declarations_list, unsigned int 
 
     // -- Si NULL, simplemente devolver
     if(!declarations_list){
-        printf("%s%s %s\n",IDENT_NODE_BRANCH, IDENT_ARROW, NULL_NODE_MSG);
+        fprintf(output,"%s%s %s\n",IDENT_NODE_BRANCH, IDENT_ARROW, NULL_NODE_MSG);
 
         // -- Liberar memoria utilizada para la identacion
         free(IDENT_NODE); IDENT_NODE = NULL;
@@ -119,15 +119,15 @@ void print_AST_declarations(struct declaration *declarations_list, unsigned int 
     struct declaration * current_declaration = declarations_list;
     while(current_declaration){
         // -- Imprimir nombre de variable
-        printf("%s%s DECLARACION DE VARIABLE: [%s]\n",IDENT_NODE_BRANCH, IDENT_ARROW, current_declaration->name);
+        fprintf(output,"%s%s DECLARACION DE VARIABLE: [%s]\n",IDENT_NODE_BRANCH, IDENT_ARROW, current_declaration->name);
         // -- Imprimir tipo de variable
-        printf("%s%s TIPO DE DATO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-        print_AST_type(current_declaration->type,NEXT_NODE_DEPTH);
+        fprintf(output,"%s%s TIPO DE DATO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_type(current_declaration->type,NEXT_NODE_DEPTH,output);
         // -- Imprimir valor
-        printf("%s%s VALOR DE INICIALIZACION:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-        print_AST_expressions(current_declaration->value,NEXT_NODE_DEPTH);
+        fprintf(output,"%s%s VALOR DE INICIALIZACION:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_expressions(current_declaration->value,NEXT_NODE_DEPTH,output);
 
-        printf("\n");
+        fprintf(output,"\n");
 
         // -- Ir a la siguiente declaracion
         current_declaration = current_declaration->next;

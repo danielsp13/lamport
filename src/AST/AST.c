@@ -80,31 +80,35 @@ void free_program(struct program *prog){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST -----
 
-void print_AST(struct program *prog){
+void print_AST(struct program *prog, FILE * output){
+    // -- Comprobar que hay salida valida
+    if(!output)
+        return;
+
     // -- Si NULL, simplemente devolver
     if(!prog){
-        printf("%s %s\n", IDENT_ARROW, NULL_NODE_MSG);
+        fprintf(output,"%s %s\n", IDENT_ARROW, NULL_NODE_MSG);
         return;
     }
 
     // -- Imprimir nombre de programa
-    printf("%s PROGRAMA LAMPORT DE NOMBRE: [%s]\n", IDENT_ARROW, prog->name_program);
+    fprintf(output,"%s PROGRAMA LAMPORT DE NOMBRE: [%s]\n", IDENT_ARROW, prog->name_program);
 
-    print_AST_separation();
+    print_AST_separation(output);
 
     // -- Imprimir declaraciones
-    printf("%s %c DECLARACIONES DE PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
-    print_AST_declarations(prog->declarations, DEPTH_PROGRAM_DECLARATIONS);
+    fprintf(output,"%s %c DECLARACIONES DE PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
+    print_AST_declarations(prog->declarations, DEPTH_PROGRAM_DECLARATIONS,output);
 
-    print_AST_separation();
+    print_AST_separation(output);
 
     // -- Imprimir subprogramas
-    printf("%s %c SUBPROGRAMAS DE PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
-    print_AST_subprograms(prog->subprograms, DEPTH_PROGRAM_SUBPROGRAMS);
+    fprintf(output,"%s %c SUBPROGRAMAS DE PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
+    print_AST_subprograms(prog->subprograms, DEPTH_PROGRAM_SUBPROGRAMS,output);
 
-    print_AST_separation();
+    print_AST_separation(output);
 
     // -- Imprimir sentencias
-    printf("%s %c PROCESOS DEL PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
-    print_AST_process(prog->process, DEPTH_PROGRAM_PROCESS);
+    fprintf(output,"%s %c PROCESOS DEL PROGRAMA: [%s]\n", IDENT_ARROW, IDENT_INIT_BRANCH_SYMBOL, prog->name_program);
+    print_AST_process(prog->process, DEPTH_PROGRAM_PROCESS,output);
 }

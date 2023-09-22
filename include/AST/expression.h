@@ -334,13 +334,19 @@ void free_expression(struct expression *expr);
  * @brief Imprime una lista de nodos de expresiones
  * @param expressions_list : Puntero a lista enlazada de expresiones
  * @param depth : Profundidad en la impresion de la lista de nodos
+ * @param output : destino de impresion
  */
-void print_AST_expressions(struct expression *expressions_list, unsigned int depth);
+void print_AST_expressions(struct expression *expressions_list, unsigned int depth, FILE * output);
 
 // ===============================================================
 
 // ----- PROTOTIPO DE FUNCIONES DE GESTION DE NODO (EXPRESIONES) -----
 
+/**
+ * @brief Realiza una copia de una lista de expresiones
+ * @param list_expressions : lista de expresiones
+ * @return copia de la lista de expresiones
+ */
 struct expression * copy_list_expressions(struct expression *list_expressions);
 
 /**
@@ -350,16 +356,46 @@ struct expression * copy_list_expressions(struct expression *list_expressions);
  */
 struct expression * copy_expression(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo operacion binaria
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_binary(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo operacion unaria
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_unary(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo identificador
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_identifier(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo literal
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_literal(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo invocacion de funcion
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_function_inv(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo expresion entre parentesis
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_grouped(struct expression *expr);
 
 #endif //_LAMPORT_AST_EXPRESSION_DPR_

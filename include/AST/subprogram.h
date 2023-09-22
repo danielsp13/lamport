@@ -128,7 +128,8 @@ void free_subprogram(struct subprogram *subprog);
  * @brief Imprime una lista de nodos de subprogramas
  * @param subprograms_list : Puntero a lista enlazada de subprogramas
  * @param depth : Profundidad en la impresion de la lista de nodos
+ * @param output : destino de impresion
  */
-void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int depth);
+void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int depth, FILE * output);
 
 #endif //_LAMPORT_AST_SUBPROGRAM_DPR_

@@ -361,8 +361,9 @@ void free_statement(struct statement *stmt);
  * @brief Imprime una lista de nodos de sentencias
  * @param statements_list : Puntero a lista enlazada de sentencias
  * @param depth : Profundidad en la impresion de la lista de nodos
+ * @param output : destino de impresion
  */
-void print_AST_statements(struct statement *statements_list, unsigned int depth);
+void print_AST_statements(struct statement *statements_list, unsigned int depth, FILE * output);
 
 
 #endif //_LAMPORT_AST_STATEMENT_DPR_

@@ -2,7 +2,7 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file lmp_analysis.h
  * @author Daniel Perez Ruiz
- * @brief 
+ * @brief Gestor de analisis de ficheros de lenguaje lamport
  */
 
 #ifndef _LMP_COMPILER_ANALYSIS_DPR_
@@ -113,8 +113,9 @@ void lmp_free_symbol_table();
 
 /**
  * @brief Imprime el AST generado por el analizador sintactico
+ * @param output : destino de impresion (stdout/fichero)
  */
-void lmp_print_AST();
+void lmp_print_AST(FILE * output);
 
 /**
  * @brief Libera la memoria del AST generado por el analizador sintactico
@@ -141,13 +142,15 @@ void lmp_free_AST_node_register();
 
 /**
  * @brief Imprime la informacion de todos los errores sintacticos producidos
+ * @param output : destino de impresion
  */
-void lmp_print_error_syntax();
+void lmp_print_error_syntax(FILE * output);
 
 /**
  * @brief Imprime la informacion de todos los errores semanticos producidos en el analisis
+ * @param output : destino de impresion
  */
-void lmp_print_error_semantic();
+void lmp_print_error_semantic(FILE * output);
 
 /**
  * @brief Libera la memoria utilizada por el modulo de gestion de errores

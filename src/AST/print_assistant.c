@@ -84,6 +84,6 @@ char * build_identation_branch(unsigned int depth){
     return build_identation_using_depth(depth,IDENT_INIT_BRANCH_SYMBOL,IDENT_BRANCH_SYMBOL);
 }
 
-void print_AST_separation(){
-    printf("%s\n\n",SEPARATOR);
+void print_AST_separation(FILE * output){
+    fprintf(output,"%s\n\n",SEPARATOR);
 }

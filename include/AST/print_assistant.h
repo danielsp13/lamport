@@ -86,7 +86,8 @@ char * build_identation_branch(unsigned int depth);
 
 /**
  * @brief Imprime una separacion entre bloques del AST
+ * @param output : destino de impresion (stdout/fichero)
  */
-void print_AST_separation();
+void print_AST_separation(FILE * output);
 
 #endif //_LAMPORT_AST_PRINT_ASSISTANT_DPR_

@@ -179,7 +179,7 @@ void free_type(struct type *type){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO TIPO) -----
 
-void print_AST_type(struct type *type, unsigned int depth){
+void print_AST_type(struct type *type, unsigned int depth,FILE * output){
     // -- Determinar identacion de nodo
     char * IDENT_NODE = build_identation_spaces(depth);
     // -- Determinar profundidad del siguiente nodo
@@ -187,7 +187,7 @@ void print_AST_type(struct type *type, unsigned int depth){
 
     // -- Si NULL, simplemente devolver
     if(!type){
-        printf("%s%s %s\n",IDENT_NODE, IDENT_ARROW, NULL_NODE_MSG);
+        fprintf(output,"%s%s %s\n",IDENT_NODE, IDENT_ARROW, NULL_NODE_MSG);
 
         // -- Liberar memoria utilizada para la identacion
         free(IDENT_NODE); IDENT_NODE = NULL;
@@ -199,14 +199,14 @@ void print_AST_type(struct type *type, unsigned int depth){
     {
     case TYPE_ARRAY:
     {
-        printf("%s%s ARRAY DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->subtype->kind_str);
-        printf("%s%s DIMENSION DEL ARRAY:\n", IDENT_NODE, IDENT_BLANK_ARROW);
-        print_AST_expressions(type->size,NEXT_NODE_DEPTH);
+        fprintf(output,"%s%s ARRAY DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->subtype->kind_str);
+        fprintf(output,"%s%s DIMENSION DEL ARRAY:\n", IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_expressions(type->size,NEXT_NODE_DEPTH,output);
         break;
     }
     default:
     {
-        printf("%s%s TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->kind_str);
+        fprintf(output,"%s%s TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->kind_str);
         break;
     }
     }

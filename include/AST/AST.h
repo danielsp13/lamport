@@ -77,8 +77,9 @@ void free_program(struct program *prog);
 /**
  * @brief Imprime el AST en pantalla
  * @param prog : Puntero a AST (prog -> nodo raiz)
+ * @param output : destino de impresion
  */
-void print_AST(struct program *prog);
+void print_AST(struct program *prog, FILE * output);
 
 
 #endif //_LAMPORT_AST_DPR_

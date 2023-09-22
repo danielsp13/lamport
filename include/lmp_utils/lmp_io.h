@@ -2,7 +2,7 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file lmp_io.h
  * @author Daniel Perez Ruiz
- * @brief 
+ * @brief Gestor de entrada/salida de compilador lamport
  */
 
 #ifndef _LMP_COMPILER_IO_DPR_

@@ -82,8 +82,8 @@ void lmp_free_symbol_table(){
 
 // ----- IMPLEMENTACION DE FUNCIONES DE GESTION (AST) -----
 
-void lmp_print_AST(){
-    print_AST(AST_program);
+void lmp_print_AST(FILE * output){
+    print_AST(AST_program,output);
 }
 
 void lmp_free_AST(){
@@ -102,12 +102,12 @@ void lmp_free_string_register(){
 
 // ----- IMPLEMENTACION DE FUNCIONES DE GESTION (ERRORES) -----
 
-void lmp_print_error_syntax(){
-    report_list_error_syntax();
+void lmp_print_error_syntax(FILE * output){
+    report_list_error_syntax(output);
 }
 
-void lmp_print_error_semantic(){
-    report_list_error_semantic();
+void lmp_print_error_semantic(FILE * output){
+    report_list_error_semantic(output);
 }
 
 void lmp_free_error_module(){

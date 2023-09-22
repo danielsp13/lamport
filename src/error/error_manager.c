@@ -115,8 +115,8 @@ void free_list_error_syntax(){
     TOTAL_SYNTAX_ERRORS = 0;
 }
 
-void report_list_error_syntax(){
-    print_list_error_syntax(list_error_syntax);
+void report_list_error_syntax(FILE * output){
+    print_list_error_syntax(list_error_syntax,output);
 }
 
 
@@ -166,6 +166,6 @@ void free_list_error_semantic(){
     TOTAL_SEMANTIC_ERRORS = 0;
 }
 
-void report_list_error_semantic(){
-    print_list_error_semantic(list_error_semantic);
+void report_list_error_semantic(FILE * output){
+    print_list_error_semantic(list_error_semantic,output);
 }

@@ -18,6 +18,7 @@
 // ----- INCLUSION DE COMPONENTES DE GESTION DE COMPILADOR -----
 
 #include "lmp_utils/lmp_io.h"         ///< Gestion de entrada/salida de lmp
+#include "lmp_utils/lmp_logging.h"    ///< Gestion de registro de eventos
 #include "lmp_utils/lmp_analysis.h"   ///< Parsing de fichero de lmp
 
 // ===============================================================
@@ -97,6 +98,16 @@ int lmp(int num_args, char *compiler_name, char *lmp_file){
         exit(EXIT_FAILURE);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    // -- O.C Inicializar logging
+    lmp_initialize_logging(lmp_file);
+
+    // -- O.C Inicializar logging de eventos
+    lmp_initialize_logging_events();
+
+    ////////////////////////////////////////////////////////////////////////////////////
+
     // -- 1. Abrir fichero 
     if(abrir_fichero(lmp_file) < LMP_IO_SUCCESS){
         // -- Salir con error
@@ -110,8 +121,15 @@ int lmp(int num_args, char *compiler_name, char *lmp_file){
         // -- Activar flag
         active_compiler_error_syntax_flag();
 
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        // -- 3.B Inicializar logging de errores
+        lmp_initialize_logging_errors();
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
         // -- Reportar errores sintacticos
-        lmp_print_error_syntax();
+        lmp_print_error_syntax(stdout);
 
         // -- Cerrar fichero y limpiar AST
         cerrar_fichero();
@@ -129,13 +147,27 @@ int lmp(int num_args, char *compiler_name, char *lmp_file){
         exit(EXIT_FAILURE);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    // -- 3.B Inicializar logging de AST
+    lmp_initialize_logging_AST();
+
+    ////////////////////////////////////////////////////////////////////////////////////
+
     // -- 4. Realizar analisis semantico
     if(lmp_semantic_analysis() < LMP_SEMANTIC_SUCCESS){
         // -- Activar flag
         //active_compiler_error_semantic_flag();
 
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        // -- 3.B Inicializar logging de errores
+        lmp_initialize_logging_errors();
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
         // -- Reportar errores semanticos
-        lmp_print_error_semantic();
+        lmp_print_error_semantic(stdout);
 
         // -- Liberar memoria de todos los modulos
         lmp_free();
@@ -145,7 +177,7 @@ int lmp(int num_args, char *compiler_name, char *lmp_file){
     }
 
     // -- . Imprimir AST
-    lmp_print_AST();
+    //lmp_print_AST(stdout);
 
     // -- Imprimir exito en la resolucion de nombres
     printf("\nRESOLUCION DE NOMBRES Y TYPE_CHECKING REALIZADOS CON EXITO!!!\n");
@@ -181,4 +213,7 @@ void lmp_free(){
 
     // -- Liberar gestor de errores semanticos
     lmp_free_error_module();
+
+    // -- Liberar gestor de logging
+    lmp_free_logging();
 }

@@ -78,8 +78,9 @@ void free_list_error_syntax();
 
 /**
  * @brief Imprime los errores sintacticos
+ * @param output : destino de impresion
  */
-void report_list_error_syntax();
+void report_list_error_syntax(FILE * output);
 
 // ===============================================================
 
@@ -104,7 +105,8 @@ void free_list_error_semantic();
 
 /**
  * @brief Imprime los errores semanticos
+ * @param output : destino de impresion
  */
-void report_list_error_semantic();
+void report_list_error_semantic(FILE * output);
 
 #endif //_LAMPORT_ERROR_MANAGER_DPR_

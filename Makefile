@@ -29,7 +29,7 @@ ifeq ($(UNAME), Linux)
     endif
 endif
 
-.PHONY: backup build_bin_dir clean_bin_dir build_obj_dir clean_obj_dir update_packages
+.PHONY: backup build_bin_dir clean_bin_dir build_obj_dir clean_obj_dir clean_log_dir update_packages
 
 # ========================================================================================
 # DEFINICION DE VARIABLES
@@ -85,6 +85,7 @@ SOURCE_DIR:=src
 BIN_DIR:=bin
 OBJ_DIR:=obj
 TEST_DIR:=test
+LOG_DIR:=log
 EXAMPLES_DIR:=examples
 INDEX_DIRS=$(HEADER_MODULES_DIR) $(SOURCE_MODULES_DIR)
 HEADER_MODULES_DIR=$(HEADER_LEXER) $(HEADER_PARSER) $(HEADER_AST) $(HEADER_SEMANTIC) $(HEADER_ERROR) $(HEADER_IR) $(HEADER_LMP_UTILS) 
@@ -136,7 +137,7 @@ INDEX_PARSER_FILES:=parser parser_register
 INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram process print_assistant
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
-INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
+INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_logging
 INDEX_IR_FILES:=literal operand instruction
 
 # -- Indice de ficheros (obj)
@@ -393,7 +394,7 @@ make:
 # -- Elimina todos los ficheros que se hayan generado usando el Makefile
 clean:
 	@make -s clean_tex && echo
-	@make -s clean_tests && echo
+	@make -s clean_logs && echo
 	@make -s clean_objects && echo
 	@make -s clean_binaries
 
@@ -413,12 +414,8 @@ build_bin_dir:
 clean_bin_dir:
 	$(call clean_dir_skeleton,$(BIN_DIR))
 
-clean_bin_dir_old:
-	@if [ -z "$(wildcard $(BIN_DIR)/*)" ] && [ -d $(BIN_DIR)/ ]; then \
-		echo; echo "$(COLOR_BLUE)Eliminando directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_BLUE)...$(COLOR_RESET)"; \
-		rmdir $(BIN_DIR) 2>/dev/null || true; \
-		echo "$(COLOR_GREEN)Directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_GREEN) eliminado correctamente!$(COLOR_RESET)"; \
-	fi
+clean_log_dir:
+	$(call clean_dir_skeleton,$(LOG_DIR))
 	
 build_obj_dir:
 	@mkdir -p $(OBJ_DIR)
@@ -433,12 +430,13 @@ update_packages:
 # DEFINICION DE REGLAS DE LIMPIEZA (CLEAN)
 # ========================================================================================	
 
-# -- Limpia los ficheros de tests compilados
-clean_tests:
-	@echo "$(COLOR_BLUE)Limpiando ficheros de tests compilados...$(COLOR_RESET)"
-	@-rm -f $(BIN_DIR)/$(TEST_PREFIX)* 2> /dev/null
-	@echo "$(COLOR_GREEN)Archivos ficheros de tests compilados eliminados exitosamente!$(COLOR_RESET)"
-	@make -s clean_bin_dir
+
+# -- Limpia los directorios de registro
+clean_logs:
+	@echo "$(COLOR_BLUE)Limpiando ficheros de logging...$(COLOR_RESET)"
+	@rm -rf $(LOG_DIR)/* 2> /dev/null
+	@echo "$(COLOR_GREEN)Archivos ficheros de logging eliminados exitosamente!$(COLOR_RESET)"
+	@make -s clean_log_dir
 
 # -- Limpia todos los ficheros compilados
 clean_binaries:

@@ -90,8 +90,9 @@ struct error * create_error_syntax(error_syntax_t kind, char * identifier, unsig
 /**
  * @brief Imprime la lista de errores sintacticos
  * @param list_errors : lista de errores
+ * @param output : destino de impresion
  */
-void print_list_error_syntax(struct error *list_errors);
+void print_list_error_syntax(struct error *list_errors, FILE * output);
 
 // ===============================================================
 

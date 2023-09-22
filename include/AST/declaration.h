@@ -82,8 +82,9 @@ void free_declaration(struct declaration *decl);
  * @brief Imprime una lista de nodos de declaraciones
  * @param declarations_list : Puntero a lista enlazada de declaraciones
  * @param depth : Profundidad en la impresion de la lista de nodos
+ * @param output : destino de impresion
  */
-void print_AST_declarations(struct declaration *declarations_list, unsigned int depth);
+void print_AST_declarations(struct declaration *declarations_list, unsigned int depth, FILE * output);
 
 
 #endif //_LAMPORT_AST_DECLARATION_DPR_

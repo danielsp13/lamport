@@ -125,94 +125,94 @@ struct error * create_error_syntax(error_syntax_t kind, char *identifier, unsign
 
 // ----- PROTOTIPO DE FUNCIONES DE IMPRESION DE ERRORES (SINTACTICOS) ----
 
-void print_list_error_syntax(struct error *list_errors){
+void print_list_error_syntax(struct error *list_errors, FILE * output){
     // -- Si NULL, simplemente devolver
     if(!list_errors){
-        printf(" <NONE>\n");
+        fprintf(output," <NONE>\n");
         return;
     }
 
     // -- Recorrer la lista enlazada de errores
     struct error * current_error = list_errors;
     while(current_error){
-        printf("Error sintactico cerca de la linea [%ld], en %s", current_error->err_line,current_error->err_data.error_syntax.kind_str);
+        fprintf(output,"Error sintactico cerca de la linea [%ld], en %s", current_error->err_line,current_error->err_data.error_syntax.kind_str);
         switch (current_error->err_data.error_syntax.kind)
         {
         case ERR_SYNTAX_IN_DECLARATION:
         {
-            printf(" [%s]",current_error->err_data.error_syntax.identifier);
+            fprintf(output," [%s]",current_error->err_data.error_syntax.identifier);
             break;
         }
         case ERR_SYNTAX_IDENT_IN_DECLARATION:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         case ERR_SYNTAX_IN_PROCEDURE:
         {
-            printf(" [%s]",current_error->err_data.error_syntax.identifier);
+            fprintf(output," [%s]",current_error->err_data.error_syntax.identifier);
             break;
         }
         case ERR_SYNTAX_IDENT_IN_PROCEDURE:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         case ERR_SYNTAX_IN_FUNCTION:
         {
-            printf(" [%s]",current_error->err_data.error_syntax.identifier);
+            fprintf(output," [%s]",current_error->err_data.error_syntax.identifier);
             break;
         }
         case ERR_SYNTAX_IDENT_IN_FUNCTION:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         case ERR_SYNTAX_IN_PARAMETER:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         case ERR_SYNTAX_IN_PROCESS:
         {
-            printf(" [%s]",current_error->err_data.error_syntax.identifier);
+            fprintf(output," [%s]",current_error->err_data.error_syntax.identifier);
             break;
         }
         case ERR_SYNTAX_IDENT_IN_PROCESS:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         case ERR_SYNTAX_IN_TYPE:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         case ERR_SYNTAX_IN_EXPRESSION:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         case ERR_SYNTAX_IN_STATEMENT:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         case ERR_SYNTAX_IN_PROGRAM:
         {
-            printf(" [%s]",current_error->err_data.error_syntax.identifier);
+            fprintf(output," [%s]",current_error->err_data.error_syntax.identifier);
             break;
         }
         case ERR_SYNTAX_IDENT_IN_PROGRAM:
         {
-            printf(" ");
+            fprintf(output," ");
             break;
         }
         
         default:
             break;
         }
-        printf(": \n --> %s.\n\n", current_error->msg);
+        fprintf(output,": \n --> %s.\n\n", current_error->msg);
 
         // -- Ir al siguiente error
         current_error = current_error->next;

@@ -391,10 +391,10 @@ struct error * create_error_semantic_unmatched_types_subprogram_function_return(
 
 // ----- PROTOTIPO DE FUNCIONES DE IMPRESION DE ERRORES (SEMANTICOS) ----
 
-void print_list_error_semantic(struct error *list_errors){
+void print_list_error_semantic(struct error *list_errors, FILE * output){
     // -- Si NULL, simplemente devolver
     if(!list_errors){
-        printf(" <NONE>\n");
+        fprintf(output," <NONE>\n");
         return;
     }
 
@@ -402,39 +402,39 @@ void print_list_error_semantic(struct error *list_errors){
     struct error * current_error = list_errors;
     while(current_error){
         // -- Imprimir mensaje de error
-        printf("Error semantico en la linea [%ld]: \n --> %s", current_error->err_line, current_error->msg);
+        fprintf(output,"Error semantico en la linea [%ld]: \n --> %s", current_error->err_line, current_error->msg);
 
         switch (current_error->err_data.error_semantic.kind)
         {
         case UNMATCHED_TYPES:
         {
-            printf(".\n");
+            fprintf(output,".\n");
             break;
         }
         
         default:
         {
-            printf(": [%s].", current_error->err_data.error_semantic.id);
+            fprintf(output,": [%s].", current_error->err_data.error_semantic.id);
             // -- Especificar mas detalles del error dependiendo de casos
             switch (current_error->err_data.error_semantic.kind)
             {
             case DUPLICATED_SYMBOL:
-                printf(" Primero se definio aqui: linea [%ld].\n", current_error->err_data.error_semantic.def_line);
+                fprintf(output," Primero se definio aqui: linea [%ld].\n", current_error->err_data.error_semantic.def_line);
                 break;
 
             case DUPLICATED_SYMBOL_PARAM:
-                printf(" Primero se definio aqui: posicion de lista [%d].\n", current_error->err_data.error_semantic.which);
+                fprintf(output," Primero se definio aqui: posicion de lista [%d].\n", current_error->err_data.error_semantic.which);
                 break;
             
             default:
-                printf("\n");
+                fprintf(output,"\n");
                 break;
             }
             break;
         }
         }
         
-        printf("\n");
+        fprintf(output,"\n");
         
 
         // -- Ir al siguiente error

@@ -128,7 +128,8 @@ void free_process(struct process *proc);
  * @brief Imprime una lista de nodos de procesos
  * @param process_list : Puntero a lista enlazada de procesos
  * @param depth : Profundidad en la impresion de la lista de nodos
+ * @param output : destino de impresion
  */
-void print_AST_process(struct process *process_list, unsigned int depth);
+void print_AST_process(struct process *process_list, unsigned int depth, FILE * output);
 
 #endif //_LAMPORT_AST_PROCESS_DPR_

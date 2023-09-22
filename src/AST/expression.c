@@ -518,7 +518,7 @@ void free_expression(struct expression *expr){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO EXPRESIONES) -----
 
-void print_AST_expressions(struct expression *expressions_list, unsigned int depth){
+void print_AST_expressions(struct expression *expressions_list, unsigned int depth, FILE * output){
     // -- Determinar identacion de nodo
     char * IDENT_NODE = build_identation_spaces(depth); 
     // -- Determinar profundidad del siguiente nodo
@@ -526,7 +526,7 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
 
     // -- Si NULL, simplemente devolver
     if(!expressions_list){
-        printf("%s%s %s\n",IDENT_NODE, IDENT_BLANK_ARROW, NULL_NODE_MSG);
+        fprintf(output,"%s%s %s\n",IDENT_NODE, IDENT_BLANK_ARROW, NULL_NODE_MSG);
 
         // -- Liberar memoria utilizada para la identacion
         free(IDENT_NODE); IDENT_NODE = NULL; 
@@ -537,76 +537,76 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
     struct expression *current_expression = expressions_list;
     while(current_expression){
         // -- Imprimir tipo de expresion
-        printf("%s%s> EXPRESION DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->kind_str);
+        fprintf(output,"%s%s> EXPRESION DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->kind_str);
 
         // -- Imprimir expresion
         switch (current_expression->kind)
         {
         case EXPR_BINARY:
         {
-            printf("%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_binary_operation.operator);
-            printf("%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-            print_AST_expressions(current_expression->expr.expression_binary_operation.left,NEXT_NODE_DEPTH);
-            printf("%s%s  OPERANDO DERECHO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-            print_AST_expressions(current_expression->expr.expression_binary_operation.right,NEXT_NODE_DEPTH);
+            fprintf(output,"%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_binary_operation.operator);
+            fprintf(output,"%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.expression_binary_operation.left,NEXT_NODE_DEPTH,output);
+            fprintf(output,"%s%s  OPERANDO DERECHO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.expression_binary_operation.right,NEXT_NODE_DEPTH,output);
             break;
         }
         
         case EXPR_UNARY:
         {
-            printf("%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator);
-            printf("%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-            print_AST_expressions(current_expression->expr.expression_unary_operation.left,NEXT_NODE_DEPTH);
+            fprintf(output,"%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator);
+            fprintf(output,"%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.expression_unary_operation.left,NEXT_NODE_DEPTH,output);
             break;
         }
 
         case EXPR_IDENTIFIER:
         {
-            printf("%s%s  NOMBRE DE IDENTIFICADOR: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_identifier.id);
+            fprintf(output,"%s%s  NOMBRE DE IDENTIFICADOR: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_identifier.id);
             if(current_expression->expr.expression_identifier.index_expr){
-                printf("%s%s  EXPRESION DE ACCESO A POSICION DE IDENTIFICADOR:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-                print_AST_expressions(current_expression->expr.expression_identifier.index_expr,NEXT_NODE_DEPTH);
+                fprintf(output,"%s%s  EXPRESION DE ACCESO A POSICION DE IDENTIFICADOR:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+                print_AST_expressions(current_expression->expr.expression_identifier.index_expr,NEXT_NODE_DEPTH,output);
             }
             break;
         }
 
         case EXPR_LITERAL:
         {
-            printf("%s%s  VALOR DE LITERAL: ",IDENT_NODE, IDENT_BLANK_ARROW);
+            fprintf(output,"%s%s  VALOR DE LITERAL: ",IDENT_NODE, IDENT_BLANK_ARROW);
             switch (current_expression->expr.expression_literal.kind)
             {
             case EXPR_LITERAL_INTEGER:
             {
-                printf("[%d]\n",current_expression->expr.expression_literal.value.integer_literal);
+                fprintf(output,"[%d]\n",current_expression->expr.expression_literal.value.integer_literal);
                 break;
             }
             
             case EXPR_LITERAL_REAL:
             {
-                printf("[%f]\n",current_expression->expr.expression_literal.value.real_literal);
+                fprintf(output,"[%f]\n",current_expression->expr.expression_literal.value.real_literal);
                 break;
             }
             
             case EXPR_LITERAL_BOOLEAN:
             {
-                printf("[%d]\n",current_expression->expr.expression_literal.value.boolean_literal);
+                fprintf(output,"[%d]\n",current_expression->expr.expression_literal.value.boolean_literal);
                 break;
             }
 
             case EXPR_LITERAL_CHARACTER:
             {
-                printf("[%c]\n",current_expression->expr.expression_literal.value.character_literal);
+                fprintf(output,"[%c]\n",current_expression->expr.expression_literal.value.character_literal);
                 break;
             }
 
             case EXPR_LITERAL_STRING:
             {
-                printf("[%s]\n",current_expression->expr.expression_literal.value.string_literal);
+                fprintf(output,"[%s]\n",current_expression->expr.expression_literal.value.string_literal);
                 break;
             }
             default:
             {
-                printf("[%s]\n",UNDEFINED_VALUE_MSG);
+                fprintf(output,"[%s]\n",UNDEFINED_VALUE_MSG);
             }
             }
             break;
@@ -614,16 +614,16 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
 
         case EXPR_FUNCTION_INV:
         {
-            printf("%s%s  INVOCACION DE FUNCION DE NOMBRE: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_function_inv.function_name);
-            printf("%s%s  LISTADO DE ARGUMENTOS DE INVOCACION DE FUNCION:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-            print_AST_expressions(current_expression->expr.expression_function_inv.arguments_list,NEXT_NODE_DEPTH);
+            fprintf(output,"%s%s  INVOCACION DE FUNCION DE NOMBRE: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_function_inv.function_name);
+            fprintf(output,"%s%s  LISTADO DE ARGUMENTOS DE INVOCACION DE FUNCION:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.expression_function_inv.arguments_list,NEXT_NODE_DEPTH,output);
             break;
         }
 
         case EXPR_GROUPED:
         {
-            printf("%s%s  EXPRESION ENTRE ( )\n",IDENT_NODE, IDENT_BLANK_ARROW);
-            print_AST_expressions(current_expression->expr.grouped_expression,NEXT_NODE_DEPTH);
+            fprintf(output,"%s%s  EXPRESION ENTRE ( )\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            print_AST_expressions(current_expression->expr.grouped_expression,NEXT_NODE_DEPTH,output);
             break;
         }
         }

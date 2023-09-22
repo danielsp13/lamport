@@ -237,7 +237,8 @@ struct error * create_error_semantic_unmatched_types_subprogram_function_return(
 /**
  * @brief Imprime la lista de errores semanticos
  * @param list_errors : lista de errores
+ * @param output : destino de impresion
  */
-void print_list_error_semantic(struct error *list_errors);
+void print_list_error_semantic(struct error *list_errors, FILE * output);
 
 #endif //_LAMPORT_ERROR_SEMANTIC_DPR_
