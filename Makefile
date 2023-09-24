@@ -268,7 +268,7 @@ endef
 define parse_and_check_files_skeleton
 	@{ \
 		N_CHECKS_FAILED=0; \
-		for DIR in $(1); do \
+		for DIR in $(2); do \
 			echo "$(COLOR_BOLD)>>> Escaneando ficheros de $(COLOR_BLUE)$${DIR}/$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ; \
 			if [ -z "$$(ls -A $$DIR)" ]; then \
 				echo "$(COLOR_RED) ---> [!!] No hay fuentes en $(COLOR_PURPLE)$$DIR/$(COLOR_RESET)"; echo;\
@@ -276,9 +276,9 @@ define parse_and_check_files_skeleton
 				for FILE in $$DIR/*; do \
 					if [ ! -d $$FILE ]; then \
 						FILE_BASENAME=$$(basename $$FILE) ; \
-						if ! echo $(2) | tr " " '\n' | grep -F -q -x "$$FILE_BASENAME"; then \
+						if ! echo $(3) | tr " " '\n' | grep -F -q -x "$$FILE_BASENAME"; then \
 							echo "$(COLOR_YELLOW) ---> Comprobando la sintaxis de $(COLOR_PURPLE)$$FILE$(COLOR_YELLOW) ...$(COLOR_RESET)"; \
-							$(GXX) $(INCLUDE_FLAGS) -fsyntax-only $$FILE; \
+							$(1) $(INCLUDE_FLAGS) -fsyntax-only $$FILE; \
 							if [ $$? -ne 0 ]; then \
 								N_CHECKS_FAILED=$$((N_CHECKS_FAILED + 1)); \
 							fi; \
@@ -560,7 +560,7 @@ compile_ir: build_obj_dir
 
 # -- Comprueba la sintaxis de los fuentes del proyecto
 check:
-	$(call parse_and_check_files_skeleton,$(INDEX_DIRS),$(EXCLUDE_CHECK_FILES))
+	$(call parse_and_check_files_skeleton,"gcc",$(INDEX_DIRS),$(EXCLUDE_CHECK_FILES))
 	
 # -- Ejecuta tests automaticos de valgrind utilizando ficheros de prueba
 tests:
