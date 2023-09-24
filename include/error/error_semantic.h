@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_ERROR_SEMANTIC_DPR_
 #define _LAMPORT_ERROR_SEMANTIC_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -240,5 +244,9 @@ struct error * create_error_semantic_unmatched_types_subprogram_function_return(
  * @param output : destino de impresion
  */
 void print_list_error_semantic(struct error *list_errors, FILE * output);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_ERROR_SEMANTIC_DPR_

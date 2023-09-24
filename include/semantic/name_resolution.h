@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_SEMANTIC_NAME_RESOLUTION_DPR_
 #define _LAMPORT_SEMANTIC_NAME_RESOLUTION_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -244,5 +248,9 @@ void resolve_subprogram(struct subprogram *subprog);
  * @param prog : puntero a programa
  */
 void resolve_program(struct program *prog);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_SEMANTIC_NAME_RESOLUTION_DPR_

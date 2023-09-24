@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_PRINT_ASSISTANT_DPR_
 #define _LAMPORT_AST_PRINT_ASSISTANT_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -89,5 +93,9 @@ char * build_identation_branch(unsigned int depth);
  * @param output : destino de impresion (stdout/fichero)
  */
 void print_AST_separation(FILE * output);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_PRINT_ASSISTANT_DPR_

@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_ERROR_MANAGER_DPR_
 #define _LAMPORT_ERROR_MANAGER_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -108,5 +112,9 @@ void free_list_error_semantic();
  * @param output : destino de impresion
  */
 void report_list_error_semantic(FILE * output);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_ERROR_MANAGER_DPR_

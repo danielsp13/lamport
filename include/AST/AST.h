@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_DPR_
 #define _LAMPORT_AST_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DEL AST -----
@@ -81,5 +85,8 @@ void free_program(struct program *prog);
  */
 void print_AST(struct program *prog, FILE * output);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_DPR_

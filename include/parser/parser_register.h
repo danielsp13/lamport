@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_PARSER_REGISTER_DPR_
 #define _LAMPORT_PARSER_REGISTER_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -371,5 +375,9 @@ char * get_last_str_reg();
  * @brief Libera toda la memoria reservada para el registro
  */
 void free_string_register();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_PARSER_REGISTER_DPR_

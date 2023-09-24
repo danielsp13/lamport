@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_ERROR_PARSER_DPR_
 #define _LAMPORT_ERROR_PARSER_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -178,5 +182,9 @@ extern void mark_error_syntax_process_expected_delimarr(char *id);
 extern void mark_error_syntax_program_expected_program(char *id);
 
 extern void mark_error_syntax_program_expected_identifier();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_ERROR_PARSER_DPR_

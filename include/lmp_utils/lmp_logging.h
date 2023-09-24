@@ -8,6 +8,10 @@
 #ifndef _LMP_COMPILER_LOGGING_DPR_
 #define _LMP_COMPILER_LOGGING_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE C -----
@@ -196,14 +200,30 @@ int lmp_create_logging_IR_file();
 
 // ----- PROTOTIPO DE FUNCIONES DE USO DE LOGGING -----
 
+/**
+ * @brief Inicializa el procedimiento de logging para el fichero proporcionado
+ * @param lmp_file : fichero lamport
+ */
 void lmp_initialize_logging(char *lmp_file);
 
+/**
+ * @brief Inicializa el procediminto de logging de eventos
+ */
 void lmp_initialize_logging_events();
 
+/**
+ * @brief Inicializa el procedimiento de logging de errores
+ */
 void lmp_initialize_logging_errors();
 
+/**
+ * @brief Inicializa el procedimiento de logging de AST
+ */
 void lmp_initialize_logging_AST();
 
+/**
+ * @brief Inicializa el procedimiento de logging de IR
+ */
 void lmp_initialize_logging_IR();
 
 // ===============================================================
@@ -239,6 +259,10 @@ void free_logging_files();
  * @brief Libera todo los recursos utilizados por el logging
  */
 void lmp_free_logging();
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif //_LMP_COMPILER_LOGGING_DPR_

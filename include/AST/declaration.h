@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_DECLARATION_DPR_
 #define _LAMPORT_AST_DECLARATION_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
@@ -86,5 +90,8 @@ void free_declaration(struct declaration *decl);
  */
 void print_AST_declarations(struct declaration *declarations_list, unsigned int depth, FILE * output);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_DECLARATION_DPR_

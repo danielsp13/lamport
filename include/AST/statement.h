@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_STATEMENT_DPR_
 #define _LAMPORT_AST_STATEMENT_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
@@ -365,5 +369,8 @@ void free_statement(struct statement *stmt);
  */
 void print_AST_statements(struct statement *statements_list, unsigned int depth, FILE * output);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_STATEMENT_DPR_

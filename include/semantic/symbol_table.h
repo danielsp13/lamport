@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_SEMANTIC_SYMBOL_TABLE_DPR_
 #define _LAMPORT_SEMANTIC_SYMBOL_TABLE_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -123,5 +127,9 @@ int free_symbol_table();
  * @brief Imprime la tabla de simbolos
  */
 void print_symbol_table();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_SEMANTIC_SYMBOL_TABLE_DPR_

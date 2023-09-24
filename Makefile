@@ -40,11 +40,10 @@ DPKG_ARCHITECTURE=`dpkg --print-architecture`
 VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
-COMPILER_DEPENDENCIES=gcc flex libfl-dev bison
+COMPILER_DEPENDENCIES=gcc g++ flex libfl-dev bison
 TEST_DEPENDENCIES=cppcheck valgrind parallel
 
 # -- Variables referentes a compilacion/comprobacion de ficheros
-GXX:=gcc
 CFLAGS:=-Wall -Wextra
 UNDEFINED_MACROS=-D$(LEXER_TESTS_MACRO)
 
@@ -138,7 +137,7 @@ INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram 
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_logging
-INDEX_IR_FILES:=literal operand instruction
+INDEX_IR_FILES:=literal variable ir_table
 
 # -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
@@ -243,12 +242,12 @@ endef
 
 define compile_objects_skeleton
 	@{ \
-		N_FILES_EXPECTED=$(words $(1)) ; \
-		echo "$(COLOR_BOLD)>>> Compilando archivos objeto de modulo: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
+		N_FILES_EXPECTED=$(words $(2)) ; \
+		echo "$(COLOR_BOLD)>>> Compilando archivos objeto de modulo: $(COLOR_BLUE)$(4)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
 		N_FILES_COMPILED=0 ;\
-		for F in $(1); do \
-			echo "$(COLOR_YELLOW) ---> Compilando: $(COLOR_PURPLE)$(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCLUDE_FLAGS) -c $(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT) -o $(OBJ_DIR)/$$F.o $(4) ; \
+		for F in $(2); do \
+			echo "$(COLOR_YELLOW) ---> Compilando: $(COLOR_PURPLE)$(SOURCE_DIR)/$(3)$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
+			$(1) $(INCLUDE_FLAGS) -c $(SOURCE_DIR)/$(3)$$F$(SOURCE_EXT) -o $(OBJ_DIR)/$$F.o $(5) ; \
 			if [ -f $(OBJ_DIR)/$$F.o ]; then \
 				echo "$(COLOR_GREEN) ---> Codigo objeto de: $(COLOR_PURPLE)$(OBJ_DIR)/$$F.o$(COLOR_GREEN) generado exitosamente!! $(COLOR_RESET)" ; \
 				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
@@ -260,10 +259,10 @@ endef
 
 define compile_lamport_skeleton
 	@{ \
-		N_FILES_EXPECTED=$(words $(1)) ; \
+		N_FILES_EXPECTED=$(words $(2)) ; \
 		echo "$(COLOR_BOLD)>>> Verificando dependencias de modulos para construir compilador: $(COLOR_BLUE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED modulos requeridos] ... $(COLOR_RESET)" ;\
 		N_FILES_CHECKED=0 ;\
-		for FILE in $(1); do \
+		for FILE in $(2); do \
 			echo "$(COLOR_YELLOW) ---> Comprobando existencia de [$$FILE] ...$(COLOR_RESET)" ; \
 			if [ -f $(OBJ_DIR)/$$FILE ]; then \
 				echo "$(COLOR_GREEN) ---> [$$FILE] existe, listo para su uso. $(COLOR_RESET)" ; \
@@ -278,31 +277,14 @@ define compile_lamport_skeleton
 			exit 1; \
 		fi; \
 		echo ;\
-		echo "$(COLOR_BOLD)>>> Construyendo compilador: $(COLOR_BLUE)$(2)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
-		$(GXX) $(INCLUDE_FLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(2)$(SOURCE_EXT) -o $(BIN_DIR)/$(2) $(LDFLEX); \
-		if [ -f $(BIN_DIR)/$(2) ]; then \
-			echo "$(COLOR_GREEN) ---> Compilador $(COLOR_BLUE)$(2)$(COLOR_GREEN) construido exitosamente!! $(COLOR_RESET)" ; \
+		echo "$(COLOR_BOLD)>>> Construyendo compilador: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
+		$(1) $(INCLUDE_FLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(3)$(SOURCE_EXT) -o $(BIN_DIR)/$(3) $(LDFLEX); \
+		if [ -f $(BIN_DIR)/$(3) ]; then \
+			echo "$(COLOR_GREEN) ---> Compilador $(COLOR_BLUE)$(3)$(COLOR_GREEN) construido exitosamente!! $(COLOR_RESET)" ; \
 		else \
-			echo "$(COLOR_RED) ---> [ERROR] El compilador $(COLOR_BLUE)$(2)$(COLOR_RED) NO se ha podido construir!! $(COLOR_RESET)" ; \
+			echo "$(COLOR_RED) ---> [ERROR] El compilador $(COLOR_BLUE)$(3)$(COLOR_RED) NO se ha podido construir!! $(COLOR_RESET)" ; \
 			exit 1; \
 		fi ; \
-	}
-endef
-
-define compile_tests_skeleton
-	@{ \
-		N_TESTS_EXPECTED=$(words $(1)) ; \
-		echo "$(COLOR_BOLD)>>> Compilando tests de $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_TESTS_EXPECTED tests detectados] ... $(COLOR_RESET)" ;\
-		N_TESTS_COMPILED=0 ;\
-		for TEST in $(1); do \
-			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(4) $(INCLUDE_FLAGS) $(OBJ_DIR)/$(INDEX_TEST_UTILS_FILES)$(OBJ_EXT) $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
-			if [ -f $(BIN_DIR)/$$TEST ]; then \
-				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
-				N_TESTS_COMPILED=$$(( N_TESTS_COMPILED + 1 )) ; \
-			fi ; \
-		done; \
-		echo "$(COLOR_BOLD)>>> Tests de $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilados exitosamente!! [$$N_TESTS_COMPILED tests] $(COLOR_RESET)" ;\
 	}
 endef
 
@@ -315,26 +297,6 @@ define check_compiled_files_skeleton
 				break ; \
 			fi; \
 		done; \
-	}
-endef
-
-define exec_tests_skeleton
-	@{ \
-		N_TESTS=$(words $(2)) ; \
-		echo "$(COLOR_BOLD)>>> Ejecutando tests sobre modulo: $(COLOR_YELLOW)$(1)$(COLOR_RESET_BOLD) [$$N_TESTS tests] ...$(COLOR_RESET)"; \
-		N_TESTS_FAILED=0 ; \
-		for TEST in $(2); do \
-			echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$$TEST$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
-			./$(BIN_DIR)/$$TEST; \
-			if [ $$? -ne 0 ]; then \
-				N_TESTS_FAILED=$$((N_TESTS_FAILED + 1)); \
-			fi; \
-			echo ; \
-		done; \
-		echo "$(COLOR_BOLD)>>> Tests de $(COLOR_YELLOW)$(1)$(COLOR_RESET_BOLD) ejecutados exitosamente: [$$N_TESTS tests -> $$N_TESTS_FAILED tests fallados] ...$(COLOR_RESET)"; \
-		if [ $${N_TESTS_FAILED} -gt 0 ]; then \
-			exit 1; \
-		fi; \
 	}
 endef
 
@@ -584,7 +546,7 @@ compile:
 	@make -s clean_objects && echo
 	
 compile_lamport: build_bin_dir
-	$(call compile_lamport_skeleton,$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
+	$(call compile_lamport_skeleton,"g++",$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
 	
 compile_sources:
 	@echo "$(COLOR_BLUE)Compilando ficheros de fuentes del proyecto...$(COLOR_RESET)"
@@ -600,32 +562,32 @@ compile_sources:
 # -- Genera codigo objeto para el analizador lexico
 compile_lexer: build_obj_dir
 	@make -s generate_lexer && echo
-	$(call compile_objects_skeleton,$(INDEX_LEXER_FILES),"$(LEXER_MODULE)/","analizador lexico", $(LDFLEX))
+	$(call compile_objects_skeleton,"gcc",$(INDEX_LEXER_FILES),"$(LEXER_MODULE)/","analizador lexico", $(LDFLEX))
 	
 # -- Genera codigo objeto para el analizador sintactico
 compile_parser: build_obj_dir
 	@make -s generate_parser && echo
-	$(call compile_objects_skeleton,$(INDEX_PARSER_FILES),"$(PARSER_MODULE)/","analizador sintactico",$(LDFLEX))
+	$(call compile_objects_skeleton,"gcc",$(INDEX_PARSER_FILES),"$(PARSER_MODULE)/","analizador sintactico",$(LDFLEX))
 	
 # -- Genera codigo objeto para el AST
 compile_ast: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_AST_FILES),"$(AST_MODULE)/","Abstract Syntax Tree \(AST\)")
+	$(call compile_objects_skeleton,"gcc",$(INDEX_AST_FILES),"$(AST_MODULE)/","Abstract Syntax Tree \(AST\)")
 	
 # -- Genera codigo objeto para el analizador semantico
 compile_semantic: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_SEMANTIC_FILES),"$(SEMANTIC_MODULE)/","analizador semantico")
+	$(call compile_objects_skeleton,"gcc",$(INDEX_SEMANTIC_FILES),"$(SEMANTIC_MODULE)/","analizador semantico")
 	
 # -- Genera codigo objeto para el modulo de gestion de errores
 compile_error: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_ERROR_FILES),"$(ERROR_MODULE)/","gestor de errores de compilacion")
+	$(call compile_objects_skeleton,"gcc",$(INDEX_ERROR_FILES),"$(ERROR_MODULE)/","gestor de errores de compilacion")
 	
 # -- Genera codigo objeto para las dependencias del compilador Lamport
 compile_lmp_utils: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
+	$(call compile_objects_skeleton,"gcc",$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
 	
 # -- Genera codigo objeto para el modulo de gestion de representacion intermedia de codigo
 compile_ir: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_IR_FILES),"$(IR_MODULE)/","gestor de representacion intermedia de codigo")
+	$(call compile_objects_skeleton,"gcc",$(INDEX_IR_FILES),"$(IR_MODULE)/","gestor de representacion intermedia de codigo")
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE TESTEO DE FUENTES

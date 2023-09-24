@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_SUBPROGRAM_DPR_
 #define _LAMPORT_AST_SUBPROGRAM_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
@@ -131,5 +135,9 @@ void free_subprogram(struct subprogram *subprog);
  * @param output : destino de impresion
  */
 void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int depth, FILE * output);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_SUBPROGRAM_DPR_

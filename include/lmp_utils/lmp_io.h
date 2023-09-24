@@ -8,6 +8,10 @@
 #ifndef _LMP_COMPILER_IO_DPR_
 #define _LMP_COMPILER_IO_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- DEFINICION DE MACROS PARA GESTION DE I/O -----
@@ -103,5 +107,9 @@ int abrir_fichero(const char *name_file);
  * @return LMP_IO_SUCCESS si se ha cerrado el fichero adecuadamente, LMP_IO_FAILURE en otro caso
  */
 int cerrar_fichero();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LMP_COMPILER_IO_DPR_

@@ -8,6 +8,10 @@
 #ifndef _LMP_COMPILER_ANALYSIS_DPR_
 #define _LMP_COMPILER_ANALYSIS_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- DEFINICION DE MACROS PARA GESTION DE ANALISIS -----
@@ -156,5 +160,9 @@ void lmp_print_error_semantic(FILE * output);
  * @brief Libera la memoria utilizada por el modulo de gestion de errores
  */
 void lmp_free_error_module();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LMP_COMPILER_ANALYSIS_DPR_

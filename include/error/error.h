@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_ERROR_DPR_
 #define _LAMPORT_ERROR_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -93,5 +97,9 @@ void free_list_errors(struct error *list_errors);
  * @param error : error a liberar
  */
 void free_error(struct error *error);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_ERROR_DPR_

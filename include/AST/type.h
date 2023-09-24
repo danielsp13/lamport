@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_TYPE_DPR_
 #define _LAMPORT_AST_TYPE_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
@@ -161,5 +165,8 @@ struct type * copy_type(struct type *type);
  */
 struct type * copy_list_types(struct type *list_types);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_TYPE_DPR_
