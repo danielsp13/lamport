@@ -132,7 +132,7 @@ struct expression * create_expression_literal(expression_literal_t kind){
     return ex;
 }
 
-struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right, unsigned long line){
+struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator_symb, struct expression *left, struct expression *right, unsigned long line){
     struct expression *ex = create_expression_non_literal(EXPR_BINARY);
 
     // -- Comprobar reserva de memoria exitosa
@@ -183,9 +183,9 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
     }
 
     // -- Asignar simbolo de operacion binaria
-    ex->expr.expression_binary_operation.operator = strdup(operator);
+    ex->expr.expression_binary_operation.operator_symb = strdup(operator_symb);
     // -- Comprobar asignacion de simbolo (exitosa)
-    if(!ex->expr.expression_binary_operation.operator){
+    if(!ex->expr.expression_binary_operation.operator_symb){
         // -- Liberar memoria reservada para la expresion
         free(ex);
         return NULL;
@@ -202,7 +202,7 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
     return ex;
 }
 
-struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left, unsigned long line){
+struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator_symb, struct expression *left, unsigned long line){
     struct expression *ex = create_expression_non_literal(EXPR_UNARY);
 
     // -- Comprobar reserva de memoria exitosa
@@ -235,8 +235,8 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
     }
 
     // -- Asignar simbolo de operacion unaria
-    ex->expr.expression_unary_operation.operator = strdup(operator);
-    if(!ex->expr.expression_unary_operation.operator){
+    ex->expr.expression_unary_operation.operator_symb = strdup(operator_symb);
+    if(!ex->expr.expression_unary_operation.operator_symb){
         // -- Liberar memoria reservada para la expresion
         free(ex);
         return NULL;
@@ -431,8 +431,8 @@ void free_expression(struct expression *expr){
     {
     case EXPR_BINARY:
     {
-        free(expr->expr.expression_binary_operation.operator);
-        expr->expr.expression_binary_operation.operator = NULL;
+        free(expr->expr.expression_binary_operation.operator_symb);
+        expr->expr.expression_binary_operation.operator_symb = NULL;
 
         free(expr->expr.expression_binary_operation.action);
         expr->expr.expression_binary_operation.action = NULL;
@@ -446,8 +446,8 @@ void free_expression(struct expression *expr){
 
     case EXPR_UNARY:
     {
-        free(expr->expr.expression_unary_operation.operator);
-        expr->expr.expression_unary_operation.operator = NULL;
+        free(expr->expr.expression_unary_operation.operator_symb);
+        expr->expr.expression_unary_operation.operator_symb = NULL;
 
         free(expr->expr.expression_unary_operation.action);
         expr->expr.expression_unary_operation.action = NULL;
@@ -544,7 +544,7 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
         {
         case EXPR_BINARY:
         {
-            fprintf(output,"%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_binary_operation.operator);
+            fprintf(output,"%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_binary_operation.operator_symb);
             fprintf(output,"%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_binary_operation.left,NEXT_NODE_DEPTH,output);
             fprintf(output,"%s%s  OPERANDO DERECHO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
@@ -554,7 +554,7 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
         
         case EXPR_UNARY:
         {
-            fprintf(output,"%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator);
+            fprintf(output,"%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator_symb);
             fprintf(output,"%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_unary_operation.left,NEXT_NODE_DEPTH,output);
             break;
@@ -728,13 +728,13 @@ struct expression * copy_expression_binary(struct expression *expr){
 
     // -- Obtener atributos de la expresion original
     expression_binary_t copy_binary_kind = expr->expr.expression_binary_operation.kind;
-    char *copy_operator = expr->expr.expression_binary_operation.operator;
+    char *copy_operator_symb = expr->expr.expression_binary_operation.operator_symb;
     struct expression * copy_left = copy_expression(expr->expr.expression_binary_operation.left);
     struct expression * copy_right = copy_expression(expr->expr.expression_binary_operation.right);
     unsigned long copy_line = expr->expr.expression_binary_operation.line;
 
     // -- Retornar copia
-    return create_expression_binary_operation(copy_binary_kind,copy_operator,copy_left,copy_right,copy_line);
+    return create_expression_binary_operation(copy_binary_kind,copy_operator_symb,copy_left,copy_right,copy_line);
 }
 
 struct expression * copy_expression_unary(struct expression *expr){
@@ -743,12 +743,12 @@ struct expression * copy_expression_unary(struct expression *expr){
 
     // -- Obtener atributos de la expresion original
     expression_unary_t copy_unary_kind = expr->expr.expression_unary_operation.kind;
-    char * copy_operator = expr->expr.expression_unary_operation.operator;
+    char * copy_operator_symb = expr->expr.expression_unary_operation.operator_symb;
     struct expression *copy_left = copy_expression(expr->expr.expression_unary_operation.left);
     unsigned long copy_line = expr->expr.expression_unary_operation.line;
 
     // -- Retornar copia
-    return create_expression_unary_operation(copy_unary_kind,copy_operator,copy_left,copy_line);
+    return create_expression_unary_operation(copy_unary_kind,copy_operator_symb,copy_left,copy_line);
 }
 
 struct expression * copy_expression_identifier(struct expression *expr){
