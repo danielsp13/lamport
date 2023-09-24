@@ -148,7 +148,7 @@ INDEX_OBJ_ERROR_FILES:=$(addsuffix $(OBJ_EXT),$(INDEX_ERROR_FILES))
 INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
 INDEX_OBJ_IR_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_IR_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_IR_FILES) $(INDEX_OBJ_LMP_UTILS_FILES)
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_UTILS_FILES)
  
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -202,41 +202,6 @@ define version_dependencies_skeleton
 				echo "$(COLOR_YELLOW) ---> $(COLOR_PURPLE)$(DEP)$(COLOR_YELLOW) NO! se encuentra instalado en el sistema.$(COLOR_RESET)"; \
 			fi; \
 		) \
-	}
-endef
-
-define compile_skeleton
-	@{ \
-		COMPILATION_MODE="$(4)"; \
-		if [ "$$COMPILATION_MODE" = "multiple" ]; then \
-			N_FILES_EXPECTED=1; \
-			echo "$(COLOR_BOLD)>>> Compilando fuentes de modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
-			N_FILES_COMPILED=0 ;\
-		    LIST_OF_SOURCES=""; \
-			for F in $(1); do \
-				LIST_OF_SOURCES="$$LIST_OF_SOURCES $(SOURCE_DIR)/$$F$(SOURCE_EXT)"; \
-			done; \
-			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$(5)$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCLUDE_FLAGS) $$LIST_OF_SOURCES -o $(BIN_DIR)/$(5) $(3) ; \
-			if [ -f $(BIN_DIR)/$(5) ]; then \
-				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
-				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
-			fi ; \
-			echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
-		else \
-			N_FILES_EXPECTED=$(words $(1)) ; \
-			echo "$(COLOR_BOLD)>>> Compilando fuentes de modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
-			N_FILES_COMPILED=0 ;\
-			for F in $(1); do \
-				echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-				$(GXX) $(INCLUDE_FLAGS) $(SOURCE_DIR)/$$F$(SOURCE_EXT) -o $(BIN_DIR)/$$F $(3) ; \
-				if [ -f $(BIN_DIR)/$$F ]; then \
-					echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
-					N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
-				fi ; \
-			done; \
-			echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
-		fi; \
 	}
 endef
 
@@ -555,7 +520,7 @@ compile_sources:
 	@make -s compile_ast && echo
 	@make -s compile_error && echo
 	@make -s compile_semantic && echo
-	@make -s compile_ir && echo
+	#@make -s compile_ir && echo
 	
 	@make -s compile_lmp_utils && echo	
 	
