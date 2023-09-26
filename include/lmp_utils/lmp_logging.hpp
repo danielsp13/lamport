@@ -5,8 +5,8 @@
  * @brief Gestor de registro de eventos de lamport
  */
 
-#ifndef _LMP_COMPILER_LOGGING_DPR_
-#define _LMP_COMPILER_LOGGING_DPR_
+#ifndef _LMP_INTERPRETER_LOGGING_DPR_
+#define _LMP_INTERPRETER_LOGGING_DPR_
 
 // ===============================================================
 
@@ -26,6 +26,10 @@
 
 // ----- DEFINICION DE CLASE GESTORA DE LOGGING -----
 
+/**
+ * @brief Clase manejadora de loggings de interpretacion de codigo lamport
+ * Genera ficheros de log para diversas situaciones producidas en la interpretacion
+ */
 class LMP_Logging{
     private:
         // -- Fichero de registro de errores
@@ -57,41 +61,111 @@ class LMP_Logging{
         // -- Nombre de fichero 
         std::string LMP_FILE;
 
+        /**
+         * @brief Procesa el fichero a analizar por el interprete, dejando solo su nombre y eliminando rutas
+         * @param lmp_file : ruta de fichero lamport
+         */
         void parse_lmp_file(std::string lmp_file);
 
+        /**
+         * @brief Crea un directorio
+         * @param dirname : nombre de directorio
+         * @return TRUE si lo creo con exito, FALSE en otro caso
+         */
         bool create_dir(std::string dirname);
 
+        /**
+         * @brief Comprueba si un directorio existe
+         * @param dirname : nombre de directorio
+         * @return TRUE si el directorio existe, FALSE en otro caso
+         */
         bool check_dir(std::string dirname);
 
+        /**
+         * @brief Crea el directorio principal de logging
+         * @return TRUE si lo creo con exito, FALSE en otro caso
+         */
         bool create_logging_dir();
 
+        /**
+         * @brief Crea el directorio de logging de errores
+         * @return TRUE si lo creo con exito, FALSE en otro caso
+         */
         bool create_logging_errors_dir();
 
+        /**
+         * @brief Crea el directorio de logging de AST
+         * @return TRUE si lo creo con exito, FALSE en otro caso
+         */
         bool create_logging_ast_dir();
 
+        /**
+         * @brief Crea el directorio de logging de IR
+         * @return TRUE si lo creo con exito, FALSE en otro caso
+         */
         bool create_logging_ir_dir();
 
+        /**
+         * @brief Crea un fichero dentro del directorio especificado
+         * @param dirname : nombre de directorio
+         * @param log_header : cabecera de nombre de fichero
+         * @return puntero a fichero abierto
+         */
         FILE * create_logging_file_in_dir(std::string dirname, std::string log_header);
 
+        /**
+         * @brief Prepara el logging de errores, creando directorios y ficheros
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
         bool init_log_errors();
 
+        /**
+         * @brief Prepara el logging de AST, creando directorios y ficheros
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
         bool init_log_ast();
         
+        /**
+         * @brief Prepara el logging de IR, creando directorios y ficheros
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
         bool init_log_ir();
 
+        /**
+         * @brief Realiza el logging de errores
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
         bool make_log_errors();
 
+        /**
+         * @brief Realiza el logging de AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
         bool make_log_ast();
 
+        /**
+         * @brief Realiza el logging de IR
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
         bool make_log_ir();
 
     public:
+        /**
+         * @brief Constructor de la clase
+         */
         LMP_Logging() {};
 
+        /**
+         * @brief Destructor de la clase
+         */
         ~LMP_Logging();
 
+        /**
+         * @brief Realiza el log de eventos de interpretacion
+         * @param lmp_file : fichero analizado por el interprete
+         */
         void log(std::string lmp_file);
 };
 
 
-#endif //_LMP_COMPILER_LOGGING_DPR_
+#endif //_LMP_INTERPRETER_LOGGING_DPR_
