@@ -64,8 +64,10 @@ TEX_DIR=tex
 TEX_GEN_FILES='.*\.\(aux\|log\|pdf\|dvi\|toc\|out\|bbl\|blg\|lot\|lof\)'
 
 # -- Variables de extensiones
-SOURCE_EXT:=.c
-HEADER_EXT:=.h
+SOURCE_C_EXT:=.c
+HEADER_C_EXT:=.h
+SOURCE_CPLUS_EXT:=.cpp
+HEADER_CPLUS_EXT:=.hpp
 TEST_EXT:=.c
 FLEX_EXT:=.l
 BISON_EXT:=.y
@@ -124,7 +126,7 @@ SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
 TOKEN_TYPE_NAME:=token
 LMP_MAIN_NAME:=lmp
 TEST_VALGRIND_SCRIPT=test_valgrind_lmp_files.sh
-EXCLUDE_CHECK_FILES="$(LEXER_MODULE)$(FLEX_EXT) $(LEXER_MODULE)$(SOURCE_EXT) $(PARSER_MODULE)$(BISON_EXT) $(PARSER_MODULE)$(SOURCE_EXT)"
+EXCLUDE_CHECK_FILES="$(LEXER_MODULE)$(FLEX_EXT) $(LEXER_MODULE)$(SOURCE_C_EXT) $(PARSER_MODULE)$(BISON_EXT) $(PARSER_MODULE)$(SOURCE_C_EXT)"
 
 # -- Variables de ficheros (tests)
 INDEX_TEST_LEXER_FILES:=$(TEST_PREFIX)$(LEXER_MODULE)_recon_tokens $(TEST_PREFIX)$(LEXER_MODULE)_recon_patrones $(TEST_PREFIX)$(LEXER_MODULE)_errores $(TEST_PREFIX)$(LEXER_MODULE)_recon_ficheros
@@ -137,7 +139,7 @@ INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram 
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_logging
-INDEX_IR_FILES:=literal variable ir_table
+INDEX_IR_FILES:=table ir_manager
 
 # -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
@@ -207,18 +209,18 @@ endef
 
 define compile_objects_skeleton
 	@{ \
-		N_FILES_EXPECTED=$(words $(2)) ; \
-		echo "$(COLOR_BOLD)>>> Compilando archivos objeto de modulo: $(COLOR_BLUE)$(4)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
+		N_FILES_EXPECTED=$(words $(3)) ; \
+		echo "$(COLOR_BOLD)>>> Compilando archivos objeto de modulo: $(COLOR_BLUE)$(5)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
 		N_FILES_COMPILED=0 ;\
-		for F in $(2); do \
-			echo "$(COLOR_YELLOW) ---> Compilando: $(COLOR_PURPLE)$(SOURCE_DIR)/$(3)$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(1) $(INCLUDE_FLAGS) -c $(SOURCE_DIR)/$(3)$$F$(SOURCE_EXT) -o $(OBJ_DIR)/$$F.o $(5) ; \
+		for F in $(3); do \
+			echo "$(COLOR_YELLOW) ---> Compilando: $(COLOR_PURPLE)$(SOURCE_DIR)/$(4)$$F$(2)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
+			$(1) $(INCLUDE_FLAGS) -c $(SOURCE_DIR)/$(4)$$F$(2) -o $(OBJ_DIR)/$$F.o $(6) ; \
 			if [ -f $(OBJ_DIR)/$$F.o ]; then \
 				echo "$(COLOR_GREEN) ---> Codigo objeto de: $(COLOR_PURPLE)$(OBJ_DIR)/$$F.o$(COLOR_GREEN) generado exitosamente!! $(COLOR_RESET)" ; \
 				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
 			fi ; \
 		done; \
-		echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
+		echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_BLUE)$(5)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
 	}
 endef
 
@@ -243,7 +245,7 @@ define compile_lamport_skeleton
 		fi; \
 		echo ;\
 		echo "$(COLOR_BOLD)>>> Construyendo compilador: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
-		$(1) $(INCLUDE_FLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(3)$(SOURCE_EXT) -o $(BIN_DIR)/$(3) $(LDFLEX); \
+		$(1) $(INCLUDE_FLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(3)$(SOURCE_CPLUS_EXT) -o $(BIN_DIR)/$(3) $(LDFLEX); \
 		if [ -f $(BIN_DIR)/$(3) ]; then \
 			echo "$(COLOR_GREEN) ---> Compilador $(COLOR_BLUE)$(3)$(COLOR_GREEN) construido exitosamente!! $(COLOR_RESET)" ; \
 		else \
@@ -490,15 +492,15 @@ clean_tex:
 # -- Genera la fuente del analizador lexico a traves de flex
 generate_lexer:
 	@echo "$(COLOR_BOLD)>>> Generando analizador lexico: $(COLOR_BLUE)$(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@flex -o $(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_EXT) $(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)
-	@echo "$(COLOR_BOLD)>>> Analizador lexico generado: $(COLOR_PURPLE)$(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_EXT)$(COLOR_RESET)"
+	@flex -o $(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_C_EXT) $(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)
+	@echo "$(COLOR_BOLD)>>> Analizador lexico generado: $(COLOR_PURPLE)$(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_C_EXT)$(COLOR_RESET)"
 	
 # -- Genera la fuente del analizador sintactico a traves de bison	
 generate_parser:
 	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico: $(COLOR_BLUE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@bison --defines=$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)  $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT) -Wcounterexamples
-	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)$(COLOR_RESET)"
-	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT)$(COLOR_RESET)"
+	@bison --defines=$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_C_EXT) --output=$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_C_EXT)  $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT) -Wcounterexamples
+	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_C_EXT)$(COLOR_RESET)"
+	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_C_EXT)$(COLOR_RESET)"
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE COMPILACION (OBJETOS)
@@ -511,7 +513,7 @@ compile:
 	@make -s clean_objects && echo
 	
 compile_lamport: build_bin_dir
-	$(call compile_lamport_skeleton,"g++",$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
+	$(call compile_lamport_skeleton,g++ -std=c++17,$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
 	
 compile_sources:
 	@echo "$(COLOR_BLUE)Compilando ficheros de fuentes del proyecto...$(COLOR_RESET)"
@@ -527,32 +529,32 @@ compile_sources:
 # -- Genera codigo objeto para el analizador lexico
 compile_lexer: build_obj_dir
 	@make -s generate_lexer && echo
-	$(call compile_objects_skeleton,"gcc",$(INDEX_LEXER_FILES),"$(LEXER_MODULE)/","analizador lexico", $(LDFLEX))
+	$(call compile_objects_skeleton,"gcc",$(SOURCE_C_EXT),$(INDEX_LEXER_FILES),"$(LEXER_MODULE)/","analizador lexico", $(LDFLEX))
 	
 # -- Genera codigo objeto para el analizador sintactico
 compile_parser: build_obj_dir
 	@make -s generate_parser && echo
-	$(call compile_objects_skeleton,"gcc",$(INDEX_PARSER_FILES),"$(PARSER_MODULE)/","analizador sintactico",$(LDFLEX))
+	$(call compile_objects_skeleton,"gcc",$(SOURCE_C_EXT),$(INDEX_PARSER_FILES),"$(PARSER_MODULE)/","analizador sintactico",$(LDFLEX))
 	
 # -- Genera codigo objeto para el AST
 compile_ast: build_obj_dir
-	$(call compile_objects_skeleton,"gcc",$(INDEX_AST_FILES),"$(AST_MODULE)/","Abstract Syntax Tree \(AST\)")
+	$(call compile_objects_skeleton,"gcc",$(SOURCE_C_EXT),$(INDEX_AST_FILES),"$(AST_MODULE)/","Abstract Syntax Tree \(AST\)")
 	
 # -- Genera codigo objeto para el analizador semantico
 compile_semantic: build_obj_dir
-	$(call compile_objects_skeleton,"gcc",$(INDEX_SEMANTIC_FILES),"$(SEMANTIC_MODULE)/","analizador semantico")
+	$(call compile_objects_skeleton,"gcc",$(SOURCE_C_EXT),$(INDEX_SEMANTIC_FILES),"$(SEMANTIC_MODULE)/","analizador semantico")
 	
 # -- Genera codigo objeto para el modulo de gestion de errores
 compile_error: build_obj_dir
-	$(call compile_objects_skeleton,"gcc",$(INDEX_ERROR_FILES),"$(ERROR_MODULE)/","gestor de errores de compilacion")
+	$(call compile_objects_skeleton,"gcc",$(SOURCE_C_EXT),$(INDEX_ERROR_FILES),"$(ERROR_MODULE)/","gestor de errores de compilacion")
 	
 # -- Genera codigo objeto para las dependencias del compilador Lamport
 compile_lmp_utils: build_obj_dir
-	$(call compile_objects_skeleton,"gcc",$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
+	$(call compile_objects_skeleton,g++ -std=c++17,$(SOURCE_CPLUS_EXT),$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
 	
 # -- Genera codigo objeto para el modulo de gestion de representacion intermedia de codigo
 compile_ir: build_obj_dir
-	$(call compile_objects_skeleton,"gcc",$(INDEX_IR_FILES),"$(IR_MODULE)/","gestor de representacion intermedia de codigo")
+	$(call compile_objects_skeleton,g++ -std=c++17,$(SOURCE_CPLUS_EXT),$(INDEX_IR_FILES),"$(IR_MODULE)/","gestor de representacion intermedia de codigo")
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE TESTEO DE FUENTES
