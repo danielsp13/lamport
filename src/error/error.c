@@ -12,7 +12,7 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES DE GESTION DE ERRORES ----
 
-struct error * create_error(error_t kind, unsigned long err_line, char *msg){
+struct error * create_error(error_type_t kind, unsigned long err_line, char *msg){
     struct error *err = malloc(sizeof(*err));
 
     // -- Comprobar reserva de memoria exitosa

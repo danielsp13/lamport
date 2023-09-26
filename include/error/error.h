@@ -34,7 +34,7 @@ extern "C" {
 typedef enum{
     ERROR_SYNTAX,           ///< Error sintactico
     ERROR_SEMANTIC          ///< Error semantico
-} error_t;
+} error_type_t;
 
 // ===============================================================
 
@@ -44,7 +44,7 @@ typedef enum{
  * @brief Estructura que representa un error de compilacion del lenguaje
  */
 struct error{
-    error_t kind;                       ///< Tipo de error
+    error_type_t kind;                  ///< Tipo de error
     char * kind_str;                    ///< Tipo de error (str)
     unsigned long err_line;             ///< Linea donde se produjo el error
     char * msg;                         ///< Mensaje de error
@@ -80,7 +80,7 @@ struct error{
  * @param msg : mensaje de error
  * @return puntero a error creado e inicializado
  */
-struct error * create_error(error_t kind, unsigned long err_line, char *msg);
+struct error * create_error(error_type_t kind, unsigned long err_line, char *msg);
 
 // ===============================================================
 
