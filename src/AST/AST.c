@@ -10,6 +10,13 @@
 
 // ===============================================================
 
+// ----- DEFINICION DE AST DE PROGRAMA -----
+
+// -- Variable que define el AST completo del programa
+struct program * AST_program = NULL;
+
+// ===============================================================
+
 // ----- IMPLEMENTACION DE FUNCIONES PARA CONSTRUCCION DEL AST (PROGRAMAS) -----
 
 struct program * create_program(char *name_program, struct declaration *declarations, struct subprogram *subprograms, struct process *process){

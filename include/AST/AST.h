@@ -46,9 +46,11 @@ struct program{
 
 // ===============================================================
 
-// ----- DEFINICION DE AST -----
+// ----- DEFINICION DE AST DE PROGRAMA -----
 
+// -- Variable que define el AST completo del programa
 extern struct program * AST_program;
+
 
 // ===============================================================
 
