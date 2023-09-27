@@ -66,11 +66,17 @@ class LMP_IO_Manager{
          */
         bool cerrar_fichero();
 
-    public:
         /**
          * @brief Constructor de la clase
          */
         LMP_IO_Manager() {};
+
+    public:
+        /**
+         * @brief Obtiene la instancia del manejador
+         * @return instance
+         */
+        static LMP_IO_Manager& get_instance();
 
         /**
          * @brief Destructor de la clase

@@ -47,6 +47,11 @@ bool LMP_IO_Manager::cerrar_fichero(){
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [IO MANAGER] -----
 
+LMP_IO_Manager& LMP_IO_Manager::get_instance(){
+    static LMP_IO_Manager instance;
+    return instance;
+}
+
 LMP_IO_Manager::~LMP_IO_Manager(){
     this->cerrar_fichero();
 }

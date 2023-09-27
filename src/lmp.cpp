@@ -15,30 +15,64 @@
 
 // ===============================================================
 
-// ----- MANEJADORES DE INTERPRETE -----
+// ----- MOTOR PRINCIPAL DE INTERPRETE -----
 
-// -- Manejador de flujos de entrada/salida
-LMP_IO_Manager io_manager;
-// -- Analizador de fichero lamport
-LMP_Analyzer lmp_analyzer;
-// -- Manejador de logging
-LMP_Logging lmp_logger;
+/**
+ * @brief Funcion principal de ejecucion de interprete lamport
+ * @param nargs : numero de argumentos de ejecucion
+ * @param argv : argumentos de ejecucion
+ * @return resultado de ejecucion
+ */
+int lmp(int nargs, char *argv[]);
+
+// ===============================================================
+
+// ----- FUNCIONES DE DEPURACION -----
+
+/**
+ * @brief Funcion provisional para realizacion de tests sobre
+ * implementaciones
+ */
+void beta_test();
 
 // ===============================================================
 
 // ----- PROGRAMA PRINCIPAL -----
 
 int main(int nargs, char *argv[]){
+    // -- Ejecutar tests
+    beta_test();
+
+    // -- Ejecutar motor de interprete
+    //return lmp(nargs, argv);
+}
+
+// ===============================================================
+
+// ----- IMPLEMENTACION DE MOTOR PRINCIPAL DE INTERPRETE -----
+
+int lmp(int nargs, char *argv[]){
     int exec_result = 0;
     std::string lmp_file;
 
     // -- Inicializar flujo de e/s
-    lmp_file = io_manager.start(nargs,argv);
+    lmp_file = LMP_IO_Manager::get_instance().start(nargs,argv);
     // -- Analizar fichero lamport
-    exec_result = lmp_analyzer.start();
+    exec_result = LMP_Analyzer::get_instance().start();
     // -- Obtener ficheros de logging
-    lmp_logger.log(lmp_file);
+    LMP_Logging::get_instance().log(lmp_file);
 
     // -- Retornar codigo de exito
     return exec_result;
+}
+
+// ===============================================================
+
+// ----- IMPLEMENTCION DE FUNCIONES DE DEPURACION -----
+
+void beta_test(){
+    // --- Aqui va codigo de prueba de estructuras
+
+    // -- Salir de forma exitosa
+    exit(EXIT_SUCCESS);
 }

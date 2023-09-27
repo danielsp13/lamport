@@ -38,11 +38,17 @@ class LMP_Analyzer{
          * @return TRUE si se realizo sin errores, FALSE en otro caso
          */
         bool exec_semantic();
-    public:
+
         /**
          * @brief Constructor de la clase
          */
         LMP_Analyzer() {};
+    public:
+        /**
+         * @brief Obtiene la instancia del manejador
+         * @return instance
+         */
+        static LMP_Analyzer& get_instance();
 
         /**
          * @brief Destructor de la clase

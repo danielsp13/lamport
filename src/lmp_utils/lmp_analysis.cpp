@@ -46,6 +46,11 @@ bool LMP_Analyzer::exec_semantic(){
 
 // ----- IMPLEMENTACION DE METODOS PUBLICO [ANALYZER] -----
 
+LMP_Analyzer& LMP_Analyzer::get_instance(){
+    static LMP_Analyzer instance;
+    return instance;
+}
+
 LMP_Analyzer::~LMP_Analyzer(){
     // -- Liberar registro de cadenas
     free_string_register();

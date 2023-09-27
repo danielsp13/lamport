@@ -241,6 +241,11 @@ bool LMP_Logging::make_log_ir(){
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [LOGGING] -----
 
+LMP_Logging& LMP_Logging::get_instance(){
+    static LMP_Logging instance;
+    return instance;
+}
+
 LMP_Logging::~LMP_Logging(){
     // -- Intentar cerrar fichero de log de errores
     if(this->LMP_LOGGING_ERRORS_FILE != nullptr){

@@ -149,11 +149,17 @@ class LMP_Logging{
          */
         bool make_log_ir();
 
-    public:
         /**
          * @brief Constructor de la clase
          */
         LMP_Logging() {};
+
+    public:
+        /**
+         * @brief Obtiene la instancia del manejador
+         * @return instance
+         */
+        static LMP_Logging& get_instance();
 
         /**
          * @brief Destructor de la clase
