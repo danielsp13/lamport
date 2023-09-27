@@ -139,7 +139,7 @@ INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram 
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_logging
-INDEX_IR_FILES:=table ir_manager
+INDEX_IR_FILES:=table ir_builder
 
 # -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
@@ -522,7 +522,7 @@ compile_sources:
 	@make -s compile_ast && echo
 	@make -s compile_error && echo
 	@make -s compile_semantic && echo
-	#@make -s compile_ir && echo
+	@make -s compile_ir && echo
 	
 	@make -s compile_lmp_utils && echo	
 	
