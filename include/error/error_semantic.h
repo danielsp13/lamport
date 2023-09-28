@@ -39,6 +39,9 @@ extern "C" {
 // Se indica que se ha usado un proceso que no ha sido definido antes
 #define ERR_UNDEFINED_PROCESS_MSG "proceso no definido"
 
+// Se indica que se ha redefinido una variable
+#define ERR_DUPLICATED_VARIABLE_MSG "redefinicion de variable"
+
 // Se indica que se ha redefinido un proceso
 #define ERR_DUPLICATED_PROCESS_MSG "redefinicion de proceso"
 

@@ -109,38 +109,52 @@ void resolve_declaration(struct declaration *decl){
     if(!decl)
         return;
 
-    // -- Determinar si la declaracion es local o global
-    // ---> Si scope_level() == 1 --> Estamos en el ambito global
-    // ---> Si scope_level() > 1 --> Estamos en ambito local
-    symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
+    // -- Comprobar existencia de simbolo en la tabla
+    struct symbol * target_symb = lookup_symbol_from_current_scope(decl->name);
 
-    // -- Crear y asociar simbolo a esta declaracion
-    switch (kind)
-    {
-    case SYMBOL_LOCAL:
-    {
-        decl->symb = create_symbol_local(decl->type, decl->name, decl->line);
-        break;
+    if(target_symb){
+        // -- Realizar handling de este error : VARIABLE REDEFINIDA
+        // -- Crear error
+        struct error * error = create_error_semantic_duplicated_symbol(decl->name,decl->line, target_symb->line, ERR_DUPLICATED_VARIABLE_MSG);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
     }
+    else{
+        // -- Determinar si la declaracion es local o global
+        // ---> Si scope_level() == 1 --> Estamos en el ambito global
+        // ---> Si scope_level() > 1 --> Estamos en ambito local
+        symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
 
-    case SYMBOL_GLOBAL:
-    {
-        decl->symb = create_symbol_global(decl->type, decl->name, decl->line);
-        break;
+        // -- Crear y asociar simbolo a esta declaracion
+        switch (kind)
+        {
+        case SYMBOL_LOCAL:
+        {
+            decl->symb = create_symbol_local(decl->type, decl->name, decl->line);
+            break;
+        }
+
+        case SYMBOL_GLOBAL:
+        {
+            decl->symb = create_symbol_global(decl->type, decl->name, decl->line);
+            break;
+        }
+        
+        default:
+            break;
+        }
+
+        // -- Vincular simbolo al scope actual
+        bind_symbol_to_scope(decl->symb);
+
+        // -- Resolver expresion de valor (si existe)
+        if(decl->value){
+            // -- Resolucion de nombres en: expresion
+            resolve_expression(decl->value);
+        }
     }
     
-    default:
-        break;
-    }
-
-    // -- Vincular simbolo al scope actual
-    bind_symbol_to_scope(decl->symb);
-
-    // -- Resolver expresion de valor (si existe)
-    if(decl->value){
-        // -- Resolucion de nombres en: expresion
-        resolve_expression(decl->value);
-    }
 }
 
 // ===============================================================
