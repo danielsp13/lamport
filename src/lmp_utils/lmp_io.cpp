@@ -53,7 +53,8 @@ LMP_IO_Manager& LMP_IO_Manager::get_instance(){
 }
 
 LMP_IO_Manager::~LMP_IO_Manager(){
-    this->cerrar_fichero();
+    if(this->IO_STATE)
+        this->cerrar_fichero();
 }
 
 std::string LMP_IO_Manager::start(int nargs, char *argv[]){
@@ -69,6 +70,7 @@ std::string LMP_IO_Manager::start(int nargs, char *argv[]){
     // -- Asignar nombre de interprete
     this->interpreter = std::string(argv[0]);
     this->lmp_file_name = std::string(argv[1]);
+    this->IO_STATE = true;
 
     // -- Abrir fichero
     if(!this->abrir_fichero()){

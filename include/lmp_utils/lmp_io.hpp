@@ -42,6 +42,9 @@ class LMP_IO_Manager{
         // -- Numero de argumentos requeridos para ejecucion de interprete
         const unsigned int N_ARGUMENTS_REQUIRED = 2;
 
+        // -- Comprueba estado de flujo I/O
+        bool IO_STATE = false;
+
         /**
          * @brief Imprime la cabecera del interprete
          * @param interpreter : nombre de interprete
