@@ -294,6 +294,25 @@ struct type * typecheck_expression_binary_arithmetic(char *action, struct type *
     // -- Caso 2: Ambos tipos son real
     if(type_left->kind == TYPE_REAL && type_right->kind == TYPE_REAL)
         return create_basic_type(TYPE_REAL);
+    // -- Caso 3: Operando izquierdo es de tipo array
+    if(type_left->kind == TYPE_ARRAY){
+        // -- Comprobar comparacion con subtipo (integer con integer)
+        if(type_left->subtype->kind == TYPE_INTEGER && type_right->kind == TYPE_INTEGER)
+            return create_basic_type(TYPE_INTEGER);
+        // -- Comprobar comparacion con subtipo (real con real)
+        if(type_left->subtype->kind == TYPE_REAL && type_right->kind == TYPE_REAL)
+            return create_basic_type(TYPE_REAL);
+    }
+    // -- Caso 4: Operando derecho es de tipo array
+    if(type_right->kind == TYPE_ARRAY){
+        // -- Comprobar comparacion con subtipo (integer con integer)
+        if(type_left->kind == TYPE_INTEGER && type_right->subtype->kind == TYPE_INTEGER)
+            return create_basic_type(TYPE_INTEGER);
+        // -- Comprobar comparacion con subtipo (real con real)
+        if(type_left->kind == TYPE_REAL && type_right->subtype->kind == TYPE_REAL)
+            return create_basic_type(TYPE_REAL);
+    }
+    
     
     // -- Caso 3: Error de tipos, incluir error semantico
     struct error * err = create_error_semantic_unmatched_types_expression_binary(line,type_left->kind_str,type_right->kind_str,action);
@@ -323,6 +342,15 @@ struct type * typecheck_expression_unary_arithmetic(char *action, struct type *t
     // -- Caso 2: Es de tipo real
     if(type->kind == TYPE_REAL)
         return create_basic_type(TYPE_REAL);
+    // -- Caso 3: Es de tipo array
+    if(type->kind == TYPE_ARRAY){
+        // -- Caso 3.1: Es de tipo integer
+        if(type->subtype->kind == TYPE_INTEGER)
+            return create_basic_type(TYPE_INTEGER);
+        // -- Caso 3.2: Es de tipo real
+        if(type->subtype->kind == TYPE_REAL)
+            return create_basic_type(TYPE_REAL);
+    }
 
     // -- Caso 3: Error de tipos, incluir error semantico
     struct error * err = create_error_semantic_unmatched_types_expression_unary(line,type->kind_str,action);
