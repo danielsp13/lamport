@@ -51,6 +51,16 @@ class IR_instruction{
             : instr_code(code), op_1(op_1) {};
 
         /**
+         * @brief Constructor de instruccion (2 operandos)
+         * @param code : codigo de instruccion
+         * @param dest : discriminant
+         * @param op_1 : operando 1
+         * @param op_2 : operando 2
+         */
+        IR_instruction(IR_instruction_type_t code, bool dest, IR_operand op_1, IR_operand op_2)
+            : instr_code(code), op_1(op_1), op_2(op_2) {};
+
+        /**
          * @brief Constructor de instruccion (un operando y un destino)
          * @param code : codigo de instruccion
          * @param destiny : operando de destino (registro)
