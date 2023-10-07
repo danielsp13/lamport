@@ -35,6 +35,9 @@ bool LMP_IO_Manager::abrir_fichero(){
 
 bool LMP_IO_Manager::cerrar_fichero(){
     // -- Intentar cerrar fichero
+    if(!yyin)
+        return true;
+
     if(fclose(yyin) == EOF)
         return false;
 
@@ -53,8 +56,19 @@ LMP_IO_Manager& LMP_IO_Manager::get_instance(){
 }
 
 LMP_IO_Manager::~LMP_IO_Manager(){
-    if(this->IO_STATE)
-        this->cerrar_fichero();
+    this->close();
+}
+
+void LMP_IO_Manager::close(){
+    if(this->IO_STATE){
+        this->IO_STATE = false;
+        
+        tasker.task_close_file_msg(this->lmp_file_name);
+        if(!this->cerrar_fichero())
+            tasker.task_nop();
+        else
+            tasker.task_ok();
+    }
 }
 
 std::string LMP_IO_Manager::start(int nargs, char *argv[]){
@@ -70,13 +84,16 @@ std::string LMP_IO_Manager::start(int nargs, char *argv[]){
     // -- Asignar nombre de interprete
     this->interpreter = std::string(argv[0]);
     this->lmp_file_name = std::string(argv[1]);
-    this->IO_STATE = true;
 
     // -- Abrir fichero
+    tasker.task_open_file_msg(lmp_file_name);
     if(!this->abrir_fichero()){
+        tasker.task_nop();
         std::cout << "Error al abrir el fichero: " << this->lmp_file_name << "." << std::endl;
         exit(EXIT_FAILURE);
     }
+    this->IO_STATE = true;
+    tasker.task_ok();
 
     // -- Retornar nombre de fichero analizado
     return this->lmp_file_name;

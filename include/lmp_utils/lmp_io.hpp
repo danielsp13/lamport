@@ -17,6 +17,7 @@
 #include <string>
 
 #include "lmp_c_io_bridge.hpp"      ///< Puente de C a C++ para entrada/salida lamport
+#include "lmp_tasker.hpp"           ///< Notificador de tareas
 
 // ===============================================================
 
@@ -44,6 +45,9 @@ class LMP_IO_Manager{
 
         // -- Comprueba estado de flujo I/O
         bool IO_STATE = false;
+
+        // -- Notificador de tareas
+        LMP_Tasker& tasker = LMP_Tasker::get_instance();
 
         /**
          * @brief Imprime la cabecera del interprete
@@ -85,6 +89,11 @@ class LMP_IO_Manager{
          * @brief Destructor de la clase
          */
         ~LMP_IO_Manager();
+
+        /**
+         * @brief Cierra el flujo I/O
+         */
+        void close();
         
         /**
          * @brief Inicializa el manejador de IO
@@ -93,6 +102,16 @@ class LMP_IO_Manager{
          * @return nombre de fichero abierto
          */
         std::string start(int nargs, char *argv[]);
+
+        /**
+         * @brief Constructor de copia (eliminado)
+         */
+        LMP_IO_Manager(const LMP_IO_Manager&) = delete;
+
+        /**
+         * @brief Operador de asignacion (eliminado)
+         */
+        void operator=(const LMP_IO_Manager&) = delete;
 };
 
 #endif //_LMP_INTERPRETER_IO_DPR_

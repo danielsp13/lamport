@@ -15,7 +15,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "lmp_c_analysis_bridge.hpp"    ///< Puente de C a C++ para analizador lamport
-
+#include "lmp_tasker.hpp"               ///< Notificador de tareas
 
 // ===============================================================
 
@@ -27,6 +27,11 @@
  */
 class LMP_Analyzer{
     private:
+        // -- Notificador de eventos
+        LMP_Tasker& tasker = LMP_Tasker::get_instance();
+        // -- Variable de control de analizador
+        bool ANALYZER_STATE = true;
+
         /**
          * @brief Realiza el analisis sintactico
          * @return TRUE si se realizo sin errores, FALSE en otro caso
@@ -57,9 +62,20 @@ class LMP_Analyzer{
 
         /**
          * @brief Inicializa el procedimiento de analisis
+         * @param verbose_avaiable : especifica si los resultados del analisis deben mostrarse por pantalla o no
          * @return codigo de resultado de exito/fracaso en analisis completo
          */
-        int start();
+        int start(bool verbose_avaiable);
+
+        /**
+         * @brief Constructor de copia (eliminado)
+         */
+        LMP_Analyzer(const LMP_Analyzer&) = delete;
+
+        /**
+         * @brief Operador de asignacion (eliminado)
+         */
+        void operator=(const LMP_Analyzer&) = delete;
 };
 
 #endif //_LMP_INTERPRETER_ANALYSIS_DPR_
