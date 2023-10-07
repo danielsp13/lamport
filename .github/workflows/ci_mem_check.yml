@@ -30,7 +30,7 @@ jobs:
            run: make install_source_dependencies
          
          - name: Construir compilador
-           run: make
+           run: make parallel
            
          - name: Ejecutar tests de Valgrind con parallel
            run: make tests_parallel
