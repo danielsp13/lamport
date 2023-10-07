@@ -183,9 +183,10 @@ class IR_Table_Entry_Label : public IR_Table_Entry{
         /**
          * @brief Constructor de la entrada de etiqueta
          * @param id : identificador de etiqueta
+         * @param addr : direccion a la que apunta la etiqueta
          */
-        IR_Table_Entry_Label(int id)
-            : label(std::make_unique<IR_label>(id)) {};
+        IR_Table_Entry_Label(std::string id, int addr)
+            : label(std::make_unique<IR_label>(id,addr)) {};
 
         /**
          * @brief Obtiene el tipo de entrada de tabla

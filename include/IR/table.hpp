@@ -14,6 +14,7 @@
 // ----- INCLUSION DE DEPENDENCIAS -----
 
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -52,52 +53,61 @@ class IR_Tables{
         /**
          * @brief Inserta un literal en la tabla de literales (entero)
          * @param l_int : literal
+         * @return direccion de registro del literal
          */
-        void add_entry_literal(int l_int);
+        int add_entry_literal(int l_int);
 
         /**
          * @brief Inserta un literal en la tabla de literales (real)
          * @param l_real : literal
+         * @return direccion de registro del literal
          */
-        void add_entry_literal(float l_real);
+        int add_entry_literal(float l_real);
 
         /**
          * @brief Inserta un literal en la tabla de literales (char)
          * @param l_char : literal
+         * @return direccion de registro del literal
          */
-        void add_entry_literal(char l_char);
+        int add_entry_literal(char l_char);
 
         /**
          * @brief Inserta un literal en la tabla de literales (string)
          * @param l_str : literal
+         * @return direccion de registro del literal
          */
-        void add_entry_literal(char *l_str);
+        int add_entry_literal(char *l_str);
 
         /**
          * @brief Inserta un literal en la tabla de literales (string)
          * @param l_str : literal
+         * @return direccion de registro del literal
          */
-        void add_entry_literal(std::string l_str);
+        int add_entry_literal(std::string l_str);
 
         /**
          * @brief Inserta un literal en la tabla de literales (boolean)
          * @param l_bool : literal
+         * @return direccion de registro del literal
          */
-        void add_entry_literal(bool l_bool);
+        int add_entry_literal(bool l_bool);
 
         /**
          * @brief Inserta una etiqueta en la tabla de etiquetas
          * @param label_id : identificador de etiqueta
+         * @param addr : direccion a la que apunta la etiqueta
+         * @return direccion de registro de etiqueta
          */
-        void add_entry_label(int label_id);
+        int add_entry_label(std::string label_id, int addr);
 
         /**
          * @brief Inserta una variable en la tabla de variables
          * @param kind : tipo de variable (local/global)
          * @param var_name : nombre de variable
          * @param type : tipo de variable
+         * @return direccion de registro de variable
          */
-        void add_entry_variable(IR_variable_t kind, std::string var_name, IR_variable_type_t type);
+        int add_entry_variable(IR_variable_t kind, std::string var_name, IR_variable_type_t type);
 
         /**
          * @brief Inserta una variable array en la tabla de variables
@@ -105,8 +115,9 @@ class IR_Tables{
          * @param var_name : nombre de variable
          * @param arr_type : tipo de variable
          * @param arr_size : longitud de array
+         * @return direccion de registro de variable
          */
-        void add_entry_variable(IR_variable_t kind, std::string var_name, IR_variable_type_t arr_type, size_t arr_size);
+        int add_entry_variable(IR_variable_t kind, std::string var_name, IR_variable_type_t arr_type, size_t arr_size);
 
         /**
          * @brief Obtiene un literal de la tabla dado un indice
@@ -169,7 +180,7 @@ class IR_Tables{
          * @param id_label : id de etiqueta a buscar
          * @return posicion en tabla, -1 en otro caso
          */
-        int get_index_from_label_id(int id_label);
+        int get_index_from_label_id(std::string id_label);
 
         /**
          * @brief Obtiene el indice donde se encuentra el registro de la variable local
@@ -185,7 +196,27 @@ class IR_Tables{
          */
         int get_index_from_global_variable(std::string var_name);
 
+        /**
+         * @brief Comprueba si la variable mapeada en el indice especificado es un array
+         * @param index : indice de variable
+         * @return TRUE si es array, FALSE en otro caso
+         */
+        bool check_if_variable_is_array_using_index(int index);
 
+        /**
+         * @brief Imprime la tabla de literales por la salida estandar
+         */
+        void print_literals_table(std::ostream& os = std::cout);
+
+        /**
+         * @brief Imprime la tabla de variables por la salida estandar
+         */
+        void print_variables_table(std::ostream& os = std::cout);
+
+        /**
+         * @brief Imprime la tabla de etiquetas por la salida estandar
+         */
+        void print_labels_table(std::ostream& os = std::cout);
 };
 
 
