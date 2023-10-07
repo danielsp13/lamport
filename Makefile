@@ -126,7 +126,7 @@ SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
 # -- Variables de ficheros
 TOKEN_TYPE_NAME:=token
 LMP_MAIN_NAME:=lmp
-TEST_VALGRIND_SCRIPT=test_valgrind_lmp_files.sh
+TEST_VALGRIND_SCRIPT=test_valgrind_multiple_lmp_files.sh
 EXCLUDE_CHECK_FILES="$(LEXER_MODULE)$(FLEX_EXT) $(LEXER_MODULE)$(SOURCE_C_EXT) $(PARSER_MODULE)$(BISON_EXT) $(PARSER_MODULE)$(SOURCE_C_EXT)"
 
 # -- Indice de ficheros
@@ -135,7 +135,7 @@ INDEX_PARSER_FILES:=parser parser_register
 INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram process print_assistant
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
-INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_ir lmp_logging
+INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_ir lmp_logging lmp_tasker
 INDEX_IR_FILES:=literal variable table ir_optimizer ir_builder ir_reg_manager ir_printer
 
 # -- Indice de ficheros (obj)
