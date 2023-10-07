@@ -283,7 +283,7 @@ struct expression * create_expression_literal_real(float value);
  * @param value : Valor de literal
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_literal_string(char *value);
+struct expression * create_expression_literal_string(const char *value);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo literal char

@@ -308,7 +308,7 @@ struct expression * create_expression_literal_real(float value){
     return ex;
 }
 
-struct expression * create_expression_literal_string(char *value){
+struct expression * create_expression_literal_string(const char *value){
     struct expression *ex = create_expression_literal(EXPR_LITERAL_STRING);
 
     // -- Comprobar reserva de memoria exitosa
