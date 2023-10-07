@@ -246,7 +246,7 @@ void resolve_expression_identifier(struct expression *expr){
 
     // -- Asignar referencia de simbolo a esta expresion, buscandolo de la tabla
     // -- Se busca el simbolo en todos los scopes existentes en la tabla
-    struct symbol * target_symb = lookup_symbol_from_all_scopes(expr->expr.expression_identifier.id);; 
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(expr->expr.expression_identifier.id); 
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!target_symb){
@@ -463,7 +463,7 @@ void resolve_statement_for(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de contador de bucle
     // -- Asignar referencia de simbolo a esta sentencia
-    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_for.counter_name);
+    /*struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_for.counter_name);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!target_symb){
@@ -477,7 +477,7 @@ void resolve_statement_for(struct statement *stmt){
     else{
         // -- Asignar simbolo
         stmt->stmt.statement_for.symb = copy_symbol(target_symb);
-    }
+    }*/
 
     // -- Aplicar resolucion de nombres a la expresion de inicio del bucle for
     resolve_expression(stmt->stmt.statement_for.intialization);

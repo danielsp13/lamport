@@ -378,6 +378,22 @@ struct type * typecheck_expression_unary_logical(char *action, struct type *type
 // ----- IMPLEMENTACION DE FUNCIONES DE GESTION DE TYPE CHECKING (NODOS AST) -----
 
 void typecheck_declaration(struct declaration *decl){
+    // -- Comprobar si la declaracion es de un array
+    if(decl->type->kind == TYPE_ARRAY){
+        // -- Comprobar si la expresion de size de array es entera
+        struct type * type_size_arr = typecheck_expression(decl->type->size);
+        struct type * expected_type = create_basic_type(TYPE_INTEGER);
+
+        if(!equals_type(expected_type,type_size_arr)){
+            // -- Incluir error en la lista de errores semanticos
+            struct error *err = create_error_semantic_invalid_array_size(decl->line,type_size_arr->kind_str);
+            add_error_semantic_to_list(err);
+        }
+
+        // -- Liberar memoria de tipos
+        free_type(type_size_arr); free_type(expected_type);
+    }
+
     // Comprobar que tiene valor de inicializacion
     if(!decl->value)
         return;
@@ -461,14 +477,8 @@ void typecheck_statement(struct statement *stmt){
     case STMT_FOR:
     {
         // -- Comprobar que el la variable y la expresion de inicio coinciden en tipos
-        type_a = copy_type(stmt->stmt.statement_for.symb->type);
+        type_a = create_basic_type(TYPE_INTEGER);
         type_b = typecheck_expression(stmt->stmt.statement_for.intialization);
-
-        if(type_a->kind != TYPE_INTEGER){
-            // -- Handling de error: contador de bucle no integer
-            struct error *err = create_error_semantic_unmatched_types_statement_for(UNMATCHED_TYPES_STMT_FOR_INDEX,stmt->stmt.statement_for.line,type_a->kind_str,NULL);
-            add_error_semantic_to_list(err);
-        }
 
         if(!equals_type(type_a,type_b)){
             // -- Handling de error: asignacion de expresion a variable mismatch

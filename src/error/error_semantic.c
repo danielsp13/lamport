@@ -114,6 +114,11 @@ char * create_message_error_semantic_unmatched_types(error_semantic_type_checkin
         sprintf(sub_buff,"no se puede %s un (%s) a un (%s)",action,type_b,type_a);
         break;
     }
+    case UNMATCHED_TYPES_DECLARATION_ARRAY:
+    {
+        sprintf(sub_buff,"declaracion de %s de array invalida. se encontro (%s)",action,type_a);
+        break;
+    }
     case UNMATCHED_TYPES_STMT_ASSIGNMENT:
     {
         sprintf(sub_buff,"no se puede %s un (%s) a un (%s)",action,type_b,type_a);
@@ -235,7 +240,13 @@ struct error * create_error_semantic_unmatched_types_expression_unary(unsigned l
 
 struct error * create_error_semantic_unmatched_types_declaration(unsigned long err_line, char *type_a, char *type_b){
     // -- Construir mensaje de error
-    char *msg = create_message_error_semantic_unmatched_types(UNMATCHED_TYPES_DECLARATION, "asignar", type_b, type_a);
+    char *msg = create_message_error_semantic_unmatched_types(UNMATCHED_TYPES_DECLARATION, "asignar", type_a, type_b);
+    return create_error_semantic_unmatched_types(err_line, &msg);
+}
+
+struct error * create_error_semantic_invalid_array_size(unsigned long err_line, char *type_a){
+    // -- Construir mensaje de error
+    char *msg = create_message_error_semantic_unmatched_types(UNMATCHED_TYPES_DECLARATION_ARRAY,"size",type_a,NULL);
     return create_error_semantic_unmatched_types(err_line, &msg);
 }
 

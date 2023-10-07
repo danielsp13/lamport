@@ -248,6 +248,9 @@ bool equals_type(struct type *type_a, struct type *type_b){
     else if(type_b->kind == TYPE_ARRAY){
         return equals_type(type_a,type_b->subtype);
     }
+    // -- Comprobacion 4: Uno es un semaforo y otro un integer
+    else if(type_a->kind == TYPE_SEMAPHORE && type_b->kind == TYPE_INTEGER)
+        return true;
 
     // -- Retornar resultado de comprobacion
     return result;
