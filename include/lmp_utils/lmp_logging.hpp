@@ -18,9 +18,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include "lmp_c_analysis_bridge.hpp"    ///< Puente de C a C++ para analizador lamport
+#include "IR/ir_printer.hpp"            ///< Impresor de instrucciones IR
+#include "lmp_tasker.hpp"               ///< Notificador de eventos
 
 // ===============================================================
 
@@ -37,7 +40,7 @@ class LMP_Logging{
         // -- Fichero de registro de AST
         FILE * LMP_LOGGING_AST_FILE = nullptr;
         // -- Fichero de registro de IR
-        FILE * LMP_LOGGING_IR_FILE = nullptr;
+        std::ofstream LMP_LOGGING_IR_FILE;
 
         // -- Nombre de directorio donde se almacenaran los registros
         const std::string LMP_LOG_DIR = "log";
@@ -60,6 +63,11 @@ class LMP_Logging{
 
         // -- Nombre de fichero 
         std::string LMP_FILE;
+        // -- Nombre de fichero de log actual creado
+        std::string actual_log_file;
+
+        // -- Notificador de tareas
+        LMP_Tasker& tasker = LMP_Tasker::get_instance();
 
         /**
          * @brief Procesa el fichero a analizar por el interprete, dejando solo su nombre y eliminando rutas
@@ -112,6 +120,14 @@ class LMP_Logging{
          * @return puntero a fichero abierto
          */
         FILE * create_logging_file_in_dir(std::string dirname, std::string log_header);
+
+        /**
+         * @brief Crea un fichero dentro del directorio especificado
+         * @param dirname : nombre de directorio
+         * @param log_header : cabecera de nombre de fichero
+         * @return puntero a fichero abierto
+         */
+        std::ofstream create_logging_file_stream_in_dir(std::string dirname, std::string log_header);
 
         /**
          * @brief Prepara el logging de errores, creando directorios y ficheros
@@ -167,10 +183,26 @@ class LMP_Logging{
         ~LMP_Logging();
 
         /**
-         * @brief Realiza el log de eventos de interpretacion
+         * @brief Realiza el log del analisis de codigo
          * @param lmp_file : fichero analizado por el interprete
          */
-        void log(std::string lmp_file);
+        void log_analysis(std::string lmp_file);
+
+        /**
+         * @brief Realiza el log de generacion de codigo intermedio
+         * @param lmp_file : fichero analizado por el interprete
+         */
+        void log_ir();
+
+        /**
+         * @brief Constructor de copia (eliminado)
+         */
+        LMP_Logging(const LMP_Logging&) = delete;
+
+        /**
+         * @brief Operador de asignacion (eliminado)
+         */
+        void operator=(const LMP_Logging&) = delete;
 };
 
 

@@ -114,13 +114,23 @@ FILE * LMP_Logging::create_logging_file_in_dir(std::string dirname, std::string 
     // -- Definir fichero
     FILE * f = nullptr;
     // -- Definir nombre de fichero destino
-    std::string filename = dirname + "/" + log_header + this->LMP_FILE + this->LMP_LOG_FILE_EXT;
+    actual_log_file = dirname + "/" + log_header + this->LMP_FILE + this->LMP_LOG_FILE_EXT;
 
     // -- Abrir fichero
-    f = fopen(filename.c_str(),"w");
+    f = fopen(actual_log_file.c_str(),"w");
 
     // -- Retornar puntero a fichero
     return f;
+}
+
+std::ofstream LMP_Logging::create_logging_file_stream_in_dir(std::string dirname, std::string log_header){
+    // -- Definir nombre de fichero destino
+    actual_log_file = dirname + "/" + log_header + this->LMP_FILE + this->LMP_LOG_FILE_EXT;
+
+    // -- Abrir el archivo con std::ofstream
+    std::ofstream ofs(actual_log_file);
+
+    return ofs;
 }
 
 bool LMP_Logging::init_log_errors(){
@@ -139,6 +149,11 @@ bool LMP_Logging::init_log_errors(){
     // -- Comprobar creacion de fichero
     if(this->LMP_LOGGING_ERRORS_FILE == nullptr)
         log_result = false;
+
+    if(get_total_error_syntax() > 0)
+        tasker.task_logging_error_syntax(actual_log_file);
+    if(get_total_error_semantic() > 0)
+        tasker.task_logging_error_semantic(actual_log_file);
 
     // -- Retornar resultado
     return log_result;
@@ -161,6 +176,7 @@ bool LMP_Logging::init_log_ast(){
     if(this->LMP_LOGGING_AST_FILE == nullptr)
         log_result = false;
 
+    tasker.task_logging_ast(actual_log_file);
 
     // -- Retornar resultado
     return log_result;
@@ -176,12 +192,14 @@ bool LMP_Logging::init_log_ir(){
     // -- Crear fichero de logging de errores
     if(log_result){
         std::string dirlog = this->LMP_LOG_DIR + "/" + this->LMP_IR_DIR;
-        this->LMP_LOGGING_IR_FILE = this->create_logging_file_in_dir(dirlog,this->LMP_LOG_FILE_IR_HEADER);
+        this->LMP_LOGGING_IR_FILE = this->create_logging_file_stream_in_dir(dirlog,this->LMP_LOG_FILE_IR_HEADER);
     }
 
     // -- Comprobar creacion de fichero
-    if(this->LMP_LOGGING_IR_FILE == nullptr)
+    if(!this->LMP_LOGGING_IR_FILE.is_open())
         log_result = false;
+
+    tasker.task_logging_ir(actual_log_file);
 
     // -- Retornar resultado
     return log_result;
@@ -196,6 +214,7 @@ bool LMP_Logging::make_log_errors(){
 
     // -- Inicializar logging de errores
     if(!this->init_log_errors()){
+        tasker.task_nop();
         std::cout << "Error. Logging de errores no disponible." << std::endl;
         return false;
     }
@@ -203,11 +222,13 @@ bool LMP_Logging::make_log_errors(){
     // -- Realizar logging de errores
     if(get_total_error_syntax() > 0){
         report_list_error_syntax(this->LMP_LOGGING_ERRORS_FILE);
+        tasker.task_ok();
         return true;
     }
 
     if(get_total_error_semantic() > 0){
         report_list_error_semantic(this->LMP_LOGGING_ERRORS_FILE);
+        tasker.task_ok();
         return true;
     }
 
@@ -217,12 +238,14 @@ bool LMP_Logging::make_log_errors(){
 bool LMP_Logging::make_log_ast(){
     // -- Inicializar logging de ast
     if(!this->init_log_ast()){
+        tasker.task_nop();
         std::cout << "Error. Logging de AST no disponible." << std::endl;
         return false;
     }
 
     // -- Realizar logging de AST
     print_AST(AST_program,this->LMP_LOGGING_AST_FILE);
+    tasker.task_ok();
 
     return true;
 }
@@ -230,9 +253,15 @@ bool LMP_Logging::make_log_ast(){
 bool LMP_Logging::make_log_ir(){
     // -- Inicializar logging de ast
     if(!this->init_log_ir()){
+        tasker.task_nop();
         std::cout << "Error. Logging de IR no disponible." << std::endl;
         return false;
     }
+
+    // -- Realizar logging de IR
+    IR_Printer::get_instance().print_tables(this->LMP_LOGGING_IR_FILE);
+    IR_Printer::get_instance().print_ir_instructions(this->LMP_LOGGING_IR_FILE);
+    tasker.task_ok();
 
     return false;
 }
@@ -260,19 +289,18 @@ LMP_Logging::~LMP_Logging(){
     }
 
     // -- Intentar cerrar fichero de log de IR
-    if(this->LMP_LOGGING_IR_FILE != nullptr){
-        fclose(this->LMP_LOGGING_IR_FILE);
-        this->LMP_LOGGING_IR_FILE = nullptr;
+    if(this->LMP_LOGGING_IR_FILE.is_open()){
+        this->LMP_LOGGING_IR_FILE.close();
     }
 }
 
-void LMP_Logging::log(std::string lmp_file){
+void LMP_Logging::log_analysis(std::string lmp_file){
     // -- Inicializar nombre de fichero
     this->parse_lmp_file(lmp_file);
 
     // -- Crear directorio de logging principal
     if(!this->create_logging_dir()){
-        std::cout << "Error. No se puede realizar logging de interpretacion sobre fichero: " << this->LMP_FILE << "." << std::endl;
+        std::cout << "Error. No se puede realizar logging de analisis sobre fichero: " << this->LMP_FILE << "." << std::endl;
         return;
     }
 
@@ -280,8 +308,19 @@ void LMP_Logging::log(std::string lmp_file){
     if(!this->make_log_errors()){
         // -- Realizar logging de AST
         this->make_log_ast();
+    }
+}
 
+void LMP_Logging::log_ir(){
+    // -- Crear directorio de logging principal
+    if(!this->create_logging_dir()){
+        std::cout << "Error. No se puede realizar logging de codigo intermedio sobre fichero: " << this->LMP_FILE << "." << std::endl;
+        return;
+    }
+
+    // -- Intentar realizar logging de errores
+    if(!this->make_log_errors()){
         // -- Realizar logging de IR
-        //this->make_log_ir();
+        this->make_log_ir();
     }
 }
