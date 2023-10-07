@@ -1,0 +1,19 @@
+{Fichero: redef_variable.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene un error semantico de tipo: redefinicion de variable}
+
+program SumaEnteros
+	var v1 : integer := 0;
+	{ERROR: Redefinicion de variable}
+	var v1 : integer;
+
+process Main;
+	var resultado : integer := 0;
+	{ERROR: Redefinicion de variable}
+	var resultado : char;
+	{CORRECTO: este v1 esta en otro scope}
+	var v1 : string := "hola";
+begin
+	{Invoca a la funcion para obtener el resultado}
+	resultado := v1 + 2;
+end

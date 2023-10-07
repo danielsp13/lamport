@@ -14,6 +14,8 @@ process Main;
 begin
 	resultado1 := 1 + 3 * v3 - 1;
 	{ERROR}
+	resultado2 := v3 + 1.0 - 3;
+	{ERROR}
 	resultado1 := 1.0 - 10 / 2 + 7.5;
 	{ERROR}
 	resultado2 := 1 + 5 * 4;

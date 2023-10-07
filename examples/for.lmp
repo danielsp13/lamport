@@ -7,7 +7,6 @@ program IncrementarContador
 	
 {Proceso principal del programa}
 process Main;
-	var i : integer;
 begin
 	{Bucle que se ejecuta el numero de veces especificado}
 	for i := 0 to 5 do
