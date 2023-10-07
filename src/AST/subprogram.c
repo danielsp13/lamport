@@ -24,14 +24,20 @@ struct subprogram * create_subprogram(subprogram_t kind, char *name_subprogram, 
     switch (subprog->kind)
     {
     case SUBPROGRAM_PROCEDURE:
+    {
         subprog->kind_str = strdup("procedure");
         break;
+    }
     case SUBPROGRAM_FUNCTION:
+    {
         subprog->kind_str = strdup("function");
         break;
+    }
     default:
+    {
         subprog->kind_str = NULL;
         break;
+    }
     }
 
     // -- Comprobar asignacion de tipo de subprograma (str) exitosa
@@ -183,7 +189,7 @@ void free_subprogram(struct subprogram *subprog){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO SUBPROGRAMAS) -----
 
-void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int depth){
+void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int depth,FILE * output){
     // -- Determinar identacion de nodo
     char * IDENT_NODE_BRANCH = build_identation_branch(depth);
     char * IDENT_NODE = build_identation_spaces(depth);
@@ -192,7 +198,7 @@ void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int dep
 
     // -- Si NULL, simplemente devolver
     if(!subprograms_list){
-        printf("%s%s %s\n",IDENT_NODE_BRANCH, IDENT_ARROW, NULL_NODE_MSG);
+        fprintf(output,"%s%s %s\n",IDENT_NODE_BRANCH, IDENT_ARROW, NULL_NODE_MSG);
 
         // -- Liberar memoria utilizada para la identacion
         free(IDENT_NODE); IDENT_NODE = NULL; 
@@ -204,21 +210,21 @@ void print_AST_subprograms(struct subprogram *subprograms_list, unsigned int dep
     struct subprogram *current_subprogram = subprograms_list;
     while(current_subprogram){
         // -- Imprimir nombre y tipo de subprograma
-        printf("%s%s NOMBRE DE SUBPROGRAMA: [%s] DE TIPO: [%s]\n",IDENT_NODE_BRANCH, IDENT_ARROW, current_subprogram->name_subprogram, current_subprogram->kind_str);
+        fprintf(output,"%s%s NOMBRE DE SUBPROGRAMA: [%s] DE TIPO: [%s]\n",IDENT_NODE_BRANCH, IDENT_ARROW, current_subprogram->name_subprogram, current_subprogram->kind_str);
         // -- Imprimir tipo de funcion
-        printf("%s%s TIPO DE DATO DE RETORNO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-        print_AST_type(current_subprogram->type,NEXT_NODE_DEPTH);
+        fprintf(output,"%s%s TIPO DE DATO DE RETORNO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_type(current_subprogram->type,NEXT_NODE_DEPTH,output);
         // -- Imprimir parametros de subprograma
-        printf("%s%s PARAMETROS DE SUBPROGRAMA:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-        print_AST_parameters(current_subprogram->parameters,NEXT_NODE_DEPTH);
+        fprintf(output,"%s%s PARAMETROS DE SUBPROGRAMA:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_parameters(current_subprogram->parameters,NEXT_NODE_DEPTH,output);
         // -- Imprimir declaraciones de subprograma
-        printf("%s%s DECLARACIONES DE SUBPROGRAMA:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-        print_AST_declarations(current_subprogram->declarations,NEXT_NODE_DEPTH);
+        fprintf(output,"%s%s DECLARACIONES DE SUBPROGRAMA:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_declarations(current_subprogram->declarations,NEXT_NODE_DEPTH,output);
         // -- Imprimir sentencias del subprograma
-        printf("%s%s SENTENCIAS DE SUBPROGRAMA:\n",IDENT_NODE, IDENT_BLANK_ARROW);
-        print_AST_statements(current_subprogram->statements,NEXT_NODE_DEPTH);
+        fprintf(output,"%s%s SENTENCIAS DE SUBPROGRAMA:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_statements(current_subprogram->statements,NEXT_NODE_DEPTH,output);
 
-        printf("\n");
+        fprintf(output,"\n");
 
 
         // Ir al siguiente subprograma

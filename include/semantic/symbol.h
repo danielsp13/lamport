@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_SEMANTIC_SYMBOL_DPR_
 #define _LAMPORT_SEMANTIC_SYMBOL_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -129,5 +133,9 @@ void print_symbol(struct symbol * symb);
  * @return puntero a simbolo copiado
  */
 struct symbol * copy_symbol(struct symbol *symb);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_SEMANTIC_SYMBOL_DPR_

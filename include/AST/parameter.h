@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_PARAMETER_LIST_DPR_
 #define _LAMPORT_AST_PARAMETER_LIST_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
@@ -78,7 +82,12 @@ void free_parameter(struct parameter *parameter);
  * @brief Imprime una lista de nodos de parametros
  * @param list_parameters : Puntero a lista enlazada de parametros
  * @param depth : Profundidad en la impresion de la lista de nodos
+ * @param output : destino de impresion
  */
-void print_AST_parameters(struct parameter *list_parameters, unsigned int depth);
+void print_AST_parameters(struct parameter *list_parameters, unsigned int depth, FILE * output);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_PARAMETER_LIST_DPR_

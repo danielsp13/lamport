@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_ERROR_PARSER_DPR_
 #define _LAMPORT_ERROR_PARSER_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -90,8 +94,9 @@ struct error * create_error_syntax(error_syntax_t kind, char * identifier, unsig
 /**
  * @brief Imprime la lista de errores sintacticos
  * @param list_errors : lista de errores
+ * @param output : destino de impresion
  */
-void print_list_error_syntax(struct error *list_errors);
+void print_list_error_syntax(struct error *list_errors, FILE * output);
 
 // ===============================================================
 
@@ -177,5 +182,9 @@ extern void mark_error_syntax_process_expected_delimarr(char *id);
 extern void mark_error_syntax_program_expected_program(char *id);
 
 extern void mark_error_syntax_program_expected_identifier();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_ERROR_PARSER_DPR_

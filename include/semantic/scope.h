@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_SEMANTIC_SCOPE_DPR_
 #define _LAMPORT_SEMANTIC_SCOPE_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -183,5 +187,9 @@ void print_entry(entry * entry);
  * @param scope : tabla hash
  */
 void print_scope(scope * scope);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_SEMANTIC_SCOPE_DPR_

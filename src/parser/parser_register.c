@@ -72,6 +72,7 @@ union AST_node_register create_AST_node_register(AST_node_register_t kind, union
     switch (kind)
     {
     case AST_NODE_REG_DECLARATION:
+    {
         struct AST_declaration_register *decl_reg = malloc(sizeof(*decl_reg));
 
         if(!decl_reg){
@@ -82,8 +83,10 @@ union AST_node_register create_AST_node_register(AST_node_register_t kind, union
         decl_reg->decl = data.decl; decl_reg->next = NULL;
         AST_node_reg.decl_reg = decl_reg;
         break;
+    }
 
     case AST_NODE_REG_EXPRESSION:
+    {
         struct AST_expression_register *expr_reg = malloc(sizeof(*expr_reg));
 
         if(!expr_reg){
@@ -94,8 +97,10 @@ union AST_node_register create_AST_node_register(AST_node_register_t kind, union
         expr_reg->expr = data.expr; expr_reg->next = NULL;
         AST_node_reg.expr_reg = expr_reg;
         break;
+    }
 
     case AST_NODE_REG_STATEMENT:
+    {
         struct AST_statement_register *stmt_reg = malloc(sizeof(*stmt_reg));
 
         if(!stmt_reg){
@@ -106,8 +111,10 @@ union AST_node_register create_AST_node_register(AST_node_register_t kind, union
         stmt_reg->stmt = data.stmt; stmt_reg->next = NULL;
         AST_node_reg.stmt_reg = stmt_reg;
         break;
+    }
 
     case AST_NODE_REG_PARAMETER:
+    {
         struct AST_parameter_register *param_reg = malloc(sizeof(*param_reg));
 
         if(!param_reg){
@@ -118,8 +125,10 @@ union AST_node_register create_AST_node_register(AST_node_register_t kind, union
         param_reg->param = data.param; param_reg->next = NULL;
         AST_node_reg.param_reg = param_reg;
         break;
+    }
 
     case AST_NODE_REG_TYPE:
+    {
         struct AST_type_register *type_reg = malloc(sizeof(*type_reg));
 
         if(!type_reg){
@@ -130,8 +139,10 @@ union AST_node_register create_AST_node_register(AST_node_register_t kind, union
         type_reg->type = data.type; type_reg->next = NULL;
         AST_node_reg.type_reg = type_reg;
         break;
+    }
 
     case AST_NODE_REG_SUBPROGRAM:
+    {
         struct AST_subprogram_register *subprog_reg = malloc(sizeof(*subprog_reg));
 
         if(!subprog_reg){
@@ -142,8 +153,10 @@ union AST_node_register create_AST_node_register(AST_node_register_t kind, union
         subprog_reg->subprog = data.subprog; subprog_reg->next = NULL;
         AST_node_reg.subprog_reg = subprog_reg;
         break;
+    }
 
     case AST_NODE_REG_PROCESS:
+    {
         struct AST_process_register *proc_reg = malloc(sizeof(*proc_reg));
 
         if(!proc_reg){
@@ -154,6 +167,7 @@ union AST_node_register create_AST_node_register(AST_node_register_t kind, union
         proc_reg->proc = data.proc; proc_reg->next = NULL;
         AST_node_reg.proc_reg = proc_reg;
         break;
+    }
     
     default:
         break;

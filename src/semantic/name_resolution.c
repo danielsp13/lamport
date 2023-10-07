@@ -109,34 +109,58 @@ void resolve_declaration(struct declaration *decl){
     if(!decl)
         return;
 
-    // -- Determinar si la declaracion es local o global
-    // ---> Si scope_level() == 1 --> Estamos en el ambito global
-    // ---> Si scope_level() > 1 --> Estamos en ambito local
-    symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
+    // -- Comprobar existencia de simbolo en la tabla
+    struct symbol * target_symb = lookup_symbol_from_current_scope(decl->name);
 
-    // -- Crear y asociar simbolo a esta declaracion
-    switch (kind)
-    {
-    case SYMBOL_LOCAL:
-        decl->symb = create_symbol_local(decl->type, decl->name, decl->line);
-        break;
+    if(target_symb){
+        // -- Realizar handling de este error : VARIABLE REDEFINIDA
+        // -- Crear error
+        struct error * error = create_error_semantic_duplicated_symbol(decl->name,decl->line, target_symb->line, ERR_DUPLICATED_VARIABLE_MSG);
 
-    case SYMBOL_GLOBAL:
-        decl->symb = create_symbol_global(decl->type, decl->name, decl->line);
-        break;
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
+    }
+    else{
+        // -- Determinar si la declaracion es local o global
+        // ---> Si scope_level() == 1 --> Estamos en el ambito global
+        // ---> Si scope_level() > 1 --> Estamos en ambito local
+        symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
+
+        // -- Crear y asociar simbolo a esta declaracion
+        switch (kind)
+        {
+        case SYMBOL_LOCAL:
+        {
+            decl->symb = create_symbol_local(decl->type, decl->name, decl->line);
+            break;
+        }
+
+        case SYMBOL_GLOBAL:
+        {
+            decl->symb = create_symbol_global(decl->type, decl->name, decl->line);
+            break;
+        }
+        
+        default:
+            break;
+        }
+
+        // -- Vincular simbolo al scope actual
+        bind_symbol_to_scope(decl->symb);
+
+        // -- Resolver expresion de inicializacion de array (si es array)
+        if(decl->type->kind == TYPE_ARRAY){
+            // -- Resolucion de nombres en: expresion
+            resolve_expression(decl->type->size);
+        }
+
+        // -- Resolver expresion de valor (si existe)
+        if(decl->value){
+            // -- Resolucion de nombres en: expresion
+            resolve_expression(decl->value);
+        }
+    }
     
-    default:
-        break;
-    }
-
-    // -- Vincular simbolo al scope actual
-    bind_symbol_to_scope(decl->symb);
-
-    // -- Resolver expresion de valor (si existe)
-    if(decl->value){
-        // -- Resolucion de nombres en: expresion
-        resolve_expression(decl->value);
-    }
 }
 
 // ===============================================================
@@ -152,37 +176,51 @@ void resolve_expression(struct expression *expr){
     switch (expr->kind)
     {
     case EXPR_BINARY:
+    {
         // -- Aplicar resolucion de nombres a expresiones de tipo operacion binaria
         resolve_expression_binary_operation(expr);
         break;
+    }
 
     case EXPR_UNARY:
+    {
         // -- Aplicar resolucion de nombres a expresiones de tipo operacion unaria
         resolve_expression_unary_operation(expr);
         break;
+    }
 
     case EXPR_IDENTIFIER:
+    {
         // -- Aplicar resolucion de nombres a expresiones de tipo identificador
         resolve_expression_identifier(expr);
         break;
+    }
     
     case EXPR_FUNCTION_INV:
+    {
         // -- Aplicar resolucion de nombres a expresiones de tipo invocacion de funciones
         resolve_expression_function_inv(expr);
         break;
+    }
 
     case EXPR_LITERAL:
+    {
         // -- No se necesita resolucion de nombres en este tipo de expresion
         break;
+    }
 
     case EXPR_GROUPED:
+    {
         // -- Aplicar resolucion de nombres a expresiones entre parentesis
         resolve_expression_grouped(expr);
         break;
+    }
     
     default:
+    {
         // -- No se deberia caer en este caso
         break;
+    }
     }
 }
 
@@ -214,7 +252,7 @@ void resolve_expression_identifier(struct expression *expr){
 
     // -- Asignar referencia de simbolo a esta expresion, buscandolo de la tabla
     // -- Se busca el simbolo en todos los scopes existentes en la tabla
-    struct symbol * target_symb = lookup_symbol_from_all_scopes(expr->expr.expression_identifier.id);; 
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(expr->expr.expression_identifier.id); 
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!target_symb){
@@ -288,68 +326,94 @@ void resolve_statement(struct statement *stmt){
     switch (stmt->kind)
     {
     case STMT_ASSIGNMENT:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo asignacion
         resolve_statement_assignment(stmt);
         break;
+    }
 
     case STMT_WHILE:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo while
         resolve_statement_while(stmt);
         break;
+    }
 
     case STMT_FOR:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo for
         resolve_statement_for(stmt);
         break;
+    }
 
     case STMT_IF_ELSE:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo if-else
         resolve_statement_if_else(stmt);
         break;
+    }
 
     case STMT_PROCEDURE_INV:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo invocacion de procedimiento
         resolve_statement_procedure_inv(stmt);
         break;
+    }
 
     case STMT_BLOCK_BEGIN:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo bloque
         resolve_statement_block(stmt);
         break;
+    }
 
     case STMT_BLOCK_COBEGIN:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo bloque
         resolve_statement_block(stmt);
         break;
+    }
 
     case STMT_FORK:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo fork
         resolve_statement_fork(stmt);
         break;
+    }
 
     case STMT_JOIN:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo join
         resolve_statement_join(stmt);
         break;
+    }
 
     case STMT_ATOMIC:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo bloque
         resolve_statement_block(stmt);
         break;
+    }
 
     case STMT_RETURN:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo retorno
         resolve_statement_return(stmt);
         break;
+    }
 
     case STMT_PRINT:
+    {
         // -- Aplicar resolucion de nombres a sentencias de tipo print
         resolve_statement_print(stmt);
         break;
+    }
     
     default:
+    {
         // -- No se deberia caer en este caso
         break;
+    }
     }
 }
 
@@ -405,7 +469,7 @@ void resolve_statement_for(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de contador de bucle
     // -- Asignar referencia de simbolo a esta sentencia
-    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_for.counter_name);
+    /*struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_for.counter_name);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!target_symb){
@@ -419,7 +483,7 @@ void resolve_statement_for(struct statement *stmt){
     else{
         // -- Asignar simbolo
         stmt->stmt.statement_for.symb = copy_symbol(target_symb);
-    }
+    }*/
 
     // -- Aplicar resolucion de nombres a la expresion de inicio del bucle for
     resolve_expression(stmt->stmt.statement_for.intialization);
@@ -597,17 +661,23 @@ void resolve_process(struct process *proc){
     switch (proc->kind)
     {
     case PROCESS_SINGLE:
+    {
         // -- Aqui no se hace nada, pues ya se hizo toda la resolucion que se debia
         break;
+    }
 
     case PROCESS_VECTOR:
+    {
         // -- Aplicar resolucion de nombres a proceso de tipo vector
         resolve_process_vector(proc);
         break;
+    }
     
     default:
+    {
         // -- No deberia caer en este caso
         break;
+    }
     }
 
     // -- Aplicar resolucion de nombres a las sentencias del proceso
@@ -636,7 +706,7 @@ void resolve_process_vector(struct process *proc){
     }
     else{
         // -- Asignar simbolo
-        proc->symb_index = target_symb;
+        proc->symb_index = copy_symbol(target_symb);
     }
 
     // -- Aplicar resolucion de nombres a la expresion de inicio de indexacion
@@ -658,13 +728,17 @@ void resolve_type(struct type *type){
     switch (type->kind)
     {
     case TYPE_ARRAY:
+    {
         // -- Aplicar resolucion de nombres al tipo de dato array
         resolve_type_array(type);
         break;
+    }
     
     default:
+    {
         // -- En el resto de casos, no es necesario aplicar resolucion de nombres
         break;
+    }
     }
 }
 

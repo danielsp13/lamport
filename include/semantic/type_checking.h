@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_SEMANTIC_TYPE_CHECKING_DPR_
 #define _LAMPORT_SEMANTIC_TYPE_CHECKING_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -171,7 +175,14 @@ void typecheck_list_statements(struct statement *list_statements);
  */
 void typecheck_list_subprograms(struct subprogram *list_subprograms);
 
+/**
+ * @brief Aplica el algoritmo de comprobacion de tipos a una lista de procesos
+ * @param list_process : puntero a lista de procesos
+ */
 void typecheck_list_process(struct process *list_process);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_SEMANTIC_TYPE_CHECKING_DPR_

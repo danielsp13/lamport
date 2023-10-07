@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_DPR_
 #define _LAMPORT_AST_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DEL AST -----
@@ -42,9 +46,11 @@ struct program{
 
 // ===============================================================
 
-// ----- DEFINICION DE AST -----
+// ----- DEFINICION DE AST DE PROGRAMA -----
 
+// -- Variable que define el AST completo del programa
 extern struct program * AST_program;
+
 
 // ===============================================================
 
@@ -77,8 +83,12 @@ void free_program(struct program *prog);
 /**
  * @brief Imprime el AST en pantalla
  * @param prog : Puntero a AST (prog -> nodo raiz)
+ * @param output : destino de impresion
  */
-void print_AST(struct program *prog);
+void print_AST(struct program *prog, FILE * output);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_DPR_

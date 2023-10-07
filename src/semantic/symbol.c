@@ -24,16 +24,22 @@ struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, in
     switch (symb->kind)
     {
     case SYMBOL_LOCAL:
+    {
         symb->kind_str = strdup("SYMBOL_LOCAL");
         break;
+    }
     
     case SYMBOL_GLOBAL:
+    {
         symb->kind_str = strdup("SYMBOL_GLOBAL");
         break;
+    }
 
     case SYMBOL_PARAM:
+    {
         symb->kind_str = strdup("SYMBOL_PARAM");
         break;
+    }
     }
     // -- Comprobar asignacion de tipo de simbolo (str) exitosa
     if(!symb->kind_str){
@@ -149,7 +155,7 @@ void print_symbol(struct symbol * symb){
 
     // -- Imprimir tipo de dato simbolo
     printf(" %s INFORMACION DEL TIPO DE DATO DE SIMBOLO: [%s]\n", IDENT_ARROW, symb->name);
-    print_AST_type(symb->type,0);
+    print_AST_type(symb->type,0,stdout);
 }
 
 // ===============================================================

@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_EXPRESSION_DPR_
 #define _LAMPORT_AST_EXPRESSION_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
@@ -161,7 +165,7 @@ struct expression{
         struct {
             expression_binary_t kind;                       ///< Tipo de operacion binaria
             char *action;                                   ///< Accion de operacion binaria
-            char *operator;                                 ///< Operador de operacion
+            char *operator_symb;                            ///< Operador de operacion
             unsigned long line;                             ///< Linea donde se definio la expresion
             struct expression *left;                        ///< Expresion izquierda de la operacion
             struct expression *right;                       ///< Expresion derecha de la operacion
@@ -171,7 +175,7 @@ struct expression{
         struct {
             expression_unary_t kind;                        ///< Tipo de la operacion unaria
             char *action;                                   ///< Accion de operacion
-            char *operator;                                 ///< Operador de operacion
+            char *operator_symb;                            ///< Operador de operacion
             unsigned long line;                             ///< Linea donde se definio la expresion
             struct expression *left;                        ///< Expresion derecha de la operacion
         } expression_unary_operation;
@@ -233,22 +237,23 @@ struct expression * create_expression_literal(expression_literal_t kind);
 /**
  * @brief Crea y reserva memoria para una expresion de tipo operacion binaria
  * @param kind : Tipo de operacion binaria
- * @param operator : Simbolo de operacion
+ * @param operator_symb : Simbolo de operacion
  * @param left : Operando izquierdo
  * @param right : Operando derecho
  * @param line : linea donde se definio la operacion
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator, struct expression *left, struct expression *right, unsigned long line);
+struct expression * create_expression_binary_operation(expression_binary_t kind, char *operator_symb, struct expression *left, struct expression *right, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo operacion unaria
  * @param kind : Tipo de operacion unaria
+ * @param operator_symb : Simbolo de operacion
  * @param left : Operando
  * @param line : linea donde se definio la operacion
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator, struct expression *left, unsigned long line);
+struct expression * create_expression_unary_operation(expression_unary_t kind, char *operator_symb, struct expression *left, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una expresion de identificador
@@ -278,7 +283,7 @@ struct expression * create_expression_literal_real(float value);
  * @param value : Valor de literal
  * @return puntero con la expresion inicializada
  */
-struct expression * create_expression_literal_string(char *value);
+struct expression * create_expression_literal_string(const char *value);
 
 /**
  * @brief Crea y reserva memoria para una expresion de tipo literal char
@@ -334,13 +339,19 @@ void free_expression(struct expression *expr);
  * @brief Imprime una lista de nodos de expresiones
  * @param expressions_list : Puntero a lista enlazada de expresiones
  * @param depth : Profundidad en la impresion de la lista de nodos
+ * @param output : destino de impresion
  */
-void print_AST_expressions(struct expression *expressions_list, unsigned int depth);
+void print_AST_expressions(struct expression *expressions_list, unsigned int depth, FILE * output);
 
 // ===============================================================
 
 // ----- PROTOTIPO DE FUNCIONES DE GESTION DE NODO (EXPRESIONES) -----
 
+/**
+ * @brief Realiza una copia de una lista de expresiones
+ * @param list_expressions : lista de expresiones
+ * @return copia de la lista de expresiones
+ */
 struct expression * copy_list_expressions(struct expression *list_expressions);
 
 /**
@@ -350,16 +361,50 @@ struct expression * copy_list_expressions(struct expression *list_expressions);
  */
 struct expression * copy_expression(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo operacion binaria
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_binary(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo operacion unaria
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_unary(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo identificador
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_identifier(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo literal
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_literal(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo invocacion de funcion
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_function_inv(struct expression *expr);
 
+/**
+ * @brief Realiza una copia de un nodo expresion de tipo expresion entre parentesis
+ * @param expr : expresion a copiar
+ * @return puntero a copia de expresion inicializado
+ */
 struct expression * copy_expression_grouped(struct expression *expr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_EXPRESSION_DPR_

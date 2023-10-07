@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_STATEMENT_DPR_
 #define _LAMPORT_AST_STATEMENT_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
@@ -160,7 +164,7 @@ struct statement{
             struct statement *body;                 ///< Cuerpo del bucle (conjunto de sentencias)
 
             unsigned long line;                     ///< Linea donde se uso el identificador
-            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
+            //struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_for;
         
         // Estructura de sentencia de if-else
@@ -361,8 +365,12 @@ void free_statement(struct statement *stmt);
  * @brief Imprime una lista de nodos de sentencias
  * @param statements_list : Puntero a lista enlazada de sentencias
  * @param depth : Profundidad en la impresion de la lista de nodos
+ * @param output : destino de impresion
  */
-void print_AST_statements(struct statement *statements_list, unsigned int depth);
+void print_AST_statements(struct statement *statements_list, unsigned int depth, FILE * output);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_STATEMENT_DPR_

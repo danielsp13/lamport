@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_SEMANTIC_SCOPE_STACK_DPR_
 #define _LAMPORT_SEMANTIC_SCOPE_STACK_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -134,5 +138,8 @@ void free_scope_stack(struct scope_stack * st);
  */
 void print_scope_stack(struct scope_stack * st);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_SEMANTIC_SCOPE_STACK_DPR_

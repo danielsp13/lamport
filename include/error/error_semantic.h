@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_ERROR_SEMANTIC_DPR_
 #define _LAMPORT_ERROR_SEMANTIC_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS -----
@@ -34,6 +38,9 @@
 
 // Se indica que se ha usado un proceso que no ha sido definido antes
 #define ERR_UNDEFINED_PROCESS_MSG "proceso no definido"
+
+// Se indica que se ha redefinido una variable
+#define ERR_DUPLICATED_VARIABLE_MSG "redefinicion de variable"
 
 // Se indica que se ha redefinido un proceso
 #define ERR_DUPLICATED_PROCESS_MSG "redefinicion de proceso"
@@ -107,6 +114,14 @@ char * create_message_error_semantic_unmatched_types(error_semantic_type_checkin
  * @return puntero a error inicializado
  */
 struct error * create_error_semantic_unmatched_types(unsigned long err_line, char **msg);
+
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo: definicion de size de array invalido
+ * @param err_line : linea donde se produjo el error
+ * @param msg : mensaje de error
+ * @return puntero a error inicializado
+ */
+struct error * create_error_semantic_invalid_array_size(unsigned long err_line, char *type_a);
 
 /**
  * @brief Crea y reserva memoria para un error semantico de tipo: comparacion de tipos incorrecta (OPERACIONES BINARIAS)
@@ -237,7 +252,12 @@ struct error * create_error_semantic_unmatched_types_subprogram_function_return(
 /**
  * @brief Imprime la lista de errores semanticos
  * @param list_errors : lista de errores
+ * @param output : destino de impresion
  */
-void print_list_error_semantic(struct error *list_errors);
+void print_list_error_semantic(struct error *list_errors, FILE * output);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_ERROR_SEMANTIC_DPR_

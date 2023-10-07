@@ -8,6 +8,10 @@
 #ifndef _LAMPORT_ERROR_TYPE_DPR_
 #define _LAMPORT_ERROR_TYPE_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- DEFINICION DE TIPOS DE ERRORES (SINTACTICOS) -----
@@ -57,6 +61,7 @@ typedef enum{
     UNMATCHED_TYPES_EXPR_UNARY,
     UNMATCHED_TYPES_EXPR_FUNCTION_INV,
     UNMATCHED_TYPES_DECLARATION,
+    UNMATCHED_TYPES_DECLARATION_ARRAY,
     UNMATCHED_TYPES_STMT_ASSIGNMENT,
     UNMATCHED_TYPES_STMT_ASSIGNMENT_ARRAY_NO_INDEX,
     UNMATCHED_TYPES_STMT_ASSIGNMENT_INDEX,
@@ -73,5 +78,9 @@ typedef enum{
     UNMATCHED_TYPES_PROC_VECTOR_END_RANGE,
     UNMATCHED_TYPES_SUBPROG_FUNCTION_RETURN,
 } error_semantic_type_checking_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_ERROR_TYPE_DPR_

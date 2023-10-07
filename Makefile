@@ -6,7 +6,7 @@
 # Autor: Daniel Perez Ruiz
 # Tutor: Carlos Ureña Almagro
 # ========================================================================================
-# Version: 0.0.6
+# Version: 0.0.7
 # ========================================================================================
 
 # -- Definicion del shell a utilizar
@@ -29,7 +29,8 @@ ifeq ($(UNAME), Linux)
     endif
 endif
 
-.PHONY: backup build_bin_dir clean_bin_dir build_obj_dir clean_obj_dir update_packages
+.PHONY: backup build_bin_dir clean_bin_dir build_obj_dir clean_obj_dir clean_log_dir update_packages
+.PHONY: make_compile_msg compile_lexer_msg compile_parser_msg compile_ast_msg compile_error_msg compile_lmp_utils_msg compile_ir_msg
 
 # ========================================================================================
 # DEFINICION DE VARIABLES
@@ -40,11 +41,10 @@ DPKG_ARCHITECTURE=`dpkg --print-architecture`
 VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
-COMPILER_DEPENDENCIES=gcc flex libfl-dev bison
+COMPILER_DEPENDENCIES=gcc g++ flex libfl-dev bison parallel
 TEST_DEPENDENCIES=cppcheck valgrind
 
 # -- Variables referentes a compilacion/comprobacion de ficheros
-GXX:=gcc
 CFLAGS:=-Wall -Wextra
 UNDEFINED_MACROS=-D$(LEXER_TESTS_MACRO)
 
@@ -65,8 +65,10 @@ TEX_DIR=tex
 TEX_GEN_FILES='.*\.\(aux\|log\|pdf\|dvi\|toc\|out\|bbl\|blg\|lot\|lof\)'
 
 # -- Variables de extensiones
-SOURCE_EXT:=.c
-HEADER_EXT:=.h
+SOURCE_C_EXT:=.c
+HEADER_C_EXT:=.h
+SOURCE_CPLUS_EXT:=.cpp
+HEADER_CPLUS_EXT:=.hpp
 TEST_EXT:=.c
 FLEX_EXT:=.l
 BISON_EXT:=.y
@@ -85,10 +87,11 @@ SOURCE_DIR:=src
 BIN_DIR:=bin
 OBJ_DIR:=obj
 TEST_DIR:=test
+LOG_DIR:=log
 EXAMPLES_DIR:=examples
-INDEX_DIRS=$(HEADER_MODULES_DIR) $(SOURCE_MODULES_DIR) $(TEST_DIR)
-HEADER_MODULES_DIR=$(HEADER_LEXER) $(HEADER_PARSER) $(HEADER_AST) $(HEADER_SEMANTIC) $(HEADER_LMP_UTILS) $(HEADER_TEST_UTILS)
-SOURCE_MODULES_DIR=$(SOURCE_LEXER) $(SOURCE_PARSER) $(SOURCE_AST) $(SOURCE_SEMANTIC) $(SOURCE_LMP_UTILS) $(SOURCE_TEST_UTILS)
+INDEX_DIRS=$(HEADER_MODULES_DIR) $(SOURCE_MODULES_DIR)
+HEADER_MODULES_DIR=$(HEADER_LEXER) $(HEADER_PARSER) $(HEADER_AST) $(HEADER_SEMANTIC) $(HEADER_ERROR) $(HEADER_IR) $(HEADER_LMP_UTILS) 
+SOURCE_MODULES_DIR=$(SOURCE_LEXER) $(SOURCE_PARSER) $(SOURCE_AST) $(SOURCE_SEMANTIC) $(SOURCE_ERROR) $(SOURCE_IR) $(SOURCE_LMP_UTILS) 
 
 # -- Variables referentes a modulos
 LEXER_MODULE:=lexer
@@ -97,6 +100,7 @@ AST_MODULE:=AST
 SEMANTIC_MODULE:=semantic
 ERROR_MODULE:=error
 LMP_UTILS_MODULE:=lmp_utils
+IR_MODULE:=IR
 TEST_UTILS_MODULE:=test_utils
 
 # -- Variables referentes a directorios de modulos (cabeceras)
@@ -106,6 +110,7 @@ HEADER_AST:=$(HEADER_DIR)/$(AST_MODULE)
 HEADER_SEMANTIC:=$(HEADER_DIR)/$(SEMANTIC_MODULE)
 HEADER_ERROR:=$(HEADER_DIR)/$(ERROR_MODULE)
 HEADER_LMP_UTILS:=$(HEADER_DIR)/$(LMP_UTILS_MODULE)
+HEADER_IR:=$(HEADER_DIR)/$(IR_MODULE)
 HEADER_TEST_UTILS:=$(HEADER_DIR)/$(TEST_UTILS_MODULE)
 
 # -- Variables referentes a directorios de modulos (sources)
@@ -115,16 +120,14 @@ SOURCE_AST:=$(SOURCE_DIR)/$(AST_MODULE)
 SOURCE_SEMANTIC:=$(SOURCE_DIR)/$(SEMANTIC_MODULE)
 SOURCE_ERROR:=$(SOURCE_DIR)/$(ERROR_MODULE)
 SOURCE_LMP_UTILS:=$(SOURCE_DIR)/$(LMP_UTILS_MODULE)
+SOURCE_IR:=$(SOURCE_DIR)/$(IR_MODULE)
 SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
 
 # -- Variables de ficheros
 TOKEN_TYPE_NAME:=token
 LMP_MAIN_NAME:=lmp
-EXCLUDE_CHECK_FILES="$(LEXER_MODULE)$(FLEX_EXT) $(LEXER_MODULE)$(SOURCE_EXT) $(PARSER_MODULE)$(BISON_EXT) $(PARSER_MODULE)$(SOURCE_EXT)"
-
-# -- Variables de ficheros (tests)
-INDEX_TEST_LEXER_FILES:=$(TEST_PREFIX)$(LEXER_MODULE)_recon_tokens $(TEST_PREFIX)$(LEXER_MODULE)_recon_patrones $(TEST_PREFIX)$(LEXER_MODULE)_errores $(TEST_PREFIX)$(LEXER_MODULE)_recon_ficheros
-INDEX_TEST_UTILS_FILES:=common_functions
+TEST_VALGRIND_SCRIPT=test_valgrind_multiple_lmp_files.sh
+EXCLUDE_CHECK_FILES="$(LEXER_MODULE)$(FLEX_EXT) $(LEXER_MODULE)$(SOURCE_C_EXT) $(PARSER_MODULE)$(BISON_EXT) $(PARSER_MODULE)$(SOURCE_C_EXT)"
 
 # -- Indice de ficheros
 INDEX_LEXER_FILES:=lexer
@@ -132,7 +135,8 @@ INDEX_PARSER_FILES:=parser parser_register
 INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram process print_assistant
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
-INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis
+INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_ir lmp_logging lmp_tasker
+INDEX_IR_FILES:=literal variable table ir_optimizer ir_builder ir_reg_manager ir_printer
 
 # -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
@@ -141,9 +145,19 @@ INDEX_OBJ_AST_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_AST_FILES))
 INDEX_OBJ_SEMANTIC_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_SEMANTIC_FILES))
 INDEX_OBJ_ERROR_FILES:=$(addsuffix $(OBJ_EXT),$(INDEX_ERROR_FILES))
 INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
+INDEX_OBJ_IR_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_IR_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES)
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_FILES) $(INDEX_OBJ_IR_FILES)
 
+# -- Indice de ficheros (source)
+INDEX_SOURCE_LEXER_FILES:=$(addprefix $(SOURCE_LEXER)/, $(addsuffix $(SOURCE_C_EXT), $(INDEX_LEXER_FILES)))
+INDEX_SOURCE_PARSER_FILES:=$(addprefix $(SOURCE_PARSER)/, $(addsuffix $(SOURCE_C_EXT), $(INDEX_PARSER_FILES)))
+INDEX_SOURCE_AST_FILES:=$(addprefix $(SOURCE_AST)/, $(addsuffix $(SOURCE_C_EXT), $(INDEX_AST_FILES)))
+INDEX_SOURCE_SEMANTIC_FILES:=$(addprefix $(SOURCE_SEMANTIC)/, $(addsuffix $(SOURCE_C_EXT), $(INDEX_SEMANTIC_FILES)))
+INDEX_SOURCE_ERROR_FILES:=$(addprefix $(SOURCE_ERROR)/, $(addsuffix $(SOURCE_C_EXT), $(INDEX_ERROR_FILES)))
+INDEX_SOURCE_LMP_UTILS_FILES:=$(addprefix $(SOURCE_LMP_UTILS)/, $(addsuffix $(SOURCE_CPLUS_EXT), $(INDEX_LMP_UTILS_FILES)))
+INDEX_SOURCE_IR_FILES:=$(addprefix $(SOURCE_IR)/, $(addsuffix $(SOURCE_CPLUS_EXT), $(INDEX_IR_FILES)))
+ 
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
 COLOR_GREEN := $(shell echo -e "\033[1;32m")
@@ -199,64 +213,29 @@ define version_dependencies_skeleton
 	}
 endef
 
-define compile_skeleton
-	@{ \
-		COMPILATION_MODE="$(4)"; \
-		if [ "$$COMPILATION_MODE" = "multiple" ]; then \
-			N_FILES_EXPECTED=1; \
-			echo "$(COLOR_BOLD)>>> Compilando fuentes de modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
-			N_FILES_COMPILED=0 ;\
-		    LIST_OF_SOURCES=""; \
-			for F in $(1); do \
-				LIST_OF_SOURCES="$$LIST_OF_SOURCES $(SOURCE_DIR)/$$F$(SOURCE_EXT)"; \
-			done; \
-			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$(5)$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCLUDE_FLAGS) $$LIST_OF_SOURCES -o $(BIN_DIR)/$(5) $(3) ; \
-			if [ -f $(BIN_DIR)/$(5) ]; then \
-				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
-				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
-			fi ; \
-			echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
-		else \
-			N_FILES_EXPECTED=$(words $(1)) ; \
-			echo "$(COLOR_BOLD)>>> Compilando fuentes de modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
-			N_FILES_COMPILED=0 ;\
-			for F in $(1); do \
-				echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_GREEN)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-				$(GXX) $(INCLUDE_FLAGS) $(SOURCE_DIR)/$$F$(SOURCE_EXT) -o $(BIN_DIR)/$$F $(3) ; \
-				if [ -f $(BIN_DIR)/$$F ]; then \
-					echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(SOURCE_DIR)/$$F$(SOURCE_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
-					N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
-				fi ; \
-			done; \
-			echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
-		fi; \
-	}
-endef
-
 define compile_objects_skeleton
 	@{ \
-		N_FILES_EXPECTED=$(words $(1)) ; \
-		echo "$(COLOR_BOLD)>>> Compilando archivos objeto de modulo: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
+		N_FILES_EXPECTED=$(words $(3)) ; \
+		echo "$(COLOR_BOLD)>>> Compilando archivos objeto de modulo: $(COLOR_BLUE)$(5)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
 		N_FILES_COMPILED=0 ;\
-		for F in $(1); do \
-			echo "$(COLOR_YELLOW) ---> Compilando: $(COLOR_PURPLE)$(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(INCLUDE_FLAGS) -c $(SOURCE_DIR)/$(2)$$F$(SOURCE_EXT) -o $(OBJ_DIR)/$$F.o $(4) ; \
+		for F in $(3); do \
+			echo "$(COLOR_YELLOW) ---> Compilando: $(COLOR_PURPLE)$(SOURCE_DIR)/$(4)$$F$(2)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
+			$(1) $(INCLUDE_FLAGS) -c $(SOURCE_DIR)/$(4)$$F$(2) -o $(OBJ_DIR)/$$F.o $(6) ; \
 			if [ -f $(OBJ_DIR)/$$F.o ]; then \
 				echo "$(COLOR_GREEN) ---> Codigo objeto de: $(COLOR_PURPLE)$(OBJ_DIR)/$$F.o$(COLOR_GREEN) generado exitosamente!! $(COLOR_RESET)" ; \
 				N_FILES_COMPILED=$$(( N_FILES_COMPILED + 1 )) ; \
 			fi ; \
 		done; \
-		echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
+		echo "$(COLOR_BOLD)>>> Modulo: $(COLOR_BLUE)$(5)$(COLOR_RESET_BOLD) compilado exitosamente!! [$$N_FILES_COMPILED ficheros] $(COLOR_RESET)" ;\
 	}
 endef
 
 define compile_lamport_skeleton
 	@{ \
-		N_FILES_EXPECTED=$(words $(1)) ; \
-		echo "$(COLOR_BOLD)>>> Verificando dependencias de modulos para construir compilador: $(COLOR_BLUE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED modulos requeridos] ... $(COLOR_RESET)" ;\
+		N_FILES_EXPECTED=$(words $(2)) ; \
+		echo "$(COLOR_BOLD)>>> Verificando dependencias de modulos para construir intérprete: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED modulos requeridos] ... $(COLOR_RESET)" ;\
 		N_FILES_CHECKED=0 ;\
-		for FILE in $(1); do \
+		for FILE in $(2); do \
 			echo "$(COLOR_YELLOW) ---> Comprobando existencia de [$$FILE] ...$(COLOR_RESET)" ; \
 			if [ -f $(OBJ_DIR)/$$FILE ]; then \
 				echo "$(COLOR_GREEN) ---> [$$FILE] existe, listo para su uso. $(COLOR_RESET)" ; \
@@ -266,36 +245,19 @@ define compile_lamport_skeleton
 			fi ; \
 		done; \
 		if [ $${N_FILES_CHECKED} -lt $${N_FILES_EXPECTED} ]; then \
-			echo "$(COLOR_RED) ---> [ERROR] No se puede construir el compilador de LAMPORT: Faltan dependencias de codigo objeto. $(COLOR_RESET)" ; \
+			echo "$(COLOR_RED) ---> [ERROR] No se puede construir el intérprete de LAMPORT: Faltan dependencias de codigo objeto. $(COLOR_RESET)" ; \
 			echo "$(COLOR_RED) ---> [ERROR] Se esperaban $(COLOR_RESET_BOLD)[$$N_FILES_EXPECTED] modulos $(COLOR_RED), se encontraron $(COLOR_RESET_BOLD)[$$N_FILES_CHECKED] modulos$(COLOR_RESET)." ; \
 			exit 1; \
 		fi; \
 		echo ;\
-		echo "$(COLOR_BOLD)>>> Construyendo compilador: $(COLOR_BLUE)$(2)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
-		$(GXX) $(INCLUDE_FLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(2)$(SOURCE_EXT) -o $(BIN_DIR)/$(2) $(LDFLEX); \
-		if [ -f $(BIN_DIR)/$(2) ]; then \
-			echo "$(COLOR_GREEN) ---> Compilador $(COLOR_BLUE)$(2)$(COLOR_GREEN) construido exitosamente!! $(COLOR_RESET)" ; \
+		echo "$(COLOR_BOLD)>>> Construyendo intérprete: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
+		$(1) $(INCLUDE_FLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(3)$(SOURCE_CPLUS_EXT) -o $(BIN_DIR)/$(3) $(LDFLEX); \
+		if [ -f $(BIN_DIR)/$(3) ]; then \
+			echo "$(COLOR_GREEN) ---> Intérprete $(COLOR_BLUE)$(3)$(COLOR_GREEN) construido exitosamente!! $(COLOR_RESET)" ; \
 		else \
-			echo "$(COLOR_RED) ---> [ERROR] El compilador $(COLOR_BLUE)$(2)$(COLOR_RED) NO se ha podido construir!! $(COLOR_RESET)" ; \
+			echo "$(COLOR_RED) ---> [ERROR] El intérprete $(COLOR_BLUE)$(3)$(COLOR_RED) NO se ha podido construir!! $(COLOR_RESET)" ; \
 			exit 1; \
 		fi ; \
-	}
-endef
-
-define compile_tests_skeleton
-	@{ \
-		N_TESTS_EXPECTED=$(words $(1)) ; \
-		echo "$(COLOR_BOLD)>>> Compilando tests de $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) [$$N_TESTS_EXPECTED tests detectados] ... $(COLOR_RESET)" ;\
-		N_TESTS_COMPILED=0 ;\
-		for TEST in $(1); do \
-			echo "$(COLOR_YELLOW) ---> Compilando $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
-			$(GXX) $(4) $(INCLUDE_FLAGS) $(OBJ_DIR)/$(INDEX_TEST_UTILS_FILES)$(OBJ_EXT) $(TEST_DIR)/$$TEST$(TEST_EXT) -o $(BIN_DIR)/$$TEST $(LDCMOCKA) $(3); \
-			if [ -f $(BIN_DIR)/$$TEST ]; then \
-				echo "$(COLOR_GREEN) ---> $(COLOR_PURPLE)$(TEST_DIR)/$$TEST$(TEST_EXT)$(COLOR_GREEN) compilado exitosamente!! $(COLOR_RESET)" ; \
-				N_TESTS_COMPILED=$$(( N_TESTS_COMPILED + 1 )) ; \
-			fi ; \
-		done; \
-		echo "$(COLOR_BOLD)>>> Tests de $(COLOR_PURPLE)$(2)$(COLOR_RESET_BOLD) compilados exitosamente!! [$$N_TESTS_COMPILED tests] $(COLOR_RESET)" ;\
 	}
 endef
 
@@ -311,30 +273,10 @@ define check_compiled_files_skeleton
 	}
 endef
 
-define exec_tests_skeleton
-	@{ \
-		N_TESTS=$(words $(2)) ; \
-		echo "$(COLOR_BOLD)>>> Ejecutando tests sobre modulo: $(COLOR_YELLOW)$(1)$(COLOR_RESET_BOLD) [$$N_TESTS tests] ...$(COLOR_RESET)"; \
-		N_TESTS_FAILED=0 ; \
-		for TEST in $(2); do \
-			echo "$(COLOR_YELLOW) ---> Ejecutando test: $(COLOR_PURPLE)$$TEST$(COLOR_YELLOW) ... $(COLOR_RESET)"; \
-			./$(BIN_DIR)/$$TEST; \
-			if [ $$? -ne 0 ]; then \
-				N_TESTS_FAILED=$$((N_TESTS_FAILED + 1)); \
-			fi; \
-			echo ; \
-		done; \
-		echo "$(COLOR_BOLD)>>> Tests de $(COLOR_YELLOW)$(1)$(COLOR_RESET_BOLD) ejecutados exitosamente: [$$N_TESTS tests -> $$N_TESTS_FAILED tests fallados] ...$(COLOR_RESET)"; \
-		if [ $${N_TESTS_FAILED} -gt 0 ]; then \
-			exit 1; \
-		fi; \
-	}
-endef
-
 define parse_and_check_files_skeleton
 	@{ \
 		N_CHECKS_FAILED=0; \
-		for DIR in $(1); do \
+		for DIR in $(2); do \
 			echo "$(COLOR_BOLD)>>> Escaneando ficheros de $(COLOR_BLUE)$${DIR}/$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ; \
 			if [ -z "$$(ls -A $$DIR)" ]; then \
 				echo "$(COLOR_RED) ---> [!!] No hay fuentes en $(COLOR_PURPLE)$$DIR/$(COLOR_RESET)"; echo;\
@@ -342,9 +284,9 @@ define parse_and_check_files_skeleton
 				for FILE in $$DIR/*; do \
 					if [ ! -d $$FILE ]; then \
 						FILE_BASENAME=$$(basename $$FILE) ; \
-						if ! echo $(2) | tr " " '\n' | grep -F -q -x "$$FILE_BASENAME"; then \
+						if ! echo $(3) | tr " " '\n' | grep -F -q -x "$$FILE_BASENAME"; then \
 							echo "$(COLOR_YELLOW) ---> Comprobando la sintaxis de $(COLOR_PURPLE)$$FILE$(COLOR_YELLOW) ...$(COLOR_RESET)"; \
-							$(GXX) $(INCLUDE_FLAGS) -fsyntax-only $$FILE; \
+							$(1) $(INCLUDE_FLAGS) -fsyntax-only $$FILE; \
 							if [ $$? -ne 0 ]; then \
 								N_CHECKS_FAILED=$$((N_CHECKS_FAILED + 1)); \
 							fi; \
@@ -377,17 +319,44 @@ define clean_dir_skeleton
 	}
 endef
 
+define compile_module_msg_skeleton
+	@{ \
+		N_FILES_EXPECTED=$(words $(1)) ; \
+		echo "$(COLOR_BOLD)>>> Compilando archivos objeto de modulo: $(COLOR_BLUE)$(2)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros detectados] ... $(COLOR_RESET)" ;\
+	}
+endef
+
+define compile_unique_object_skeleton
+	@{ \
+		mkdir -p $(OBJ_DIR); \
+		echo "$(COLOR_YELLOW) ---> Compilando: $(COLOR_PURPLE)$(2)$(COLOR_YELLOW) ...$(COLOR_RESET)" ; \
+		$(1) $(INCLUDE_FLAGS) -c $(2) -o $(OBJ_DIR)/$(3) $(4) ; \
+		if [ -f $(OBJ_DIR)/$(3) ]; then \
+			echo "$(COLOR_GREEN) ---> Codigo objeto de: $(COLOR_PURPLE)$(OBJ_DIR)/$(3)$(COLOR_GREEN) generado exitosamente!! $(COLOR_RESET)" ; \
+		fi ; \
+	}
+endef
+
+define generate_object_rules
+$(addprefix $(OBJ_DIR)/, $(3)): $(2)
+	$(call compile_unique_object_skeleton,$(1),$(2),$(3),$(4))
+endef
+
 # ========================================================================================
 # DEFINICION DE REGLAS PRINICPALES (ALL/CLEAN)
 # ========================================================================================
 
-make:
-	@make -s compile
+make: make_compile_msg compile
+	
+make_compile_msg:
+	@echo "$(COLOR_BLUE)CONSTRUYENDO INTÉRPRETE DE LAMPORT...$(COLOR_RESET)" && echo
+	
+parallel: compile_parallel
 
 # -- Elimina todos los ficheros que se hayan generado usando el Makefile
 clean:
 	@make -s clean_tex && echo
-	@make -s clean_tests && echo
+	@make -s clean_logs && echo
 	@make -s clean_objects && echo
 	@make -s clean_binaries
 
@@ -407,12 +376,8 @@ build_bin_dir:
 clean_bin_dir:
 	$(call clean_dir_skeleton,$(BIN_DIR))
 
-clean_bin_dir_old:
-	@if [ -z "$(wildcard $(BIN_DIR)/*)" ] && [ -d $(BIN_DIR)/ ]; then \
-		echo; echo "$(COLOR_BLUE)Eliminando directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_BLUE)...$(COLOR_RESET)"; \
-		rmdir $(BIN_DIR) 2>/dev/null || true; \
-		echo "$(COLOR_GREEN)Directorio $(COLOR_PURPLE)$(BIN_DIR)/$(COLOR_GREEN) eliminado correctamente!$(COLOR_RESET)"; \
-	fi
+clean_log_dir:
+	$(call clean_dir_skeleton,$(LOG_DIR))
 	
 build_obj_dir:
 	@mkdir -p $(OBJ_DIR)
@@ -427,12 +392,13 @@ update_packages:
 # DEFINICION DE REGLAS DE LIMPIEZA (CLEAN)
 # ========================================================================================	
 
-# -- Limpia los ficheros de tests compilados
-clean_tests:
-	@echo "$(COLOR_BLUE)Limpiando ficheros de tests compilados...$(COLOR_RESET)"
-	@-rm -f $(BIN_DIR)/$(TEST_PREFIX)* 2> /dev/null
-	@echo "$(COLOR_GREEN)Archivos ficheros de tests compilados eliminados exitosamente!$(COLOR_RESET)"
-	@make -s clean_bin_dir
+
+# -- Limpia los directorios de registro
+clean_logs:
+	@echo "$(COLOR_BLUE)Limpiando ficheros de logging...$(COLOR_RESET)"
+	@rm -rf $(LOG_DIR)/* 2> /dev/null
+	@echo "$(COLOR_GREEN)Archivos ficheros de logging eliminados exitosamente!$(COLOR_RESET)"
+	@make -s clean_log_dir
 
 # -- Limpia todos los ficheros compilados
 clean_binaries:
@@ -459,21 +425,24 @@ author:
 	@echo " -- Nombre de proyecto: Lamport. Simulador de Sistemas Concurrentes y Distribuidos"
 	@echo " -- Autor: Daniel Pérez Ruiz"
 	@echo " -- Tutor: Carlos Ureña Almagro"
-	@echo " -- Version: 0.0.6"
+	@echo " -- Version: 0.0.7"
 	@echo "$(COLOR_RESET)"
 
 # -- Muestra las diferentes opciones de Makefile
 help:
 	@echo "$(COLOR_BOLD)"
 	@echo "-- TAREAS DE MAKEFILE --"
-	@printf "%-30s %s\n" "make" "Constuye el compilador de lamport"
+	@printf "%-30s %s\n" "make" "Constuye el intérprete de lamport"
+	@printf "%-30s %s\n" "make parallel" "Constuye el intérprete de lamport en paralelo"
 	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
 	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
-	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests)."
-	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests)."
+	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, intérprete, tests)."
+	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, intérprete, tests)."
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 	@printf "%-30s %s\n" "make compile" "Compila todos los fuentes del proyecto."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
+	@printf "%-30s %s\n" "make tests" "Ejecuta tests automaticos de fugas de memoria en intérprete utilizando ficheros de prueba."
+	@printf "%-30s %s\n" "make tests_parallel" "Ejecuta los mismos tests que la orden anterior pero en paralelo."
 	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 	@echo "$(COLOR_RESET)"
 
@@ -510,29 +479,29 @@ version_tex_dependencies:
 
 # ----------------------------------------------------------------------------------------
 
-# -- Instala todas las dependencias relacionadas con el compilador
+# -- Instala todas las dependencias relacionadas con el intérprete
 install_compiler_dependencies:
-	$(call install_dependencies_skeleton,"construccion de compilador",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)	
+	$(call install_dependencies_skeleton,"construccion de intérprete",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)	
 
 uninstall_compiler_dependencies:
-	$(call uninstall_dependencies_skeleton,"construccion de compilador",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)	
+	$(call uninstall_dependencies_skeleton,"construccion de intérprete",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)	
     
 version_compiler_dependencies:
-	$(call version_dependencies_skeleton,"construccion de compilador",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)
+	$(call version_dependencies_skeleton,"construccion de intérprete",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)
     
 # ----------------------------------------------------------------------------------------
 
-# -- Instala todas las dependencias relacionadas con los tests del compilador
+# -- Instala todas las dependencias relacionadas con los tests del intérprete
 install_tests_dependencies:
-	$(call install_dependencies_skeleton,"tests sobre compilador",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
+	$(call install_dependencies_skeleton,"tests sobre intérprete",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
 	
-# -- Desinstala todas las dependencias relacionadas con el compilador
+# -- Desinstala todas las dependencias relacionadas con el intérprete
 uninstall_tests_dependencies:
-	$(call uninstall_dependencies_skeleton,"tests sobre compilador",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
+	$(call uninstall_dependencies_skeleton,"tests sobre intérprete",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
 
-# -- Muestra la versión de todas las dependencias relacionadas con el compilador
+# -- Muestra la versión de todas las dependencias relacionadas con el intérprete
 version_tests_dependencies:
-	$(call version_dependencies_skeleton,"tests sobre compilador",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
+	$(call version_dependencies_skeleton,"tests sobre intérprete",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
     
 # ========================================================================================
 # DEFINICION DE REGLAS DE GESTION DE INFORME TEX
@@ -555,66 +524,117 @@ clean_tex:
 # ========================================================================================
 
 # -- Genera la fuente del analizador lexico a traves de flex
-generate_lexer:
+generate_lexer: $(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)
 	@echo "$(COLOR_BOLD)>>> Generando analizador lexico: $(COLOR_BLUE)$(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@flex -o $(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_EXT) $(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)
-	@echo "$(COLOR_BOLD)>>> Analizador lexico generado: $(COLOR_PURPLE)$(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_EXT)$(COLOR_RESET)"
+	@flex -o $(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_C_EXT) $(SOURCE_LEXER)/$(LEXER_MODULE)$(FLEX_EXT)
+	@echo "$(COLOR_BOLD)>>> Analizador lexico generado: $(COLOR_PURPLE)$(SOURCE_LEXER)/$(LEXER_MODULE)$(SOURCE_C_EXT)$(COLOR_RESET)"
+	@echo
 	
 # -- Genera la fuente del analizador sintactico a traves de bison	
-generate_parser:
+generate_parser: $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT)
 	@echo "$(COLOR_BOLD)>>> Generando analizador sintactico: $(COLOR_BLUE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT)$(COLOR_RESET_BOLD) ...$(COLOR_RESET)"
-	@bison --defines=$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT) --output=$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)  $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT) -Wcounterexamples
-	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_EXT)$(COLOR_RESET)"
-	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_EXT)$(COLOR_RESET)"
+	@bison --defines=$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_C_EXT) --output=$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_C_EXT)  $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT) -Wcounterexamples
+	@echo "$(COLOR_BOLD)>>> Analizador sintactico generado: $(COLOR_PURPLE)$(SOURCE_PARSER)/$(PARSER_MODULE)$(SOURCE_C_EXT)$(COLOR_RESET)"
+	@echo "$(COLOR_BOLD)>>> Cabecera del Analizador sintactico generado: $(COLOR_PURPLE)$(HEADER_LEXER)/$(TOKEN_TYPE_NAME)$(HEADER_C_EXT)$(COLOR_RESET)"
+	@echo
+	
+# ========================================================================================
+# DEFINICION DE REGLAS DINAMICAS DE COMPILACION (OBJETOS)
+# ========================================================================================
+
+$(foreach src, $(INDEX_LEXER_FILES), \
+	$(eval $(call generate_object_rules,gcc,$(SOURCE_LEXER)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)),$(LDFLEX))))
+	
+$(foreach src, $(INDEX_PARSER_FILES), \
+	$(eval $(call generate_object_rules,gcc,$(SOURCE_PARSER)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)),$(LDFLEX))))
+	
+$(foreach src, $(INDEX_AST_FILES), \
+	$(eval $(call generate_object_rules,gcc,$(SOURCE_AST)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	
+$(foreach src, $(INDEX_SEMANTIC_FILES), \
+	$(eval $(call generate_object_rules,gcc,$(SOURCE_SEMANTIC)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	
+$(foreach src, $(INDEX_ERROR_FILES), \
+	$(eval $(call generate_object_rules,gcc,$(SOURCE_ERROR)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	
+$(foreach src, $(INDEX_LMP_UTILS_FILES), \
+	$(eval $(call generate_object_rules,g++ --std=c++17,$(SOURCE_LMP_UTILS)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	
+$(foreach src, $(INDEX_IR_FILES), \
+	$(eval $(call generate_object_rules,g++ --std=c++17,$(SOURCE_IR)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE COMPILACION (OBJETOS)
 # ========================================================================================
 
-compile:
-	@echo "$(COLOR_BLUE)CONSTRUYENDO COMPILADOR DE LAMPORT...$(COLOR_RESET)" && echo
-	@make -s compile_sources && echo
-	@make -s compile_lamport && echo
-	@make -s clean_objects && echo
+compile: compile_sources compile_lamport
+	@echo
 	
+compile_parallel:
+	@echo "$(COLOR_BLUE)CONSTRUYENDO INTÉRPRETE DE LAMPORT [EN PARALELO]...$(COLOR_RESET)" && echo
+	@echo compile_{lexer,parser,ast,semantic,error,lmp_utils,ir} | tr ' ' '\n' | parallel -j7 make -s
+	@make -s compile_lamport
+
 compile_lamport: build_bin_dir
-	$(call compile_lamport_skeleton,$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
+	$(call compile_lamport_skeleton,g++ -std=c++17,$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
 	
-compile_sources:
-	@echo "$(COLOR_BLUE)Compilando ficheros de fuentes del proyecto...$(COLOR_RESET)"
-	@make -s compile_lexer && echo
-	@make -s compile_parser && echo
-	@make -s compile_ast && echo
-	@make -s compile_error && echo
-	@make -s compile_semantic && echo
-	
-	@make -s compile_lmp_utils && echo	
+compile_sources: compile_lexer compile_parser compile_ast compile_error compile_semantic compile_ir compile_lmp_utils
 	
 # -- Genera codigo objeto para el analizador lexico
-compile_lexer: build_obj_dir
-	@make -s generate_lexer && echo
-	$(call compile_objects_skeleton,$(INDEX_LEXER_FILES),"$(LEXER_MODULE)/","analizador lexico", $(LDFLEX))
+compile_lexer_msg:
+	$(call compile_module_msg_skeleton,$(INDEX_LEXER_FILES),"analizador léxico")
+
+compile_lexer: generate_lexer $(INDEX_SOURCE_LEXER_FILES) compile_lexer_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_LEXER_FILES))
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)analizador léxico$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo
 	
 # -- Genera codigo objeto para el analizador sintactico
-compile_parser: build_obj_dir
-	@make -s generate_parser && echo
-	$(call compile_objects_skeleton,$(INDEX_PARSER_FILES),"$(PARSER_MODULE)/","analizador sintactico",$(LDFLEX))
+compile_parser_msg:
+	$(call compile_module_msg_skeleton,$(INDEX_PARSER_FILES),"analizador sintáctico")
+
+compile_parser: generate_parser $(INDEX_SOURCE_PARSER_FILES) compile_parser_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_PARSER_FILES))
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)analizador sintáctico$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo
 	
 # -- Genera codigo objeto para el AST
-compile_ast: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_AST_FILES),"$(AST_MODULE)/","Abstract Syntax Tree \(AST\)")
+compile_ast_msg:
+	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"Abstract Syntax Tree \(AST\)")
+
+compile_ast: $(INDEX_SOURCE_AST_FILES) compile_ast_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_AST_FILES))
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)Abstract Syntax Tree (AST)$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo
 	
 # -- Genera codigo objeto para el analizador semantico
-compile_semantic: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_SEMANTIC_FILES),"$(SEMANTIC_MODULE)/","analizador semantico")
+compile_semantic_msg:
+	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"analizador semántico")
+
+compile_semantic: $(INDEX_SOURCE_SEMANTIC_FILES) compile_semantic_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_SEMANTIC_FILES))
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)analizador semántico$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo
 	
 # -- Genera codigo objeto para el modulo de gestion de errores
-compile_error: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_ERROR_FILES),"$(ERROR_MODULE)/","gestor de errores de compilacion")
+compile_error_msg:
+	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"gestor de errores de análisis")
+
+compile_error: $(INDEX_SOURCE_ERROR_FILES) compile_error_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_ERROR_FILES))
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)gestor de errores de análisis$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo
 	
-# -- Genera codigo objeto para las dependencias del compilador Lamport
-compile_lmp_utils: build_obj_dir
-	$(call compile_objects_skeleton,$(INDEX_LMP_UTILS_FILES),"$(LMP_UTILS_MODULE)/","dependencias de compilador lamport")
+# -- Genera codigo objeto para las dependencias del intérprete Lamport
+compile_lmp_utils_msg:
+	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"utilidades de intérprete lamport")
+
+compile_lmp_utils: $(INDEX_SOURCE_LMP_UTILS_FILES) compile_lmp_utils_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_LMP_UTILS_FILES))
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)utilidades de intérprete lamport$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo
+	
+# -- Genera codigo objeto para el modulo de gestion de representacion intermedia de codigo
+compile_ir_msg:
+	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"gestor de representación intermedia de código")
+
+compile_ir: $(INDEX_SOURCE_IR_FILES) compile_ir_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_IR_FILES))
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)gestor de representación intermedia de código$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE TESTEO DE FUENTES
@@ -622,7 +642,22 @@ compile_lmp_utils: build_obj_dir
 
 # -- Comprueba la sintaxis de los fuentes del proyecto
 check:
-	$(call parse_and_check_files_skeleton,$(INDEX_DIRS),$(EXCLUDE_CHECK_FILES))
+	$(call parse_and_check_files_skeleton,"gcc",$(INDEX_DIRS),$(EXCLUDE_CHECK_FILES))
 	
+# -- Ejecuta tests automaticos de valgrind utilizando ficheros de prueba
+tests:
+	@echo "$(COLOR_BLUE)Realizando testeo de intérprete usando ficheros lamport correctos...$(COLOR_RESET)"
+	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples && echo
+	@echo "$(COLOR_BLUE)Realizando testeo de intérprete usando ficheros lamport con errores sintacticos...$(COLOR_RESET)"
+	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples/errores/sintacticos && echo
+	@echo "$(COLOR_BLUE)Realizando testeo de intérprete usando ficheros lamport con errores semanticos...$(COLOR_RESET)"
+	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples/errores/semanticos && echo
+
+# -- Ejecuta tests automaticos de valgrind utilizando ficheros de prueba (ejecucion en paralelo)	
+tests_parallel:
+	@echo "$(COLOR_BLUE)Realizando testeo de intérprete usando ficheros lamport...$(COLOR_RESET)"
+	@parallel ./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) ::: examples examples/errores/sintacticos examples/errores/semanticos
+
+# -- Ejecuta valgrind para realizar test de fugas de memoria utilizando un fichero
 mem_check:
 	@valgrind --leak-check=full $(BIN_DIR)/$(LMP_MAIN_NAME) $(LMP_FILE)

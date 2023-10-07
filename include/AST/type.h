@@ -9,6 +9,10 @@
 #ifndef _LAMPORT_AST_TYPE_DPR_
 #define _LAMPORT_AST_TYPE_DPR_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ===============================================================
 
 // ----- INCLUSION DE DEPENDENCIAS DE NODO -----
@@ -131,8 +135,9 @@ void free_type(struct type *type);
  * @brief Imprime un nodo de tipo de dato
  * @param type : Puntero a nodo tipo
  * @param depth : Profundidad en la impresion del nodo
+ * @param output : destino de impresion
  */
-void print_AST_type(struct type *type, unsigned int depth);
+void print_AST_type(struct type *type, unsigned int depth, FILE * output);
 
 // ===============================================================
 
@@ -160,5 +165,8 @@ struct type * copy_type(struct type *type);
  */
 struct type * copy_list_types(struct type *list_types);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LAMPORT_AST_TYPE_DPR_

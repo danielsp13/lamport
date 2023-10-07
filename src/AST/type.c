@@ -30,29 +30,45 @@ struct type * create_basic_type(type_t kind){
     switch (t->kind)
     {
     case TYPE_INTEGER:
+    {
         t->kind_str = strdup("integer");
         break;
+    }
     case TYPE_REAL:
+    {
         t->kind_str = strdup("real");
         break;
+    }
     case TYPE_BOOLEAN:
+    {
         t->kind_str = strdup("boolean");
         break;
+    }
     case TYPE_CHAR:
+    {
         t->kind_str = strdup("char");
         break;
+    }
     case TYPE_STRING:
+    {
         t->kind_str = strdup("string");
         break;
+    }
     case TYPE_ARRAY:
+    {
         t->kind_str = strdup("array");
         break;
+    }
     case TYPE_SEMAPHORE:
+    {
         t->kind_str = strdup("semaphore");
         break;
+    }
     case TYPE_DPROCESS:
+    {
         t->kind_str = strdup("dinamic process");
         break;
+    }
     }
 
     // -- Comprobar asignacion de tipo de dato exitoso
@@ -137,6 +153,7 @@ void free_type(struct type *type){
     switch (type->kind)
     {
     case TYPE_ARRAY:
+    {
         // -- Liberar tipo
         if(type->size){
             free_expression(type->size);
@@ -148,6 +165,7 @@ void free_type(struct type *type){
         }
         
         break;
+    }
 
     default:
         break;
@@ -161,7 +179,7 @@ void free_type(struct type *type){
 
 // ----- PROTOTIPO DE FUNCIONES PARA IMPRIMIR AST (NODO TIPO) -----
 
-void print_AST_type(struct type *type, unsigned int depth){
+void print_AST_type(struct type *type, unsigned int depth,FILE * output){
     // -- Determinar identacion de nodo
     char * IDENT_NODE = build_identation_spaces(depth);
     // -- Determinar profundidad del siguiente nodo
@@ -169,7 +187,7 @@ void print_AST_type(struct type *type, unsigned int depth){
 
     // -- Si NULL, simplemente devolver
     if(!type){
-        printf("%s%s %s\n",IDENT_NODE, IDENT_ARROW, NULL_NODE_MSG);
+        fprintf(output,"%s%s %s\n",IDENT_NODE, IDENT_ARROW, NULL_NODE_MSG);
 
         // -- Liberar memoria utilizada para la identacion
         free(IDENT_NODE); IDENT_NODE = NULL;
@@ -180,13 +198,17 @@ void print_AST_type(struct type *type, unsigned int depth){
     switch (type->kind)
     {
     case TYPE_ARRAY:
-        printf("%s%s ARRAY DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->subtype->kind_str);
-        printf("%s%s DIMENSION DEL ARRAY:\n", IDENT_NODE, IDENT_BLANK_ARROW);
-        print_AST_expressions(type->size,NEXT_NODE_DEPTH);
+    {
+        fprintf(output,"%s%s ARRAY DE TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->subtype->kind_str);
+        fprintf(output,"%s%s DIMENSION DEL ARRAY:\n", IDENT_NODE, IDENT_BLANK_ARROW);
+        print_AST_expressions(type->size,NEXT_NODE_DEPTH,output);
         break;
+    }
     default:
-        printf("%s%s TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->kind_str);
+    {
+        fprintf(output,"%s%s TIPO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, type->kind_str);
         break;
+    }
     }
 
     // -- Liberar memoria utilizada para la identacion
@@ -226,6 +248,9 @@ bool equals_type(struct type *type_a, struct type *type_b){
     else if(type_b->kind == TYPE_ARRAY){
         return equals_type(type_a,type_b->subtype);
     }
+    // -- Comprobacion 4: Uno es un semaforo y otro un integer
+    else if(type_a->kind == TYPE_SEMAPHORE && type_b->kind == TYPE_INTEGER)
+        return true;
 
     // -- Retornar resultado de comprobacion
     return result;
