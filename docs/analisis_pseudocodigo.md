@@ -94,6 +94,7 @@ De este análisis realizado se ha obtenido la siguiente información, imprescind
 	| <for-statement>
 	| <if-statement>
 	| <procedure-call-statement>
+	| <block-statements-atomic>
 	| <fork-statement>
 	| <join-statement>
 	| <print-statement>
