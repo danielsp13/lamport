@@ -148,6 +148,12 @@ void resolve_declaration(struct declaration *decl){
         // -- Vincular simbolo al scope actual
         bind_symbol_to_scope(decl->symb);
 
+        // -- Resolver expresion de inicializacion de array (si es array)
+        if(decl->type->kind == TYPE_ARRAY){
+            // -- Resolucion de nombres en: expresion
+            resolve_expression(decl->type->size);
+        }
+
         // -- Resolver expresion de valor (si existe)
         if(decl->value){
             // -- Resolucion de nombres en: expresion
