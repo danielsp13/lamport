@@ -1,6 +1,6 @@
 /**
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
- * @file ir_manager.hpp
+ * @file ir_builder.hpp
  * @author Daniel Perez Ruiz
  * @brief Definicion del constructor de codigo intermedio Lineal (IR)
  */
@@ -21,6 +21,9 @@
 
 #include "table.hpp"                ///< Tabla IR
 #include "instruction.hpp"          ///< Instruccion IR
+#include "ir_printer.hpp"           ///< Impresor de instrucciones IR
+#include "ir_optimizer.hpp"         ///< Optimizador de instrucciones IR
+#include "ir_reg_manager.hpp"       ///< Asignador de registros virtuales
 #include "AST/AST.h"                ///< Abstract Syntax Tree (AST)
 
 // ===============================================================
@@ -31,12 +34,24 @@
 
 // ----- DEFINICION DE CLASE CONSTRUCTORA DE CODIGO IR -----
 
+/**
+ * @brief Clase encargada de traducir el AST generado en fases de
+ * analisis en instrucciones de representacion intermedia
+ */
 class IR_Builder{
     private:
         // -- Manejador de tablas de literales, variables y etiquetas
-        IR_Tables tables = IR_Tables::get_instance();
+        IR_Tables& tables = IR_Tables::get_instance();
+        // -- Optimizador de AST / instrucciones IR
+        IR_Optimizer& optimizer = IR_Optimizer::get_instance();
+        // -- Asignador de Registros Virtuales
+        IR_Reg_Manager& reg_manager = IR_Reg_Manager::get_instance();
+        // -- Impresor de instrucciones
+        IR_Printer& printer = IR_Printer::get_instance();
         // -- Vector de instrucciones
         std::vector<IR_instruction> ir_instructions;
+        // -- Generador de etiquetas anonimas
+        int id_label_annonymous = 0;
 
         /**
          * @brief Constructor de la clase (privado por ser singleton)
@@ -44,75 +59,228 @@ class IR_Builder{
         IR_Builder() {};
 
         /**
-         * @brief Convierte el codigo de una instruccion especificada a string
-         * @param instr_code : codigo de instruccion
-         * @return cadena con el codigo de instruccion
+         * @brief Incluye una nueva instruccion IR en la lista
+         * @param instr : instruccion
          */
-        std::string ir_code_instruction_to_string(IR_instruction_type_t instr_code);
+        void add_instruction_to_list(IR_instruction instr);
 
         /**
-         * @brief Convierte el operando de una instruccion especificada a string
-         * @param op : operando de instruccion
-         * @return cadena con el operando de instruccion
+         * @brief Incluye una nueva instruccion IR en la lista en la posicion indicada
+         * @param instr : instruccion
+         * @param position : posicion de vector
          */
-        std::string ir_operand_instruction_to_string(IR_operand op);
+        void add_instruction_to_list_in_position(IR_instruction instr, int position);
 
         /**
-         * @brief Convierte la instruccion especificada a string
-         * @param index : indice de instruccion
-         * @return cadena con la instruccion
-         */
-        std::string ir_instruction_to_string(unsigned int index);
-
-        /**
-         * @brief Imprime las instrucciones IR 
-         * @param output : destino de impresion
-         */
-        void print_ir_instructions(FILE * output);
-
-        /**
-         * @brief Incluye una nueva instruccion IR (sin argumentos)
+         * @brief Emite e incluye una nueva instruccion IR (sin argumentos)
          * @param code_instr : codigo de instruccion
          */
-        void add_instruction(IR_instruction_type_t code_instr);
+        void emit_instruction(IR_instruction_type_t code_instr);
 
         /**
-         * @brief Incluye una nueva instruccion IR (1 operando)
+         * @brief Emite e incluye una nueva instruccion IR (1 operando)
          * @param code_instr : codigo de instruccion
          * @param op_1 : operando 1
          */
-        void add_instruction(IR_instruction_type_t code_instr, IR_operand op_1);
+        void emit_instruction(IR_instruction_type_t code_instr, IR_operand op_1);
 
         /**
-         * @brief Incluye una nueva instruccion IR (1 destino y 1 operando)
+         * @brief Emite e incluye una nueva instruccion IR (1 destino y 1 operando)
          * @param code_instr : codigo de instruccion
          * @param op_dest : operando de destino
          * @param op_1 : operando 1
          */
-        void add_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1);
+        void emit_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1);
 
         /**
-         * @brief Incluye una nueva instruccion IR (1 destino y 2 operando)
+         * @brief Emite e incluye una nueva instruccion IR (1 destino y 2 operando)
          * @param code_instr : codigo de instruccion
          * @param op_dest : operando de destino
          * @param op_1 : operando 1
          * @param op_2 : operando 2
          */
-        void add_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1, IR_operand op_2);
+        void emit_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1, IR_operand op_2);
+
+        /**
+         * @brief Crea un operando de tipo registro
+         * @param id_reg : identificador de registro
+         * @return operando
+         */
+        IR_operand emit_operand_register(int id_reg);
+
+        /**
+         * @brief Crea un operando de tipo registro
+         * @param id_lit : identificador de literal
+         * @return operando
+         */
+        IR_operand emit_operand_literal(int id_lit);
+
+        /**
+         * @brief Crea un operando de tipo variable
+         * @param id_var : identificador de variable
+         * @return operando
+         */
+        IR_operand emit_operand_variable(int id_var);
+
+        /**
+         * @brief Crea un operando de tipo variable array
+         * @param id_var : identificador de variable
+         * @param offset : desplazamiento en el vector
+         * @return operando
+         */
+        IR_operand emit_operand_variable_array(int id_var, int offset);
+
+        /**
+         * @brief Crea un operando de tipo etiqueta
+         * @param id_label : identificador de etiqueta
+         * @return operando
+         */
+        IR_operand emit_operand_label(int id_label);
+
+        /**
+         * @brief Obtiene un nuevo identificador anonimo de etiqueta si es necesario
+         * @return id de etiqueta anonima, en formato string
+         */
+        std::string get_next_label_id();
+
+        /**
+         * @brief Traduce una declaracion a una instruccion IR
+         * @param decl : declaracion AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_declaration_to_ir_instruction(struct declaration * decl);
+
+        /**
+         * @brief Traduce una lista de declaraciones a instrucciones IR
+         * @param list_decl : lista de declaraciones AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_list_declarations_to_ir_instructions(struct declaration * list_decl);
+
+        /**
+         * @brief Traduce un subprograma a instrucciones IR
+         * @param subprog : subprograma AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_subprogram_to_ir_instructions(struct subprogram * subprog);
+
+        /**
+         * @brief Traduce una lista de subprogramas a instrucciones IR
+         * @param list_subprog : lista de subprogramas AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_list_subprograms_to_ir_instructions(struct subprogram * list_subprog);
+
+        /**
+         * @brief Traduce un proceso a instrucciones IR
+         * @param proc : proceso AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_process_to_ir_instructions(struct process * proc);
+
+        /**
+         * @brief Traduce una lista de procesos a instrucciones IR
+         * @param list_proc : lista de procesos AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_list_process_to_ir_instructions(struct process * list_proc);
+
+        /**
+         * @brief Traduce una sentencia a instrucciones IR
+         * @param stmt : sentencia AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_statement_to_ir_instructions(struct statement * stmt);
+        
+        /**
+         * @brief Traduce una sentencia de asignacion a instrucciones IR
+         * @param stmt : sentencia AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_statement_assignment_to_ir_instructions(struct statement * stmt);
+
+        /**
+         * @brief Traduce una sentencia de if/else a instrucciones IR
+         * @param stmt : sentencia AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_statement_ifelse_to_ir_instructions(struct statement * stmt);
+
+        /**
+         * @brief Traduce una sentencia de bucle for a instrucciones IR
+         * @param stmt : sentencia AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_statement_for_to_ir_instructions(struct statement * stmt);
+
+        /**
+         * @brief Traduce una sentencia de bucle while a instrucciones IR
+         * @param stmt : sentencia AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_statement_while_to_ir_instructions(struct statement * stmt);
+
+        /**
+         * @brief Traduce una sentencia de impresion a instrucciones IR
+         * @param stmt : sentencia AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_statement_print_to_ir_instructions(struct statement * stmt);
+
+        /**
+         * @brief Traduce una lista de sentencias a instrucciones IR
+         * @param list_stmt : lista de sentencias AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_list_statements_to_ir_instructions(struct statement * list_stmt);
+
+        /**
+         * @brief Traduce una expresion a instrucciones IR
+         * @param expr : expresion AST
+         * @return identificador de registro donde se almacenara el contenido de la expresion, -1 en otro caso
+         */
+        int translate_expression_to_ir_instructions(struct expression * expr);
+
+        int translate_expression_binary_operation_to_ir_instructions(struct expression * expr);
+
+        int translate_expression_unary_operation_to_ir_instructions(struct expression * expr);
+
+        int translate_expression_identifier_to_ir_instructions(struct expression * expr);
+
+        int translate_expression_literal_to_ir_instructions(struct expression * expr);
+
+        int translate_expression_function_inv_to_ir_instructions(struct expression * expr);
+
+        /**
+         * @brief Traduce un programa a instrucciones IR
+         * @param prog : programa AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_program_to_ir_instructions(struct program * prog);
 
     public:
         /**
-         * @brief Obtiene la instancia del manejador
+         * @brief Obtiene la instancia del generador de instrucciones IR
          * @return instance
          */
         static IR_Builder& get_instance();
 
         /**
-         * @brief Inicializa el manejador de instrucciones IR
+         * @brief Genera las instrucciones IR del programa
+         * @param verbose_avaiable : flag de impresion de contenido
+         * @return exito / fracaso de operacion
          */
-        int start();
+        int build(bool verbose_avaiable);
 
-        
+        /**
+         * @brief Constructor de copia (eliminado)
+         */
+        IR_Builder(const IR_Builder&) = delete;
+
+        /**
+         * @brief Operador de asignacion (eliminado)
+         */
+        void operator=(const IR_Builder&) = delete;
 };
 
 #endif //_LAMPORT_IR_BUILDER_DPR_
