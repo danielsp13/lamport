@@ -42,12 +42,12 @@ void IR_variable::initialize_variable(){
     {
     case IR_VAR_TYPE_INT:
     {
-        value = 0;
+        value = static_cast<int>(0);
         break;
     }
     case IR_VAR_TYPE_REAL:
     {
-        value = 0.0f;
+        value = static_cast<float>(0.0);
         break;
     }
     case IR_VAR_TYPE_CHAR:

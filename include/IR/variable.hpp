@@ -262,6 +262,13 @@ class IR_variable{
          * @return valor en str
          */
         std::string get_initial_value_str() const;
+
+        /**
+         * @brief Obtiene el valor inicial de variable
+         * @return valor de variable
+         */
+        template <typename T>
+        T get_initial_value() const { return std::get<T>(value); };
 };
 
 #endif //_LAMPORT_IR_VARIABLE_DPR_
