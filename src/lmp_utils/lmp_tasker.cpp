@@ -117,9 +117,27 @@ void LMP_Tasker::task_logging_ir(std::string filename){
     this->task_delay();
 }
 
+void LMP_Tasker::task_logging_lvm(std::string filename){
+    print_blue();
+    std::cout << this->TASK_HEADER_MSG << "Registrando contenido de memoria y tabla de paginas de máquina virtual en fichero (" << filename << ") ... ";
+    std::cout.flush();
+    print_reset();
+
+    this->task_delay();
+}
+
 void LMP_Tasker::task_free_resources(){
     print_yellow();
     std::cout << this->TASK_HEADER_MSG << "Liberando memoria dinámica reservada para recursos ... ";
+    std::cout.flush();
+    print_reset();
+
+    this->task_delay();
+}
+
+void LMP_Tasker::task_preload_lvm(){
+    print_yellow();
+    std::cout << this->TASK_HEADER_MSG << "Preparando Máquina Virtual. Volcando información a memoria ... ";
     std::cout.flush();
     print_reset();
 

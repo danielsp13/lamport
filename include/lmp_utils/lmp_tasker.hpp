@@ -37,7 +37,7 @@ class LMP_Tasker{
         const bool COLORS_AVAIABLE = true;
 
         const int TASK_DELAY = 500;
-        bool DELAY_AVAIABLE = true;
+        bool DELAY_AVAIABLE = false;
 
         /**
          * @brief Constructor de la clase
@@ -143,9 +143,20 @@ class LMP_Tasker{
         void task_logging_ir(std::string filename);
 
         /**
+         * @brief Indica la tarea de logging de LVM
+         * @param filename : archivo de registro
+         */
+        void task_logging_lvm(std::string filename);
+
+        /**
          * @brief Indica la tarea de liberacion de recursos
          */
         void task_free_resources();
+
+        /**
+         * @brief Indica la tarea de preparacion de maquina virtual
+         */
+        void task_preload_lvm();
 
         /**
          * @brief Indica que la tarea se completo con exito
