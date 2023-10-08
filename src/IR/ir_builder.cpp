@@ -20,54 +20,6 @@ IR_Builder& IR_Builder::get_instance(){
 
 // ----- IMPLEMENTACION DE METODOS PRIVADOS [IR_MANAGER] -----
 
-void IR_Builder::add_instruction_to_list(IR_instruction instr){
-    // -- Insertar en lista de instrucciones
-    this->ir_instructions.push_back(instr);
-
-    // -- Insertar en la lista de instrucciones en string
-    printer.add_ir_instruction_to_printer(instr);
-}
-
-void IR_Builder::add_instruction_to_list_in_position(IR_instruction instr, int position){
-    // -- Insertar en la lista de instrucciones
-    this->ir_instructions.insert(ir_instructions.begin() + position, instr);
-
-    // -- Insertar en la lista de instrucciones en string
-    printer.add_ir_instruction_to_printer(instr,position);
-}
-
-void IR_Builder::emit_instruction(IR_instruction_type_t code_instr){
-    // -- Crear instruccion
-    IR_instruction instr(code_instr);
-
-    // -- Incluir
-    this->add_instruction_to_list(instr);
-}
-
-void IR_Builder::emit_instruction(IR_instruction_type_t code_instr, IR_operand op_1){
-    // -- Crear instruccion
-    IR_instruction instr(code_instr,op_1);
-
-    // -- Incluir
-    this->add_instruction_to_list(instr);
-}
-
-void IR_Builder::emit_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1){
-    // -- Crear instruccion
-    IR_instruction instr(code_instr,op_dest,op_1);
-
-    // -- Incluir
-    this->add_instruction_to_list(instr);
-}
-
-void IR_Builder::emit_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1, IR_operand op_2){
-    // -- Crear instruccion
-    IR_instruction instr(code_instr,op_dest,op_1,op_2);
-
-    // -- Incluir
-    this->add_instruction_to_list(instr);
-}
-
 IR_operand IR_Builder::emit_operand_register(int id_reg){
     IR_operand op(IR_operand_t::IR_OPERAND_REGISTER,id_reg);
     return op;
@@ -157,7 +109,7 @@ bool IR_Builder::translate_declaration_to_ir_instruction(struct declaration * de
         // ---- Operando de carga
         IR_operand op_1 = this->emit_operand_register(id_reg_value);
 
-        this->emit_instruction(IR_OP_STORE,op_dest,op_1);
+        instruction_table.emit_instruction(IR_OP_STORE,op_dest,op_1);
     }
 
     // -- Retornar resultado de traduccion
@@ -212,12 +164,12 @@ bool IR_Builder::translate_process_to_ir_instructions(struct process * proc){
     int id_process_in_table = tables.add_entry_variable(IR_VAR_GLOBAL,proc_name,IR_VAR_TYPE_PROCESS);
 
     // 3. Generar etiqueta de entrada de proceso
-    int id_label_in_table = tables.add_entry_label(std::string("start_proc_") + proc_name + "(" + id_label_block + ")",ir_instructions.size()+1);
+    int id_label_in_table = tables.add_entry_label(std::string("start_proc_") + proc_name + "(" + id_label_block + ")",instruction_table.size()+1);
 
     // 4. Emitir instruccion de punto de entrada de proceso
     IR_operand op_label = this->emit_operand_label(id_label_in_table);
 
-    this->emit_instruction(IR_LABEL,op_label);
+    instruction_table.emit_instruction(IR_LABEL,op_label);
 
     // 5. Traducir declaraciones de proceso
     if(proc->declarations)
@@ -229,12 +181,12 @@ bool IR_Builder::translate_process_to_ir_instructions(struct process * proc){
         translate_result = this->translate_list_statements_to_ir_instructions(proc->statements);
 
     // 7. Generar etiqueta de fin de proceso
-    id_label_in_table = tables.add_entry_label(std::string("end_proc_") + proc_name + "(" + id_label_block + ")",ir_instructions.size()+1);
+    id_label_in_table = tables.add_entry_label(std::string("end_proc_") + proc_name + "(" + id_label_block + ")",instruction_table.size()+1);
 
     // 4. Emitir instruccion de punto de entrada de proceso
     op_label = this->emit_operand_label(id_label_in_table);
 
-    this->emit_instruction(IR_LABEL,op_label);
+    instruction_table.emit_instruction(IR_LABEL,op_label);
 
     // -- Retornar resultado de traduccion
     return translate_result;
@@ -369,7 +321,7 @@ bool IR_Builder::translate_statement_assignment_to_ir_instructions(struct statem
         op_dest = this->emit_operand_variable(id_variable_in_table);
     }
 
-    this->emit_instruction(IR_OP_STORE,op_dest,op_1);
+    instruction_table.emit_instruction(IR_OP_STORE,op_dest,op_1);
 
     // -- Retornar exito
     return true;
@@ -380,7 +332,7 @@ bool IR_Builder::translate_statement_ifelse_to_ir_instructions(struct statement 
     this->translate_expression_to_ir_instructions(stmt->stmt.statement_if_else.condition);
 
     // -- Obtener total de instrucciones en este momento
-    const int total_instr_before = ir_instructions.size();
+    const int total_instr_before = instruction_table.size();
 
     // -- Generar instrucciones para bloque if
     this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_if_else.if_body);
@@ -389,26 +341,26 @@ bool IR_Builder::translate_statement_ifelse_to_ir_instructions(struct statement 
     int id_label_in_table = 0; const std::string id_label_block = this->get_next_label_id();
     if(stmt->stmt.statement_if_else.else_body){
         // -- Obtener total de instrucciones tras generacion de bloque if
-        const int total_instr_now = ir_instructions.size();
+        const int total_instr_now = instruction_table.size();
 
         // -- Generar instruccion de salto condicional
         id_label_in_table = tables.add_entry_label(std::string("else_block(") + id_label_block + ")",total_instr_now+1);
         IR_operand op_jmp = this->emit_operand_label(id_label_in_table);
         IR_instruction instr_jmp_false(IR_OP_JMP_FALSE,op_jmp);
 
-        this->add_instruction_to_list_in_position(instr_jmp_false,total_instr_before);
+        instruction_table.add_instruction_to_list_in_position(instr_jmp_false,total_instr_before);
 
         // -- Generar instruccion de etiqueta de bloque else
-        this->emit_instruction(IR_LABEL,op_jmp);
+        instruction_table.emit_instruction(IR_LABEL,op_jmp);
 
         // -- Generar instrucciones para bloque else
         this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_if_else.else_body);
     }
 
     // -- Generar instruccion de etiqueta de fin de bloque else
-    id_label_in_table = tables.add_entry_label(std::string("end_if(") + id_label_block + ")",ir_instructions.size()+1);
+    id_label_in_table = tables.add_entry_label(std::string("end_if(") + id_label_block + ")",instruction_table.size()+1);
     IR_operand op_end_if = this->emit_operand_label(id_label_in_table);
-    this->emit_instruction(IR_LABEL,op_end_if);
+    instruction_table.emit_instruction(IR_LABEL,op_end_if);
 
     return true;
 }
@@ -416,35 +368,35 @@ bool IR_Builder::translate_statement_ifelse_to_ir_instructions(struct statement 
 bool IR_Builder::translate_statement_while_to_ir_instructions(struct statement * stmt){
     // -- Generar etiqueta de entrada de bucle while
     const std::string id_label_block = this->get_next_label_id();
-    const int instr_while_start = ir_instructions.size()+1;
+    const int instr_while_start = instruction_table.size()+1;
     int id_label_in_table = tables.add_entry_label(std::string("while_start(") + id_label_block + ")",instr_while_start);
 
     // -- Generar instruccion de etiqueta de inicio de while
     IR_operand op_while_start = this->emit_operand_label(id_label_in_table);
-    this->emit_instruction(IR_LABEL,op_while_start);
+    instruction_table.emit_instruction(IR_LABEL,op_while_start);
 
     // -- Generar instrucciones ir para condicion del bucle
     const int reg_while_condition = this->translate_expression_to_ir_instructions(stmt->stmt.statement_while.condition);
     IR_operand op_while_condition = this->emit_operand_register(reg_while_condition);
 
     // -- Obtener total de instrucciones en vector hasta el momento de generar para la condicion
-    const int instr_while_condition = ir_instructions.size();
+    const int instr_while_condition = instruction_table.size();
 
     // -- Generar instrucciones ir para cuerpo del bucle
     this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_while.body);
 
     // -- Generar instruccion ir de salto incondicional al inicio del bucle
-    this->emit_instruction(IR_OP_JMP,op_while_start);
+    instruction_table.emit_instruction(IR_OP_JMP,op_while_start);
 
     // -- Generar instruccion de ruptura de bucle while
-    id_label_in_table = tables.add_entry_label(std::string("while_end(") + id_label_block + ")",ir_instructions.size()+2);
+    id_label_in_table = tables.add_entry_label(std::string("while_end(") + id_label_block + ")",instruction_table.size()+2);
     IR_operand op_while_end = this->emit_operand_label(id_label_in_table);
     IR_instruction instr_jmp_false(IR_OP_JMP_FALSE,false,op_while_condition,op_while_end);
 
-    this->add_instruction_to_list_in_position(instr_jmp_false,instr_while_condition);
+    instruction_table.add_instruction_to_list_in_position(instr_jmp_false,instr_while_condition);
 
     // -- Generar instruccion de etiqueta de fin de bucle while
-    this->emit_instruction(IR_LABEL,op_while_end);
+    instruction_table.emit_instruction(IR_LABEL,op_while_end);
 
     return true;
 }
@@ -462,22 +414,22 @@ bool IR_Builder::translate_statement_for_to_ir_instructions(struct statement * s
     // ---- Emitir instruccion de carga de valor en variable
     IR_operand op_index_dest = this->emit_operand_variable(id_variable_in_table);
     IR_operand op_index = this->emit_operand_register(reg_index_init);
-    this->emit_instruction(IR_OP_STORE,op_index_dest,op_index);
+    instruction_table.emit_instruction(IR_OP_STORE,op_index_dest,op_index);
 
     // -- Generar etiqueta de entrada de bucle for
     const std::string id_label_block = this->get_next_label_id();
-    const int instr_for_start = ir_instructions.size()+1;
+    const int instr_for_start = instruction_table.size()+1;
     int id_label_in_table = tables.add_entry_label(std::string("for_start(") + id_label_block + ")",instr_for_start);
     IR_operand op_for_start = this->emit_operand_label(id_label_in_table);
-    this->emit_instruction(IR_LABEL,op_for_start);
+    instruction_table.emit_instruction(IR_LABEL,op_for_start);
 
     // ---- Emitir instruccion de comparacion con condicion de fin de bucle
     const int reg_index_end = this->translate_expression_to_ir_instructions(stmt->stmt.statement_for.finish);
     const int reg_index_cmp = reg_manager.get_next_register();
     IR_operand op_index_cmp = this->emit_operand_register(reg_index_cmp);
     IR_operand op_index_end = this->emit_operand_register(reg_index_end);
-    this->emit_instruction(IR_OP_CMP_LTE,op_index_cmp,op_index,op_index_end);
-    const int instr_for_condition = ir_instructions.size();
+    instruction_table.emit_instruction(IR_OP_CMP_LTE,op_index_cmp,op_index,op_index_end);
+    const int instr_for_condition = instruction_table.size();
 
     // ---- Generar instrucciones de cuerpo de bucle for
     this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_for.body);
@@ -485,21 +437,21 @@ bool IR_Builder::translate_statement_for_to_ir_instructions(struct statement * s
     // ---- Generar instrucciones de actualizacion de contador
     int id_literal_in_table = tables.add_entry_literal(1);
     IR_operand op_index_inc = this->emit_operand_literal(id_literal_in_table);
-    this->emit_instruction(IR_OP_ADD,op_index,op_index,op_index_inc);
-    this->emit_instruction(IR_OP_STORE,op_index_dest,op_index);
+    instruction_table.emit_instruction(IR_OP_ADD,op_index,op_index,op_index_inc);
+    instruction_table.emit_instruction(IR_OP_STORE,op_index_dest,op_index);
 
     // ---- Generar instruccion de salto incondicional al inicio del bucle
-    this->emit_instruction(IR_OP_JMP,op_for_start);
+    instruction_table.emit_instruction(IR_OP_JMP,op_for_start);
 
     // ---- Generar instruccion de ruptura de bucle for
-    id_label_in_table = tables.add_entry_label(std::string("for_end(") + id_label_block + ")",ir_instructions.size()+2);
+    id_label_in_table = tables.add_entry_label(std::string("for_end(") + id_label_block + ")",instruction_table.size()+2);
     IR_operand op_for_end = this->emit_operand_label(id_label_in_table);
     IR_instruction instr_jmp_false(IR_OP_JMP_FALSE,false,op_index_cmp,op_for_end);
 
-    this->add_instruction_to_list_in_position(instr_jmp_false,instr_for_condition);
+    instruction_table.add_instruction_to_list_in_position(instr_jmp_false,instr_for_condition);
 
     // ---- Generar instruccion de etiqueta de fin de bucle for
-    this->emit_instruction(IR_LABEL,op_for_end);
+    instruction_table.emit_instruction(IR_LABEL,op_for_end);
 
     return true;
 }
@@ -519,7 +471,7 @@ bool IR_Builder::translate_statement_print_to_ir_instructions(struct statement *
         op_print = this->emit_operand_register(reg_expression);
 
         // -- Emitir instruccion de impresion
-        this->emit_instruction(IR_OP_PRINT,op_print);
+        instruction_table.emit_instruction(IR_OP_PRINT,op_print);
 
         // -- Ir a siguiente expresion a imprimir
         current_expr_to_print = current_expr_to_print->next;
@@ -535,7 +487,7 @@ bool IR_Builder::translate_statement_print_to_ir_instructions(struct statement *
     op_print = this->emit_operand_register(reg_expression);
 
     // -- Emitir instruccion de impresion
-    this->emit_instruction(IR_OP_PRINT,op_print);
+    instruction_table.emit_instruction(IR_OP_PRINT,op_print);
 
     // -- Liberar expresion utilizada
     free_expression(expr_endl);
@@ -625,69 +577,69 @@ int IR_Builder::translate_expression_binary_operation_to_ir_instructions(struct 
     // ------ OPERACIONES ARITMETICAS
     case EXPR_ADD:
     {
-        this->emit_instruction(IR_OP_ADD,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_ADD,op_dest,op_1,op_2);
         break;
     }
     case EXPR_SUB:
     {
-        this->emit_instruction(IR_OP_SUB,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_SUB,op_dest,op_1,op_2);
         break;
     }
     case EXPR_MULT:
     {
-        this->emit_instruction(IR_OP_MULT,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_MULT,op_dest,op_1,op_2);
         break;
     }
     case EXPR_DIV:
     {
-        this->emit_instruction(IR_OP_DIV,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_DIV,op_dest,op_1,op_2);
         break;
     }
     case EXPR_MOD:
     {
-        this->emit_instruction(IR_OP_MOD,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_MOD,op_dest,op_1,op_2);
         break;
     }
     // ------ OPERACIONES DE COMPARACION
     case EXPR_LT:
     {
-        this->emit_instruction(IR_OP_CMP_LT,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_CMP_LT,op_dest,op_1,op_2);
         break;
     }
     case EXPR_LTE:
     {
-        this->emit_instruction(IR_OP_CMP_LTE,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_CMP_LTE,op_dest,op_1,op_2);
         break;
     }
     case EXPR_GT:
     {
-        this->emit_instruction(IR_OP_CMP_GT,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_CMP_GT,op_dest,op_1,op_2);
         break;
     }
     case EXPR_GTE:
     {
-        this->emit_instruction(IR_OP_CMP_GTE,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_CMP_GTE,op_dest,op_1,op_2);
         break;
     }
     case EXPR_EQ:
     {
-        this->emit_instruction(IR_OP_CMP_EQ,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_CMP_EQ,op_dest,op_1,op_2);
         break;
     }
     case EXPR_NEQ:
     {
-        this->emit_instruction(IR_OP_CMP_NEQ,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_CMP_NEQ,op_dest,op_1,op_2);
         break;
     }
     // ------ OPERACIONES LOGICAS
     case EXPR_AND:
     {
-        this->emit_instruction(IR_OP_AND,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_AND,op_dest,op_1,op_2);
         break;
     }
     case EXPR_OR:
     {
-        this->emit_instruction(IR_OP_OR,op_dest,op_1,op_2);
+        instruction_table.emit_instruction(IR_OP_OR,op_dest,op_1,op_2);
         break;
     }
 
@@ -717,13 +669,13 @@ int IR_Builder::translate_expression_unary_operation_to_ir_instructions(struct e
     // ------ OPERACIONES ARITMETICAS
     case EXPR_NEGATIVE:
     {
-        this->emit_instruction(IR_OP_NEG,op_dest,op_1);
+        instruction_table.emit_instruction(IR_OP_NEG,op_dest,op_1);
         break;
     }
     // ------ OPERACIONES LOGICAS
     case EXPR_NOT:
     {
-        this->emit_instruction(IR_OP_NOT,op_dest,op_1);
+        instruction_table.emit_instruction(IR_OP_NOT,op_dest,op_1);
         break;
     }
     
@@ -769,7 +721,7 @@ int IR_Builder::translate_expression_identifier_to_ir_instructions(struct expres
     }
 
     // -- Emitir instruccion
-    this->emit_instruction(IR_OP_LOAD,op_dest,op_1);
+    instruction_table.emit_instruction(IR_OP_LOAD,op_dest,op_1);
 
     // -- Retornar registro asignado
     return reg_assigned;
@@ -836,7 +788,7 @@ int IR_Builder::translate_expression_literal_to_ir_instructions(struct expressio
     IR_operand op_1 = this->emit_operand_literal(id_literal_in_table);
 
     // -- Incluir instruccion de carga
-    this->emit_instruction(IR_OP_LOAD,op_dest,op_1);
+    instruction_table.emit_instruction(IR_OP_LOAD,op_dest,op_1);
 
     // -- Retornar registro
     return reg_assigned;
@@ -851,12 +803,12 @@ bool IR_Builder::translate_program_to_ir_instructions(struct program * prog){
     std::string prog_name = std::string(prog->name_program);
 
     // 3. Generar etiqueta de entrada de programa
-    int id_label_in_table = tables.add_entry_label(std::string("prog_") + prog_name,ir_instructions.size()+1);
+    int id_label_in_table = tables.add_entry_label(std::string("prog_") + prog_name,instruction_table.size()+1);
 
     // 4. Emitir instruccion de punto de entrada de proceso
     IR_operand op_label = this->emit_operand_label(id_label_in_table);
 
-    this->emit_instruction(IR_LABEL,op_label);
+    instruction_table.emit_instruction(IR_LABEL,op_label);
 
     // -- Comprobar las declaraciones globales del programa
     if(prog->declarations){
@@ -895,7 +847,7 @@ int IR_Builder::build(bool verbose_avaiable){
         tables.print_labels_table(); std::cout << std::endl;
 
         // -- Imprimir instrucciones IR
-        printer.print_ir_instructions();
+        IR_Printer::get_instance().print_ir_instructions();
     }
     return 0;
 }

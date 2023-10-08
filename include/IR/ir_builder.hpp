@@ -21,7 +21,7 @@
 
 #include "table.hpp"                ///< Tabla IR
 #include "instruction.hpp"          ///< Instruccion IR
-#include "ir_printer.hpp"           ///< Impresor de instrucciones IR
+#include "instruction_table.hpp"    ///< Tabla de instruccioness
 #include "ir_optimizer.hpp"         ///< Optimizador de instrucciones IR
 #include "ir_reg_manager.hpp"       ///< Asignador de registros virtuales
 #include "AST/AST.h"                ///< Abstract Syntax Tree (AST)
@@ -46,10 +46,8 @@ class IR_Builder{
         IR_Optimizer& optimizer = IR_Optimizer::get_instance();
         // -- Asignador de Registros Virtuales
         IR_Reg_Manager& reg_manager = IR_Reg_Manager::get_instance();
-        // -- Impresor de instrucciones
-        IR_Printer& printer = IR_Printer::get_instance();
-        // -- Vector de instrucciones
-        std::vector<IR_instruction> ir_instructions;
+        // -- Tabla de instrucciones
+        IR_Instruction_Table& instruction_table = IR_Instruction_Table::get_instance();
         // -- Generador de etiquetas anonimas
         int id_label_annonymous = 0;
 
@@ -57,49 +55,6 @@ class IR_Builder{
          * @brief Constructor de la clase (privado por ser singleton)
          */
         IR_Builder() {};
-
-        /**
-         * @brief Incluye una nueva instruccion IR en la lista
-         * @param instr : instruccion
-         */
-        void add_instruction_to_list(IR_instruction instr);
-
-        /**
-         * @brief Incluye una nueva instruccion IR en la lista en la posicion indicada
-         * @param instr : instruccion
-         * @param position : posicion de vector
-         */
-        void add_instruction_to_list_in_position(IR_instruction instr, int position);
-
-        /**
-         * @brief Emite e incluye una nueva instruccion IR (sin argumentos)
-         * @param code_instr : codigo de instruccion
-         */
-        void emit_instruction(IR_instruction_type_t code_instr);
-
-        /**
-         * @brief Emite e incluye una nueva instruccion IR (1 operando)
-         * @param code_instr : codigo de instruccion
-         * @param op_1 : operando 1
-         */
-        void emit_instruction(IR_instruction_type_t code_instr, IR_operand op_1);
-
-        /**
-         * @brief Emite e incluye una nueva instruccion IR (1 destino y 1 operando)
-         * @param code_instr : codigo de instruccion
-         * @param op_dest : operando de destino
-         * @param op_1 : operando 1
-         */
-        void emit_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1);
-
-        /**
-         * @brief Emite e incluye una nueva instruccion IR (1 destino y 2 operando)
-         * @param code_instr : codigo de instruccion
-         * @param op_dest : operando de destino
-         * @param op_1 : operando 1
-         * @param op_2 : operando 2
-         */
-        void emit_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1, IR_operand op_2);
 
         /**
          * @brief Crea un operando de tipo registro
