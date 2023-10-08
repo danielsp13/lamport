@@ -112,7 +112,7 @@ class LVM_Memory_Block{
          * @brief Obtiene el tipo de bloque de memoria
          * @return tipo de bloque
          */
-        LVM_Memory_Block_type_t get_type_of_alloc() {return allocates_type; };
+        LVM_Memory_Block_type_t get_type_of_alloc() const {return allocates_type; };
 
         /**
          * @brief Obtiene el tipo de bloque de memoria en formato string

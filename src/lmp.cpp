@@ -26,9 +26,10 @@
 #define LMP_IR_IS_AVAIABLE true
 #define LMP_IR_VERBOSE_RESULT_IS_AVAIABLE false
 #define LMP_LOGGING_IR_IS_AVAIABLE true
-#define LMP_LVM_IS_AVAIABLE true
+#define LMP_LVM_PRELOAD_IS_AVAIABLE true
 #define LMP_LVM_VERBOSE_PRELOAD_IS_AVAIABLE false
 #define LMP_LOGGING_LVM_IS_AVAIABLE true
+#define LMP_LVM_EXECUTION_IS_AVAIABLE true
 
 // ===============================================================
 
@@ -130,7 +131,7 @@ int lmp(int nargs, char *argv[]){
     /////////////////////////////////////////////////////////////////////////
 
     // -- Comprobar disponibilidad de maquina virtual
-    if(!LMP_LVM_IS_AVAIABLE)
+    if(!LMP_LVM_PRELOAD_IS_AVAIABLE)
         return exec_result;
 
     // ---- Preparar maquina virtual
@@ -139,6 +140,10 @@ int lmp(int nargs, char *argv[]){
     // -- Comprobar disponibilidad de logging de maquina virtual
     if(LMP_LOGGING_LVM_IS_AVAIABLE)
         LMP_Logging::get_instance().log_lvm();
+
+    // -- Comprobar disponibilidad de ejecucion de maquina virtual
+    if(!LMP_LVM_EXECUTION_IS_AVAIABLE)
+        return exec_result;
 
     // ---- Ejecutar maquina virtual
     exec_result = LMP_LVM_Launcher::get_instance().start();
