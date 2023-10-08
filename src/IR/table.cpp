@@ -423,7 +423,7 @@ void IR_Tables::print_variables_table(std::ostream& os){
         var = table_variables[i].get()->get_variable();
 
         // -- Imprimir contenido
-        os << std::left << std::setw(gap_variables) << i << std::setw(gap_variables) << var->get_name() << std::setw(gap_variables) << var->get_kind_str() << std::setw(gap_variables) << var->get_type_str() <<  std::setw(gap_variables) << var->get_value_str() << std::endl;
+        os << std::left << std::setw(gap_variables) << i << std::setw(gap_variables) << var->get_name() << std::setw(gap_variables) << var->get_kind_str() << std::setw(gap_variables) << var->get_type_str() <<  std::setw(gap_variables) << var->get_initial_value_str() << std::endl;
     }
 
 }

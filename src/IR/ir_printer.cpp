@@ -46,12 +46,12 @@ std::string IR_Printer::ir_operand_instruction_to_string(IR_operand op){
     }
     case IR_operand_t::IR_OPERAND_VARIABLE:
     {
-        instr_op_str = tables.get_entry_variable(address)->to_string();
+        instr_op_str = tables.get_entry_variable(address)->get_name();
         break;
     }
     case IR_operand_t::IR_OPERAND_VARIABLE_ARRAY:
     {
-        instr_op_str = tables.get_entry_variable(address)->to_string() + "+(%r" + std::to_string(op.get_offset()) + ")";
+        instr_op_str = tables.get_entry_variable(address)->get_name() + "+(%r" + std::to_string(op.get_offset()) + ")";
         break;
     }
     case IR_operand_t::IR_OPERAND_LABEL:
