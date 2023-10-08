@@ -90,8 +90,8 @@ TEST_DIR:=test
 LOG_DIR:=log
 EXAMPLES_DIR:=examples
 INDEX_DIRS=$(HEADER_MODULES_DIR) $(SOURCE_MODULES_DIR)
-HEADER_MODULES_DIR=$(HEADER_LEXER) $(HEADER_PARSER) $(HEADER_AST) $(HEADER_SEMANTIC) $(HEADER_ERROR) $(HEADER_IR) $(HEADER_LMP_UTILS) 
-SOURCE_MODULES_DIR=$(SOURCE_LEXER) $(SOURCE_PARSER) $(SOURCE_AST) $(SOURCE_SEMANTIC) $(SOURCE_ERROR) $(SOURCE_IR) $(SOURCE_LMP_UTILS) 
+HEADER_MODULES_DIR=$(HEADER_LEXER) $(HEADER_PARSER) $(HEADER_AST) $(HEADER_SEMANTIC) $(HEADER_ERROR) $(HEADER_IR) $(HEADER_LMP_UTILS) $(HEADER_LVM)
+SOURCE_MODULES_DIR=$(SOURCE_LEXER) $(SOURCE_PARSER) $(SOURCE_AST) $(SOURCE_SEMANTIC) $(SOURCE_ERROR) $(SOURCE_IR) $(SOURCE_LMP_UTILS) $(SOURCE_LVM)
 
 # -- Variables referentes a modulos
 LEXER_MODULE:=lexer
@@ -102,6 +102,7 @@ ERROR_MODULE:=error
 LMP_UTILS_MODULE:=lmp_utils
 IR_MODULE:=IR
 TEST_UTILS_MODULE:=test_utils
+LVM_MODULE:=LVM
 
 # -- Variables referentes a directorios de modulos (cabeceras)
 HEADER_LEXER:=$(HEADER_DIR)/$(LEXER_MODULE)
@@ -112,6 +113,7 @@ HEADER_ERROR:=$(HEADER_DIR)/$(ERROR_MODULE)
 HEADER_LMP_UTILS:=$(HEADER_DIR)/$(LMP_UTILS_MODULE)
 HEADER_IR:=$(HEADER_DIR)/$(IR_MODULE)
 HEADER_TEST_UTILS:=$(HEADER_DIR)/$(TEST_UTILS_MODULE)
+HEADER_LVM:=$(HEADER_DIR)/$(LVM_MODULE)
 
 # -- Variables referentes a directorios de modulos (sources)
 SOURCE_LEXER:=$(SOURCE_DIR)/$(LEXER_MODULE)
@@ -122,6 +124,7 @@ SOURCE_ERROR:=$(SOURCE_DIR)/$(ERROR_MODULE)
 SOURCE_LMP_UTILS:=$(SOURCE_DIR)/$(LMP_UTILS_MODULE)
 SOURCE_IR:=$(SOURCE_DIR)/$(IR_MODULE)
 SOURCE_TEST_UTILS:=$(SOURCE_DIR)/$(TEST_UTILS_MODULE)
+SOURCE_LVM:=$(SOURCE_DIR)/$(LVM_MODULE)
 
 # -- Variables de ficheros
 TOKEN_TYPE_NAME:=token
@@ -135,8 +138,9 @@ INDEX_PARSER_FILES:=parser parser_register
 INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram process print_assistant
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
-INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_ir lmp_logging lmp_tasker
+INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_ir lmp_logging lmp_tasker lmp_lvm_launcher
 INDEX_IR_FILES:=literal variable table ir_optimizer ir_builder ir_reg_manager ir_printer
+INDEX_LVM_FILES:=memory_block memory initializer page_table LVM
 
 # -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
@@ -146,8 +150,9 @@ INDEX_OBJ_SEMANTIC_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_SEMANTIC_FILES))
 INDEX_OBJ_ERROR_FILES:=$(addsuffix $(OBJ_EXT),$(INDEX_ERROR_FILES))
 INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
 INDEX_OBJ_IR_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_IR_FILES))
+INDEX_OBJ_LVM_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LVM_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_FILES) $(INDEX_OBJ_IR_FILES)
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_FILES) $(INDEX_OBJ_IR_FILES) $(INDEX_OBJ_LVM_FILES)
 
 # -- Indice de ficheros (source)
 INDEX_SOURCE_LEXER_FILES:=$(addprefix $(SOURCE_LEXER)/, $(addsuffix $(SOURCE_C_EXT), $(INDEX_LEXER_FILES)))
@@ -157,6 +162,7 @@ INDEX_SOURCE_SEMANTIC_FILES:=$(addprefix $(SOURCE_SEMANTIC)/, $(addsuffix $(SOUR
 INDEX_SOURCE_ERROR_FILES:=$(addprefix $(SOURCE_ERROR)/, $(addsuffix $(SOURCE_C_EXT), $(INDEX_ERROR_FILES)))
 INDEX_SOURCE_LMP_UTILS_FILES:=$(addprefix $(SOURCE_LMP_UTILS)/, $(addsuffix $(SOURCE_CPLUS_EXT), $(INDEX_LMP_UTILS_FILES)))
 INDEX_SOURCE_IR_FILES:=$(addprefix $(SOURCE_IR)/, $(addsuffix $(SOURCE_CPLUS_EXT), $(INDEX_IR_FILES)))
+INDEX_SOURCE_LVM_FILES:=$(addprefix $(SOURCE_LVM)/, $(addsuffix $(SOURCE_CPLUS_EXT), $(INDEX_LVM_FILES)))
  
 # -- Variables cosmeticas
 COLOR_RED := $(shell echo -e "\033[1;31m")
@@ -244,6 +250,7 @@ define compile_lamport_skeleton
 				echo "$(COLOR_RED) ---> [$$FILE] NO existe. $(COLOR_RESET)" ; \
 			fi ; \
 		done; \
+		echo ;\
 		if [ $${N_FILES_CHECKED} -lt $${N_FILES_EXPECTED} ]; then \
 			echo "$(COLOR_RED) ---> [ERROR] No se puede construir el intérprete de LAMPORT: Faltan dependencias de codigo objeto. $(COLOR_RESET)" ; \
 			echo "$(COLOR_RED) ---> [ERROR] Se esperaban $(COLOR_RESET_BOLD)[$$N_FILES_EXPECTED] modulos $(COLOR_RED), se encontraron $(COLOR_RESET_BOLD)[$$N_FILES_CHECKED] modulos$(COLOR_RESET)." ; \
@@ -562,6 +569,9 @@ $(foreach src, $(INDEX_LMP_UTILS_FILES), \
 	
 $(foreach src, $(INDEX_IR_FILES), \
 	$(eval $(call generate_object_rules,g++ --std=c++17,$(SOURCE_IR)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	
+$(foreach src, $(INDEX_LVM_FILES), \
+	$(eval $(call generate_object_rules,g++ --std=c++17,$(SOURCE_LVM)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE COMPILACION (OBJETOS)
@@ -572,13 +582,14 @@ compile: compile_sources compile_lamport
 	
 compile_parallel:
 	@echo "$(COLOR_BLUE)CONSTRUYENDO INTÉRPRETE DE LAMPORT [EN PARALELO]...$(COLOR_RESET)" && echo
-	@echo compile_{lexer,parser,ast,semantic,error,lmp_utils,ir} | tr ' ' '\n' | parallel -j7 make -s
+	@echo compile_{lexer,parser,ast,semantic,error,lmp_utils,ir,lvm} | tr ' ' '\n' | parallel -j8 make -s
 	@make -s compile_lamport
 
 compile_lamport: build_bin_dir
+	@echo
 	$(call compile_lamport_skeleton,g++ -std=c++17,$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
 	
-compile_sources: compile_lexer compile_parser compile_ast compile_error compile_semantic compile_ir compile_lmp_utils
+compile_sources: compile_lexer compile_parser compile_ast compile_error compile_semantic compile_ir compile_lvm compile_lmp_utils
 	
 # -- Genera codigo objeto para el analizador lexico
 compile_lexer_msg:
@@ -606,7 +617,7 @@ compile_ast: $(INDEX_SOURCE_AST_FILES) compile_ast_msg $(addprefix $(OBJ_DIR)/, 
 	
 # -- Genera codigo objeto para el analizador semantico
 compile_semantic_msg:
-	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"analizador semántico")
+	$(call compile_module_msg_skeleton,$(INDEX_SEMANTIC_FILES),"analizador semántico")
 
 compile_semantic: $(INDEX_SOURCE_SEMANTIC_FILES) compile_semantic_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_SEMANTIC_FILES))
 	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)analizador semántico$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
@@ -614,7 +625,7 @@ compile_semantic: $(INDEX_SOURCE_SEMANTIC_FILES) compile_semantic_msg $(addprefi
 	
 # -- Genera codigo objeto para el modulo de gestion de errores
 compile_error_msg:
-	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"gestor de errores de análisis")
+	$(call compile_module_msg_skeleton,$(INDEX_ERROR_FILES),"gestor de errores de análisis")
 
 compile_error: $(INDEX_SOURCE_ERROR_FILES) compile_error_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_ERROR_FILES))
 	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)gestor de errores de análisis$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
@@ -622,7 +633,7 @@ compile_error: $(INDEX_SOURCE_ERROR_FILES) compile_error_msg $(addprefix $(OBJ_D
 	
 # -- Genera codigo objeto para las dependencias del intérprete Lamport
 compile_lmp_utils_msg:
-	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"utilidades de intérprete lamport")
+	$(call compile_module_msg_skeleton,$(INDEX_LMP_UTILS_FILES),"utilidades de intérprete lamport")
 
 compile_lmp_utils: $(INDEX_SOURCE_LMP_UTILS_FILES) compile_lmp_utils_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_LMP_UTILS_FILES))
 	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)utilidades de intérprete lamport$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
@@ -630,10 +641,18 @@ compile_lmp_utils: $(INDEX_SOURCE_LMP_UTILS_FILES) compile_lmp_utils_msg $(addpr
 	
 # -- Genera codigo objeto para el modulo de gestion de representacion intermedia de codigo
 compile_ir_msg:
-	$(call compile_module_msg_skeleton,$(INDEX_AST_FILES),"gestor de representación intermedia de código")
+	$(call compile_module_msg_skeleton,$(INDEX_IR_FILES),"gestor de representación intermedia de código")
 
 compile_ir: $(INDEX_SOURCE_IR_FILES) compile_ir_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_IR_FILES))
 	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)gestor de representación intermedia de código$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo
+
+# -- Genera codigo objeto para el modulo de maquina virtual de lamport
+compile_lvm_msg:
+	$(call compile_module_msg_skeleton,$(INDEX_LVM_FILES),"Lamport Virtual Machine \(LVM\)")
+
+compile_lvm: $(INDEX_SOURCE_LVM_FILES) compile_lvm_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_LVM_FILES))
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)Lamport Virtual Machine (LVM)$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
 	@echo
 
 # ========================================================================================
