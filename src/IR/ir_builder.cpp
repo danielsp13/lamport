@@ -21,27 +21,27 @@ IR_Builder& IR_Builder::get_instance(){
 // ----- IMPLEMENTACION DE METODOS PRIVADOS [IR_MANAGER] -----
 
 IR_operand IR_Builder::emit_operand_register(int id_reg){
-    IR_operand op(IR_operand_t::IR_OPERAND_REGISTER,id_reg);
+    IR_operand op(IR_OPERAND_REGISTER,id_reg);
     return op;
 }
 
 IR_operand IR_Builder::emit_operand_literal(int id_lit){
-    IR_operand op(IR_operand_t::IR_OPERAND_LITERAL,id_lit);
+    IR_operand op(IR_OPERAND_LITERAL,id_lit);
     return op;
 }
 
 IR_operand IR_Builder::emit_operand_variable(int id_var){
-    IR_operand op(IR_operand_t::IR_OPERAND_VARIABLE,id_var);
+    IR_operand op(IR_OPERAND_VARIABLE,id_var);
     return op;
 }
 
 IR_operand IR_Builder::emit_operand_variable_array(int id_var, int offset){
-    IR_operand op(IR_operand_t::IR_OPERAND_VARIABLE_ARRAY,id_var,offset);
+    IR_operand op(IR_OPERAND_VARIABLE_ARRAY,id_var,offset);
     return op;
 }
 
 IR_operand IR_Builder::emit_operand_label(int id_label){
-    IR_operand op(IR_operand_t::IR_OPERAND_LABEL,id_label);
+    IR_operand op(IR_OPERAND_LABEL,id_label);
     return op;
 }
 
