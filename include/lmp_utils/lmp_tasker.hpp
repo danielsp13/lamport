@@ -34,10 +34,15 @@ class LMP_Tasker{
         const std::string ANSI_COLOR_YELLOW = "\033[33m";
         const std::string ANSI_COLOR_BLUE = "\033[34m";
         const std::string ANSI_COLOR_RESET = "\033[0m";
+
+        const std::string ANSI_COLOR_WALL_WHITE = "\033[47m";
+        const std::string ANSI_COLOR_BOLD = "\033[1m";
+
         const bool COLORS_AVAIABLE = true;
 
         const int TASK_DELAY = 500;
-        bool DELAY_AVAIABLE = false;
+        const int TASK_EXECUTION_DELAY = 1000;
+        bool DELAY_AVAIABLE = true;
 
         /**
          * @brief Constructor de la clase
@@ -48,6 +53,11 @@ class LMP_Tasker{
          * @brief Produce un retardo en la ejecucion de una tarea
          */
         void task_delay();
+
+        /**
+         * @brief Produce un retardo en la ejecucion del simulador
+         */
+        void task_execution_delay();
 
         /**
          * @brief Imprime un mensaje en verde
@@ -73,6 +83,16 @@ class LMP_Tasker{
          * @brief Resetea el color
          */
         inline void print_reset() { std::cout << (COLORS_AVAIABLE ? ANSI_COLOR_RESET : ""); };
+
+        /**
+         * @brief Imprime fondo blanco
+         */
+        inline void print_wall_white() { std::cout << (COLORS_AVAIABLE ? ANSI_COLOR_WALL_WHITE : ""); };
+
+        /**
+         * @brief Imprime negrita
+         */
+        inline void print_bold() { std::cout << (COLORS_AVAIABLE ? ANSI_COLOR_BOLD : ""); };
 
     public:
         /**
@@ -157,6 +177,11 @@ class LMP_Tasker{
          * @brief Indica la tarea de preparacion de maquina virtual
          */
         void task_preload_lvm();
+
+        /**
+         * @brief Indica la tarea de ejecucion de maquina virtual
+         */
+        void task_execute_lvm();
 
         /**
          * @brief Indica que la tarea se completo con exito
