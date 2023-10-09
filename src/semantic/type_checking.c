@@ -380,6 +380,13 @@ struct type * typecheck_expression_unary_logical(char *action, struct type *type
 void typecheck_declaration(struct declaration *decl){
     // -- Comprobar si la declaracion es de un array
     if(decl->type->kind == TYPE_ARRAY){
+        // -- Comprobar si la expresion del tipo de array pertenece a un literal
+        if(decl->type->size->kind != EXPR_LITERAL){
+            // -- Incluir error en la lista de errores semanticos
+            struct error *err = create_error_semantic_invalid_static_array(decl->line);
+            add_error_semantic_to_list(err);
+        }
+
         // -- Comprobar si la expresion de size de array es entera
         struct type * type_size_arr = typecheck_expression(decl->type->size);
         struct type * expected_type = create_basic_type(TYPE_INTEGER);

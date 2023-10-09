@@ -127,6 +127,14 @@ struct error * create_error_semantic_unmatched_types(unsigned long err_line, cha
 struct error * create_error_semantic_invalid_array_size(unsigned long err_line, char *type_a);
 
 /**
+ * @brief Crea y reserva memoria para un error semantico de tipo: definicion de size de array invalido (no literal)
+ * @param err_line : linea donde se produjo el error
+ * @param msg : mensaje de error
+ * @return puntero a error inicializado
+ */
+struct error * create_error_semantic_invalid_static_array(unsigned long err_line);
+
+/**
  * @brief Crea y reserva memoria para un error semantico de tipo: comparacion de tipos incorrecta (OPERACIONES BINARIAS)
  * @param err_line : linea donde se produjo el error
  * @param type_a : nombre de tipo de dato de operando izquierdo
