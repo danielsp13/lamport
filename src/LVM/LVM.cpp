@@ -19,32 +19,39 @@ int LVM::get_phisical_address_from_operand(const IR_operand & op){
     // -- Variable para direccion virtual
     int virtual_address = op.get_address();
     // -- Variable para offset (solo para variables de tipo array)
-    int offset = op.get_offset();
+    int reg_index_offset = op.get_offset();
     
     switch (op.get_kind())
     {
     case IR_OPERAND_LITERAL:
     {
-        virtual_segment = 0;
+        virtual_segment = pages_table.SEGMENT_FOR_LITERALS;
         break;
     }
     case IR_OPERAND_VARIABLE:
     {
-        virtual_segment = 1;
+        virtual_segment = pages_table.SEGMENT_FOR_VARIABLES;
         break;
     }
     case IR_OPERAND_VARIABLE_ARRAY:
     {
-        virtual_segment = 1;
+        virtual_segment = pages_table.SEGMENT_FOR_VARIABLES_ARRAY;
+
+        // -- Obtener el registro que contiene el offset, y a continuacion el offset
+        LVM_Register reg_offset = register_table[reg_index_offset];
+        int offset = reg_offset.get_value<int>();
+
+        // -- Incluir el offset en acceso a array
+        virtual_address = virtual_address+offset;
+
         break;
     }
     case IR_OPERAND_LABEL:
     {
-        virtual_segment = 2;
+        virtual_segment = pages_table.SEGMENT_FOR_LABELS;
         break;
     }
     default:
-        std::cout << "EXCEPCION: " << op.get_kind_str() << std::endl;
         throw std::invalid_argument("SEGMENTO VIRTUAL DE OPERANDO INVALIDO.");
         break;
     }

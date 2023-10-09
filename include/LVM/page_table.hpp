@@ -38,6 +38,25 @@ class LVM_Page_Table{
          */
         LVM_Page_Table(){};
     public:
+        // -- Variables de segmento
+        static const int SEGMENT_FOR_LITERALS = 0;
+        static const int SEGMENT_FOR_VARIABLES = 1;
+        static const int SEGMENT_FOR_VARIABLES_ARRAY = 2;
+        static const int SEGMENT_FOR_LABELS = 3;
+
+        // -- Variables de inicio y fin de memoria fisica
+        static const int START_ADDR_FOR_LITERALS = 0;
+        static const int END_ADDR_FOR_LITERALS = 999;
+
+        static const int START_ADDR_FOR_VARIABLES = 1000;
+        static const int END_ADDR_FOR_VARIABLES = 1999;
+
+        static const int START_ADDR_FOR_VARIABLES_ARRAY = 2000;
+        static const int END_ADDR_FOR_VARIABLES_ARRAY = 5999;
+
+        static const int START_ADDR_FOR_LABELS = 6000;
+        static const int END_ADDR_FOR_LABELS = 6999;
+
         /**
          * @brief Obtiene la instancia de la tabla de paginas
          * @return instance

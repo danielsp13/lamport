@@ -69,6 +69,11 @@ class LVM_Initializer{
         void dump_variables();
 
         /**
+         * @brief Vuelca a memoria las variables array registradas en la tabla IR
+         */
+        void dump_variables_array();
+
+        /**
          * @brief Vuelca a memoria las etiquetas registradas en la tabla IR
          */
         void dump_labels();

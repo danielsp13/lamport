@@ -81,7 +81,8 @@ bool IR_Builder::translate_declaration_to_ir_instruction(struct declaration * de
             return false;
 
         // -- 4.1 Obtener longitud de array
-        size_t var_size = 1; //TODO
+        // ---- FUTURE (por ahora se sabe que si paso el typechecking es porque es un literal puro integer)
+        size_t var_size = decl->type->size->expr.expression_literal.value.integer_literal; 
 
         // -- 4.2 Registrar variable
         id_variable_in_table = tables.add_entry_variable(var_scope->second,var_name,var_type->second,var_size);
@@ -443,9 +444,14 @@ bool IR_Builder::translate_statement_for_to_ir_instructions(struct statement * s
     this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_for.body);
 
     // ---- Generar instrucciones de actualizacion de contador
-    int id_literal_in_table = tables.add_entry_literal(1);
+    // ------- Generar operacion de carga de incremento
+    int id_literal_in_table = tables.add_entry_literal(static_cast<int>(1));
     IR_operand op_index_inc = this->emit_operand_literal(id_literal_in_table);
-    instruction_table.emit_instruction(IR_OP_ADD,op_index,op_index,op_index_inc);
+    const int reg_assigned = this->reg_manager.get_next_register();
+    IR_operand op_reg_index_inc = this->emit_operand_register(reg_assigned);
+    instruction_table.emit_instruction(IR_OP_LOAD,op_reg_index_inc,op_index_inc);
+
+    instruction_table.emit_instruction(IR_OP_ADD,op_index,op_index,op_reg_index_inc);
     instruction_table.emit_instruction(IR_OP_STORE,op_index_dest,op_index);
 
     // ---- Generar instruccion de salto incondicional al inicio del bucle
@@ -751,8 +757,7 @@ int IR_Builder::translate_expression_literal_to_ir_instructions(struct expressio
     {   
         int lit_value = expr->expr.expression_literal.value.integer_literal;
         // -- Asignar en la tabla el valor de literal
-        id_literal_in_table = tables.add_entry_literal(lit_value);
-
+        id_literal_in_table = tables.add_entry_literal(static_cast<int>(lit_value));
         break;    
     }
     case EXPR_LITERAL_REAL:
@@ -783,7 +788,7 @@ int IR_Builder::translate_expression_literal_to_ir_instructions(struct expressio
     {   
         bool lit_value = expr->expr.expression_literal.value.boolean_literal;
         // -- Asignar en la tabla el valor de literal
-        id_literal_in_table = tables.add_entry_literal(lit_value);
+        id_literal_in_table = tables.add_entry_literal(static_cast<bool>(lit_value));
 
         break;    
     }        

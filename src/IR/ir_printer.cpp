@@ -135,6 +135,8 @@ void IR_Printer::print_ir_instructions(std::ostream& os){
 
         os << "0i" << instr_int.str() << ": " << instr_str << "\n";
     }
+
+    os.flush();
 }
 
 void IR_Printer::print_tables(std::ostream& os){

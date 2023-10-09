@@ -42,7 +42,7 @@ class LMP_Tasker{
 
         const int TASK_DELAY = 250;
         const int TASK_EXECUTION_DELAY = 500;
-        bool DELAY_AVAIABLE = true;
+        bool DELAY_AVAIABLE = false;
 
         /**
          * @brief Constructor de la clase

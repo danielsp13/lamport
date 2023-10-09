@@ -97,7 +97,6 @@ LVM_Memory_Block LVM_Initializer::initialize_mem_block(int content_type, const m
             mem_block.allocate_value<int>(var.get_initial_value<int>());
             break;
         }
-
         
         default:
             break;
@@ -130,9 +129,11 @@ void LVM_Initializer::dump_literals(){
     const int size_table = tables.get_size_table_literals();
 
     // -- Direccion de memoria inicial
-    const int start_addr = 0;
+    const int start_addr = LVM_Page_Table::START_ADDR_FOR_LITERALS;
+    // -- Direccion de memoria final
+    const int end_addr = LVM_Page_Table::END_ADDR_FOR_LITERALS;
     // -- Direccion de segmento de tabla de literales
-    const int segment_address = 0;
+    const int segment_address = LVM_Page_Table::SEGMENT_FOR_LITERALS;
 
     // -- Definicion de literal IR
     mem_block_content lit;
@@ -141,10 +142,15 @@ void LVM_Initializer::dump_literals(){
 
     // -- Recorrer la tabla de literales
     for(int i = 0; i < size_table; i++){
+        // -- Comprobar que no hay desbordamiento de memoria
+        if(start_addr+i >= end_addr){
+            throw std::out_of_range("DESBORDAMIENTO DE LA MEMORIA EN ASIGNACION DE BLOQUES A LITERALES");
+        }
+
         // -- 1. Obtener literal
         lit = *tables.get_entry_literal(i);
         // -- 2. Obtener el bloque de memoria inicializado
-        mem_block = this->initialize_mem_block(segment_address,lit);
+        mem_block = this->initialize_mem_block(0,lit);
 
         // -- 3. Asignar bloque a memoria
         this->memory[start_addr+i] = mem_block;
@@ -159,16 +165,20 @@ void LVM_Initializer::dump_variables(){
     /**
      * El objetivo es volcar la tabla de variables en la memoria en las siguientes direcciones
      * Inicio de memoria: 0m00001000  (posicion 1000)
-     * Fin de memoria: 0m0003999 (posicion 3999)
+     * Fin de memoria: 0m0001999 (posicion 1999)
      */
 
     // -- Recuperar el tam de la tabla de variables
     const int size_table = tables.get_size_table_variables();
 
     // -- Direccion de memoria inicial
-    const int start_addr = 1000;
+    const int start_addr = LVM_Page_Table::START_ADDR_FOR_VARIABLES;
+    // -- Direccion de memoria final
+    const int end_addr = LVM_Page_Table::END_ADDR_FOR_VARIABLES;
     // -- Direccion de segmento de tabla de variables
-    const int segment_address = 1;
+    const int segment_address = LVM_Page_Table::SEGMENT_FOR_VARIABLES;
+    // -- Direccion de memoria
+    int address = 0;
 
     // -- Definicion de variable IR
     mem_block_content var;
@@ -177,38 +187,111 @@ void LVM_Initializer::dump_variables(){
 
     // -- Recorrer la tabla de variables
     for(int i = 0; i < size_table; i++){
+        // -- Comprobar que no hay desbordamiento de memoria
+        if(start_addr+address >= end_addr)
+            throw std::out_of_range("DESBORDAMIENTO DE LA MEMORIA EN ASIGNACION DE BLOQUES A VARIABLES");
+
+
         // -- 1. Obtener variable
         var = *tables.get_entry_variable(i);
 
         // -- 1.B comprobar si la variable refiere a un proceso
-        if(std::get<IR_variable>(var).get_type() == IR_VAR_TYPE_DPROCESS || std::get<IR_variable>(var).get_type() == IR_VAR_TYPE_PROCESS)
+        if(std::get<IR_variable>(var).get_type() == IR_VAR_TYPE_DPROCESS || std::get<IR_variable>(var).get_type() == IR_VAR_TYPE_PROCESS){
+            continue;
+        }
+
+        // -- 1.C comprobar si la variable refiere a un array
+        if(std::get<IR_variable>(var).get_type() == IR_VAR_TYPE_ARRAY)
             continue;
 
         // -- 2. Obtener el bloque de memoria inicializado
-        mem_block = this->initialize_mem_block(segment_address,var);
+        mem_block = this->initialize_mem_block(1,var);
 
         // -- 3. Asignar bloque a memoria
-        this->memory[start_addr+i] = mem_block;
+        this->memory[start_addr+address] = mem_block;
 
         // -- 4. Completar paginacion de memoria virtual+fisica
-        this->page_table(segment_address,i) = start_addr+i;
+        this->page_table(segment_address,i) = start_addr+address;
+
+        // -- Incrementar direccion
+        address++;
+    }
+}
+
+void LVM_Initializer::dump_variables_array(){
+    /**
+     * El objetivo es volcar la tabla de variables en la memoria en las siguientes direcciones
+     * Inicio de memoria: 0m00002000  (posicion 2000)
+     * Fin de memoria: 0m0005999 (posicion 5999)
+     */
+
+    // -- Recuperar el tam de la tabla de variables
+    const int size_table = tables.get_size_table_variables();
+
+    // -- Direccion de memoria inicial
+    const int start_addr = LVM_Page_Table::START_ADDR_FOR_VARIABLES_ARRAY;
+    // -- Direccion de memoria final
+    const int end_addr = LVM_Page_Table::END_ADDR_FOR_VARIABLES_ARRAY;
+    // -- Direccion de segmento de tabla de variables
+    const int segment_address = LVM_Page_Table::SEGMENT_FOR_VARIABLES_ARRAY;
+    // -- Direccion de memoria
+    int address = 0;
+
+    // -- Definicion de variable IR
+    mem_block_content var;
+    // -- Definicion de bloque de memoria
+    LVM_Memory_Block mem_block;
+
+    // -- Recorrer la tabla de variables
+    for(int i = 0; i < size_table; i++){
+        // -- Comprobar que no hay desbordamiento de memoria
+        if(start_addr+address >= end_addr)
+            throw std::out_of_range("DESBORDAMIENTO DE LA MEMORIA EN ASIGNACION DE BLOQUES A VARIABLES");
+
+
+        // -- 1. Obtener variable
+        var = *tables.get_entry_variable(i);
+
+        // -- 1.C comprobar si la variable NO refiere a un array
+        if(std::get<IR_variable>(var).get_type() != IR_VAR_TYPE_ARRAY)
+            continue;
+
+        // -- 2.A Obtener el size de array
+        const size_t size_arr = std::get<IR_variable>(var).get_size_array();
+        
+        // -- Inicializar para cada posicion de array
+        for(int j=0; j<size_arr; j++){
+            // -- 2. Obtener el bloque de memoria inicializado
+            mem_block = this->initialize_mem_block(1,var);
+
+            // -- 3. Asignar bloque a memoria
+            this->memory[start_addr+address] = mem_block;
+
+            // -- 4. Completar paginacion de memoria virtual+fisica
+            this->page_table(segment_address,address) = start_addr+address;
+
+            // -- Incrementar direccion
+            address++;
+        }
     }
 }
 
 void LVM_Initializer::dump_labels(){
     /**
      * El objetivo es volcar la tabla de etiquetas en la memoria en las siguientes direcciones
-     * Inicio de memoria: 0m00004000  (posicion 4000)
-     * Fin de memoria: 0m0004999 (posicion 4999)
+     * Inicio de memoria: 0m00006000  (posicion 6000)
+     * Fin de memoria: 0m0006999 (posicion 6999)
      */
 
     // -- Recuperar el tam de la tabla de etiquetas
     const int size_table = tables.get_size_table_labels();
 
     // -- Direccion de memoria inicial
-    const int start_addr = 4000;
+    const int start_addr = LVM_Page_Table::START_ADDR_FOR_LABELS;
+    // -- Direccion de memoria final
+    const int end_addr = LVM_Page_Table::END_ADDR_FOR_LABELS;
     // -- Direccion de segmento de tabla de etiquetas
-    const int segment_address = 2;
+    const int segment_address = LVM_Page_Table::SEGMENT_FOR_LABELS;
 
     // -- Definicion de etiqueta IR
     mem_block_content label;
@@ -217,10 +300,14 @@ void LVM_Initializer::dump_labels(){
 
     // -- Recorrer la tabla de etiquetas
     for(int i = 0; i < size_table; i++){
+        // -- Comprobar que no hay desbordamiento de memoria
+        if(start_addr+i >= end_addr)
+            throw std::out_of_range("DESBORDAMIENTO DE LA MEMORIA EN ASIGNACION DE BLOQUES A ETIQUETAS");
+
         // -- 1. Obtener etiqueta
         label = *tables.get_entry_label(i);
         // -- 2. Obtener el bloque de memoria inicializado
-        mem_block = this->initialize_mem_block(segment_address,label);
+        mem_block = this->initialize_mem_block(2,label);
 
         // -- 3. Asignar bloque a memoria
         this->memory[start_addr+i] = mem_block;
@@ -244,6 +331,8 @@ void LVM_Initializer::dump_to_memory(){
     this->dump_literals();
     // -- Realizar volcado de memoria de variables
     this->dump_variables();
+    // -- Realizar volcado de memoria de variables array
+    this->dump_variables_array();
     // -- Realizar volcado de memoria de etiquetas
     this->dump_labels();
 }

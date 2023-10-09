@@ -1,0 +1,26 @@
+{Programa: for.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program Arrays
+	var numeros : array [5] integer;
+process main;
+	var letras : array [3] char;
+begin
+	print("Asignando numeros pares a array de numeros...");
+	for i := 0 to 4 do
+	begin
+		print("Asignando a numeros[",i,"] el valor ",2*i);
+		numeros[i] := 2*i;
+	end
+	
+	print("");
+	print("Imprimiendo array de numeros...");
+	for j := 0 to 4 do
+	begin
+		print("numeros[",j,"] = ",numeros[j]);
+	end
+	
+	letras[1] := 'd';
+	print("");
+	print("letras[1] es : ",letras[1]);
+end
