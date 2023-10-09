@@ -38,10 +38,11 @@ std::string IR_variable_type::get_type_str(){
 // ----- IMPLEMENTACION DE METODOS PRIVADOS [IR_VARIABLE] -----
 
 void IR_variable::initialize_variable(){
-    switch (get_type())
+    const IR_variable_type_t kind = this->is_array() ? get_array_type() : get_type();
+    switch (kind)
     {
     case IR_VAR_TYPE_INT:
-    {
+    {   
         value = static_cast<int>(0);
         break;
     }
