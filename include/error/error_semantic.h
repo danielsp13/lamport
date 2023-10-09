@@ -51,6 +51,9 @@ extern "C" {
 // Se indica que se ha redefinido un parametro
 #define ERR_DUPLICATED_PARAMETER_MSG "redefinicion de parametro"
 
+// Se indica que se ha redefinido un indice
+#define ERR_DUPLICATED_INDEX_MSG "redefinicion de indice"
+
 // ===============================================================
 
 // ----- PROTOTIPO DE FUNCIONES DE GESTION DE ERRORES (SEMANTICOS : NAME RESOLUTION) ----

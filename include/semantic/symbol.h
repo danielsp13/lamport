@@ -32,10 +32,10 @@ extern "C" {
  * @brief Estructura que representa los tipos de simbolos del lenguaje lamport
  */
 typedef enum{
-    SYMBOL_LOCAL,            ///< El simbolo es una variable local
-    SYMBOL_PARAM,            ///< El simbolo es el parametro de una funcion/procedimiento
-    SYMBOL_GLOBAL,           ///< El simbolo es una variable global
-    SYMBOL_GLOBAL_SUBPROGRAM ///< El simbolo es una variable global (nombre de) funcion/procedimiento
+    SYMBOL_LOCAL,             ///< El simbolo es una variable local
+    SYMBOL_PARAM,             ///< El simbolo es el parametro de una funcion/procedimiento
+    SYMBOL_GLOBAL,            ///< El simbolo es una variable global
+    SYMBOL_GLOBAL_SUBPROGRAM, ///< El simbolo es una variable global (nombre de) funcion/procedimiento
 } symbol_t;
 
 // ===============================================================

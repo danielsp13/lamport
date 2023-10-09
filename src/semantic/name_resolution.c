@@ -466,24 +466,35 @@ void resolve_statement_for(struct statement *stmt){
     // -- Comprobar que la sentencia existe
     if(!stmt)
         return;
-
-    // -- Aplicar resolucion de nombres al identificador de contador de bucle
-    // -- Asignar referencia de simbolo a esta sentencia
-    /*struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_for.counter_name);
+    
+    // -- Asignar referencia de simbolo a este parametro, buscandolo de la tabla
+    // -- Se busca el simbolo solo en el scope actual
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_for.counter_name);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!target_symb){
-        // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
+    // -- OJO! Aqui queremos que NO se encuentre, si se encuentra tenemos un error de redefinicion
+    if(target_symb){
+        // -- Realizar handling de este error : INDICE REDEFINIDO
         // -- Crear error
-        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_for.counter_name,stmt->stmt.statement_for.line, ERR_UNDEFINED_VARIABLE_MSG);
+        struct error * error = create_error_semantic_duplicated_symbol(stmt->stmt.statement_for.counter_name, stmt->stmt.statement_for.line, target_symb->line ,ERR_DUPLICATED_INDEX_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
     }
     else{
-        // -- Asignar simbolo
-        stmt->stmt.statement_for.symb = copy_symbol(target_symb);
-    }*/
+        // -- Creamos un simbolo de tipo local
+        struct type * type_symb = create_basic_type(TYPE_INTEGER);
+        struct symbol * new_symb = create_symbol_local(type_symb, stmt->stmt.statement_for.counter_name, stmt->stmt.statement_for.line);
+        free_type(type_symb);
+
+        if(new_symb){
+            // -- Asignar simbolo a for
+            stmt->stmt.statement_for.symb = new_symb;
+
+            // -- Vincular simbolo al scope actual
+            bind_symbol_to_scope(stmt->stmt.statement_for.symb);
+        }
+    }
 
     // -- Aplicar resolucion de nombres a la expresion de inicio del bucle for
     resolve_expression(stmt->stmt.statement_for.intialization);
