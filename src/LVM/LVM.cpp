@@ -108,6 +108,17 @@ inline bool LVM::instruction_is_unary_operation(const IR_instruction & instr){
     return result;
 }
 
+inline bool LVM::instruction_is_jump(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_JMP;
+    result = result == true ? true : kind == IR_OP_JMP_FALSE;
+    result = result == true ? true : kind == IR_OP_JMP_TRUE;
+
+    return result;
+}
+
 inline bool LVM::instruction_is_print(const IR_instruction & instr){
     bool result = false; 
     const IR_instruction_type_t kind = instr.get_code_instr();
@@ -201,6 +212,10 @@ void LVM::execute_instruction(int index){
     else if(instruction_is_label_pointer(instr_to_exec)){
         // --- Incrementar contador de programa
         this->program_counter++;
+    }
+    // ---- INSTRUCCION DE SALTO
+    else if(this->instruction_is_jump(instr_to_exec)){
+        this->execute_instruction_jump(instr_to_exec);
     }
     // ---- OPERACION NO SOPORTADA
     else{
@@ -473,6 +488,103 @@ void LVM::execute_instruction_unary_operation(const IR_instruction & instr){
     this->register_table[reg_addr_dest] = reg_dest;
 }
 
+void LVM::execute_instruction_jump(const IR_instruction & instr){
+    // 1.B Elementos para ejecucion
+    // ---- Operandos de instruccion
+    IR_operand op_1, op_2;
+    // ---- Direccion a registro
+    int register_address;
+    // ---- Direccion a memoria fisica
+    int phisical_address;
+    // ---- Registro
+    LVM_Register reg;
+    // ---- Bloque de memoria
+    LVM_Memory_Block mem_block;
+
+    // -- Comprobar en funcion del tipo de salto
+    switch (instr.get_code_instr())
+    {
+    case IR_OP_JMP:
+    {   
+        // -- Obtener operando 1 (bloque de memoria)
+        op_1 = *instr.get_operand_1();
+        
+        // -- Obtener direccion fisica
+        phisical_address = this->get_phisical_address_from_operand(op_1);
+
+        // -- Obtener bloque
+        mem_block = this->memory[phisical_address];
+
+        // -- Obtener direccion de salto
+        this->program_counter = mem_block.get_value<long>();
+
+        break;
+    }
+    case IR_OP_JMP_FALSE:
+    {
+        // -- Obtener operando 1 (registro)
+        op_1 = *instr.get_operand_1();
+        // -- Obtener operando 2 (bloque de memoria)
+        op_2 = *instr.get_operand_2();
+
+        // -- Obtener direccion de registro
+        register_address = op_1.get_address();
+        // -- Obtener direccion fisica
+        phisical_address = this->get_phisical_address_from_operand(op_2);
+
+        // -- Obtener registro
+        reg = this->register_table[register_address];
+        // -- Obtener bloque de memoria
+        mem_block = this->memory[phisical_address];
+
+        // -- Comprobar si el valor de reg es falso, y en ese caso, saltar
+        if(reg.get_value<bool>() == false){
+            // -- Saltar
+            this->program_counter = mem_block.get_value<long>();
+        }
+        else{
+            // -- Continuar flujo normal de instrucciones
+            this->program_counter++;
+        }
+
+
+        break;
+    }
+    case IR_OP_JMP_TRUE:
+    {
+        // -- Obtener operando 1 (registro)
+        op_1 = *instr.get_operand_1();
+        // -- Obtener operando 2 (bloque de memoria)
+        op_2 = *instr.get_operand_2();
+
+        // -- Obtener direccion de registro
+        register_address = op_1.get_address();
+        // -- Obtener direccion fisica
+        phisical_address = this->get_phisical_address_from_operand(op_2);
+
+        // -- Obtener registro
+        reg = this->register_table[register_address];
+        // -- Obtener bloque de memoria
+        mem_block = this->memory[phisical_address];
+
+        // -- Comprobar si el valor de reg es falso, y en ese caso, saltar
+        if(reg.get_value<bool>() == true){
+            // -- Saltar
+            this->program_counter = mem_block.get_value<long>();
+        }
+        else{
+            // -- Continuar flujo normal de instrucciones
+            this->program_counter++;
+        }
+
+        break;
+    }
+    
+    default:
+        break;
+    }
+
+}
 
 void LVM::execute_instruction_print(const IR_instruction & instr){
     // 1.B Elementos para ejecucion

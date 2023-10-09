@@ -29,7 +29,7 @@
 class LVM_Register_Table{
     private:
         // -- Numero de registros iniciales
-        const int N_REGISTERS = 1024;
+        const int N_REGISTERS = 4096;
         // -- Tabla de registros
         std::vector<LVM_Register> register_table;
 

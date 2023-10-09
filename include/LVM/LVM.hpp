@@ -98,6 +98,13 @@ class LVM{
         inline bool instruction_is_unary_operation(const IR_instruction & instr);
 
         /**
+         * @brief Comprueba si una instruccion es un salto
+         * @param instr : instruccion
+         * @return TRUE si es una operacion unaria, FALSE en otro caso
+         */
+        inline bool instruction_is_jump(const IR_instruction & instr);
+
+        /**
          * @brief Comprueba si una instruccion es una operacion de impresion
          * @param instr : instruccion
          * @return TRUE si es una operacion de impresion, FALSE en otro caso
@@ -165,6 +172,16 @@ class LVM{
          */
         void execute_instruction_unary_operation(const IR_instruction & instr);
 
+        /**
+         * @brief Ejecuta instruccion de salto
+         * @param instr : instruccion
+         * Tipos de instrucciones de salto
+         * --- IR_OP_JMP (salto incondicional)
+         * --- IR_OP_JMP_FALSE (salto condicional si falso)
+         * --- IR_OP_JMP_TRUE (salto condicional si verdadero)
+         */
+        void execute_instruction_jump(const IR_instruction & instr);
+    
         /**
          * @brief Ejecuta la instruccion de impresion de contenido
          * @param instr : instruccion IR_OP_PRINT

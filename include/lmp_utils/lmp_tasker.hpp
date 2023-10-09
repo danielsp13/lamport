@@ -40,8 +40,8 @@ class LMP_Tasker{
 
         const bool COLORS_AVAIABLE = true;
 
-        const int TASK_DELAY = 500;
-        const int TASK_EXECUTION_DELAY = 1000;
+        const int TASK_DELAY = 250;
+        const int TASK_EXECUTION_DELAY = 500;
         bool DELAY_AVAIABLE = true;
 
         /**
