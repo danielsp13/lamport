@@ -155,7 +155,17 @@ void LMP_Tasker::task_execute_lvm(){
     std::cout << std::endl;
     std::cout.flush();
     print_wall_white(); print_bold(); print_blue();
-    std::cout << this->TASK_HEADER_MSG << "Iniciando Máquina Virtual. Ejecutando código ... " << ANSI_COLOR_RESET << std::endl;
+    std::cout << this->TASK_HEADER_MSG << "Iniciando Máquina Virtual. Ejecutando código ... " << ANSI_COLOR_RESET << std::endl << std::endl;
+    std::cout.flush();
+
+    this->task_execution_delay();
+}
+
+void LMP_Tasker::task_shutdown_lvm(){
+    std::cout << std::endl;
+    std::cout.flush();
+    print_wall_white(); print_bold(); print_blue();
+    std::cout << this->TASK_HEADER_MSG << "Finalizando ejecución de Máquina Virtual ... " << ANSI_COLOR_RESET << std::endl;
     std::cout.flush();
 
     this->task_execution_delay();

@@ -184,6 +184,11 @@ class LMP_Tasker{
         void task_execute_lvm();
 
         /**
+         * @brief Indica la tarea de apagado de maquina virtual
+         */
+        void task_shutdown_lvm();
+
+        /**
          * @brief Indica que la tarea se completo con exito
          */
         void task_ok();
