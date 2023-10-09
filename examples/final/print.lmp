@@ -1,0 +1,12 @@
+{Programa: print.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program HolaMundo
+
+process Main;
+	var usuario : string := "Daniel";
+	var edad : integer := 23;
+begin
+	print("Hola ", usuario, ", ¿qué tal estás?");
+	print("Tu edad es: ",edad);
+end
