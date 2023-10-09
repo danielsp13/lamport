@@ -329,7 +329,7 @@ bool IR_Builder::translate_statement_assignment_to_ir_instructions(struct statem
 
 bool IR_Builder::translate_statement_ifelse_to_ir_instructions(struct statement * stmt){
     // -- Emitir instrucciones para condicion de if/else
-    this->translate_expression_to_ir_instructions(stmt->stmt.statement_if_else.condition);
+    int reg_addr = this->translate_expression_to_ir_instructions(stmt->stmt.statement_if_else.condition);
 
     // -- Obtener total de instrucciones en este momento
     const int total_instr_before = instruction_table.size();
@@ -337,16 +337,20 @@ bool IR_Builder::translate_statement_ifelse_to_ir_instructions(struct statement 
     // -- Generar instrucciones para bloque if
     this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_if_else.if_body);
 
+    // -- Obtener posicion actual de instruccion
+    int total_instr_after_if = instruction_table.size()+1;
+
     // -- Generar mas instrucciones si hay bloque else
     int id_label_in_table = 0; const std::string id_label_block = this->get_next_label_id();
     if(stmt->stmt.statement_if_else.else_body){
         // -- Obtener total de instrucciones tras generacion de bloque if
-        const int total_instr_now = instruction_table.size();
+        const int total_instr_now = instruction_table.size()+2;
 
         // -- Generar instruccion de salto condicional
         id_label_in_table = tables.add_entry_label(std::string("else_block(") + id_label_block + ")",total_instr_now+1);
+        IR_operand op_expr_cmp = this->emit_operand_register(reg_addr);
         IR_operand op_jmp = this->emit_operand_label(id_label_in_table);
-        IR_instruction instr_jmp_false(IR_OP_JMP_FALSE,op_jmp);
+        IR_instruction instr_jmp_false(IR_OP_JMP_FALSE,false,op_expr_cmp,op_jmp);
 
         instruction_table.add_instruction_to_list_in_position(instr_jmp_false,total_instr_before);
 
@@ -361,6 +365,10 @@ bool IR_Builder::translate_statement_ifelse_to_ir_instructions(struct statement 
     id_label_in_table = tables.add_entry_label(std::string("end_if(") + id_label_block + ")",instruction_table.size()+1);
     IR_operand op_end_if = this->emit_operand_label(id_label_in_table);
     instruction_table.emit_instruction(IR_LABEL,op_end_if);
+
+    // -- Emitir instruccion de salto incondicional a fin de etiqueta en la posicion after if
+    IR_instruction instr_jmp_end_if(IR_OP_JMP,op_end_if);
+    instruction_table.add_instruction_to_list_in_position(instr_jmp_end_if,total_instr_after_if);
 
     return true;
 }
@@ -402,7 +410,7 @@ bool IR_Builder::translate_statement_while_to_ir_instructions(struct statement *
 }
 
 bool IR_Builder::translate_statement_for_to_ir_instructions(struct statement * stmt){
-    // -- Generar instrucciones para inicializacion de contador de bucle while
+    // -- Generar instrucciones para inicializacion de contador de bucle for
     // ---- Obtener identificador de contador de bucle
     std::string index_name = std::string(stmt->stmt.statement_for.counter_name);
     // ---- Registrar en tabla de variables

@@ -371,7 +371,7 @@ int IR_Tables::get_index_from_global_variable(std::string var_name){
         entry = table_variables[i].get();
 
         // -- Comprobar si es una entrada de tipo entero
-        if(entry->get_kind_variable() != IR_variable_t::IR_VAR_GLOBAL)
+        if(entry->get_kind_variable() != IR_VAR_GLOBAL)
             continue;
 
         // -- Recuperar literal

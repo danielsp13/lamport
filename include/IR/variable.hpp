@@ -164,6 +164,7 @@ class IR_variable{
     private:
         IR_variable_t kind;             ///< Tipo de variable
         std::string var_name;           ///< Nombre de variable
+        std::string pseudo_name;        ///< Pseudonimo de variable (si es indice)
         IR_variable_type type;          ///< Tipo de dato de variable
         data_type value;                ///< Valor de variable
         
@@ -201,19 +202,19 @@ class IR_variable{
          * @brief Obtiene el tipo de variable
          * @return tipo de variable
          */
-        IR_variable_t get_kind() { return kind; };
+        IR_variable_t get_kind() const { return kind; };
 
         /**
          * @brief Comprueba que la variable es local
          * @return TRUE si es local, FALSE en otro caso
          */
-        bool is_local() {return kind == IR_VAR_LOCAL; };
+        bool is_local() const {return kind == IR_VAR_LOCAL; };
 
         /**
          * @brief Comprueba que la variable es global
          * @return TRUE si es global, FALSE en otro caso
          */
-        bool is_global() {return kind == IR_VAR_GLOBAL; };
+        bool is_global() const {return kind == IR_VAR_GLOBAL; };
 
         /**
          * @brief Obtiene nombre de variable
