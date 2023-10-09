@@ -1,0 +1,37 @@
+{Programa: ifelse.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program CompruebaEdad
+	var nombre1 : string := "Jorge";
+	var edad1 : integer := 17;
+	
+	var nombre2 : string := "Pablo";
+	var edad2 : integer := 22;
+	
+process main;
+	var minimaEdad : integer := 18;
+begin
+	print(nombre1, ", tu edad es: ",edad1,". Comprobando si puedes entrar...");
+	
+	if edad1 < minimaEdad then
+		begin
+			print("NO puedes entrar. Debes tener ",minimaEdad," para poder entrar.");
+		end
+	else
+		begin
+			print("Adelante!!. Puedes entrar");
+		end
+		
+	print("");
+		
+	print(nombre2, ", tu edad es: ",edad2,". Comprobando si puedes entrar...");
+	
+	if edad2 < minimaEdad then
+		begin
+			print("NO puedes entrar. Debes tener ",minimaEdad," para poder entrar.");
+		end
+	else
+		begin
+			print("Adelante!!. Puedes entrar");
+		end
+end

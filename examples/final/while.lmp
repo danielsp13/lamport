@@ -1,0 +1,21 @@
+{Programa: for.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program CompruebaEdad
+	var contador : integer := 5;
+
+process main;
+	var valorMaximo : integer := 10;
+begin
+	print("La variable contador empieza en: ",contador);
+	print("Su valor maximo debe ser: ",valorMaximo);
+	print("");
+	
+	while contador < valorMaximo do
+	begin
+		contador := contador + 1;
+		print(" --- Contador vale ahora: ", contador);
+	end
+	
+	print(""); print("Fin de bucle");
+end
