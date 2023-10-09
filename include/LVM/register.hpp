@@ -232,20 +232,60 @@ class LVM_Register{
          */
         LVM_Register operator<(const LVM_Register & otro) const;
 
+        /**
+         * @brief Sobrecarga de operador <=. Obtiene un registro con el resultado de la comparacion
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
         LVM_Register operator<=(const LVM_Register & otro) const;
 
+        /**
+         * @brief Sobrecarga de operador >. Obtiene un registro con el resultado de la comparacion
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
         LVM_Register operator>(const LVM_Register & otro) const;
 
+        /**
+         * @brief Sobrecarga de operador >=. Obtiene un registro con el resultado de la comparacion
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
         LVM_Register operator>=(const LVM_Register & otro) const;
 
+        /**
+         * @brief Sobrecarga de operador ==. Obtiene un registro con el resultado de la comparacion
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
         LVM_Register operator==(const LVM_Register & otro) const;
 
+        /**
+         * @brief Sobrecarga de operador !=. Obtiene un registro con el resultado de la comparacion
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
         LVM_Register operator!=(const LVM_Register & otro) const;
-
+        
+        /**
+         * @brief Sobrecarga de operador &&. Obtiene un registro con el resultado de la operacion logica
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
         LVM_Register operator&&(const LVM_Register & otro) const;
 
+        /**
+         * @brief Sobrecarga de operador ||. Obtiene un registro con el resultado de la operacion logica
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
         LVM_Register operator||(const LVM_Register & otro) const;
 
+        /**
+         * @brief Sobrecarga de operador !. Obtiene un registro con el resultado de la operacion logica
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
         LVM_Register operator!() const;
 };
 #endif //_LAMPORT_LVM_REGISTER_DPR_

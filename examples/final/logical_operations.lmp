@@ -1,0 +1,33 @@
+{Programa: compare_operations.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program Operaciones
+	var a : boolean := true;
+	var b : boolean := false;
+
+process Main;
+	var c : boolean := true;
+begin
+	print("a es: ",a);
+	print("b es: ",b);
+	print("c es: ",c);
+	print("");
+	
+	print("a ^ b es: ",a and b);
+	print("a ^ c es: ",a and c);
+	print("a ^ b ^ c es: ",a and b and c);
+	print("");
+	
+	print("a v b es: ",a or b);
+	print("a v c es: ",a or c);
+	print("a v b v c es: ",a or b or c);
+	print("");
+	
+	print("(a v b) ^ c es: ", (a or b) and c);
+	print("(a v c) ^ b es: ", (a or c) and b);
+	print("");
+	
+	print("¬a es: ",not a);
+	print("¬b es: ",not b);
+	
+end
