@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 #include "memory.hpp"               ///< Memoria de la maquina virtual
 #include "page_table.hpp"           ///< Tabla de paginas
@@ -69,9 +70,57 @@ class LVM{
         int get_phisical_address_from_operand(const IR_operand & op);
 
         /**
+         * @brief Comprueba si una instruccion es una operacion de carga
+         * @param instr : instruccion
+         * @return TRUE si es una operacion de carga, FALSE en otro caso
+         */
+        inline bool instruction_is_load_or_store(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es una etiqueta
+         * @param instr : instruccion
+         * @return TRUE si es una etiqueta, FALSE en otro caso
+         */
+        inline bool instruction_is_label_pointer(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es una operacion binaria
+         * @param instr : instruccion
+         * @return TRUE si es una operacion binaria, FALSE en otro caso
+         */
+        inline bool instruction_is_binary_operation(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es una operacion unaria
+         * @param instr : instruccion
+         * @return TRUE si es una operacion unaria, FALSE en otro caso
+         */
+        inline bool instruction_is_unary_operation(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es una operacion de impresion
+         * @param instr : instruccion
+         * @return TRUE si es una operacion de impresion, FALSE en otro caso
+         */
+        inline bool instruction_is_print(const IR_instruction & instr);
+
+        /**
+         * @brief Obtiene el conjunto de registros a los que refiere una instruccion
+         * @param instr : instruccion
+         * @return vector con los registros de la tabla de registros a los que hace referencia
+         */
+        std::vector<LVM_Register> get_registers_from_operands(const IR_instruction & instr);
+
+        /**
          * @brief Ejecuta la instruccion especificada por el indice
          */
         void execute_instruction(int index);
+
+        /**
+         * @brief Ejecuta una instruccion de almacenamiento a memoria o a registro
+         * @param instr : instruccion IR_OP_LOAD o IR_OP_STORE
+         */
+        void execute_instruction_load_or_store(IR_instruction & instr);
 
         /**
          * @brief Ejecuta la instruccion de almacenamiento en registro
@@ -84,6 +133,37 @@ class LVM{
          * @param instr : instruccion IR_OP_STORE
          */
         void execute_instruction_store(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta la instruccion de operacion binaria
+         * @param instr : instruccion
+         * Tipos de instrucciones binarias
+         * --- IR_OP_ADD (suma)
+         * --- IR_OP_SUB (resta)
+         * --- IR_OP_MULT (multiplicacion)
+         * --- IR_OP_DIV (division)
+         * --- IR_OP_MOD (resto)
+         * 
+         * --- IR_OP_CMP_LTE (menor o igual)
+         * --- IR_OP_CMP_LT (menor)
+         * --- IR_OP_CMP_GTE (mayor o igual)
+         * --- IR_OP_CMP_GT (mayor)
+         * --- IR_OP_CMP_EQ (igual)
+         * --- IR_OP_CMP_NEQ (no igual)
+         * 
+         * --- IR_OP_AND (conjuncion logica)
+         * --- IR_OP_OR (disyuncion logica)
+         */
+        void execute_instruction_binary_operation(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta la instruccion de operacion unaria
+         * @param instr : instruccion
+         * Tipos de instrucciones unarias
+         * --- IR_OP_NEG (negacion aritmetica)
+         * --- IR_OP_NOT (negacion logica)
+         */
+        void execute_instruction_unary_operation(const IR_instruction & instr);
 
         /**
          * @brief Ejecuta la instruccion de impresion de contenido
@@ -101,7 +181,7 @@ class LVM{
         /**
          * @brief Destructor de la clase
          */
-        ~LVM() = default;
+        ~LVM();
 
         /**
          * @brief Imprime el contenido de la tabla de paginas

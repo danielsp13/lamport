@@ -56,6 +56,114 @@ int LVM::get_phisical_address_from_operand(const IR_operand & op){
     return phisical_address;
 }
 
+inline bool LVM::instruction_is_load_or_store(const IR_instruction & instr){
+    bool result = false;
+    const IR_instruction_type_t kind = instr.get_code_instr();
+
+    result = kind == IR_OP_LOAD;
+    result = result == true ? true : kind == IR_OP_STORE;
+
+    return result;
+}
+
+inline bool LVM::instruction_is_label_pointer(const IR_instruction & instr){
+    bool result = false;
+    const IR_instruction_type_t kind = instr.get_code_instr();
+
+    result = kind == IR_LABEL;
+
+    return result;
+}
+
+inline bool LVM::instruction_is_binary_operation(const IR_instruction & instr){
+    bool result = false;
+    const IR_instruction_type_t kind = instr.get_code_instr();
+
+    result = kind == IR_OP_ADD;
+    result = result == true ? true : kind == IR_OP_SUB;
+    result = result == true ? true : kind == IR_OP_MULT;
+    result = result == true ? true : kind == IR_OP_DIV;
+    result = result == true ? true : kind == IR_OP_MOD;
+    
+    result = result == true ? true : kind == IR_OP_CMP_LTE;
+    result = result == true ? true : kind == IR_OP_CMP_LT;
+    result = result == true ? true : kind == IR_OP_CMP_GTE;
+    result = result == true ? true : kind == IR_OP_CMP_GT;
+    result = result == true ? true : kind == IR_OP_CMP_EQ;
+    result = result == true ? true : kind == IR_OP_CMP_NEQ;
+
+    result = result == true ? true : kind == IR_OP_AND;
+    result = result == true ? true : kind == IR_OP_OR;
+
+    return result;
+}
+
+inline bool LVM::instruction_is_unary_operation(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_NEG;
+    result = result == true ? true : kind == IR_OP_NOT;
+
+    return result;
+}
+
+inline bool LVM::instruction_is_print(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_PRINT;
+
+    return result; 
+}
+
+
+std::vector<LVM_Register> LVM::get_registers_from_operands(const IR_instruction & instr){
+    std::vector<LVM_Register> registers;
+
+    // 1.B Elementos para ejecucion
+    // ----- Operandos de instruccion
+    IR_operand op_dest, op_1, op_2;
+    // ----- Direcciones a registro
+    int reg_addr_dest, reg_addr_op1, reg_addr_op2;
+    // ----- Registro
+    LVM_Register reg_dest, reg_op1, reg_op2;
+
+    // -- Obtener operando destino
+    op_dest = *instr.get_operand_destiny();
+    // -- Obtener operando 1
+    op_1 = *instr.get_operand_1();
+
+    // -- Obtener direcciones de registros
+    reg_addr_dest = op_dest.get_address();
+    reg_addr_op1 = op_1.get_address();
+
+    // -- Obtener registros
+    reg_dest = this->register_table[reg_addr_dest];
+    reg_op1 = this->register_table[reg_addr_op1];
+
+    // -- Insertar en vector
+    registers.push_back(reg_dest);
+    registers.push_back(reg_op1);
+
+    // -- Comprobar si la operacion no es unaria
+    if(!instruction_is_unary_operation(instr)){
+        // -- Obtener operando 2
+        op_2 = *instr.get_operand_2();
+
+        // -- Obtener direcciones de registros
+        reg_addr_op2 = op_2.get_address();
+
+        // -- Obtener registros
+        reg_op2 = this->register_table[reg_addr_op2];
+
+        // -- Insertar en vector
+        registers.push_back(reg_op2);
+    }
+
+    return registers;
+}
+
 void LVM::execute_instruction(int index){
     // 0.A Comprobar que la instruccion es correcta
     if(index >= this->instructions.size())
@@ -64,49 +172,64 @@ void LVM::execute_instruction(int index){
     // 0.B Obtener instruccion a la que apunta el indice
     IR_instruction instr_to_exec = this->instructions[index];
 
-    // 1. Obtener codigo de instruccion
-    IR_instruction_type_t instr_code = instr_to_exec.get_code_instr();
+    // -- Decidir accion
+    // ---- INSTRUCCION DE ALMACENAMIENTO
+    if(instruction_is_load_or_store(instr_to_exec)){
+        this->execute_instruction_load_or_store(instr_to_exec);
+        // --- Incrementar contador de programa
+        this->program_counter++;
+    }
+    // ---- INSTRUCCION DE OPERACION BINARIA
+    else if(instruction_is_binary_operation(instr_to_exec)){
+        this->execute_instruction_binary_operation(instr_to_exec);
+        // --- Incrementar contador de programa
+        this->program_counter++;
+    }
+    // ---- INSTRUCCION DE OPERACION UNARIA
+    else if(instruction_is_unary_operation(instr_to_exec)){
+        this->execute_instruction_unary_operation(instr_to_exec);
+        // --- Incrementar contador de programa
+        this->program_counter++;
+    }
+    // ---- INSTRUCCION DE IMPRESION
+    else if(instruction_is_print(instr_to_exec)){
+        this->execute_instruction_print(instr_to_exec);
+        // --- Incrementar contador de programa
+        this->program_counter++;
+    }
+    // ---- INSTRUCCION DE ETIQUETA
+    else if(instruction_is_label_pointer(instr_to_exec)){
+        // --- Incrementar contador de programa
+        this->program_counter++;
+    }
+    // ---- OPERACION NO SOPORTADA
+    else{
+        throw std::invalid_argument("INSTRUCCIÓN NO SOPORTADA.");
+    }
 
-    // 1.B Decidir accion
+}
+
+void LVM::execute_instruction_load_or_store(IR_instruction & instr){
+    const IR_instruction_type_t instr_code = instr.get_code_instr();
+
     switch (instr_code)
     {
-    // ---- INSTRUCCIONES DE ALMACENAMIENTO ENTRE MEMORIA/REGISTROS
     case IR_OP_LOAD:
     {
-        this->execute_instruction_load(instr_to_exec);
-        // -- Incrementar contador de programa
-        this->program_counter++;
+        this->execute_instruction_load(instr);
         break;
     }
     case IR_OP_STORE:
     {
-        this->execute_instruction_store(instr_to_exec);
-        // -- Incrementar contador de programa
-        this->program_counter++;
+        this->execute_instruction_store(instr);
         break;
     }
-    // ---- INSTRUCCION DE IMPRESION POR SALIDA ESTANDAR
-    case IR_OP_PRINT:
-    {
-        this->execute_instruction_print(instr_to_exec);
-        // -- Incrementar contador de programa
-        this->program_counter++;
-        break;
-    }
-    // ---- INSTRUCCION DE ETIQUETA
-    case IR_LABEL:
-    {
-        // -- Incrementar contador de programa
-        this->program_counter++;
-        break;
-    }
-
     
     default:
         break;
     }
-
 }
+
 
 void LVM::execute_instruction_load(const IR_instruction & instr){
     // 1.B Elementos para ejecucion
@@ -199,6 +322,158 @@ void LVM::execute_instruction_store(const IR_instruction & instr){
     this->memory[phisical_address] = mem_block;
 }
 
+void LVM::execute_instruction_binary_operation(const IR_instruction & instr){
+    // -- 1. Elementos para ejecucion
+    // ---- Direccion a registro destino
+    int reg_addr_dest;
+    // ---- Operando destino
+    IR_operand op_dest;
+    // ---- Registros
+    LVM_Register reg_dest, reg_op_1, reg_op_2;
+    std::vector<LVM_Register> registers;
+
+    // -- Obtener operando destino
+    op_dest = *instr.get_operand_destiny();
+    // -- Obtener direcciones de registros
+    reg_addr_dest = op_dest.get_address();
+
+    // -- Obtener registros
+    registers = this->get_registers_from_operands(instr);
+    reg_dest = registers[0];
+    reg_op_1 = registers[1];
+    reg_op_2 = registers[2];
+
+    // -- Obtener codigo de instruccion
+    IR_instruction_type_t instr_code = instr.get_code_instr();
+
+    // -- Realizar operacion en funcion de codigo
+    switch (instr_code)
+    {
+    // ---- OPERACIONES ARITMETICAS
+    case IR_OP_ADD:
+    {
+        reg_dest = reg_op_1 + reg_op_2;
+        break;
+    }
+    case IR_OP_SUB:
+    {
+        reg_dest = reg_op_1 - reg_op_2;
+        break;
+    }
+    case IR_OP_MULT:
+    {
+        reg_dest = reg_op_1 * reg_op_2;
+        break;
+    }
+    case IR_OP_DIV:
+    {
+        reg_dest = reg_op_1 / reg_op_2;
+        break;
+    }
+    case IR_OP_MOD:
+    {
+        reg_dest = reg_op_1 % reg_op_2;
+        break;
+    }
+    // ---- OPERACIONES DE COMPARACION
+    case IR_OP_CMP_LT:
+    {
+        reg_dest = reg_op_1 < reg_op_2;
+        break;
+    }
+    case IR_OP_CMP_LTE:
+    {
+        reg_dest = reg_op_1 <= reg_op_2;
+        break;
+    }
+    case IR_OP_CMP_GT:
+    {
+        reg_dest = reg_op_1 > reg_op_2;
+        break;
+    }
+    case IR_OP_CMP_GTE:
+    {
+        reg_dest = reg_op_1 >= reg_op_2;
+        break;
+    }
+    case IR_OP_CMP_EQ:
+    {
+        reg_dest = reg_op_1 == reg_op_2;
+        break;
+    }
+    case IR_OP_CMP_NEQ:
+    {
+        reg_dest = reg_op_1 != reg_op_2;
+        break;
+    }
+    // ---- OPERACIONES LOGICAS
+    case IR_OP_AND:
+    {
+        reg_dest = reg_op_1 && reg_op_2;
+        break;
+    }
+    case IR_OP_OR:
+    {
+        reg_dest = reg_op_1 || reg_op_2;
+        break;
+    }
+
+    default:
+        throw std::invalid_argument("OPERACIÓN BINARIA NO SOPORTADA.");
+        break;
+    }
+
+    // -- Incluir el registro de destino en la tabla de registros
+    this->register_table[reg_addr_dest] = reg_dest;
+}
+
+void LVM::execute_instruction_unary_operation(const IR_instruction & instr){
+        // -- 1. Elementos para ejecucion
+    // ---- Direccion a registro destino
+    int reg_addr_dest;
+    // ---- Operando destino
+    IR_operand op_dest;
+    // ---- Registros
+    LVM_Register reg_dest, reg_op_1;
+    std::vector<LVM_Register> registers;
+
+    // -- Obtener operando destino
+    op_dest = *instr.get_operand_destiny();
+    // -- Obtener direcciones de registros
+    reg_addr_dest = op_dest.get_address();
+
+    // -- Obtener registros
+    registers = this->get_registers_from_operands(instr);
+    reg_dest = registers[0];
+    reg_op_1 = registers[1];
+
+    // -- Obtener codigo de instruccion
+    IR_instruction_type_t instr_code = instr.get_code_instr();
+
+    // -- Realizar operacion en funcion de codigo
+    switch (instr_code)
+    {
+    case IR_OP_NEG:
+    {
+        reg_dest = -reg_op_1;
+        break;
+    }
+    case IR_OP_NOT:
+    {
+        reg_dest = !reg_op_1;
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN UNARIA NO SOPORTADA.");
+        break;
+    }
+
+    // -- Incluir el registro de destino en la tabla de registros
+    this->register_table[reg_addr_dest] = reg_dest;
+}
+
+
 void LVM::execute_instruction_print(const IR_instruction & instr){
     // 1.B Elementos para ejecucion
     // ----- Operandos de instruccion
@@ -246,7 +521,7 @@ void LVM::execute_instruction_print(const IR_instruction & instr){
     }
     case REG_CONTAINS_BOOL:
     {
-        std::cout << reg.get_value<bool>();
+        std::cout << reg.get_value_str();
         break;
     }
 
@@ -262,6 +537,11 @@ void LVM::execute_instruction_print(const IR_instruction & instr){
 LVM& LVM::get_instance(){
     static LVM instance;
     return instance;
+}
+
+LVM::~LVM(){
+    if(this->state != LVM_STATE_DEAD)
+        this->state = LVM_STATE_SHUTDOWN;
 }
 
 void LVM::print_pages_table(std::ostream& os){

@@ -84,3 +84,14 @@ const LVM_Register& LVM_Register_Table::operator()(int i) const{
 
     return this->register_table[i];
 }
+
+LVM_Register& LVM_Register_Table::operator[](int i){
+    return this->register_table[i];
+}
+
+const LVM_Register& LVM_Register_Table::operator[](int i) const{
+    if(i >= this->register_table.size())
+        throw std::out_of_range("INDICE DE REGISTRO FUERA DE RANGO.");
+
+    return this->register_table[i];
+}

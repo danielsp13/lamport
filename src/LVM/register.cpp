@@ -113,3 +113,313 @@ std::string LVM_Register::get_value_str() const{
 
     return value_allocated_str;
 }
+
+LVM_Register LVM_Register::operator+(const LVM_Register& otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() + otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() + otro.get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (+) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator-(const LVM_Register& otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() - otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() - otro.get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (-) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator*(const LVM_Register& otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() * otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() * otro.get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (*) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator/(const LVM_Register& otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() / otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() / otro.get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (/) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator%(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() % otro.get_value<int>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (%) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator-() const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(-this->get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(-this->get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (- unary) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator<(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() < otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() < otro.get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (<) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator<=(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() <= otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() <= otro.get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (<=) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator>(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() > otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() > otro.get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (>) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator>=(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() >= otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() >= otro.get_value<float>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (>=) NO SOPORTADA.");
+        break;
+    } 
+}
+
+LVM_Register LVM_Register::operator==(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() == otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() == otro.get_value<float>());
+        break;
+    }
+    case REG_CONTAINS_CHAR:
+    {
+        return LVM_Register(this->get_value<char>() == otro.get_value<char>());
+        break;
+    }
+    case REG_CONTAINS_STRING:
+    {
+        return LVM_Register(this->get_value<std::string>() == otro.get_value<std::string>());
+        break;
+    }
+    case REG_CONTAINS_BOOL:
+    {
+        return LVM_Register(this->get_value<bool>() == otro.get_value<bool>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (==) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator!=(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_INTEGER:
+    {
+        return LVM_Register(this->get_value<int>() != otro.get_value<int>());
+        break;
+    }
+    case REG_CONTAINS_REAL:
+    {
+        return LVM_Register(this->get_value<float>() != otro.get_value<float>());
+        break;
+    }
+    case REG_CONTAINS_CHAR:
+    {
+        return LVM_Register(this->get_value<char>() != otro.get_value<char>());
+        break;
+    }
+    case REG_CONTAINS_STRING:
+    {
+        return LVM_Register(this->get_value<std::string>() != otro.get_value<std::string>());
+        break;
+    }
+    case REG_CONTAINS_BOOL:
+    {
+        return LVM_Register(this->get_value<bool>() != otro.get_value<bool>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (!=) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator&&(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_BOOL:
+    {
+        return LVM_Register(this->get_value<bool>() && otro.get_value<bool>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (&& and) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator||(const LVM_Register & otro) const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_BOOL:
+    {
+        return LVM_Register(this->get_value<bool>() || otro.get_value<bool>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (|| or) NO SOPORTADA.");
+        break;
+    }
+}
+
+LVM_Register LVM_Register::operator!() const{
+    switch (allocates_type)
+    {
+    case REG_CONTAINS_BOOL:
+    {
+        return LVM_Register(!this->get_value<bool>());
+        break;
+    }
+    
+    default:
+        throw std::invalid_argument("OPERACIÓN DE REGISTRO (! not) NO SOPORTADA.");
+        break;
+    }
+}

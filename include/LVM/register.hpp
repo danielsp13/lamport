@@ -102,6 +102,42 @@ class LVM_Register{
             : allocates_type(REG_EMPTY), value_allocated(0) {};
 
         /**
+         * @brief Constructor de bloque (integer)
+         */
+        LVM_Register(int value)
+            : allocates_type(REG_CONTAINS_INTEGER), value_allocated(value) {};
+
+        /**
+         * @brief Constructor de bloque (real)
+         */
+        LVM_Register(float value)
+            : allocates_type(REG_CONTAINS_REAL), value_allocated(value) {};
+
+        /**
+         * @brief Constructor de bloque (char)
+         */
+        LVM_Register(char value)
+            : allocates_type(REG_CONTAINS_CHAR), value_allocated(value) {};
+
+        /**
+         * @brief Constructor de bloque (string)
+         */
+        LVM_Register(char *value)
+            : allocates_type(REG_CONTAINS_STRING), value_allocated(std::string(value)) {};
+
+        /**
+         * @brief Constructor de bloque (string)
+         */
+        LVM_Register(std::string value)
+            : allocates_type(REG_CONTAINS_STRING), value_allocated(value) {};
+
+        /**
+         * @brief Constructor de bloque (bool)
+         */
+        LVM_Register(bool value)
+            : allocates_type(REG_CONTAINS_BOOL), value_allocated(value) {};
+
+        /**
          * @brief Destructor de clase
          */
         ~LVM_Register() = default;
@@ -147,5 +183,69 @@ class LVM_Register{
             // -- Asignar valor a registro
             this->value_allocated = value;
         };
+
+        /**
+         * @brief Sobrecarga del operador +. Suma un registro con otro
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
+        LVM_Register operator+(const LVM_Register& otro) const;
+
+        /**
+         * @brief Sobrecarga del operador -. Resta un registro con otro
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
+        LVM_Register operator-(const LVM_Register& otro) const;
+        
+        /**
+         * @brief Sobrecarga del operador *. Multiplica un registro con otro
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
+        LVM_Register operator*(const LVM_Register& otro) const;
+
+        /**
+         * @brief Sobrecarga del operador /. Divide un registro con otro
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
+        LVM_Register operator/(const LVM_Register& otro) const;
+        
+        /**
+         * @brief Sobrecarga del operador %. Obtiene el resto de dividir un registro con otro
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
+        LVM_Register operator%(const LVM_Register & otro) const;
+
+        /**
+         * @brief Sobrecarga del operador - (unario). Obtiene el resultado de aplicar operacion unaria -
+         * @return nuevo registro con el valor resultado
+         */
+        LVM_Register operator-() const;
+
+        /**
+         * @brief Sobrecarga de operador <. Obtiene un registro con el resultado de la comparacion
+         * @param otro : otro registro
+         * @return nuevo registro con el valor resultado
+         */
+        LVM_Register operator<(const LVM_Register & otro) const;
+
+        LVM_Register operator<=(const LVM_Register & otro) const;
+
+        LVM_Register operator>(const LVM_Register & otro) const;
+
+        LVM_Register operator>=(const LVM_Register & otro) const;
+
+        LVM_Register operator==(const LVM_Register & otro) const;
+
+        LVM_Register operator!=(const LVM_Register & otro) const;
+
+        LVM_Register operator&&(const LVM_Register & otro) const;
+
+        LVM_Register operator||(const LVM_Register & otro) const;
+
+        LVM_Register operator!() const;
 };
 #endif //_LAMPORT_LVM_REGISTER_DPR_

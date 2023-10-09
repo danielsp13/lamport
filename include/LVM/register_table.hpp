@@ -80,6 +80,18 @@ class LVM_Register_Table{
          * @param i : indice de registro
          */
         const LVM_Register& operator()(int i) const;
+
+        /**
+         * @brief Sobrecarga del operador corchete []. Inserta un registro
+         * @param i : indice de registro
+         */
+        LVM_Register& operator[](int i);
+
+        /**
+         * @brief Sobrecarga del operador []. Obtiene un registro
+         * @param i : indice de registro
+         */
+        const LVM_Register& operator[](int i) const;
 };
 
 #endif //_LAMPORT_LVM_REGISTER_TABLE_DPR_
