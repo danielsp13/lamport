@@ -69,6 +69,12 @@ typedef enum{
     // -- Definicion de instrucciones para procedimientos/funciones (subprogramas)
     IR_OP_CALL,                 ///< Instruccion de llamada a subprograma
     IR_OP_RET,                  ///< Instruccion de retorno de subprograma
+
+    // -- Definicion de instrucciones de gestion de pila de ejecucion
+    IR_OP_PUSH,                 ///< Instruccion de empuje en pila
+    IR_OP_PUSH_LOCAL,           ///< Instruccion de empuje en pila de variables locales
+    IR_OP_POP,                  ///< Instruccion de expulsion en pila
+    IR_OP_POP_LOCAL,            ///< Instruccion de expulsion en pila para variables locales
     
     // -- Definicion de instrucciones de gestion de bloques concurrentes
     IR_OP_COBEGIN,              ///< Instruccion de inicio de bloque concurrente
@@ -80,6 +86,13 @@ typedef enum{
 
     // -- Definicion de instrucciones de tipo etiqueta
     IR_LABEL,
+
+    // -- Definicion de instrucciones de inicio y fin de proceso
+    IR_START_PROCESS,           ///< Instruccion de comienzo de proceso
+    IR_END_PROCESS,             ///< Instruccion de fin de proceso
+
+    // -- Definicion de instruccion de fin de programa
+    IR_END_PROGRAM,             ///< Instruccion de fin de programa          
 
 } IR_instruction_type_t;
 
@@ -112,6 +125,13 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {IR_OP_CALL, "IR_OP_CALL"},
     {IR_OP_RET, "IR_OP_RET"},
     {IR_LABEL, ""},
+    {IR_OP_PUSH,"IR_OP_PUSH"},
+    {IR_OP_PUSH_LOCAL,"IR_OP_PUSH_LOCAL"},
+    {IR_OP_POP,"IR_OP_POP"},
+    {IR_OP_POP_LOCAL,"IR_OP_POP_LOCAL"},
+    {IR_START_PROCESS,"IR_START_PROCESS"},
+    {IR_END_PROCESS,"IR_END_PROCESS"},
+    {IR_END_PROGRAM,"IR_END_PROGRAM"},
 };
 
 #endif //_LAMPORT_IR_IR_INSTRUCTION_TYPE_
