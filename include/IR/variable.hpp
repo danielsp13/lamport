@@ -74,6 +74,7 @@ typedef enum{
     IR_VAR_TYPE_SEMAPHORE,           ///< Tipo semaforo
     IR_VAR_TYPE_DPROCESS,            ///< Tipo proceso dinamico
     IR_VAR_TYPE_PROCESS,             ///< Tipo proceso estatico
+    IR_VAR_TYPE_SUBPROGRAM,          ///< Tipo subprograma
 } IR_variable_type_t;
 
 /**
@@ -89,6 +90,7 @@ const std::unordered_map<IR_variable_type_t, std::string> IR_variable_type_t_str
     {IR_VAR_TYPE_SEMAPHORE, "semaphore"},
     {IR_VAR_TYPE_DPROCESS, "dynamic process"},
     {IR_VAR_TYPE_PROCESS, "static process"},
+    {IR_VAR_TYPE_SUBPROGRAM,"subprogram"},
 };
 
 /**

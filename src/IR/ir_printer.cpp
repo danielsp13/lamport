@@ -34,27 +34,27 @@ std::string IR_Printer::ir_operand_instruction_to_string(IR_operand op){
     // -- Comprobar que tipo de operando es
     switch (kind)
     {
-    case IR_operand_t::IR_OPERAND_REGISTER:
+    case IR_OPERAND_REGISTER:
     {
         instr_op_str = "%r" + std::to_string(address);
         break;
     }
-    case IR_operand_t::IR_OPERAND_LITERAL:
+    case IR_OPERAND_LITERAL:
     {
         instr_op_str = "$" + tables.get_entry_literal(address)->to_string();
         break;
     }
-    case IR_operand_t::IR_OPERAND_VARIABLE:
+    case IR_OPERAND_VARIABLE:
     {
         instr_op_str = tables.get_entry_variable(address)->get_name();
         break;
     }
-    case IR_operand_t::IR_OPERAND_VARIABLE_ARRAY:
+    case IR_OPERAND_VARIABLE_ARRAY:
     {
         instr_op_str = tables.get_entry_variable(address)->get_name() + "+(%r" + std::to_string(op.get_offset()) + ")";
         break;
     }
-    case IR_operand_t::IR_OPERAND_LABEL:
+    case IR_OPERAND_LABEL:
     {
         instr_op_str = tables.get_entry_label(address)->get_label();
         break;
@@ -73,7 +73,7 @@ std::string IR_Printer::ir_instruction_to_string(IR_instruction instr){
     std::string instr_str = "";
 
     // -- Obtener codigo de instruccion y su conversion a string
-    std::string instr_code_str = this->ir_code_instruction_to_string(instr.get_code_instr()) + " ";
+    std::string instr_code_str = instr.get_code_instr_str() + " ";
 
     // -- Obtener operando de instruccion (destino)
     std::optional<IR_operand> instr_op_destiny = instr.get_operand_destiny();

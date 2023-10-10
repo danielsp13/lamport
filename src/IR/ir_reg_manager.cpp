@@ -19,7 +19,3 @@ IR_Reg_Manager& IR_Reg_Manager::get_instance(){
     static IR_Reg_Manager instance;
     return instance;
 }
-
-int IR_Reg_Manager::get_next_register(){
-    return this->reg_counter++;
-}

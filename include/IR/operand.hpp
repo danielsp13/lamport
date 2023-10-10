@@ -105,6 +105,12 @@ class IR_operand{
         };
 
         /**
+         * @brief Especifica una direccion de operando
+         * @param addr : direccion
+         */
+        void set_address(int addr) { address = addr; };
+
+        /**
          * @brief Obtiene la direccion de operando
          * @return direccion
          */

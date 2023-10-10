@@ -38,7 +38,7 @@ class IR_label{
          * @param id : identificador de etiqueta
          * @param addr : direccion donde apunta la etiqueta
          */
-        IR_label(std::string id, int addr) : id(id), label(".L" + id), addr(addr) {};
+        IR_label(std::string id, int addr) : id(id), label(id), addr(addr) {};
 
         /**
          * @brief Obtiene el identificador de etiqueta
@@ -50,7 +50,13 @@ class IR_label{
          * @brief Obtiene el nombre de etiqueta
          * @return nombre de etiqueta
          */
-        std::string get_label() {return label;};
+        std::string get_label() {return std::string(".L") + label;};
+
+        /**
+         * @brief Modifica la direccion de la etiqueta
+         * @param addr : direccion
+         */
+        void set_addr(int addr) {this->addr = addr;};
 
         /**
          * @brief Obtiene la direccion a la que apunta la etiqueta

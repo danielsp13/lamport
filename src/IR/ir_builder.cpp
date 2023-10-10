@@ -113,18 +113,29 @@ bool IR_Builder::translate_declaration_to_ir_instruction(struct declaration * de
         instruction_table.emit_instruction(IR_OP_STORE,op_dest,op_1);
     }
 
+    
+    
+
     // -- Retornar resultado de traduccion
     return translate_result;
 }
 
-bool IR_Builder::translate_list_declarations_to_ir_instructions(struct declaration * list_decl){
+bool IR_Builder::translate_declaration_subprogram_to_ir_instruction(struct declaration * decl){
+    return true;
+}
+
+bool IR_Builder::translate_list_declarations_to_ir_instructions(struct declaration * list_decl, bool from_subprogram){
     // -- Variable de resultado
     bool translate_result = true;
 
     struct declaration *current_decl = list_decl;
     while(current_decl != NULL){
         // -- Traducir declaracion
-        translate_result = translate_result == false ? false : this->translate_declaration_to_ir_instruction(current_decl);
+        if(from_subprogram)
+            translate_result = translate_result == false ? false : this->translate_declaration_subprogram_to_ir_instruction(current_decl);
+        else
+            translate_result = translate_result == false ? false : this->translate_declaration_to_ir_instruction(current_decl);
+
         // -- Ir a siguiente declaracion
         current_decl = current_decl->next;
     }
@@ -134,7 +145,53 @@ bool IR_Builder::translate_list_declarations_to_ir_instructions(struct declarati
 }
 
 bool IR_Builder::translate_subprogram_to_ir_instructions(struct subprogram * subprog){
-    return true;
+    // -- Variable de resultado
+    bool translate_result = true;
+
+    // -- 1. Obtener nombre de subprograma
+    std::string subprog_name = std::string(subprog->name_subprogram);
+
+    // -- 2. Registrar subprograma como una variable (de scope global)
+    int id_subprog_in_table = tables.add_entry_variable(IR_VAR_GLOBAL,subprog_name,IR_VAR_TYPE_SUBPROGRAM);
+
+    // -- 3. Generar etiqueta de entrada de subprograma
+    std::string start_label_subprog = std::string("start_subprog_") + subprog_name;
+    const int start_subprog_addr = instruction_table.size()+1;
+
+    // -- 3.1 Comprobar si existe etiqueta en tabla
+    int id_label_in_table = tables.get_index_from_label_id(start_label_subprog);
+    if(id_label_in_table != -1){
+        // -- 3.1.1 Modificar valor de placeholder con la direccion real
+        tables.modify_entry_label(start_label_subprog,start_subprog_addr);
+    }
+    else{
+        // -- 3.1.2 Insertar nueva etiqueta
+        id_label_in_table = tables.add_entry_label(start_label_subprog,start_subprog_addr);
+    }
+
+    // -- 4. Emitir instruccion de punto de salida de subprograma
+    IR_operand op_label = this->emit_operand_label(id_label_in_table);
+    instruction_table.emit_instruction(IR_LABEL,op_label);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    // --- 5.A Comprobar si el subprograma tiene parametros
+    if(subprog->parameters){
+        // --- 5.A.1 Generar instrucciones IR para los parametros
+        this->translate_list_parameters_to_ir_instructions(subprog->parameters);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    // -- . Generar etiqueta de fin de subprograma
+    id_label_in_table = tables.add_entry_label(std::string("end_subprog_") + subprog_name,instruction_table.size()+1);
+
+    // -- . Emitir instruccion de punto de salida de subprograma
+    op_label = this->emit_operand_label(id_label_in_table);
+    instruction_table.emit_instruction(IR_LABEL,op_label);
+
+    
+    return translate_result;
 }
 
 bool IR_Builder::translate_list_subprograms_to_ir_instructions(struct subprogram * list_subprog){
@@ -153,9 +210,41 @@ bool IR_Builder::translate_list_subprograms_to_ir_instructions(struct subprogram
     return translate_result;
 }
 
+bool IR_Builder::translate_list_parameters_to_ir_instructions(struct parameter * list_param){
+    bool translate_result = true;
+
+    // -- 1. Generar instrucciones IR para cada parametro
+    struct parameter * current_parameter = list_param;
+
+    // ---- Instrumentacion necesaria
+    // ------ Registro donde se encuentra el parametro
+    int addr_reg_param;
+    // ------ Operando de registro donde se encontrara el valor del parametro
+    IR_operand op_reg_param;
+
+    while(current_parameter){
+        // --- 2.A Obtener el registro del parametro (sacandolo de la pila)
+        addr_reg_param = reg_manager.pop_reg_from_stack();
+
+        // ---- 2.B Definir operando de registro
+        op_reg_param = this->emit_operand_register(addr_reg_param);
+
+        // ---- 2.C Emitir instruccion de pop de registro
+        instruction_table.emit_instruction(IR_OP_POP,op_reg_param);
+
+        // --- Ir al siguiente parametro
+        current_parameter = current_parameter->next;
+    }
+
+    return translate_result;
+}
+
 bool IR_Builder::translate_process_to_ir_instructions(struct process * proc){
     // -- Variable de resultado
     bool translate_result = true;
+
+    // 8. Emitir instruccion de inicio de proceso
+    instruction_table.emit_instruction(IR_START_PROCESS);
 
     // 1. Obtener nombre de proceso
     std::string id_label_block = this->get_next_label_id();
@@ -188,6 +277,10 @@ bool IR_Builder::translate_process_to_ir_instructions(struct process * proc){
     op_label = this->emit_operand_label(id_label_in_table);
 
     instruction_table.emit_instruction(IR_LABEL,op_label);
+
+    // 8. Emitir instruccion de fin de proceso
+    instruction_table.emit_instruction(IR_END_PROCESS);
+    
 
     // -- Retornar resultado de traduccion
     return translate_result;
@@ -262,7 +355,7 @@ bool IR_Builder::translate_statement_to_ir_instructions(struct statement * stmt)
     // ---- SENTENCIA INVOCACION DE PROCEDIMIENTO
     case STMT_PROCEDURE_INV:
     {
-        //TODO
+        return this->translate_statement_procedure_inv_to_ir_instructions(stmt);
         break;
     }
     // ---- SENTENCIA DE RETORNO DE FUNCION
@@ -467,6 +560,9 @@ bool IR_Builder::translate_statement_for_to_ir_instructions(struct statement * s
     // ---- Generar instruccion de etiqueta de fin de bucle for
     instruction_table.emit_instruction(IR_LABEL,op_for_end);
 
+    
+    
+
     return true;
 }
 
@@ -505,6 +601,52 @@ bool IR_Builder::translate_statement_print_to_ir_instructions(struct statement *
 
     // -- Liberar expresion utilizada
     free_expression(expr_endl);
+
+    
+    
+
+    return true;
+}
+
+bool IR_Builder::translate_statement_procedure_inv_to_ir_instructions(struct statement *stmt){
+    // 0. -- Generar instrucciones IR para cada argumento de procedimiento
+    // ----- Registro donde se encuentra el operando
+    int addr_reg_argument;
+    // ----- Operando (sera el registro donde se encuentre la expresion)
+    IR_operand op_reg_argument;
+    // ----- Recorrer la lista de argumentos de invocacion
+    struct expression * current_argument = stmt->stmt.statement_procedure_inv.arguments_list;
+    while(current_argument){
+        // ---- Obtener registro donde se encontrara la expresion
+        addr_reg_argument = this->translate_expression_to_ir_instructions(current_argument);
+
+        // ---- Insertar en la pila de registros, el registro otorgado para este argumento
+        reg_manager.push_reg_into_stack(addr_reg_argument);
+
+        // ---- Definir operando
+        op_reg_argument = this->emit_operand_register(addr_reg_argument);
+
+        // ---- Emitir instruccion de push en pila
+        instruction_table.emit_instruction(IR_OP_PUSH,op_reg_argument);
+
+        // ---- Ir a siguiente argumento
+        current_argument = current_argument->next;
+    }
+
+    // 1. -- Generar instruccion de llamada a procedimiento
+    // ----- Obtener indice en tabla donde se encuentra la etiqueta de inicio de procedimiento
+    std::string call_procedure_label = std::string("start_subprog_") + std::string(stmt->stmt.statement_procedure_inv.procedure_name) ;
+    int index_label_in_table = tables.get_index_from_label_id(call_procedure_label);
+    if(index_label_in_table == -1){
+        // -- Crear placeholder para etiqueta
+        index_label_in_table = tables.add_entry_label(call_procedure_label,-2);
+    }
+
+    // ----- Operando etiqueta para realizar el salto
+    IR_operand op_label_procedure = this->emit_operand_label(index_label_in_table);
+
+    // ----- Emitir instruccion de llamada a procedimiento
+    instruction_table.emit_instruction(IR_OP_CALL,op_label_procedure);
 
     return true;
 }
@@ -564,6 +706,9 @@ int IR_Builder::translate_expression_to_ir_instructions(struct expression * expr
     default:
         break;
     }
+
+    
+    
 
     // -- Devolver error si algo no es manejado correctamente
     return -1;
@@ -829,17 +974,20 @@ bool IR_Builder::translate_program_to_ir_instructions(struct program * prog){
         this->translate_list_declarations_to_ir_instructions(prog->declarations);
     }
 
-    // -- Comprobar los subprogramas del programa
-    if(prog->subprograms){
-        // -- Traducir lista de subprogramas
-        // TODO
-    }
-
     // -- Comprobar los procesos del programa
     if(prog->process){
         // -- Traducir lista de procesos
         this->translate_list_process_to_ir_instructions(prog->process);
     }
+
+    // -- Comprobar los subprogramas del programa
+    if(prog->subprograms){
+        // -- Traducir lista de subprogramas
+        this->translate_list_subprograms_to_ir_instructions(prog->subprograms);
+    }
+
+    // 8. Emitir instruccion de fin de programa
+    instruction_table.emit_instruction(IR_END_PROGRAM);
 
     // -- Retornar exito
     return true;

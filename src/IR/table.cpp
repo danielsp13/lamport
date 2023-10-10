@@ -164,6 +164,18 @@ int IR_Tables::add_entry_label(std::string label_id, int addr){
     return table_labels.size()-1;
 }
 
+int IR_Tables::modify_entry_label(std::string label_id, int new_addr){
+    int id_label_in_table = get_index_from_label_id(label_id);
+
+    if(id_label_in_table == -1)
+        return -1;
+
+    IR_label * lab = get_entry_label(id_label_in_table);
+    lab->set_addr(new_addr);
+
+    return id_label_in_table;
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE METODOS DE CLASE TABLA IR (OBTENCION DE ENTRADAS) -----
@@ -324,7 +336,7 @@ int IR_Tables::get_index_from_label_id(std::string id_label){
     // -- Recorrer tabla de etiquetas
     IR_label * label = nullptr;
 
-    for(int i=0; i<table_literals.size(); i++){
+    for(int i=0; i<table_labels.size(); i++){
         // -- Recuperar entrada
         label = table_labels[i].get()->get_label();
 

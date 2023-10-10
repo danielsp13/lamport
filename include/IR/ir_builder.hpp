@@ -17,6 +17,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <stack>
 #include <optional>
 
 #include "table.hpp"                ///< Tabla IR
@@ -48,6 +49,8 @@ class IR_Builder{
         IR_Reg_Manager& reg_manager = IR_Reg_Manager::get_instance();
         // -- Tabla de instrucciones
         IR_Instruction_Table& instruction_table = IR_Instruction_Table::get_instance();
+        // -- Pila de llamadas a subprogramas
+        std::stack<int> call_subprog_stack;
         // -- Generador de etiquetas anonimas
         int id_label_annonymous = 0;
 
@@ -55,6 +58,22 @@ class IR_Builder{
          * @brief Constructor de la clase (privado por ser singleton)
          */
         IR_Builder() {};
+
+        /**
+         * @brief Inserta una id de etiqueta de subprograma
+         * @param id_label : indice de etiqueta de subprograma
+         */
+        void push_call_subprog(int id_label) { call_subprog_stack.push(id_label); };
+
+        /**
+         * @brief Realiza pop del tope de pila de id de etiquetas de subprograma
+         * @return tope de pila
+         */
+        int pop_call_subprog() {
+            int top = call_subprog_stack.top();
+            call_subprog_stack.pop();
+            return top;
+        };
 
         /**
          * @brief Crea un operando de tipo registro
@@ -106,11 +125,19 @@ class IR_Builder{
         bool translate_declaration_to_ir_instruction(struct declaration * decl);
 
         /**
-         * @brief Traduce una lista de declaraciones a instrucciones IR
-         * @param list_decl : lista de declaraciones AST
+         * @brief Traduce una declaracion de un subprograma a una instruccion IR
+         * @param decl : declaracion (de un subprograma) AST
          * @return TRUE si se realizo con exito, FALSE en otro caso
          */
-        bool translate_list_declarations_to_ir_instructions(struct declaration * list_decl);
+        bool translate_declaration_subprogram_to_ir_instruction(struct declaration * decl);
+
+        /**
+         * @brief Traduce una lista de declaraciones a instrucciones IR
+         * @param list_decl : lista de declaraciones AST
+         * @param from_subprogram : especifica si las declaraciones provienen de un subprograma
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_list_declarations_to_ir_instructions(struct declaration * list_decl, bool from_subprogram = false);
 
         /**
          * @brief Traduce un subprograma a instrucciones IR
@@ -125,6 +152,13 @@ class IR_Builder{
          * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         bool translate_list_subprograms_to_ir_instructions(struct subprogram * list_subprog);
+
+        /**
+         * @brief Traduce una lista de parametros a instrucciones IR
+         * @param list_param : lista de parametros AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_list_parameters_to_ir_instructions(struct parameter * list_param);
 
         /**
          * @brief Traduce un proceso a instrucciones IR
@@ -183,6 +217,13 @@ class IR_Builder{
         bool translate_statement_print_to_ir_instructions(struct statement * stmt);
 
         /**
+         * @brief Traduce una sentencia de invocacion a procedimiento a instrucciones IR
+         * @param stmt : sentencia AST
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool translate_statement_procedure_inv_to_ir_instructions(struct statement * stmt);
+
+        /**
          * @brief Traduce una lista de sentencias a instrucciones IR
          * @param list_stmt : lista de sentencias AST
          * @return TRUE si se realizo con exito, FALSE en otro caso
@@ -196,14 +237,39 @@ class IR_Builder{
          */
         int translate_expression_to_ir_instructions(struct expression * expr);
 
+        /**
+         * @brief Traduce una expression a insrucciones IR (operacion binaria)
+         * @param expr : expresion AST
+         * @return identificador de registro donde se almacenara el contenido de la expresion, -1 en otro caso
+         */
         int translate_expression_binary_operation_to_ir_instructions(struct expression * expr);
 
+        /**
+         * @brief Traduce una expression a insrucciones IR (operacion unaria)
+         * @param expr : expresion AST
+         * @return identificador de registro donde se almacenara el contenido de la expresion, -1 en otro caso
+         */
         int translate_expression_unary_operation_to_ir_instructions(struct expression * expr);
 
+        /**
+         * @brief Traduce una expression a insrucciones IR (identificador)
+         * @param expr : expresion AST
+         * @return identificador de registro donde se almacenara el contenido de la expresion, -1 en otro caso
+         */
         int translate_expression_identifier_to_ir_instructions(struct expression * expr);
 
+        /**
+         * @brief Traduce una expression a insrucciones IR (literal)
+         * @param expr : expresion AST
+         * @return identificador de registro donde se almacenara el contenido de la expresion, -1 en otro caso
+         */
         int translate_expression_literal_to_ir_instructions(struct expression * expr);
 
+        /**
+         * @brief Traduce una expression a insrucciones IR (invocacion de funcion)
+         * @param expr : expresion AST
+         * @return identificador de registro donde se almacenara el contenido de la expresion, -1 en otro caso
+         */
         int translate_expression_function_inv_to_ir_instructions(struct expression * expr);
 
         /**

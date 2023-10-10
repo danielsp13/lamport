@@ -101,6 +101,14 @@ class IR_Tables{
         int add_entry_label(std::string label_id, int addr);
 
         /**
+         * @brief Modifica el contenido de una entrada de etiquetas
+         * @param label_id : identificador de etiqueta
+         * @param new_addr : nueva direccion a la que apunta la etiqueta
+         * @return direccion de registro de etiqueta
+         */
+        int modify_entry_label(std::string label_id, int new_addr);
+
+        /**
          * @brief Inserta una variable en la tabla de variables
          * @param kind : tipo de variable (local/global)
          * @param var_name : nombre de variable
