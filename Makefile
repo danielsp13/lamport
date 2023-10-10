@@ -140,7 +140,7 @@ INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_ir lmp_logging lmp_tasker lmp_lvm_launcher
 INDEX_IR_FILES:=literal variable table ir_optimizer instruction_table ir_builder ir_reg_manager ir_printer
-INDEX_LVM_FILES:=memory_block memory initializer page_table register register_table LVM
+INDEX_LVM_FILES:=memory_block memory initializer page_table register register_table stack_block LVM
 
 # -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))

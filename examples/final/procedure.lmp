@@ -1,0 +1,16 @@
+{Programa: procedure.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program HolaMundo
+
+procedure saluda(n : string);
+	var numeros : array[3] integer;
+begin
+	print("hola, ",n);
+end
+
+process Main;
+	var usuario : string := "Daniel";
+begin
+	saluda(usuario);
+end

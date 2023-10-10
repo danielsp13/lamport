@@ -15,12 +15,14 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <stack>
 
 #include "memory.hpp"               ///< Memoria de la maquina virtual
 #include "page_table.hpp"           ///< Tabla de paginas
 #include "initializer.hpp"          ///< Iniciador de maquina virtual
 #include "register_table.hpp"       ///< Tabla de registros
 #include "IR/instruction_table.hpp" ///< Tabla de instrucciones IR
+#include "stack_block.hpp"          ///< Bloque de pila 
 
 // ===============================================================
 
@@ -38,6 +40,9 @@ typedef enum{
 
 // ----- DEFINICION DE CLASE LAMPORT VIRTUAL MACHINE -----
 
+/**
+ * 
+ */
 class LVM{
     private:
         // -- Memoria de la maquina virtual
@@ -50,11 +55,15 @@ class LVM{
         LVM_Register_Table& register_table = LVM_Register_Table::get_instance();
         // -- Tabla de instrucciones a ejecutar
         IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
+        // -- Pila (para manejo de subprogramas)
+        std::stack<LVM_Stack_Block> stack;
 
         // -- Especifica el estado en el que se encuentra la maquina virtual
         LVM_states_t state = LVM_STATE_BORN;
         // -- Contador de programa
         int program_counter = 0;
+        // -- Puntero de pila
+        int stack_pointer = 0;
 
         /**
          * @brief Constructor de la maquina virtual
@@ -68,6 +77,20 @@ class LVM{
          * @return direccion fisica
          */
         int get_phisical_address_from_operand(const IR_operand & op);
+
+        /**
+         * @brief Comprueba si una instruccion es una operacion de inicio o fin de proceso
+         * @param instr : instruccion
+         * @return TRUE si es una operacion de start / end de proceso
+         */
+        inline bool instruction_is_start_or_end_process(const IR_instruction & instr);
+        
+        /**
+         * @brief Comprueba si una instruccion es una operacion de fin de programa
+         * @param instr : instruccion
+         * @return TRUE si es una operacion de fin de programa
+         */
+        inline bool instruction_is_end_program(const IR_instruction & instr);
 
         /**
          * @brief Comprueba si una instruccion es una operacion de carga
@@ -122,6 +145,30 @@ class LVM{
          * @brief Ejecuta la instruccion especificada por el indice
          */
         void execute_instruction(int index);
+
+        /**
+         * @brief Ejecuta una instruccion de inicio/fin de proceso
+         * @param instr : instruccion
+         */
+        void execute_instruction_start_or_end_process(IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion de inicio de proceso
+         * @param instr : instruccion IR_START_PROCESS
+         */
+        void execute_instruction_start_process(IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion de fin de proceso
+         * @param instr : instruccion IR_END_PROCESS
+         */
+        void execute_instruction_end_process(IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion de fin de programa
+         * @param instr : instruccion IR_END_PROGRAM
+         */
+        void execute_instruction_end_program(IR_instruction & instr);
 
         /**
          * @brief Ejecuta una instruccion de almacenamiento a memoria o a registro

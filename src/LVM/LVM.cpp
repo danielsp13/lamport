@@ -63,6 +63,25 @@ int LVM::get_phisical_address_from_operand(const IR_operand & op){
     return phisical_address;
 }
 
+inline bool LVM::instruction_is_start_or_end_process(const IR_instruction & instr){
+    bool result = false;
+    const IR_instruction_type_t kind = instr.get_code_instr();
+
+    result = kind == IR_START_PROCESS;
+    result = result == true ? true : kind == IR_END_PROCESS;
+
+    return result;
+}
+        
+inline bool LVM::instruction_is_end_program(const IR_instruction & instr){
+    bool result = false;
+    const IR_instruction_type_t kind = instr.get_code_instr();
+
+    result = kind == IR_END_PROGRAM;
+
+    return result;
+}
+
 inline bool LVM::instruction_is_load_or_store(const IR_instruction & instr){
     bool result = false;
     const IR_instruction_type_t kind = instr.get_code_instr();
@@ -191,8 +210,12 @@ void LVM::execute_instruction(int index){
     IR_instruction instr_to_exec = this->instructions[index];
 
     // -- Decidir accion
+    // ---- INSTRUCCION DE COMIENZO/FIN DE PROCESO
+    if(instruction_is_start_or_end_process(instr_to_exec)){
+        this->execute_instruction_start_or_end_process(instr_to_exec);
+    }
     // ---- INSTRUCCION DE ALMACENAMIENTO
-    if(instruction_is_load_or_store(instr_to_exec)){
+    else if(instruction_is_load_or_store(instr_to_exec)){
         this->execute_instruction_load_or_store(instr_to_exec);
         // --- Incrementar contador de programa
         this->program_counter++;
@@ -224,11 +247,61 @@ void LVM::execute_instruction(int index){
     else if(this->instruction_is_jump(instr_to_exec)){
         this->execute_instruction_jump(instr_to_exec);
     }
+    // ---- INSTRUCCION DE FIN DE PROGRAMA
+    else if(this->instruction_is_end_program(instr_to_exec)){
+        this->execute_instruction_end_program(instr_to_exec);
+    }
     // ---- OPERACION NO SOPORTADA
     else{
-        throw std::invalid_argument("INSTRUCCIÓN NO SOPORTADA.");
+        throw std::invalid_argument("INSTRUCCIÓN NO SOPORTADA. ("  + instr_to_exec.get_code_instr_str() + ")");
     }
 
+}
+
+void LVM::execute_instruction_start_or_end_process(IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_START_PROCESS:
+    {
+        this->execute_instruction_start_process(instr);
+        break;
+    }
+    case IR_END_PROCESS:
+    {
+        this->execute_instruction_end_process(instr);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
+void LVM::execute_instruction_start_process(IR_instruction & instr){
+    // -- Incrementar el contador de programa a siguiente instruccion
+    this->program_counter++;
+}
+
+void LVM::execute_instruction_end_process(IR_instruction & instr){
+    // -- 1. Buscar otro proceso
+    for(int i=this->program_counter; i<instructions.size(); i++){
+        // -- 2. Buscar un start process
+        if(instructions[i].get_code_instr() == IR_START_PROCESS){
+            this->program_counter = i;
+            return;
+        }
+
+        // -- 2. Buscar un end program
+        if(instructions[i].get_code_instr() == IR_END_PROGRAM){
+            this->program_counter = i;
+            return;
+        }
+    }
+
+}
+
+void LVM::execute_instruction_end_program(IR_instruction & instr){
+    this->program_counter = instructions.size()+1;
 }
 
 void LVM::execute_instruction_load_or_store(IR_instruction & instr){
