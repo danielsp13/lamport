@@ -88,7 +88,7 @@ std::string IR_variable::get_kind_str(){
 
 std::string IR_variable::get_initial_value_str() const{
     IR_variable_type_t var_type = get_type();
-    if(var_type == IR_VAR_TYPE_ARRAY || var_type == IR_VAR_TYPE_PROCESS)
+    if(var_type == IR_VAR_TYPE_ARRAY || var_type == IR_VAR_TYPE_PROCESS || var_type == IR_VAR_TYPE_SUBPROGRAM)
         return "------";
     
     return std::visit([](auto&& arg) -> std::string {

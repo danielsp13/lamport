@@ -31,6 +31,8 @@ class IR_Instruction_Table{
         std::vector<IR_instruction> instruction_table;
         // -- Impresor de instrucciones
         IR_Printer& printer = IR_Printer::get_instance();
+        // -- Generador de etiquetas anonimas
+        int id_label_annonymous = 0;
 
         /**
          * @brief Constructor de la clase
@@ -64,6 +66,48 @@ class IR_Instruction_Table{
          * @return numero de instrucciones
          */
         inline const int size() const {return this->instruction_table.size(); };
+
+        /**
+         * @brief Crea un operando de tipo registro
+         * @param id_reg : identificador de registro
+         * @return operando
+         */
+        IR_operand emit_operand_register(int id_reg);
+
+        /**
+         * @brief Crea un operando de tipo registro
+         * @param id_lit : identificador de literal
+         * @return operando
+         */
+        IR_operand emit_operand_literal(int id_lit);
+
+        /**
+         * @brief Crea un operando de tipo variable
+         * @param id_var : identificador de variable
+         * @return operando
+         */
+        IR_operand emit_operand_variable(int id_var);
+
+        /**
+         * @brief Crea un operando de tipo variable array
+         * @param id_var : identificador de variable
+         * @param offset : desplazamiento en el vector
+         * @return operando
+         */
+        IR_operand emit_operand_variable_array(int id_var, int offset);
+
+        /**
+         * @brief Crea un operando de tipo etiqueta
+         * @param id_label : identificador de etiqueta
+         * @return operando
+         */
+        IR_operand emit_operand_label(int id_label);
+
+        /**
+         * @brief Obtiene un nuevo identificador anonimo de etiqueta si es necesario
+         * @return id de etiqueta anonima, en formato string
+         */
+        std::string get_next_label_id();
 
         /**
          * @brief Incluye una nueva instruccion IR en la lista

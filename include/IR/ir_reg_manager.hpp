@@ -29,7 +29,7 @@ class IR_Reg_Manager{
         int reg_counter = 0;
         // Flag que especifica si hay reset de registros
         const bool RESET_REGISTERS_AVARIABLE = false;
-        // Pila de indices de registros para llamadas a procedimientos
+        // Pila de indices de registros para llamadas a subprograma
         std::stack<int> reg_stack;
 
         /**
