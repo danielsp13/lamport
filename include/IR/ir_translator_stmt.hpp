@@ -45,7 +45,6 @@ class IR_Translator_Statement{
          * @brief Traduce una sentencia a instrucciones IR
          * @param stmt : sentencia AST
          * @param from_subprogram : flag que indica si es una sentencia de subprograma
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_to_ir_instructions(struct statement * stmt, bool from_subprogram  = false);
         
@@ -53,7 +52,6 @@ class IR_Translator_Statement{
          * @brief Traduce una sentencia de asignacion a instrucciones IR
          * @param stmt : sentencia AST
          * @param from_subprogram : flag que indica si es una sentencia de subprograma
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_assignment_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
@@ -61,7 +59,6 @@ class IR_Translator_Statement{
          * @brief Traduce una sentencia de if/else a instrucciones IR
          * @param stmt : sentencia AST
          * @param from_subprogram : flag que indica si es una sentencia de subprograma
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_ifelse_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
@@ -69,49 +66,42 @@ class IR_Translator_Statement{
          * @brief Traduce una sentencia de bucle for a instrucciones IR
          * @param stmt : sentencia AST
          * @param from_subprogram : flag que indica si es una sentencia de subprograma
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_for_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
         /**
          * @brief Traduce una sentencia de bucle while a instrucciones IR
          * @param stmt : sentencia AST
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_while_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
         /**
          * @brief Traduce una sentencia de impresion a instrucciones IR
          * @param stmt : sentencia AST
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_print_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
         /**
          * @brief Traduce una sentencia de invocacion a procedimiento a instrucciones IR
          * @param stmt : sentencia AST
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_procedure_inv_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
         /**
          * @brief Traduce una sentencia de retorno de funcion a instrucciones IR
          * @param stmt : sentencia AST
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_return_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
         /**
          * @brief Traduce una sentencia fork a instrucciones IR
          * @param stmt : sentencia AST
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_fork_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
         
         /**
          * @brief Traduce una sentencia join a instrucciones IR
          * @param stmt : sentencia AST
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_statement_join_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
@@ -119,7 +109,6 @@ class IR_Translator_Statement{
          * @brief Traduce una lista de sentencias a instrucciones IR
          * @param list_stmt : lista de sentencias AST
          * @param from_subprogram : comprueba si se refiere a un subprograma
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_list_statements_to_ir_instructions(struct statement * list_stmt, bool from_subprogram = false);
 

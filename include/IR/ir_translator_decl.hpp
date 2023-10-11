@@ -46,7 +46,6 @@ class IR_Translator_Declaration{
         /**
          * @brief Traduce una declaracion a una instruccion IR
          * @param decl : declaracion AST
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_declaration_to_ir_instruction(struct declaration * decl, bool from_subprogram = false);
 
@@ -54,7 +53,6 @@ class IR_Translator_Declaration{
          * @brief Traduce una lista de declaraciones a instrucciones IR
          * @param list_decl : lista de declaraciones AST
          * @param from_subprogram : especifica si las declaraciones provienen de un subprograma
-         * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         void translate_list_declarations_to_ir_instructions(struct declaration * list_decl, bool from_subprogram = false);
 
