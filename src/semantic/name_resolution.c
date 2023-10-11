@@ -297,6 +297,30 @@ void resolve_expression_function_inv(struct expression *expr){
         expr->expr.expression_function_inv.symb = copy_symbol(target_symb);
     }
 
+    // -- Comprobar si para la funcion dispone de parametros
+    int total_parameters = 0;
+    struct type * current_type = expr->expr.expression_function_inv.symb->list_type_parameters;
+    while(current_type){
+        total_parameters++;
+        current_type = current_type->next;
+    }
+
+    int total_arguments = 0;
+    struct expression * current_argument = expr->expr.expression_function_inv.arguments_list;
+    while(current_argument){
+        total_arguments++;
+        current_argument = current_argument->next;
+    }
+
+    if(total_parameters != total_arguments){
+        // -- Realizar handling de este error: USO DE SIMBOLO SIN DECLARAR
+        // -- Crear error
+        struct error * error = create_error_semantic_invalid_parameters(expr->expr.expression_function_inv.function_name,expr->expr.expression_function_inv.line, ERR_UNDEFINED_PARAMETERS_MSG);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
+    }
+
     // -- Aplicar resolucion de nombres a la lista de expresiones que hacen de argumentos de la funcion
     if(expr->expr.expression_function_inv.arguments_list){
         // -- Aplicar resolucion de nombres a argumentos (lista)
@@ -544,6 +568,31 @@ void resolve_statement_procedure_inv(struct statement *stmt){
     else{
         stmt->stmt.statement_procedure_inv.symb = copy_symbol(target_symb);
     }
+
+    // -- Comprobar si para la funcion dispone de parametros
+    int total_parameters = 0;
+    struct type * current_type = stmt->stmt.statement_procedure_inv.symb->list_type_parameters;
+    while(current_type){
+        total_parameters++;
+        current_type = current_type->next;
+    }
+
+    int total_arguments = 0;
+    struct expression * current_argument = stmt->stmt.statement_procedure_inv.arguments_list;
+    while(current_argument){
+        total_arguments++;
+        current_argument = current_argument->next;
+    }
+
+    if(total_parameters != total_arguments){
+        // -- Realizar handling de este error: USO INVALIDO DE SUBPROGRAMA
+        // -- Crear error
+        struct error * error = create_error_semantic_invalid_parameters(stmt->stmt.statement_procedure_inv.procedure_name,stmt->stmt.statement_procedure_inv.line, ERR_UNDEFINED_PARAMETERS_MSG);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
+    }
+
 
     // -- Si dispone de argumentos de invocacion, aplicar resolucion de nombres a la lista
     resolve_list_expressions(stmt->stmt.statement_procedure_inv.arguments_list);

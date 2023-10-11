@@ -36,6 +36,9 @@ extern "C" {
 // Se indica que se ha usado un procedimiento que no ha sido definido antes
 #define ERR_UNDEFINED_PROCEDURE_MSG "uso de procedimiento no definido"
 
+// Se indica que el numero de argumentos encontrado no es el esperado
+#define ERR_UNDEFINED_PARAMETERS_MSG "llamada a subprograma no coincidente con declaracion (faltan/sobran argumentos)"
+
 // Se indica que se ha usado un proceso que no ha sido definido antes
 #define ERR_UNDEFINED_PROCESS_MSG "proceso no definido"
 
@@ -76,6 +79,15 @@ struct error * create_error_semantic(error_semantic_t kind, char *id, unsigned l
  * @return puntero a error semantico inicializado
  */
 struct error * create_error_semantic_undefined_symbol(char *id, unsigned long err_line, char *msg);
+
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo: TOTAL DE ARGUMENTOS DE SUBPROGAMA NO COINCIDENTE
+ * @param id : identificador de simbolo
+ * @param err_line : linea donde se produjo el error semantico
+ * @param msg : mensaje de error
+ * @return puntero a error semantico inicializado
+ */
+struct error * create_error_semantic_invalid_parameters(char *id, unsigned long err_line, char *msg);
 
 /**
  * @brief Crea y reserva memoria para un error semantico de tipo: DEFINCION DE SIMBOLO DUPLICADO

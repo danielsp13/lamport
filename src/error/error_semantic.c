@@ -50,6 +50,10 @@ struct error * create_error_semantic_undefined_symbol(char *id, unsigned long er
     return create_error_semantic(UNDEFINED_SYMBOL,id, err_line, msg);
 }
 
+struct error * create_error_semantic_invalid_parameters(char *id, unsigned long err_line, char *msg){
+    return create_error_semantic(UNDEFINED_SYMBOL,id, err_line, msg);
+}
+
 struct error * create_error_semantic_duplicated_symbol(char *id, unsigned long err_line, unsigned long def_line, char *msg){
     struct error *err = create_error_semantic(DUPLICATED_SYMBOL,id, err_line, msg);
 
