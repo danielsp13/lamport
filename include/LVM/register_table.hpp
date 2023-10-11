@@ -76,6 +76,12 @@ class LVM_Register_Table{
         void operator()(int i, const LVM_Memory_Block& mem_block);
 
         /**
+         * @brief Devuelve el vector de registros
+         * @return registros
+         */
+        const std::vector<LVM_Register> & get_registers() const {return this->register_table; };
+
+        /**
          * @brief Sobrecarga del operador (). Obtiene un registro
          * @param i : indice de registro
          */

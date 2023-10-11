@@ -4,13 +4,21 @@
 program HolaMundo
 
 procedure saluda(n : string);
-	var numeros : array[3] integer;
+	var numero : integer := 2*4+4-1;
+	var nombre : string := n;
 begin
-	print("hola, ",n);
+	print("El procedure te saluda: ",nombre);
+	print("El valor del numero es: ",numero);
+end
+
+procedure despide(n : string);
+begin
+	print(n, ", el procedure te despide");
 end
 
 process Main;
 	var usuario : string := "Daniel";
 begin
 	saluda(usuario);
+	despide(usuario);
 end

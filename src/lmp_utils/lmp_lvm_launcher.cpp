@@ -34,7 +34,7 @@ int LMP_LVM_Launcher::preload_lvm(bool verbose_avaiable){
 
 int LMP_LVM_Launcher::start(){
     tasker.task_execute_lvm();
-    lvm.start();
+    lvm.run();
     tasker.task_shutdown_lvm();
     return 0;
 }
