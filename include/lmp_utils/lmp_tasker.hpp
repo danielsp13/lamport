@@ -40,14 +40,16 @@ class LMP_Tasker{
 
         const bool COLORS_AVAIABLE = true;
 
-        const int TASK_DELAY = 250;
-        const int TASK_EXECUTION_DELAY = 500;
-        bool DELAY_AVAIABLE = false;
+        const int TASK_DELAY = 200;
+        const int TASK_EXECUTION_DELAY = 400;
+        bool DELAY_AVAIABLE;
 
         /**
          * @brief Constructor de la clase
+         * @param delay : especifica si hay delay
          */
-        LMP_Tasker(){};
+        LMP_Tasker(bool delay = false)
+            : DELAY_AVAIABLE(delay) {};
 
         /**
          * @brief Produce un retardo en la ejecucion de una tarea
@@ -102,9 +104,10 @@ class LMP_Tasker{
 
         /**
          * @brief Obtiene la instancia del manejador
+         * @param delay : especifica si hay delay
          * @return instancia
          */
-        static LMP_Tasker& get_instance();
+        static LMP_Tasker& get_instance(bool delay = false);
 
         /**
          * @brief Indica la tarea de apertura de archivo

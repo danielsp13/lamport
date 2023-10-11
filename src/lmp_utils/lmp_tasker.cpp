@@ -29,8 +29,8 @@ void LMP_Tasker::task_execution_delay(){
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [TASKER] -----
 
-LMP_Tasker& LMP_Tasker::get_instance(){
-    static LMP_Tasker instance;
+LMP_Tasker& LMP_Tasker::get_instance(bool delay){
+    static LMP_Tasker instance(delay);
     return instance;
 }
 

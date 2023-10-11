@@ -14,6 +14,7 @@
 #include "lmp_utils/lmp_ir.hpp"             ///< Gestion de codigo intermedio
 #include "lmp_utils/lmp_lvm_launcher.hpp"   ///< Gestion de maquina virtual (LVM)
 #include "lmp_utils/lmp_logging.hpp"        ///< Gestion de logging de lmp
+#include "lmp_utils/lmp_tasker.hpp"         ///< Notificador de tareas de interprete
 
 // ===============================================================
 
@@ -31,6 +32,8 @@
 #define LMP_LOGGING_LVM_IS_AVAIABLE true
 #define LMP_LVM_EXECUTION_IS_AVAIABLE true
 
+#define LMP_TASK_DELAY_IS_AVAIABLE true
+
 // ===============================================================
 
 // ----- MOTOR PRINCIPAL DE INTERPRETE -----
@@ -45,22 +48,9 @@ int lmp(int nargs, char *argv[]);
 
 // ===============================================================
 
-// ----- FUNCIONES DE DEPURACION -----
-
-/**
- * @brief Funcion provisional para realizacion de tests sobre
- * implementaciones
- */
-void beta_test();
-
-// ===============================================================
-
 // ----- PROGRAMA PRINCIPAL -----
 
 int main(int nargs, char *argv[]){
-    // -- Ejecutar tests
-    //beta_test();
-
     // -- Ejecutar motor de interprete
     return lmp(nargs, argv);
 }
@@ -72,6 +62,9 @@ int main(int nargs, char *argv[]){
 int lmp(int nargs, char *argv[]){
     int exec_result = 0;
     std::string lmp_file;
+
+    // --- Inicializar tasker con valor de delay asignado
+    LMP_Tasker::get_instance(LMP_TASK_DELAY_IS_AVAIABLE);
 
     /////////////////////////////////////////////////////////////////////////
 
@@ -152,15 +145,4 @@ int lmp(int nargs, char *argv[]){
     
     // -- Retornar codigo de exito
     return exec_result;
-}
-
-// ===============================================================
-
-// ----- IMPLEMENTCION DE FUNCIONES DE DEPURACION -----
-
-void beta_test(){
-    // --- Aqui va codigo de prueba de estructuras
-    
-    // -- Salir de forma exitosa
-    exit(EXIT_SUCCESS);
 }
