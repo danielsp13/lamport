@@ -752,21 +752,31 @@ void resolve_process_vector(struct process *proc){
     if(!proc)
         return;
 
-    // -- Aplicar resolucion de nombres al identificador de indexador de procesos
     struct symbol * target_symb = lookup_symbol_from_all_scopes(proc->index_identifier);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
-    if(!target_symb){
-        // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
+    // -- OJO! Aqui queremos que NO se encuentre, si se encuentra tenemos un error de redefinicion
+    if(target_symb){
+        // -- Realizar handling de este error : INDICE REDEFINIDO
         // -- Crear error
-        struct error * error = create_error_semantic_undefined_symbol(proc->index_identifier, proc->line, ERR_UNDEFINED_VARIABLE_MSG);
+        struct error * error = create_error_semantic_duplicated_symbol(proc->index_identifier, proc->line, target_symb->line ,ERR_DUPLICATED_INDEX_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
     }
     else{
-        // -- Asignar simbolo
-        proc->symb_index = copy_symbol(target_symb);
+        // -- Creamos un simbolo de tipo global
+        struct type * type_symb = create_basic_type(TYPE_INTEGER);
+        struct symbol * new_symb = create_symbol_global(type_symb, proc->index_identifier, proc->line);
+        free_type(type_symb);
+
+        if(new_symb){
+            // -- Asignar simbolo a indice de proceso
+            proc->symb_index = new_symb;
+
+            // -- Vincular simbolo al scope actual
+            bind_symbol_to_scope(proc->symb_index);
+        }
     }
 
     // -- Aplicar resolucion de nombres a la expresion de inicio de indexacion

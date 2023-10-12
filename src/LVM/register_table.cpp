@@ -95,3 +95,26 @@ const LVM_Register& LVM_Register_Table::operator[](int i) const{
 
     return this->register_table[i];
 }
+
+void LVM_Register_Table::print_register_table(std::ostream & os){
+    const std::string TABLE_SEPARATOR = "===================================================================";
+    const int gap = 16;
+
+    const int MAX_REGS_TO_PRINT = 100;
+
+    os << TABLE_SEPARATOR << std::endl;
+    os << std::left << "TABLA DE REGISTROS" << std::endl;
+    os << TABLE_SEPARATOR << std::endl;
+    os << std::left << std::setw(gap) << "Numero" << std::setw(gap) << "Tipo de Alloc." << std::setw(gap) << "Valor" << std::endl;
+    os << TABLE_SEPARATOR << std::endl;
+
+    LVM_Register reg;
+    for(unsigned i=0; i<MAX_REGS_TO_PRINT; i++){
+        // -- Obtener literal
+        reg = register_table[i];
+
+        // -- Imprimir contenido
+        os << std::left << std::setw(gap) << i << std::setw(gap) << reg.get_type_of_alloc_str() << std::setw(gap) << reg.get_value_str() << std::endl;
+    }
+   
+}

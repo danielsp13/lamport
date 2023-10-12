@@ -13,6 +13,7 @@
 // ----- INCLUSION DE DEPENDENCIAS -----
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 
 #include "register.hpp"                 ///< Registros de LVM
@@ -98,6 +99,12 @@ class LVM_Register_Table{
          * @param i : indice de registro
          */
         const LVM_Register& operator[](int i) const;
+
+        /**
+         * @brief Imprime la tabla de registros
+         * @param os : flujo de impresion
+         */
+        void print_register_table(std::ostream & os = std::cout);
 };
 
 #endif //_LAMPORT_LVM_REGISTER_TABLE_DPR_

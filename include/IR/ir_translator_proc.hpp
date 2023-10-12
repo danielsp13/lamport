@@ -50,6 +50,12 @@ class IR_Translator_Process{
         void translate_process_to_ir_instructions(struct process * proc);
 
         /**
+         * @brief Traduce un proceso vectorizado a instrucciones IR
+         * @param proc : proceso AST (vectorizado)
+         */
+        void translate_process_vector_to_ir_instructions(struct process * proc);
+
+        /**
          * @brief Traduce una lista de procesos a instrucciones IR
          * @param list_proc : lista de procesos AST
          */

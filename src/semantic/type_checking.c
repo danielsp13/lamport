@@ -662,6 +662,15 @@ void typecheck_process(struct process *proc){
         }
 
         // -- Comprobar rango de inicio y de fin de vector
+
+        // ---- Comprobar primero que son literales puros
+        // -- Comprobar si la expresion del tipo de array pertenece a un literal
+        if(proc->index_start->kind != EXPR_LITERAL || proc->index_end->kind != EXPR_LITERAL){
+            // -- Incluir error en la lista de errores semanticos
+            struct error *err = create_error_semantic_invalid_static_array(proc->line);
+            add_error_semantic_to_list(err);
+        }
+
         type_b = typecheck_expression(proc->index_start);
         type_c = typecheck_expression(proc->index_end);
 
