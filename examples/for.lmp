@@ -1,17 +1,39 @@
 {Programa: for.lmp}
 {Autor: Daniel Pérez Ruiz}
-{Descripción: Programa que incrementa un contador usando un bucle for}
 
-program IncrementarContador
-	var contador : integer := 0;	{Contador entero a incrementar}
-	
-{Proceso principal del programa}
-process Main;
+program CompruebaEdad
+	var contador : integer := 5;
+
+process main;
+	var startFor : integer := 1;
+	var endFor : integer := 5;
 begin
-	{Bucle que se ejecuta el numero de veces especificado}
-	for i := 0 to 5 do
+	print("La variable contador empieza en: ",contador);
+	print("");
+	print("Bucle for empieza en: ",startFor);
+	print("Bucle for acaba en: ",endFor);
+	
+	print("");
+	
+	for i := startFor to endFor do
 	begin
-		{Incrementar contador}
-		contador := contador + 1;
+		contador := contador+1;
+		print("--- contador vale ahora: ",contador);
+		print("--- i vale: ", i);
 	end
+	
+	print("");
+	print("Ejecutando bucles anidados ...");
+	print("");
+	
+	for j := 1 to 3 do
+	begin
+		print("------ j vale: ",j);
+		for k := j to 4 do
+		begin
+			print("--- k vale: ",k);
+		end
+		print("");
+	end
+	
 end

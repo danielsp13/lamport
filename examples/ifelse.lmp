@@ -1,21 +1,37 @@
 {Programa: ifelse.lmp}
 {Autor: Daniel Pérez Ruiz}
-{Descripción: Programa de calculo del valor absoluto}
 
-program ValorAbsoluto
-	var num : integer := -2;
+program CompruebaEdad
+	var nombre1 : string := "Jorge";
+	var edad1 : integer := 17;
 	
-{Proceso que comprueba el valor de num, y calcula su valor absoluto}
+	var nombre2 : string := "Pablo";
+	var edad2 : integer := 22;
+	
 process main;
-	var resultado : integer := 0; {Variable para almacenar el resultado de valor absoluto}
+	var minimaEdad : integer := 18;
 begin
-	{Comprobar el valor de var global num}
-	if (num < 0) then
+	print(nombre1, ", tu edad es: ",edad1,". Comprobando si puedes entrar...");
+	
+	if edad1 < minimaEdad then
 		begin
-			resultado := -num;
+			print("NO puedes entrar. Debes tener ",minimaEdad," para poder entrar.");
 		end
 	else
 		begin
-			resultado := num;
+			print("Adelante!!. Puedes entrar");
+		end
+		
+	print("");
+		
+	print(nombre2, ", tu edad es: ",edad2,". Comprobando si puedes entrar...");
+	
+	if edad2 < minimaEdad then
+		begin
+			print("NO puedes entrar. Debes tener ",minimaEdad," para poder entrar.");
+		end
+	else
+		begin
+			print("Adelante!!. Puedes entrar");
 		end
 end

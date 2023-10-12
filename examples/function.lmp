@@ -1,76 +1,50 @@
 {Programa: function.lmp}
 {Autor: Daniel Pérez Ruiz}
-{Descripción: Calculadora de numeros}
 
-program Calculadora
+program HolaMundo
 
-{Funcion: Suma dos numeros reales}
-{Param a : Numero real}
-{Param b : Numero real}
-{Return : suma de los dos numeros}
-function sumar(a : real, b : real) : real;
+function incrementaNVeces(numero : integer, n : integer) : integer;
+	var resultado : integer := numero;
+	var inicio : integer := -12;
+	var otro : string := "hola";
 begin
-	return a + b;
-end
-
-{Funcion: Resta dos numeros reales}
-{Param a : Numero real}
-{Param b : Numero real}
-{Return : resta de los dos numeros}
-function restar(a : real, b : real) : real;
-begin
-	return a - b;
-end
-
-{Funcion: Multiplica dos numeros reales}
-{Param a : Numero real}
-{Param b : Numero real}
-{Return : multplicacion de los dos numeros}
-function multiplicar(a : real, b : real) : real;
-begin
-	return a * b;
-end
-
-{Funcion: Divide dos numeros reales}
-{Param a : Numero real}
-{Param b : Numero real}
-{Return : division de los dos numeros}
-function dividir(a : real, b : real) : real;
-begin
-	return a/b;
-end
-
-
-{Proceso principal del programa}
-process Main;
-	var num1 : real := 2.0;	{Primer numero real a operar}
-	var num2 : real := 3.0; {Segundo numero real a operar}
+	for i := 1 to n do
+	begin
+		resultado := resultado + 1;
+	end
 	
-	var resultado : real := 0.0; {Resultado de la operación}
-	
-	var opcion : string := "multiplicar"; {Indica la acción a realizar por la calculadora}
+	return resultado;
+end
+
+function esMayorEdad(edad : integer) : boolean;
+	var mayoriaEdad : integer := 18;
+	var resultado : boolean;
 begin
-	{Comprobar opcion a realizar}
-	if opcion == "sumar" then
+	if(edad < mayoriaEdad) then
 		begin
-			resultado := sumar(num1,num2);
+			print("Mensaje de funcion: No eres mayor de edad");
+			resultado := false;
 		end
 	else
 		begin
-			if opcion == "restar" then
-			begin
-				resultado := restar(num1,num2);
-			end
-			else
-				begin
-					if opcion == "multiplicar" then
-						begin
-							resultado := multiplicar(num1,num2);
-						end
-					else
-						begin
-							resultado := dividir(num1,num2);
-						end
-				end
-		end	
+			print("Mensaje de funcion: Eres mayor de edad");
+			resultado := true;
+		end
+	
+	return resultado;
+end
+
+
+process Main;
+	var numero1 : integer := 2;
+	var numero2 : integer := 15;
+	var resultado : integer;
+	var edad : integer := 15;
+	var esMayor : boolean := esMayorEdad(edad);
+begin
+	resultado := incrementaNVeces(numero1,numero2);
+	print("El resultado de incrementar (",numero1,") ",numero2," veces es: ",resultado);
+	
+	print("");
+	print("esMayor ? : ",esMayor);
 end

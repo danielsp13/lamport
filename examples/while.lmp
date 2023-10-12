@@ -1,17 +1,21 @@
-{Programa: while.lmp}
+{Programa: for.lmp}
 {Autor: Daniel Pérez Ruiz}
-{Descripción: Programa que incrementa un contador usando un bucle while}
 
-program IncrementarContador
-	var contador : integer := 0;	{Contador entero a incrementar}
-	
-{Proceso principal del programa}
-process Main;
+program CompruebaEdad
+	var contador : integer := 5;
+
+process main;
+	var valorMaximo : integer := 10;
 begin
-	{Bucle que se ejecuta el numero de veces especificado}
-	while contador < 5 do
+	print("La variable contador empieza en: ",contador);
+	print("Su valor maximo debe ser: ",valorMaximo);
+	print("");
+	
+	while contador < valorMaximo do
 	begin
-		{Incrementar contador}
 		contador := contador + 1;
+		print(" --- Contador vale ahora: ", contador);
 	end
+	
+	print(""); print("Fin de bucle");
 end
