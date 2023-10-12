@@ -177,10 +177,16 @@ LVM_Register LVM_Register::operator*(const LVM_Register& otro) const{
 }
 
 LVM_Register LVM_Register::operator/(const LVM_Register& otro) const{
+
     switch (allocates_type)
     {
     case REG_CONTAINS_INTEGER:
     {
+        if(otro.get_value<int>() == 0){
+            std::string operation = this->get_value_str() + " / " + otro.get_value_str();
+            throw std::runtime_error("DIVISION POR CERO NO PERMITIDA. Se encontró: " + operation + ".");
+        }
+
         return LVM_Register(this->get_value<int>() / otro.get_value<int>());
         break;
     }
