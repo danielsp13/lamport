@@ -209,6 +209,9 @@ struct statement{
         struct {
             struct expression *returned_expr;       ///< Expresion de retorno
             unsigned long line;                     ///< Linea donde se definio la sentencia
+
+            //char *function_name;                    ///< Nombre de funcion
+            //struct symbol *symb;                    ///< Referencia al simbolo asociado en la tabla de simbolos
         } statement_return;
 
         // Estructura de sentencia de impresion

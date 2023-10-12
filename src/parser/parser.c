@@ -644,18 +644,18 @@ static const yytype_int16 yyrline[] =
        0,   238,   238,   244,   250,   258,   267,   276,   283,   293,
      303,   309,   314,   319,   324,   330,   335,   345,   354,   360,
      363,   370,   381,   393,   398,   405,   410,   416,   424,   431,
-     444,   457,   462,   467,   472,   477,   482,   488,   496,   505,
-     514,   526,   540,   549,   557,   569,   572,   579,   591,   596,
-     604,   615,   620,   625,   632,   641,   644,   647,   654,   657,
-     667,   674,   683,   692,   701,   710,   722,   731,   747,   757,
-     765,   775,   783,   793,   801,   812,   822,   829,   832,   838,
-     847,   859,   862,   865,   868,   871,   874,   877,   880,   883,
-     886,   893,   904,   915,   920,   925,   933,   946,   960,   970,
-     983,   993,  1001,  1011,  1019,  1029,  1037,  1047,  1054,  1063,
-    1075,  1085,  1100,  1103,  1106,  1109,  1117,  1127,  1137,  1147,
-    1157,  1167,  1177,  1187,  1197,  1207,  1217,  1228,  1238,  1251,
-    1261,  1273,  1276,  1279,  1282,  1295,  1304,  1313,  1322,  1331,
-    1340,  1352,  1361,  1374,  1384,  1400,  1409,  1420
+     453,   475,   480,   485,   490,   495,   500,   506,   514,   523,
+     532,   544,   558,   567,   575,   587,   590,   597,   609,   614,
+     622,   633,   638,   643,   650,   659,   662,   665,   672,   675,
+     685,   692,   701,   710,   719,   728,   740,   749,   765,   775,
+     783,   793,   801,   811,   819,   834,   844,   851,   854,   860,
+     869,   881,   884,   887,   890,   893,   896,   899,   902,   905,
+     908,   915,   926,   937,   942,   947,   955,   968,   982,   992,
+    1005,  1015,  1023,  1033,  1041,  1051,  1059,  1069,  1076,  1085,
+    1097,  1107,  1122,  1125,  1128,  1131,  1139,  1149,  1159,  1169,
+    1179,  1189,  1199,  1209,  1219,  1229,  1239,  1250,  1260,  1273,
+    1283,  1295,  1298,  1301,  1304,  1317,  1326,  1335,  1344,  1353,
+    1362,  1374,  1383,  1396,  1406,  1422,  1431,  1442
 };
 #endif
 
@@ -1810,6 +1810,15 @@ yyreduce:
                                                                                                                                                            {
         // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
         if(!have_syntax_errors()){
+            // --- Intermediate: Asignar el nombre de funcion a la sentencia de retorno
+            /*struct statement * current_stmt = $10->stmt.statement_block.body;
+            while(current_stmt->next){
+                current_stmt = current_stmt->next;
+            }
+
+            current_stmt->stmt.statement_return.function_name = strdup($2);*/
+
+            // --- Ahora si, crear nodo
             (yyval.subprog) = create_subprogram_function((yyvsp[-8].ident), (yyvsp[-6].param), (yyvsp[-1].decl), (yyvsp[0].stmt), (yyvsp[-3].type), yylineno);
             add_subprogram_to_register((yyval.subprog));
         }
@@ -1819,14 +1828,23 @@ yyreduce:
 
         
     }
-#line 1823 "src/parser/parser.c"
+#line 1832 "src/parser/parser.c"
     break;
 
   case 30: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function  */
-#line 444 "src/parser/parser.y"
+#line 453 "src/parser/parser.y"
                                                                                                                                              {
         // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
         if(!have_syntax_errors()){
+            // --- Intermediate: Asignar el nombre de funcion a la sentencia de retorno
+            /*struct statement * current_stmt = $9->stmt.statement_block.body;
+            while(current_stmt->next){
+                current_stmt = current_stmt->next;
+            }
+
+            current_stmt->stmt.statement_return.function_name = strdup($2);*/
+
+
             (yyval.subprog) = create_subprogram_function((yyvsp[-7].ident), 0, (yyvsp[-1].decl), (yyvsp[0].stmt), (yyvsp[-3].type), yylineno);
             add_subprogram_to_register((yyval.subprog));
         }
@@ -1836,84 +1854,84 @@ yyreduce:
 
         
     }
-#line 1840 "src/parser/parser.c"
-    break;
-
-  case 31: /* subprogram-function: S_FUNCTION error PAR_IZDO list-parameters PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function  */
-#line 457 "src/parser/parser.y"
-                                                                                                                                          {
-        mark_error_syntax_subprogram_function_expected_identifier();
-        //YYABORT;
-    }
-#line 1849 "src/parser/parser.c"
-    break;
-
-  case 32: /* subprogram-function: S_FUNCTION error PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function  */
-#line 462 "src/parser/parser.y"
-                                                                                                                          {
-        mark_error_syntax_subprogram_function_expected_identifier();
-        //YYABORT;
-    }
 #line 1858 "src/parser/parser.c"
     break;
 
-  case 33: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO error PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function  */
-#line 467 "src/parser/parser.y"
-                                                                                                                                                   {
-        mark_error_syntax_subprogram_function_expected_parameters((yyvsp[-8].ident));
+  case 31: /* subprogram-function: S_FUNCTION error PAR_IZDO list-parameters PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function  */
+#line 475 "src/parser/parser.y"
+                                                                                                                                          {
+        mark_error_syntax_subprogram_function_expected_identifier();
         //YYABORT;
     }
 #line 1867 "src/parser/parser.c"
     break;
 
-  case 34: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO basic-or-array-type DELIM_PC list-declarations block-statements-function  */
-#line 472 "src/parser/parser.y"
-                                                                                                                                                    {
-        mark_error_syntax_subprogram_function_expected_delim2p((yyvsp[-7].ident));
+  case 32: /* subprogram-function: S_FUNCTION error PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function  */
+#line 480 "src/parser/parser.y"
+                                                                                                                          {
+        mark_error_syntax_subprogram_function_expected_identifier();
         //YYABORT;
     }
 #line 1876 "src/parser/parser.c"
     break;
 
-  case 35: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO basic-or-array-type DELIM_PC list-declarations block-statements-function  */
-#line 477 "src/parser/parser.y"
-                                                                                                                                    {
-        mark_error_syntax_subprogram_function_expected_delim2p((yyvsp[-6].ident));
+  case 33: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO error PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function  */
+#line 485 "src/parser/parser.y"
+                                                                                                                                                   {
+        mark_error_syntax_subprogram_function_expected_parameters((yyvsp[-8].ident));
         //YYABORT;
     }
 #line 1885 "src/parser/parser.c"
     break;
 
+  case 34: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO basic-or-array-type DELIM_PC list-declarations block-statements-function  */
+#line 490 "src/parser/parser.y"
+                                                                                                                                                    {
+        mark_error_syntax_subprogram_function_expected_delim2p((yyvsp[-7].ident));
+        //YYABORT;
+    }
+#line 1894 "src/parser/parser.c"
+    break;
+
+  case 35: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO basic-or-array-type DELIM_PC list-declarations block-statements-function  */
+#line 495 "src/parser/parser.y"
+                                                                                                                                    {
+        mark_error_syntax_subprogram_function_expected_delim2p((yyvsp[-6].ident));
+        //YYABORT;
+    }
+#line 1903 "src/parser/parser.c"
+    break;
+
   case 36: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P basic-or-array-type list-declarations block-statements-function  */
-#line 482 "src/parser/parser.y"
+#line 500 "src/parser/parser.y"
                                                                                                                                                     {
         mark_error_syntax_subprogram_function_expected_delimpc((yyvsp[-7].ident));
         free_AST_parameter_register();
         //YYABORT;
     }
-#line 1895 "src/parser/parser.c"
+#line 1913 "src/parser/parser.c"
     break;
 
   case 37: /* subprogram-function: S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type list-declarations block-statements-function  */
-#line 488 "src/parser/parser.y"
+#line 506 "src/parser/parser.y"
                                                                                                                                     {
         mark_error_syntax_subprogram_function_expected_delimpc((yyvsp[-6].ident));
         free_AST_parameter_register();
         //YYABORT;
     }
-#line 1905 "src/parser/parser.c"
+#line 1923 "src/parser/parser.c"
     break;
 
   case 38: /* subprogram-function-name: IDENT  */
-#line 496 "src/parser/parser.y"
+#line 514 "src/parser/parser.y"
          {
         (yyval.ident) = (yyvsp[0].ident);
     }
-#line 1913 "src/parser/parser.c"
+#line 1931 "src/parser/parser.c"
     break;
 
   case 39: /* list-parameters: parameter DELIM_C list-parameters  */
-#line 505 "src/parser/parser.y"
+#line 523 "src/parser/parser.y"
                                      {
         if(!have_syntax_errors()){
             (yyval.param) = (yyvsp[-2].param);
@@ -1923,11 +1941,11 @@ yyreduce:
             (yyval.param) = 0;
         }
     }
-#line 1927 "src/parser/parser.c"
+#line 1945 "src/parser/parser.c"
     break;
 
   case 40: /* list-parameters: parameter  */
-#line 514 "src/parser/parser.y"
+#line 532 "src/parser/parser.y"
                {
         if(!have_syntax_errors()){
             (yyval.param) = (yyvsp[0].param);
@@ -1936,11 +1954,11 @@ yyreduce:
             (yyval.param) = 0;
         }
     }
-#line 1940 "src/parser/parser.c"
+#line 1958 "src/parser/parser.c"
     break;
 
   case 41: /* parameter: parameter-name DELIM_2P type  */
-#line 526 "src/parser/parser.y"
+#line 544 "src/parser/parser.y"
                                 {
         // -- Creacion de nodo PARAMETRO
         if(!have_syntax_errors()){
@@ -1952,19 +1970,19 @@ yyreduce:
         }
         
     }
-#line 1956 "src/parser/parser.c"
+#line 1974 "src/parser/parser.c"
     break;
 
   case 42: /* parameter-name: IDENT  */
-#line 540 "src/parser/parser.y"
+#line 558 "src/parser/parser.y"
          {
         (yyval.ident) = (yyvsp[0].ident);
     }
-#line 1964 "src/parser/parser.c"
+#line 1982 "src/parser/parser.c"
     break;
 
   case 43: /* list-process: process  */
-#line 549 "src/parser/parser.y"
+#line 567 "src/parser/parser.y"
            {
         if(!have_syntax_errors()){
             (yyval.proc) = (yyvsp[0].proc);
@@ -1973,11 +1991,11 @@ yyreduce:
             (yyval.proc) = 0;
         }
     }
-#line 1977 "src/parser/parser.c"
+#line 1995 "src/parser/parser.c"
     break;
 
   case 44: /* list-process: process list-process  */
-#line 557 "src/parser/parser.y"
+#line 575 "src/parser/parser.y"
                           {
         if(!have_syntax_errors()){
             (yyval.proc) = (yyvsp[-1].proc);
@@ -1987,27 +2005,27 @@ yyreduce:
             (yyval.proc) = 0;
         }
     }
-#line 1991 "src/parser/parser.c"
+#line 2009 "src/parser/parser.c"
     break;
 
   case 45: /* process: process-def  */
-#line 569 "src/parser/parser.y"
+#line 587 "src/parser/parser.y"
                {
         (yyval.proc) = (yyvsp[0].proc);
     }
-#line 1999 "src/parser/parser.c"
+#line 2017 "src/parser/parser.c"
     break;
 
   case 46: /* process: process-def-array  */
-#line 572 "src/parser/parser.y"
+#line 590 "src/parser/parser.y"
                        {
         (yyval.proc) = (yyvsp[0].proc);
     }
-#line 2007 "src/parser/parser.c"
+#line 2025 "src/parser/parser.c"
     break;
 
   case 47: /* process-def: S_PROCESS process-name DELIM_PC list-declarations block-statements-process  */
-#line 579 "src/parser/parser.y"
+#line 597 "src/parser/parser.y"
                                                                               {
         // -- Creacion de nodo PROCESO
         if(!have_syntax_errors()){
@@ -2019,29 +2037,29 @@ yyreduce:
         }
         
     }
-#line 2023 "src/parser/parser.c"
+#line 2041 "src/parser/parser.c"
     break;
 
   case 48: /* process-def: S_PROCESS error DELIM_PC list-declarations block-statements-process  */
-#line 591 "src/parser/parser.y"
+#line 609 "src/parser/parser.y"
                                                                          {
         mark_error_syntax_process_expected_identifier();
         //YYABORT;
     }
-#line 2032 "src/parser/parser.c"
+#line 2050 "src/parser/parser.c"
     break;
 
   case 49: /* process-def: S_PROCESS process-name list-declarations block-statements-process  */
-#line 596 "src/parser/parser.y"
+#line 614 "src/parser/parser.y"
                                                                        {
         mark_error_syntax_process_expected_delimpc((yyvsp[-2].ident));
         //YYABORT;
     }
-#line 2041 "src/parser/parser.c"
+#line 2059 "src/parser/parser.c"
     break;
 
   case 50: /* process-def-array: S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statements-process  */
-#line 604 "src/parser/parser.y"
+#line 622 "src/parser/parser.y"
                                                                                                                                                    {
         // -- Creacion de nodo PROCESO
         if(!have_syntax_errors()){
@@ -2052,79 +2070,79 @@ yyreduce:
             (yyval.proc) = 0;
         }
     }
-#line 2056 "src/parser/parser.c"
-    break;
-
-  case 51: /* process-def-array: S_PROCESS process-name CORCH_IZDO error CORCH_DCHO DELIM_PC list-declarations block-statements-process  */
-#line 615 "src/parser/parser.y"
-                                                                                                            {
-        mark_error_syntax_process_expected_index_identifier((yyvsp[-6].ident));
-        //YYABORT;
-    }
-#line 2065 "src/parser/parser.c"
-    break;
-
-  case 52: /* process-def-array: S_PROCESS process-name CORCH_IZDO IDENT error CORCH_DCHO DELIM_PC list-declarations block-statements-process  */
-#line 620 "src/parser/parser.y"
-                                                                                                                  {
-        mark_error_syntax_process_expected_delim2p((yyvsp[-7].ident));
-        //YYABORT;
-    }
 #line 2074 "src/parser/parser.c"
     break;
 
-  case 53: /* process-def-array: S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression error expression CORCH_DCHO DELIM_PC list-declarations block-statements-process  */
-#line 625 "src/parser/parser.y"
-                                                                                                                                                 {
-        mark_error_syntax_process_expected_delimarr((yyvsp[-10].ident));
+  case 51: /* process-def-array: S_PROCESS process-name CORCH_IZDO error CORCH_DCHO DELIM_PC list-declarations block-statements-process  */
+#line 633 "src/parser/parser.y"
+                                                                                                            {
+        mark_error_syntax_process_expected_index_identifier((yyvsp[-6].ident));
         //YYABORT;
     }
 #line 2083 "src/parser/parser.c"
     break;
 
+  case 52: /* process-def-array: S_PROCESS process-name CORCH_IZDO IDENT error CORCH_DCHO DELIM_PC list-declarations block-statements-process  */
+#line 638 "src/parser/parser.y"
+                                                                                                                  {
+        mark_error_syntax_process_expected_delim2p((yyvsp[-7].ident));
+        //YYABORT;
+    }
+#line 2092 "src/parser/parser.c"
+    break;
+
+  case 53: /* process-def-array: S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression error expression CORCH_DCHO DELIM_PC list-declarations block-statements-process  */
+#line 643 "src/parser/parser.y"
+                                                                                                                                                 {
+        mark_error_syntax_process_expected_delimarr((yyvsp[-10].ident));
+        //YYABORT;
+    }
+#line 2101 "src/parser/parser.c"
+    break;
+
   case 54: /* process-name: IDENT  */
-#line 632 "src/parser/parser.y"
+#line 650 "src/parser/parser.y"
          {
         (yyval.ident) = (yyvsp[0].ident);
     }
-#line 2091 "src/parser/parser.c"
+#line 2109 "src/parser/parser.c"
     break;
 
   case 55: /* type: basic-or-array-type  */
-#line 641 "src/parser/parser.y"
+#line 659 "src/parser/parser.y"
                        {
         (yyval.type) = (yyvsp[0].type);
     }
-#line 2099 "src/parser/parser.c"
+#line 2117 "src/parser/parser.c"
     break;
 
   case 56: /* type: special-type  */
-#line 644 "src/parser/parser.y"
+#line 662 "src/parser/parser.y"
                   {
         (yyval.type) = (yyvsp[0].type);
     }
-#line 2107 "src/parser/parser.c"
+#line 2125 "src/parser/parser.c"
     break;
 
   case 57: /* type: error  */
-#line 647 "src/parser/parser.y"
+#line 665 "src/parser/parser.y"
            {
         mark_error_syntax_type_expected_type();
         //YYABORT;
     }
-#line 2116 "src/parser/parser.c"
+#line 2134 "src/parser/parser.c"
     break;
 
   case 58: /* basic-or-array-type: basic-type  */
-#line 654 "src/parser/parser.y"
+#line 672 "src/parser/parser.y"
               {
         (yyval.type) = (yyvsp[0].type);
     }
-#line 2124 "src/parser/parser.c"
+#line 2142 "src/parser/parser.c"
     break;
 
   case 59: /* basic-or-array-type: T_ARRAY CORCH_IZDO expression CORCH_DCHO basic-type  */
-#line 657 "src/parser/parser.y"
+#line 675 "src/parser/parser.y"
                                                          {
         if(!have_syntax_errors()){
             (yyval.type) = create_array_type((yyvsp[0].type),(yyvsp[-2].expr));
@@ -2134,20 +2152,20 @@ yyreduce:
             (yyval.type) = 0;
         }
     }
-#line 2138 "src/parser/parser.c"
+#line 2156 "src/parser/parser.c"
     break;
 
   case 60: /* basic-or-array-type: T_ARRAY CORCH_IZDO expression CORCH_DCHO  */
-#line 667 "src/parser/parser.y"
+#line 685 "src/parser/parser.y"
                                               {
         mark_error_syntax_type_expected_type();
         //YYABORT;
     }
-#line 2147 "src/parser/parser.c"
+#line 2165 "src/parser/parser.c"
     break;
 
   case 61: /* basic-type: T_INTEGER  */
-#line 674 "src/parser/parser.y"
+#line 692 "src/parser/parser.y"
              {
         if(!have_syntax_errors()){
             (yyval.type) = create_basic_type(TYPE_INTEGER);
@@ -2157,11 +2175,11 @@ yyreduce:
             (yyval.type) = 0;
         }
     }
-#line 2161 "src/parser/parser.c"
+#line 2179 "src/parser/parser.c"
     break;
 
   case 62: /* basic-type: T_BOOLEAN  */
-#line 683 "src/parser/parser.y"
+#line 701 "src/parser/parser.y"
                {
         if(!have_syntax_errors()){
             (yyval.type) = create_basic_type(TYPE_BOOLEAN);
@@ -2171,11 +2189,11 @@ yyreduce:
             (yyval.type) = 0;
         }
     }
-#line 2175 "src/parser/parser.c"
+#line 2193 "src/parser/parser.c"
     break;
 
   case 63: /* basic-type: T_CHAR  */
-#line 692 "src/parser/parser.y"
+#line 710 "src/parser/parser.y"
             {
         if(!have_syntax_errors()){
             (yyval.type) = create_basic_type(TYPE_CHAR);
@@ -2185,11 +2203,11 @@ yyreduce:
             (yyval.type) = 0;
         }
     }
-#line 2189 "src/parser/parser.c"
+#line 2207 "src/parser/parser.c"
     break;
 
   case 64: /* basic-type: T_STRING  */
-#line 701 "src/parser/parser.y"
+#line 719 "src/parser/parser.y"
               {
         if(!have_syntax_errors()){
             (yyval.type) = create_basic_type(TYPE_STRING);
@@ -2199,11 +2217,11 @@ yyreduce:
             (yyval.type) = 0;
         }
     }
-#line 2203 "src/parser/parser.c"
+#line 2221 "src/parser/parser.c"
     break;
 
   case 65: /* basic-type: T_REAL  */
-#line 710 "src/parser/parser.y"
+#line 728 "src/parser/parser.y"
             {
         if(!have_syntax_errors()){
             (yyval.type) = create_basic_type(TYPE_REAL);
@@ -2213,11 +2231,11 @@ yyreduce:
             (yyval.type) = 0;
         }
     }
-#line 2217 "src/parser/parser.c"
+#line 2235 "src/parser/parser.c"
     break;
 
   case 66: /* special-type: T_SEMAPHORE  */
-#line 722 "src/parser/parser.y"
+#line 740 "src/parser/parser.y"
                {
         if(!have_syntax_errors()){
             (yyval.type) = create_semaphore_type();
@@ -2227,11 +2245,11 @@ yyreduce:
             (yyval.type) = 0;
         }
     }
-#line 2231 "src/parser/parser.c"
+#line 2249 "src/parser/parser.c"
     break;
 
   case 67: /* special-type: T_DPROCESS  */
-#line 731 "src/parser/parser.y"
+#line 749 "src/parser/parser.y"
                 {
         if(!have_syntax_errors()){
             (yyval.type) = create_dprocess_type();
@@ -2241,11 +2259,11 @@ yyreduce:
             (yyval.type) = 0;
         }
     }
-#line 2245 "src/parser/parser.c"
+#line 2263 "src/parser/parser.c"
     break;
 
   case 68: /* block-statements-begin-end: B_BEGIN list-statements B_END  */
-#line 747 "src/parser/parser.y"
+#line 765 "src/parser/parser.y"
                                  {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_block_begin((yyvsp[-1].stmt));
@@ -2255,20 +2273,20 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2259 "src/parser/parser.c"
+#line 2277 "src/parser/parser.c"
     break;
 
   case 69: /* block-statements-begin-end: B_BEGIN B_END  */
-#line 757 "src/parser/parser.y"
+#line 775 "src/parser/parser.y"
                    {
         mark_error_syntax_statement_empty_block();
         //YYABORT;
     }
-#line 2268 "src/parser/parser.c"
+#line 2286 "src/parser/parser.c"
     break;
 
   case 70: /* block-statements-cobegin-coend: B_COBEGIN list-statements B_COEND  */
-#line 765 "src/parser/parser.y"
+#line 783 "src/parser/parser.y"
                                      {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_block_cobegin((yyvsp[-1].stmt));
@@ -2278,20 +2296,20 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2282 "src/parser/parser.c"
+#line 2300 "src/parser/parser.c"
     break;
 
   case 71: /* block-statements-cobegin-coend: B_COBEGIN B_COEND  */
-#line 775 "src/parser/parser.y"
+#line 793 "src/parser/parser.y"
                        {
         mark_error_syntax_statement_empty_block();
         //YYABORT;
     }
-#line 2291 "src/parser/parser.c"
+#line 2309 "src/parser/parser.c"
     break;
 
   case 72: /* block-statements-atomic: ATOM_INI list-statements ATOM_FIN  */
-#line 783 "src/parser/parser.y"
+#line 801 "src/parser/parser.y"
                                      {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_atomic((yyvsp[-1].stmt));
@@ -2301,23 +2319,27 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2305 "src/parser/parser.c"
+#line 2323 "src/parser/parser.c"
     break;
 
   case 73: /* block-statements-atomic: ATOM_INI ATOM_FIN  */
-#line 793 "src/parser/parser.y"
+#line 811 "src/parser/parser.y"
                        {
         mark_error_syntax_statement_empty_block();
         //YYABORT;
     }
-#line 2314 "src/parser/parser.c"
+#line 2332 "src/parser/parser.c"
     break;
 
   case 74: /* block-statements-function: B_BEGIN list-statements return-statement B_END  */
-#line 801 "src/parser/parser.y"
+#line 819 "src/parser/parser.y"
                                                   {
         if(!have_syntax_errors()){
-            (yyvsp[-2].stmt)->next = (yyvsp[-1].stmt);
+            struct statement * current_stmt = (yyvsp[-2].stmt);
+            while(current_stmt->next)
+                current_stmt = current_stmt->next;
+            current_stmt->next = (yyvsp[-1].stmt);
+
             (yyval.stmt) = create_statement_block_begin((yyvsp[-2].stmt));
             add_statement_to_register((yyval.stmt));
         }
@@ -2325,11 +2347,11 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2329 "src/parser/parser.c"
+#line 2351 "src/parser/parser.c"
     break;
 
   case 75: /* block-statements-function: B_BEGIN return-statement B_END  */
-#line 812 "src/parser/parser.y"
+#line 834 "src/parser/parser.y"
                                     {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_block_begin((yyvsp[-1].stmt));
@@ -2339,36 +2361,36 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2343 "src/parser/parser.c"
+#line 2365 "src/parser/parser.c"
     break;
 
   case 76: /* block-statements-function: B_BEGIN list-statements B_END  */
-#line 822 "src/parser/parser.y"
+#line 844 "src/parser/parser.y"
                                    {
         mark_error_syntax_statement_non_return_in_block();
         //YYABORT;
     }
-#line 2352 "src/parser/parser.c"
+#line 2374 "src/parser/parser.c"
     break;
 
   case 77: /* block-statements-process: block-statements-begin-end  */
-#line 829 "src/parser/parser.y"
+#line 851 "src/parser/parser.y"
                               {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2360 "src/parser/parser.c"
+#line 2382 "src/parser/parser.c"
     break;
 
   case 78: /* block-statements-process: block-statements-cobegin-coend  */
-#line 832 "src/parser/parser.y"
+#line 854 "src/parser/parser.y"
                                     {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2368 "src/parser/parser.c"
+#line 2390 "src/parser/parser.c"
     break;
 
   case 79: /* list-statements: statement  */
-#line 838 "src/parser/parser.y"
+#line 860 "src/parser/parser.y"
              {
         if(!have_syntax_errors()){
             (yyval.stmt) = (yyvsp[0].stmt);
@@ -2378,11 +2400,11 @@ yyreduce:
         }
         
     }
-#line 2382 "src/parser/parser.c"
+#line 2404 "src/parser/parser.c"
     break;
 
   case 80: /* list-statements: statement list-statements  */
-#line 847 "src/parser/parser.y"
+#line 869 "src/parser/parser.y"
                                {
         if(!have_syntax_errors()){
             (yyval.stmt) = (yyvsp[-1].stmt);
@@ -2392,91 +2414,91 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2396 "src/parser/parser.c"
+#line 2418 "src/parser/parser.c"
     break;
 
   case 81: /* statement: assignment-statement  */
-#line 859 "src/parser/parser.y"
+#line 881 "src/parser/parser.y"
                         {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2404 "src/parser/parser.c"
+#line 2426 "src/parser/parser.c"
     break;
 
   case 82: /* statement: while-statement  */
-#line 862 "src/parser/parser.y"
+#line 884 "src/parser/parser.y"
                      {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2412 "src/parser/parser.c"
+#line 2434 "src/parser/parser.c"
     break;
 
   case 83: /* statement: for-statement  */
-#line 865 "src/parser/parser.y"
+#line 887 "src/parser/parser.y"
                    {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2420 "src/parser/parser.c"
+#line 2442 "src/parser/parser.c"
     break;
 
   case 84: /* statement: if-statement  */
-#line 868 "src/parser/parser.y"
+#line 890 "src/parser/parser.y"
                   {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2428 "src/parser/parser.c"
+#line 2450 "src/parser/parser.c"
     break;
 
   case 85: /* statement: procedure-call-statement  */
-#line 871 "src/parser/parser.y"
+#line 893 "src/parser/parser.y"
                               {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2436 "src/parser/parser.c"
+#line 2458 "src/parser/parser.c"
     break;
 
   case 86: /* statement: fork-statement  */
-#line 874 "src/parser/parser.y"
+#line 896 "src/parser/parser.y"
                     {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2444 "src/parser/parser.c"
+#line 2466 "src/parser/parser.c"
     break;
 
   case 87: /* statement: join-statement  */
-#line 877 "src/parser/parser.y"
+#line 899 "src/parser/parser.y"
                     {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2452 "src/parser/parser.c"
+#line 2474 "src/parser/parser.c"
     break;
 
   case 88: /* statement: print-statement  */
-#line 880 "src/parser/parser.y"
+#line 902 "src/parser/parser.y"
                      {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2460 "src/parser/parser.c"
+#line 2482 "src/parser/parser.c"
     break;
 
   case 89: /* statement: block-statements-atomic  */
-#line 883 "src/parser/parser.y"
+#line 905 "src/parser/parser.y"
                              {
         (yyval.stmt) = (yyvsp[0].stmt);
     }
-#line 2468 "src/parser/parser.c"
+#line 2490 "src/parser/parser.c"
     break;
 
   case 90: /* statement: error block-statements-begin-end  */
-#line 886 "src/parser/parser.y"
+#line 908 "src/parser/parser.y"
                                       {
         mark_error_syntax_statement_expected_statement();
     }
-#line 2476 "src/parser/parser.c"
+#line 2498 "src/parser/parser.c"
     break;
 
   case 91: /* assignment-statement: IDENT OP_ASSIGN expression DELIM_PC  */
-#line 893 "src/parser/parser.y"
+#line 915 "src/parser/parser.y"
                                        {
         // -- Creacion de nodo STATEMENT (ASSIGNMENT)
         if(!have_syntax_errors()){
@@ -2487,11 +2509,11 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2491 "src/parser/parser.c"
+#line 2513 "src/parser/parser.c"
     break;
 
   case 92: /* assignment-statement: IDENT CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression DELIM_PC  */
-#line 904 "src/parser/parser.y"
+#line 926 "src/parser/parser.y"
                                                                           {
         // -- Creacion de nodo STATEMENT (ASSIGNMENT)
         if(!have_syntax_errors()){
@@ -2502,38 +2524,38 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2506 "src/parser/parser.c"
+#line 2528 "src/parser/parser.c"
     break;
 
   case 93: /* assignment-statement: IDENT CORCH_IZDO expression CORCH_DCHO  */
-#line 915 "src/parser/parser.y"
+#line 937 "src/parser/parser.y"
                                             {
         mark_error_syntax_statement_expected_statement();
         //YYABORT;
     }
-#line 2515 "src/parser/parser.c"
+#line 2537 "src/parser/parser.c"
     break;
 
   case 94: /* assignment-statement: IDENT OP_ASSIGN expression  */
-#line 920 "src/parser/parser.y"
+#line 942 "src/parser/parser.y"
                                 {
         mark_error_syntax_statement_expected_delimpc();
         //YYABORT;
     }
-#line 2524 "src/parser/parser.c"
+#line 2546 "src/parser/parser.c"
     break;
 
   case 95: /* assignment-statement: IDENT CORCH_IZDO expression CORCH_DCHO OP_ASSIGN expression  */
-#line 925 "src/parser/parser.y"
+#line 947 "src/parser/parser.y"
                                                                  {
         mark_error_syntax_statement_expected_delimpc();
         //YYABORT;
     }
-#line 2533 "src/parser/parser.c"
+#line 2555 "src/parser/parser.c"
     break;
 
   case 96: /* while-statement: WHILE expression DO block-statements-begin-end  */
-#line 933 "src/parser/parser.y"
+#line 955 "src/parser/parser.y"
                                                   {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_while((yyvsp[-2].expr), (yyvsp[0].stmt), yylineno);
@@ -2543,11 +2565,11 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2547 "src/parser/parser.c"
+#line 2569 "src/parser/parser.c"
     break;
 
   case 97: /* for-statement: FOR IDENT OP_ASSIGN expression TO expression DO block-statements-begin-end  */
-#line 946 "src/parser/parser.y"
+#line 968 "src/parser/parser.y"
                                                                               {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_for((yyvsp[-6].ident), (yyvsp[-4].expr), (yyvsp[-2].expr), (yyvsp[0].stmt), yylineno);
@@ -2557,11 +2579,11 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2561 "src/parser/parser.c"
+#line 2583 "src/parser/parser.c"
     break;
 
   case 98: /* if-statement: IF expression THEN block-statements-begin-end  */
-#line 960 "src/parser/parser.y"
+#line 982 "src/parser/parser.y"
                                                  {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_if_else((yyvsp[-2].expr), (yyvsp[0].stmt), 0, yylineno);
@@ -2571,11 +2593,11 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2575 "src/parser/parser.c"
+#line 2597 "src/parser/parser.c"
     break;
 
   case 99: /* if-statement: IF expression THEN block-statements-begin-end ELSE block-statements-begin-end  */
-#line 970 "src/parser/parser.y"
+#line 992 "src/parser/parser.y"
                                                                                    {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_if_else((yyvsp[-4].expr), (yyvsp[-2].stmt), (yyvsp[0].stmt), yylineno);
@@ -2585,11 +2607,11 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2589 "src/parser/parser.c"
+#line 2611 "src/parser/parser.c"
     break;
 
   case 100: /* fork-statement: S_FORK IDENT DELIM_PC  */
-#line 983 "src/parser/parser.y"
+#line 1005 "src/parser/parser.y"
                          {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_fork((yyvsp[-1].ident), yylineno);
@@ -2599,20 +2621,20 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2603 "src/parser/parser.c"
+#line 2625 "src/parser/parser.c"
     break;
 
   case 101: /* fork-statement: S_FORK IDENT  */
-#line 993 "src/parser/parser.y"
+#line 1015 "src/parser/parser.y"
                   {
         mark_error_syntax_statement_expected_delimpc();
         //YYABORT;
     }
-#line 2612 "src/parser/parser.c"
+#line 2634 "src/parser/parser.c"
     break;
 
   case 102: /* join-statement: JOIN IDENT DELIM_PC  */
-#line 1001 "src/parser/parser.y"
+#line 1023 "src/parser/parser.y"
                        {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_join((yyvsp[-1].ident), yylineno);
@@ -2622,20 +2644,20 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2626 "src/parser/parser.c"
+#line 2648 "src/parser/parser.c"
     break;
 
   case 103: /* join-statement: JOIN IDENT  */
-#line 1011 "src/parser/parser.y"
+#line 1033 "src/parser/parser.y"
                 {
         mark_error_syntax_statement_expected_delimpc();
         //YYABORT;
     }
-#line 2635 "src/parser/parser.c"
+#line 2657 "src/parser/parser.c"
     break;
 
   case 104: /* return-statement: RETURN expression DELIM_PC  */
-#line 1019 "src/parser/parser.y"
+#line 1041 "src/parser/parser.y"
                               {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_return((yyvsp[-1].expr), yylineno);
@@ -2645,20 +2667,20 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2649 "src/parser/parser.c"
+#line 2671 "src/parser/parser.c"
     break;
 
   case 105: /* return-statement: RETURN expression  */
-#line 1029 "src/parser/parser.y"
+#line 1051 "src/parser/parser.y"
                        {
         mark_error_syntax_statement_expected_delimpc();
         //YYABORT;
     }
-#line 2658 "src/parser/parser.c"
+#line 2680 "src/parser/parser.c"
     break;
 
   case 106: /* print-statement: PRINT PAR_IZDO list-print PAR_DCHO DELIM_PC  */
-#line 1037 "src/parser/parser.y"
+#line 1059 "src/parser/parser.y"
                                                {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_print((yyvsp[-2].expr));
@@ -2668,20 +2690,20 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2672 "src/parser/parser.c"
+#line 2694 "src/parser/parser.c"
     break;
 
   case 107: /* print-statement: PRINT PAR_IZDO list-print PAR_DCHO  */
-#line 1047 "src/parser/parser.y"
+#line 1069 "src/parser/parser.y"
                                         {
         mark_error_syntax_statement_expected_delimpc();
         //YYABORT;
     }
-#line 2681 "src/parser/parser.c"
+#line 2703 "src/parser/parser.c"
     break;
 
   case 108: /* list-print: expression DELIM_C list-print  */
-#line 1054 "src/parser/parser.y"
+#line 1076 "src/parser/parser.y"
                                  {
         if(!have_syntax_errors()){
             (yyval.expr) = (yyvsp[-2].expr);
@@ -2691,11 +2713,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2695 "src/parser/parser.c"
+#line 2717 "src/parser/parser.c"
     break;
 
   case 109: /* list-print: expression  */
-#line 1063 "src/parser/parser.y"
+#line 1085 "src/parser/parser.y"
                 {
         if(!have_syntax_errors()){
             (yyval.expr) = (yyvsp[0].expr);
@@ -2704,11 +2726,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2708 "src/parser/parser.c"
+#line 2730 "src/parser/parser.c"
     break;
 
   case 110: /* procedure-call-statement: IDENT PAR_IZDO list-arguments PAR_DCHO DELIM_PC  */
-#line 1075 "src/parser/parser.y"
+#line 1097 "src/parser/parser.y"
                                                    {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_procedure_inv((yyvsp[-4].ident), (yyvsp[-2].expr), yylineno);
@@ -2718,11 +2740,11 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2722 "src/parser/parser.c"
+#line 2744 "src/parser/parser.c"
     break;
 
   case 111: /* procedure-call-statement: IDENT PAR_IZDO PAR_DCHO DELIM_PC  */
-#line 1085 "src/parser/parser.y"
+#line 1107 "src/parser/parser.y"
                                       {
         if(!have_syntax_errors()){
             (yyval.stmt) = create_statement_procedure_inv((yyvsp[-3].ident), 0, yylineno);
@@ -2732,44 +2754,44 @@ yyreduce:
             (yyval.stmt) = 0;
         }
     }
-#line 2736 "src/parser/parser.c"
+#line 2758 "src/parser/parser.c"
     break;
 
   case 112: /* expression: binary-expression  */
-#line 1100 "src/parser/parser.y"
+#line 1122 "src/parser/parser.y"
                      {
         (yyval.expr) = (yyvsp[0].expr);
     }
-#line 2744 "src/parser/parser.c"
+#line 2766 "src/parser/parser.c"
     break;
 
   case 113: /* expression: unary-expression  */
-#line 1103 "src/parser/parser.y"
+#line 1125 "src/parser/parser.y"
                       {
         (yyval.expr) = (yyvsp[0].expr);
     }
-#line 2752 "src/parser/parser.c"
+#line 2774 "src/parser/parser.c"
     break;
 
   case 114: /* expression: term  */
-#line 1106 "src/parser/parser.y"
+#line 1128 "src/parser/parser.y"
           {
         (yyval.expr) = (yyvsp[0].expr);
     }
-#line 2760 "src/parser/parser.c"
+#line 2782 "src/parser/parser.c"
     break;
 
   case 115: /* expression: error  */
-#line 1109 "src/parser/parser.y"
+#line 1131 "src/parser/parser.y"
             {
         mark_error_syntax_expression_expected_expr();
         YYABORT;
     }
-#line 2769 "src/parser/parser.c"
+#line 2791 "src/parser/parser.c"
     break;
 
   case 116: /* binary-expression: expression OP_SUM expression  */
-#line 1117 "src/parser/parser.y"
+#line 1139 "src/parser/parser.y"
                                 {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_ADD, "+", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2779,11 +2801,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2783 "src/parser/parser.c"
+#line 2805 "src/parser/parser.c"
     break;
 
   case 117: /* binary-expression: expression OP_MINUS expression  */
-#line 1127 "src/parser/parser.y"
+#line 1149 "src/parser/parser.y"
                                     {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_SUB, "-", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2793,11 +2815,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2797 "src/parser/parser.c"
+#line 2819 "src/parser/parser.c"
     break;
 
   case 118: /* binary-expression: expression OP_MULT expression  */
-#line 1137 "src/parser/parser.y"
+#line 1159 "src/parser/parser.y"
                                    {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_MULT, "*", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2807,11 +2829,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2811 "src/parser/parser.c"
+#line 2833 "src/parser/parser.c"
     break;
 
   case 119: /* binary-expression: expression OP_DIV expression  */
-#line 1147 "src/parser/parser.y"
+#line 1169 "src/parser/parser.y"
                                   {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_DIV, "/", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2821,11 +2843,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2825 "src/parser/parser.c"
+#line 2847 "src/parser/parser.c"
     break;
 
   case 120: /* binary-expression: expression OP_MOD expression  */
-#line 1157 "src/parser/parser.y"
+#line 1179 "src/parser/parser.y"
                                   {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_MOD, "%", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2835,11 +2857,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2839 "src/parser/parser.c"
+#line 2861 "src/parser/parser.c"
     break;
 
   case 121: /* binary-expression: expression OP_REL_LT expression  */
-#line 1167 "src/parser/parser.y"
+#line 1189 "src/parser/parser.y"
                                      {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_LT, "<", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2849,11 +2871,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2853 "src/parser/parser.c"
+#line 2875 "src/parser/parser.c"
     break;
 
   case 122: /* binary-expression: expression OP_REL_LTE expression  */
-#line 1177 "src/parser/parser.y"
+#line 1199 "src/parser/parser.y"
                                       {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_LTE, "<=", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2863,11 +2885,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2867 "src/parser/parser.c"
+#line 2889 "src/parser/parser.c"
     break;
 
   case 123: /* binary-expression: expression OP_REL_GT expression  */
-#line 1187 "src/parser/parser.y"
+#line 1209 "src/parser/parser.y"
                                      {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_GT, ">", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2877,11 +2899,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2881 "src/parser/parser.c"
+#line 2903 "src/parser/parser.c"
     break;
 
   case 124: /* binary-expression: expression OP_REL_GTE expression  */
-#line 1197 "src/parser/parser.y"
+#line 1219 "src/parser/parser.y"
                                       {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_GTE, ">=", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2891,11 +2913,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2895 "src/parser/parser.c"
+#line 2917 "src/parser/parser.c"
     break;
 
   case 125: /* binary-expression: expression OP_REL_EQ expression  */
-#line 1207 "src/parser/parser.y"
+#line 1229 "src/parser/parser.y"
                                      {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_EQ, "==", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2905,11 +2927,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2909 "src/parser/parser.c"
+#line 2931 "src/parser/parser.c"
     break;
 
   case 126: /* binary-expression: expression OP_REL_NEQ expression  */
-#line 1217 "src/parser/parser.y"
+#line 1239 "src/parser/parser.y"
                                       {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_NEQ, "!=", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2920,11 +2942,11 @@ yyreduce:
         }
        
     }
-#line 2924 "src/parser/parser.c"
+#line 2946 "src/parser/parser.c"
     break;
 
   case 127: /* binary-expression: expression OP_AND expression  */
-#line 1228 "src/parser/parser.y"
+#line 1250 "src/parser/parser.y"
                                   {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_AND, "and", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2934,11 +2956,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2938 "src/parser/parser.c"
+#line 2960 "src/parser/parser.c"
     break;
 
   case 128: /* binary-expression: expression OP_OR expression  */
-#line 1238 "src/parser/parser.y"
+#line 1260 "src/parser/parser.y"
                                  {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_binary_operation(EXPR_OR, "or", (yyvsp[-2].expr), (yyvsp[0].expr), yylineno);
@@ -2948,11 +2970,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2952 "src/parser/parser.c"
+#line 2974 "src/parser/parser.c"
     break;
 
   case 129: /* unary-expression: OP_NOT term  */
-#line 1251 "src/parser/parser.y"
+#line 1273 "src/parser/parser.y"
                {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_unary_operation(EXPR_NOT, "not", (yyvsp[0].expr),yylineno);
@@ -2962,11 +2984,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2966 "src/parser/parser.c"
+#line 2988 "src/parser/parser.c"
     break;
 
   case 130: /* unary-expression: OP_MINUS term  */
-#line 1261 "src/parser/parser.y"
+#line 1283 "src/parser/parser.y"
                                   {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_unary_operation(EXPR_NEGATIVE, "-", (yyvsp[0].expr),yylineno);
@@ -2976,35 +2998,35 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 2980 "src/parser/parser.c"
+#line 3002 "src/parser/parser.c"
     break;
 
   case 131: /* term: expr-identifier  */
-#line 1273 "src/parser/parser.y"
+#line 1295 "src/parser/parser.y"
                    {
         (yyval.expr) = (yyvsp[0].expr);
     }
-#line 2988 "src/parser/parser.c"
+#line 3010 "src/parser/parser.c"
     break;
 
   case 132: /* term: literal  */
-#line 1276 "src/parser/parser.y"
+#line 1298 "src/parser/parser.y"
              {
         (yyval.expr) = (yyvsp[0].expr);
     }
-#line 2996 "src/parser/parser.c"
+#line 3018 "src/parser/parser.c"
     break;
 
   case 133: /* term: function-call-expression  */
-#line 1279 "src/parser/parser.y"
+#line 1301 "src/parser/parser.y"
                               {
         (yyval.expr) = (yyvsp[0].expr);
     }
-#line 3004 "src/parser/parser.c"
+#line 3026 "src/parser/parser.c"
     break;
 
   case 134: /* term: PAR_IZDO expression PAR_DCHO  */
-#line 1282 "src/parser/parser.y"
+#line 1304 "src/parser/parser.y"
                                   {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_grouped((yyvsp[-1].expr));
@@ -3014,11 +3036,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3018 "src/parser/parser.c"
+#line 3040 "src/parser/parser.c"
     break;
 
   case 135: /* literal: LITERAL  */
-#line 1295 "src/parser/parser.y"
+#line 1317 "src/parser/parser.y"
            {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_literal_string((yyvsp[0].literal_string));
@@ -3028,11 +3050,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3032 "src/parser/parser.c"
+#line 3054 "src/parser/parser.c"
     break;
 
   case 136: /* literal: L_INTEGER  */
-#line 1304 "src/parser/parser.y"
+#line 1326 "src/parser/parser.y"
                {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_literal_integer((yyvsp[0].literal_int));
@@ -3042,11 +3064,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3046 "src/parser/parser.c"
+#line 3068 "src/parser/parser.c"
     break;
 
   case 137: /* literal: L_BOOLEAN_TRUE  */
-#line 1313 "src/parser/parser.y"
+#line 1335 "src/parser/parser.y"
                     {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_literal_boolean(1);
@@ -3056,11 +3078,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3060 "src/parser/parser.c"
+#line 3082 "src/parser/parser.c"
     break;
 
   case 138: /* literal: L_BOOLEAN_FALSE  */
-#line 1322 "src/parser/parser.y"
+#line 1344 "src/parser/parser.y"
                      {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_literal_boolean(0);
@@ -3070,11 +3092,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3074 "src/parser/parser.c"
+#line 3096 "src/parser/parser.c"
     break;
 
   case 139: /* literal: L_CHAR  */
-#line 1331 "src/parser/parser.y"
+#line 1353 "src/parser/parser.y"
             {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_literal_char((yyvsp[0].literal_char));
@@ -3084,11 +3106,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3088 "src/parser/parser.c"
+#line 3110 "src/parser/parser.c"
     break;
 
   case 140: /* literal: L_REAL  */
-#line 1340 "src/parser/parser.y"
+#line 1362 "src/parser/parser.y"
             {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_literal_real((yyvsp[0].literal_float));
@@ -3098,11 +3120,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3102 "src/parser/parser.c"
+#line 3124 "src/parser/parser.c"
     break;
 
   case 141: /* expr-identifier: IDENT  */
-#line 1352 "src/parser/parser.y"
+#line 1374 "src/parser/parser.y"
          {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_identifier((yyvsp[0].ident),0, yylineno);
@@ -3112,11 +3134,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3116 "src/parser/parser.c"
+#line 3138 "src/parser/parser.c"
     break;
 
   case 142: /* expr-identifier: IDENT CORCH_IZDO expression CORCH_DCHO  */
-#line 1361 "src/parser/parser.y"
+#line 1383 "src/parser/parser.y"
                                             {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_identifier((yyvsp[-3].ident), (yyvsp[-1].expr), yylineno);
@@ -3126,11 +3148,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3130 "src/parser/parser.c"
+#line 3152 "src/parser/parser.c"
     break;
 
   case 143: /* function-call-expression: IDENT PAR_IZDO list-arguments PAR_DCHO  */
-#line 1374 "src/parser/parser.y"
+#line 1396 "src/parser/parser.y"
                                           {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_function_invocation((yyvsp[-3].ident), (yyvsp[-1].expr), yylineno);
@@ -3140,11 +3162,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3144 "src/parser/parser.c"
+#line 3166 "src/parser/parser.c"
     break;
 
   case 144: /* function-call-expression: IDENT PAR_IZDO PAR_DCHO  */
-#line 1384 "src/parser/parser.y"
+#line 1406 "src/parser/parser.y"
                              {
         if(!have_syntax_errors()){
             (yyval.expr) = create_expression_function_invocation((yyvsp[-2].ident), 0, yylineno);
@@ -3155,11 +3177,11 @@ yyreduce:
         }
 
     }
-#line 3159 "src/parser/parser.c"
+#line 3181 "src/parser/parser.c"
     break;
 
   case 145: /* list-arguments: argument DELIM_C list-arguments  */
-#line 1400 "src/parser/parser.y"
+#line 1422 "src/parser/parser.y"
                                    {
         if(!have_syntax_errors()){
             (yyval.expr) = (yyvsp[-2].expr);
@@ -3169,11 +3191,11 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3173 "src/parser/parser.c"
+#line 3195 "src/parser/parser.c"
     break;
 
   case 146: /* list-arguments: argument  */
-#line 1409 "src/parser/parser.y"
+#line 1431 "src/parser/parser.y"
               {
         if(!have_syntax_errors()){
             (yyval.expr) = (yyvsp[0].expr);
@@ -3182,19 +3204,19 @@ yyreduce:
             (yyval.expr) = 0;
         }
     }
-#line 3186 "src/parser/parser.c"
+#line 3208 "src/parser/parser.c"
     break;
 
   case 147: /* argument: expression  */
-#line 1420 "src/parser/parser.y"
+#line 1442 "src/parser/parser.y"
               {
         (yyval.expr) = (yyvsp[0].expr);
     }
-#line 3194 "src/parser/parser.c"
+#line 3216 "src/parser/parser.c"
     break;
 
 
-#line 3198 "src/parser/parser.c"
+#line 3220 "src/parser/parser.c"
 
       default: break;
     }
@@ -3387,7 +3409,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1425 "src/parser/parser.y"
+#line 1447 "src/parser/parser.y"
 
 
 // Soporte de las rutinas en C

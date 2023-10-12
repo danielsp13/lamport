@@ -524,6 +524,12 @@ void free_statement(struct statement *stmt){
     {
         free_expression(stmt->stmt.statement_return.returned_expr);
         stmt->stmt.statement_return.returned_expr = NULL;
+
+        /*if(stmt->stmt.statement_return.function_name){
+            free(stmt->stmt.statement_return.function_name);
+            stmt->stmt.statement_return.function_name = NULL;
+        }*/
+
         break;
     }
 

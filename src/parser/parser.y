@@ -431,6 +431,15 @@ subprogram-function:
     S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function{
         // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
         if(!have_syntax_errors()){
+            // --- Intermediate: Asignar el nombre de funcion a la sentencia de retorno
+            /*struct statement * current_stmt = $10->stmt.statement_block.body;
+            while(current_stmt->next){
+                current_stmt = current_stmt->next;
+            }
+
+            current_stmt->stmt.statement_return.function_name = strdup($2);*/
+
+            // --- Ahora si, crear nodo
             $$ = create_subprogram_function($2, $4, $9, $10, $7, yylineno);
             add_subprogram_to_register($$);
         }
@@ -444,6 +453,15 @@ subprogram-function:
     | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC list-declarations block-statements-function{
         // -- Creacion de nodo SUBPROGRAMA (FUNCTION)
         if(!have_syntax_errors()){
+            // --- Intermediate: Asignar el nombre de funcion a la sentencia de retorno
+            /*struct statement * current_stmt = $9->stmt.statement_block.body;
+            while(current_stmt->next){
+                current_stmt = current_stmt->next;
+            }
+
+            current_stmt->stmt.statement_return.function_name = strdup($2);*/
+
+
             $$ = create_subprogram_function($2, 0, $8, $9, $6, yylineno);
             add_subprogram_to_register($$);
         }
@@ -800,7 +818,11 @@ block-statements-function:
     // ===== CORRECTO: Bloque de sentencias + return
     B_BEGIN list-statements return-statement B_END{
         if(!have_syntax_errors()){
-            $2->next = $3;
+            struct statement * current_stmt = $2;
+            while(current_stmt->next)
+                current_stmt = current_stmt->next;
+            current_stmt->next = $3;
+
             $$ = create_statement_block_begin($2);
             add_statement_to_register($$);
         }
