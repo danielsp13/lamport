@@ -358,14 +358,14 @@ int IR_Tables::get_index_from_local_variable(std::string var_name){
         entry = table_variables[i].get();
 
         // -- Comprobar si es una entrada de tipo entero
-        if(entry->get_kind_variable() != IR_variable_t::IR_VAR_LOCAL)
+        if(entry->get_kind_variable() != IR_VAR_LOCAL)
             continue;
 
         // -- Recuperar literal
         var = entry->get_variable();
 
         // -- Comprobar si el valor coincide
-        if(var->get_name() == std::string(var_name))
+        if(var->get_name() == var_name)
             return i;
     }
 
@@ -386,11 +386,11 @@ int IR_Tables::get_index_from_global_variable(std::string var_name){
         if(entry->get_kind_variable() != IR_VAR_GLOBAL)
             continue;
 
-        // -- Recuperar literal
+        // -- Recuperar variable
         var = entry->get_variable();
 
         // -- Comprobar si el valor coincide
-        if(var->get_name() == std::string(var_name))
+        if(var->get_name() == var_name)
             return i;
     }
 

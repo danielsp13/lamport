@@ -25,6 +25,12 @@ void IR_Builder::translate_program_to_ir_instructions(struct program * prog){
 
     // 0. Emitir instruccion de inicio de programa
     instructions.emit_instruction(IR_START_PROGRAM);
+    
+    // -- Comprobar las declaraciones globales del programa
+    if(prog->declarations){
+        // -- Traducir lista de declaraciones
+        decl_translator.translate(prog->declarations);
+    }
 
     // -- Comprobar los subprogramas del programa
     if(prog->subprograms){
@@ -32,12 +38,6 @@ void IR_Builder::translate_program_to_ir_instructions(struct program * prog){
         // -- Traducir lista de subprogramas
         subprog_translator.translate(prog->subprograms);
         instructions.emit_instruction(NOT_IR_END_SUBPROGRAM_INSTR);
-    }
-
-    // -- Comprobar las declaraciones globales del programa
-    if(prog->declarations){
-        // -- Traducir lista de declaraciones
-        decl_translator.translate(prog->declarations);
     }
 
     // -- Comprobar los procesos del programa

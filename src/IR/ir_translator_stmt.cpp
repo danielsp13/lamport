@@ -128,7 +128,7 @@ void IR_Translator_Statement::translate_statement_assignment_to_ir_instructions(
         }
         // ---- 2.2 En caso contrario, obtener id de variable (global)
         else{
-            // -- El scope de busqueda sera global
+            // --- Scope global
             id_variable_in_table = tables.get_index_from_global_variable(var_name);
         }
     }
