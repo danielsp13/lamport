@@ -196,12 +196,17 @@ void LVM_Initializer::dump_variables(){
         var = *tables.get_entry_variable(i);
 
         // -- 1.B comprobar si la variable refiere a un proceso
-        if(std::get<IR_variable>(var).get_type() == IR_VAR_TYPE_DPROCESS || std::get<IR_variable>(var).get_type() == IR_VAR_TYPE_PROCESS){
+        IR_variable_type_t var_type = std::get<IR_variable>(var).get_type();
+        if(var_type == IR_VAR_TYPE_DPROCESS || var_type == IR_VAR_TYPE_PROCESS){
             continue;
         }
 
         // -- 1.C comprobar si la variable refiere a un array
-        if(std::get<IR_variable>(var).get_type() == IR_VAR_TYPE_ARRAY)
+        if(var_type == IR_VAR_TYPE_ARRAY)
+            continue;
+
+        // -- 1.D Comprobar si la variable es un subprograma
+        if(var_type == IR_VAR_TYPE_SUBPROGRAM)
             continue;
 
         // -- 2. Obtener el bloque de memoria inicializado
@@ -241,9 +246,14 @@ void LVM_Initializer::dump_variables_array(){
     mem_block_content var;
     // -- Definicion de bloque de memoria
     LVM_Memory_Block mem_block;
+    // -- Direccion base de array
+    int base_address = 0;
 
     // -- Recorrer la tabla de variables
     for(int i = 0; i < size_table; i++){
+        // -- Registrar direccion base de address
+        base_address = address;
+
         // -- Comprobar que no hay desbordamiento de memoria
         if(start_addr+address >= end_addr)
             throw std::out_of_range("DESBORDAMIENTO DE LA MEMORIA EN ASIGNACION DE BLOQUES A VARIABLES");
@@ -268,11 +278,14 @@ void LVM_Initializer::dump_variables_array(){
             this->memory[start_addr+address] = mem_block;
 
             // -- 4. Completar paginacion de memoria virtual+fisica
-            this->page_table(segment_address,address) = start_addr+address;
+            this->page_table(segment_address,i,j) = start_addr+address;
 
             // -- Incrementar direccion
             address++;
         }
+
+        // -- Registrar limite de array
+        bounds_arrays.insert_upper_bounds(i,start_addr+address-1);
     }
 }
 

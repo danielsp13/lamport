@@ -18,10 +18,11 @@ int IR_Translator_Assistant::get_index_var_local_subprog(std::string local_name)
     }
     
     // ----- Excepcion
-    std::string MSG = "[IR_Translation_Assistant] El asistente no pudo encontrar informacion de variable local de subprograma: ";
+    /*std::string MSG = "[IR_Translation_Assistant] El asistente no pudo encontrar informacion de variable local de subprograma: ";
     MSG += local_name;
 
-    throw std::runtime_error(MSG);
+    throw std::runtime_error(MSG);*/
+    return -1;
 }
 
 // ===============================================================
@@ -39,6 +40,10 @@ void IR_Translator_Assistant::insert_var_local_subprog(std::string local_name, i
 
 int IR_Translator_Assistant::get_reg_from_var_local_subprog(std::string local_name){
     int index = get_index_var_local_subprog(local_name);
+
+    if(index == -1)
+        return -1;
+    
     // -- Retornar registro
     return locals_subprog[index].second;
 }

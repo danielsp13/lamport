@@ -41,8 +41,17 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
         LVM_Register reg_offset = register_table[reg_index_offset];
         int offset = reg_offset.get_value<int>();
 
-        // -- Incluir el offset en acceso a array
-        virtual_address = virtual_address+offset;
+        // -- Comprobar limites de offset (negativo)
+        bounds_arrays.check_if_is_negative_offset(offset);
+
+        // -- Preobtener direccion fisica
+        phisical_address = this->pages_table(virtual_segment,virtual_address,offset);
+
+        // -- Comprobar limites de array
+        bounds_arrays.check_if_exceds_bound(virtual_address,phisical_address,offset);
+
+        // -- Retornar direccion fisica
+        return phisical_address;
 
         break;
     }

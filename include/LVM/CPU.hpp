@@ -22,6 +22,7 @@
 
 #include "memory.hpp"               ///< Memoria de Maquina Virtual
 #include "page_table.hpp"           ///< Tabla de paginas de memoria virtual
+#include "bounds.hpp"               ///< Registro de limites de arrays
 
 #include "IR/instruction.hpp"       ///< Instruccion
 #include "IR/instruction_table.hpp"    ///< Tabla de instrucciones
@@ -48,6 +49,8 @@ class LVM_CPU{
         LVM_Memory& memory = LVM_Memory::get_instance();
         // -- Tabla de paginas
         LVM_Page_Table& pages_table = LVM_Page_Table::get_instance();
+        // -- Registro de limites de array
+        LVM_Bounds& bounds_arrays = LVM_Bounds::get_instance();
 
         // -- Contador de programa
         int program_counter = 0;

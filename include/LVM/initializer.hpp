@@ -21,6 +21,7 @@
 
 #include "memory.hpp"               ///< Memoria de LVM
 #include "page_table.hpp"           ///< Tabla de paginas de LVM
+#include "bounds.hpp"               ///< Registro de limites de arrays
 #include "IR/table.hpp"             ///< Tablas IR
 
 
@@ -44,6 +45,8 @@ class LVM_Initializer{
         LVM_Memory& memory = LVM_Memory::get_instance();
         // -- Tabla de paginas
         LVM_Page_Table& page_table = LVM_Page_Table::get_instance();
+        // -- Registro de limites de arrays
+        LVM_Bounds& bounds_arrays = LVM_Bounds::get_instance();
 
         /**
          * @brief Constructor de la clase

@@ -17,6 +17,8 @@
 #include <sstream>
 #include <iomanip>
 #include <map>
+#include <vector>
+#include <variant>
 
 // ===============================================================
 
@@ -32,11 +34,29 @@ class LVM_Page_Table{
     private:
         // -- Tabla de direcciones
         std::map<int,std::map<int,int>> address_table;
+        // -- Tabla de direcciones de variables array
+        std::map<int,std::multimap<int,int>> address_array_table;
+
 
         /**
          * @brief Constructor por defecto
          */
         LVM_Page_Table(){};
+
+        /**
+         * @brief Imprime un segmento
+         * @param segment : indice de segmento
+         * @param os : flujo de salida
+         */
+        void print_segment(int segment, std::ostream & os = std::cout);
+
+        /**
+         * @brief Imprime un segmento (arrays)
+         * @param segment : indice de segmento
+         * @param os : flujo de salida
+         */
+        void print_segment_array(int segment, std::ostream & os = std::cout);
+
     public:
         // -- Variables de segmento
         static const int SEGMENT_FOR_LITERALS = 0;
@@ -87,12 +107,30 @@ class LVM_Page_Table{
         int& operator()(int segment, int page);
 
         /**
+         * @brief Sobrecarga del operador de ()
+         * @param segment : indice de segmento
+         * @param page : indice de pagina
+         * @param offset : desplazamiento en pagina
+         * @return direccion fisica
+         */
+        int& operator()(int segment, int page, int offset);
+
+        /**
          * @brief Sobrecarga del operador de () (constante)
          * @param segment : indice de segmento
          * @param page : indice de pagina
          * @return direccion fisica
          */
         const int operator()(int segment, int page) const;
+
+        /**
+         * @brief Sobrecarga del operador de () (constante)
+         * @param segment : indice de segmento
+         * @param page : indice de pagina
+         * @param offset : desplazamiento
+         * @return direccion fisica
+         */
+        const int operator()(int segment, int page, int offset) const;
 
         /**
          * @brief Imprime el contenido de la tabla de paginas
