@@ -249,7 +249,7 @@ struct error * create_error_semantic_unmatched_types_declaration(unsigned long e
 }
 
 struct error * create_error_semantic_invalid_static_array(unsigned long err_line){
-    char *msg = strdup("no se puede definir un array estatico con una expresion que no es un literal puro");
+    char *msg = strdup(ERR_INVALID_ARRAY_DECLARATION_MSG);
     return create_error_semantic_unmatched_types(err_line, &msg);
 }
 

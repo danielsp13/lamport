@@ -39,6 +39,9 @@ extern "C" {
 // Se indica que el numero de argumentos encontrado no es el esperado
 #define ERR_UNDEFINED_PARAMETERS_MSG "llamada a subprograma no coincidente con declaracion (faltan/sobran argumentos)"
 
+// Se indica que se definio un array de forma indebida
+#define ERR_INVALID_ARRAY_DECLARATION_MSG "no se puede definir un array estatico con una expresion que no es un literal puro."
+
 // Se indica que se ha usado un proceso que no ha sido definido antes
 #define ERR_UNDEFINED_PROCESS_MSG "proceso no definido"
 
