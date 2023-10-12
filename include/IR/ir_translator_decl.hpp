@@ -44,8 +44,33 @@ class IR_Translator_Declaration{
         IR_Translator_Declaration() = default;
 
         /**
+         * @brief Obtiene el scope de la variable
+         * @param var_name : nombre de variable
+         * @param kind : tipo de simbolo de variable
+         * @return scope de variable
+         */
+        IR_variable_t get_variable_scope(std::string var_name, const symbol_t & kind);
+
+        /**
+         * @brief Obtiene el tipo de dato de variable
+         * @param var_name : nombre de variable
+         * @param kind : tipo de dato de variable
+         * @return tipo de dato de variable (en representacion intermedia)
+         */
+        IR_variable_type_t get_type_variable(std::string var_name, type_t & kind);
+
+        /**
+         * @brief Genera instrucciones de inicializacion de variables locales de subprogramas
+         * @param var_name : nombre de variable local
+         * @param var_type : tipo de dator de variable
+         */
+        int initialize_variable_local_subprogram(std::string var_name, IR_variable_type_t var_type);
+
+        /**
          * @brief Traduce una declaracion a una instruccion IR
          * @param decl : declaracion AST
+         * @param from_subprogram : especifica si las declaraciones provienen de un subprograma
+         * @param subprogram_name : especifica el nombre del subprograma
          */
         void translate_declaration_to_ir_instruction(struct declaration * decl, bool from_subprogram = false);
 
@@ -53,6 +78,7 @@ class IR_Translator_Declaration{
          * @brief Traduce una lista de declaraciones a instrucciones IR
          * @param list_decl : lista de declaraciones AST
          * @param from_subprogram : especifica si las declaraciones provienen de un subprograma
+         * @param subprogram_name : especifica el nombre del subprograma
          */
         void translate_list_declarations_to_ir_instructions(struct declaration * list_decl, bool from_subprogram = false);
 
@@ -82,6 +108,7 @@ class IR_Translator_Declaration{
          * @brief Traduce una lista de declaraciones
          * @param list_decl : lista de declaraciones
          * @param from_subprogram : especifica si la lista de declaraciones proviene de un subprograma
+         * @param subprogram_name : nombre de subprograma
          */
         void translate(struct declaration * list_decl, bool from_subprogam = false);
 };

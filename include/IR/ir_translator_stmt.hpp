@@ -19,6 +19,7 @@
 #include "AST/AST.h"                ///< Abstract Syntax Tree (AST)
 
 #include "ir_translator_expr.hpp"   ///< Traductor de expresiones
+#include "ir_translator_assistant.hpp"  ///< Asistente de traduccion
 
 // ===============================================================
 
@@ -35,6 +36,8 @@ class IR_Translator_Statement{
 
         /// Traductor de expresiones
         IR_Translator_Expression& expr_translator = IR_Translator_Expression::get_instance();
+        /// Asistente de traduccion
+        IR_Translator_Assistant& assistant_translator = IR_Translator_Assistant::get_instance();
 
         /**
          * @brief Constructor de la clase

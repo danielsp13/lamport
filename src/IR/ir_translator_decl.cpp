@@ -11,44 +11,116 @@
 
 // ----- IMPLEMENTACION DE METODOS PRIVADOS [IR_Translator_Declaration] -----
 
+IR_variable_t IR_Translator_Declaration::get_variable_scope(std::string var_name,const symbol_t & kind){
+    auto var_scope = AST_symbol_IR_var_t.find(kind);
+    // ------ Comprobar que se encontro scope
+    if(var_scope == AST_symbol_IR_var_t.end()){
+        // ------ Excepcion
+        std::string MSG = "[IR_Translation] No se pudo encontrar el scope de variable: ";
+        MSG += var_name;
+        throw std::runtime_error(MSG);
+    }
+
+    return var_scope->second;
+}
+
+IR_variable_type_t IR_Translator_Declaration::get_type_variable(std::string var_name,type_t & kind){
+    auto var_type = AST_type_IR_type.find(kind);
+    // ------ Comprobar que se encontro tipo de dato
+    if(var_type == AST_type_IR_type.end()){
+        // ------ Excepcion
+        std::string MSG = "[IR_Translation] No se pudo encontrar el tipo de dato de variable: ";
+        MSG += var_name;
+        throw std::runtime_error(MSG);
+    }
+
+    return var_type->second;
+}
+
+int IR_Translator_Declaration::initialize_variable_local_subprogram(std::string var_name, IR_variable_type_t var_type){
+    // --- 4.B.1.A.1 Obtener nuevo registro
+    int id_register_subprog_variable = reg_manager.get_next_subprog_register();
+
+    // --- 4.B.1.A.2 Obtener operando de variable local
+    IR_operand op_reg_var_local = instructions.emit_operand_register(id_register_subprog_variable);
+
+    // --- 4.B.1.A.3 Obtener variable para valor de inicializacion
+    IR_variable var_local(IR_VAR_LOCAL,var_name.c_str(),var_type);
+
+    int id_literal_in_table;
+    switch (var_local.get_type())
+    {
+    case IR_VAR_TYPE_INT:
+    {
+        id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<int>());
+        break;
+    }
+    case IR_VAR_TYPE_REAL:
+    {
+        id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<float>());
+        break;
+    }
+    case IR_VAR_TYPE_CHAR:
+    {
+        id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<char>());
+        break;
+    }
+    case IR_VAR_TYPE_STR:
+    {
+        id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<std::string>());
+        break;
+    }
+    case IR_VAR_TYPE_BOOL:
+    {
+        id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<bool>());
+        break;
+    }
+    default:
+        break;
+    }
+    IR_operand op_var_init_v = instructions.emit_operand_literal(id_literal_in_table);
+
+    // --- 4.B.1.A.4 Emitir instruccion de inicializacion de variable local de subprograma
+    instructions.emit_instruction(IR_OP_STORE,op_reg_var_local,op_var_init_v);
+
+    // --- 4.B.1.A.5 Registrar declaracion de variable local
+    assistant_translator.insert_var_local_subprog(var_name,id_register_subprog_variable);
+
+    // --- Retornar registro asociado a variable
+    return id_register_subprog_variable;
+}
+
 void IR_Translator_Declaration::translate_declaration_to_ir_instruction(struct declaration * decl, bool from_subprogram){
     // --- 1. Obtener nombre de variable
     std::string var_name = std::string(decl->name);
 
     // --- 2. Obtener scope de variable
-    auto var_scope = AST_symbol_IR_var_t.find(decl->symb->kind);
-    // ------ Comprobar que se encontro scope
-    if(var_scope == AST_symbol_IR_var_t.end())
-        return;
+    IR_variable_t var_scope = get_variable_scope(var_name,decl->symb->kind);
 
     // --- 3. Obtener tipo de dato de variable
-    auto var_type = AST_type_IR_type.find(decl->type->kind);
-    // ------ Comprobar que se encontro tipo de dato
-    if(var_type == AST_type_IR_type.end())
-        return;
+    IR_variable_type_t var_type = get_type_variable(var_name,decl->type->kind);
 
-    // --- 5. Comprobar si la variable es de tipo array
+    // --- 4. Comprobar si la variable es de tipo array
     // ---- Identificador de registro de variable
     int id_variable_in_table = 0; int id_register_subprog_variable = 0;
-    if(var_type->second == IR_VAR_TYPE_ARRAY){
-        var_type = AST_type_IR_type.find(decl->type->subtype->kind);
-        if(var_type == AST_type_IR_type.end())
-            return;
+    if(var_type == IR_VAR_TYPE_ARRAY){
+        // --- 4.A.1 Obtener subtipo de dato
+        var_type = get_type_variable(var_name,decl->type->subtype->kind);
 
-        // --- 5.1 Obtener longitud de array
+        // --- 4.A.2 Obtener longitud de array
         // ---- FUTURE (por ahora se sabe que si paso el typechecking es porque es un literal puro integer)
         size_t var_size = decl->type->size->expr.expression_literal.value.integer_literal; 
 
         ///////////////////////////////////////////////////////////////////////////////////////
 
-        /// ---- Comprobar si es una declaracion de un subprograma
-        if(from_subprogram){
-            // -- 4.2 
-            /// TODO
+        /// --- 4.A.3 Comprobar si es una declaracion de un subprograma
+        if(from_subprogram){ 
+            for(int i=0; i<var_size; i++)
+                initialize_variable_local_subprogram(var_name,var_type);
         }
         else{
-            // -- 4.2 Registrar variable
-            id_variable_in_table = tables.add_entry_variable(var_scope->second,var_name,var_type->second,var_size);
+            // -- 4.A.3.A Registrar variable
+            id_variable_in_table = tables.add_entry_variable(var_scope,var_name,var_type,var_size);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -57,83 +129,39 @@ void IR_Translator_Declaration::translate_declaration_to_ir_instruction(struct d
 
         ///////////////////////////////////////////////////////////////////////////////////////
 
-        /// ---- Comprobar si es una declaracion de un subprograma
+        // --- 4.B.1 Comprobar si es una declaracion de un subprograma
         if(from_subprogram){
-            // -- Obtener nuevo registro
-            id_register_subprog_variable = reg_manager.get_next_register();
-
-            // -- Incluir en el registro de variables locales
-            assistant_translator.insert_var_local_subprog(var_name,id_register_subprog_variable);
-
-            // -- Obtener operando de variable local
-            IR_operand op_var_local = instructions.emit_operand_register(id_register_subprog_variable);
-
-            // -- Obtener variable para valor de inicializacion
-            IR_variable var_local(IR_VAR_LOCAL,var_name.c_str(),var_type->second);
-
-            int id_literal_in_table;
-            switch (var_local.get_type())
-            {
-            case IR_VAR_TYPE_INT:
-            {
-                id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<int>());
-                break;
-            }
-            case IR_VAR_TYPE_REAL:
-            {
-                id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<float>());
-                break;
-            }
-            case IR_VAR_TYPE_CHAR:
-            {
-                id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<char>());
-                break;
-            }
-            case IR_VAR_TYPE_STR:
-            {
-                id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<std::string>());
-                break;
-            }
-            case IR_VAR_TYPE_BOOL:
-            {
-                id_literal_in_table = tables.add_entry_literal(var_local.get_initial_value<bool>());
-                break;
-            }
-            default:
-                break;
-            }
-            IR_operand op_var_init_v = instructions.emit_operand_literal(id_literal_in_table);
-
-            // -- Emitir instruccion de inicializacion de variable local de subprograma
-            instructions.emit_instruction(IR_OP_STORE,op_var_local,op_var_init_v);
-
-            // -- Emitir instruccion de push local
-            instructions.emit_instruction(IR_OP_PUSH_LOCAL, op_var_local);
+            id_register_subprog_variable = initialize_variable_local_subprogram(var_name,var_type);
         }
         else{
-            // -- 5. Registrar variable
-            id_variable_in_table = tables.add_entry_variable(var_scope->second,var_name,var_type->second);
+            // --- 4.B.1.B.1 Registrar variable
+            id_variable_in_table = tables.add_entry_variable(var_scope,var_name,var_type);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
     }
     
-    // --- 4. Evaluar valor de variable
+    // --- 5. Evaluar valor de variable
     if(decl->value){
-        // --- 4.1 Traducir expresion de asignacion a instruccion IR
+        // --- 5.0 Optimizar expresion
+        decl->value = expr_translator.optimize(decl->value);
+        // --- 5.1 Traducir expresion de asignacion a instruccion IR
         const int id_reg_value = expr_translator.translate(decl->value,from_subprogram);
         if(id_reg_value == -1){
-            // -- Manejar error en traduccion //FUTURE
-            return;
+            // ----- Exception
+            std::string MSG = "[IR_Translation] No se pudo traducir expresion de inicio para variable: ";
+            MSG += var_name;
+            
+            throw std::runtime_error(MSG);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
 
         IR_operand op_dest, op_1;
 
-        // --- Comprobar si la declaracion es de un subprograma
+        // --- 5.2 Comprobar si la declaracion es de un subprograma
         if(from_subprogram){
-            // --- 4.3 Emitir instruccion de almacenamiento de valor en variable
+            // --- 5.2.A.1 Emitir instruccion de almacenamiento de valor en variable
             // ---- Operando de destino
             op_dest = instructions.emit_operand_register(id_register_subprog_variable);
             // ---- Operando de carga
@@ -142,7 +170,7 @@ void IR_Translator_Declaration::translate_declaration_to_ir_instruction(struct d
             instructions.emit_instruction(IR_OP_STORE,op_dest,op_1);
         }
         else{
-            // --- 4.3 Emitir instruccion de almacenamiento de valor en variable
+            // --- 5.2.B.1 Emitir instruccion de almacenamiento de valor en variable
             // ---- Operando de destino
             op_dest = instructions.emit_operand_variable(id_variable_in_table);
             // ---- Operando de carga

@@ -12,6 +12,7 @@
 
 // ----- INCLUSION DE DEPENDENCIAS -----
 
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -21,33 +22,54 @@
 
 class IR_Translator_Assistant{
     private:
-        // Vector de variables locales de subprograma
-        std::vector<std::pair<std::string,int>> var_local_subprog;
+        // Mapa de variables locales/parametros de subprograma
+        std::vector<std::pair<std::string,int>> locals_subprog;
 
         /**
          * @brief Constructor de la clase
          */
         IR_Translator_Assistant() = default;
 
+        /**
+         * @brief Obtiene el indice donde se encuentra la informacion de la variable local
+         * @param local_name : variable local del programa
+         * @return indice de informacion de variable local
+         */
+        int get_index_var_local_subprog(std::string local_name);
+
     public:
         /**
-         * @brief Inserta una nueva variable local de subprograma en la lista
-         * @param var_local_name : nombre de variable local
+         * @brief Inserta un nuevo parametro de subprograma en la lista
+         * @param local_name : variable local del programa
          * @param reg_addr : direccion de registro
          */
-        void insert_var_local_subprog(std::string var_local_name, int reg_addr);
+        void insert_var_local_subprog(std::string local_name, int reg_addr);
 
         /**
          * @brief Obtiene el registro donde se encuentra la variable local de subprograma
-         * @param var_local_name : variable local de subprograma
+         * @param local_name : nombre de variable local
          * @return indice de registro
          */
-        int get_reg_from_var_local_name_subprog(std::string var_local_name);
+        int get_reg_from_var_local_subprog(std::string local_name);
 
         /**
-         * @brief Limpia el vector de variables locales de subprograma
+         * @brief Obtiene el registro donde se encuentra la variable local de subprograma (arrays)
+         * @param local_name : nombre de variable local
+         * @param offset : desplazamiento de posicion
+         * @return indice de registro
          */
-        void clear_var_local_subprog() { var_local_subprog.clear(); } ;
+        int get_reg_from_var_local_subprog(std::string local_name, int offset);
+
+        /**
+         * @brief Comprueba si el nombre de variable otorgado es una variable local de subprograma
+         * @return TRUE si es una variable local/FALSE en otro caso
+         */
+        bool is_var_local_subprog(std::string var_name);
+
+        /**
+         * @brief Limpia el vector de parametros de subprograma
+         */
+        void clear_locals_subprog() { locals_subprog.clear(); };
 
         /**
          * @brief Obtiene la instancia de la clase

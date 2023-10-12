@@ -12,6 +12,8 @@
 
 // ----- INCLUSION DE DEPENDENCIAS -----
 
+#include <stack>
+
 #include "instruction_table.hpp"    ///< Tabla de instrucciones
 #include "ir_reg_manager.hpp"       ///< Manejador de registros
 #include "table.hpp"                ///< Tabla de literales, variables y etiquetas

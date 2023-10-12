@@ -48,11 +48,12 @@ int IR_Translator_Expression::translate_expression_to_ir_instructions(struct exp
     }
     
     default:
+        // ---- Excepcion
+        std::string MSG = "[IR_Translation] Tipo de expresion no soportada para traduccion a IR.";
+        throw std::runtime_error(MSG);
+
         break;
     }
-
-    // -- Devolver error si algo no es manejado correctamente
-    return -1;
 }
 
 int IR_Translator_Expression::translate_expression_binary_operation_to_ir_instructions(struct expression * expr, bool from_subprogram){
@@ -61,7 +62,7 @@ int IR_Translator_Expression::translate_expression_binary_operation_to_ir_instru
     const int reg_right = this->translate_expression_to_ir_instructions(expr->expr.expression_binary_operation.right,from_subprogram);
 
     // -- Obtener identificador de siguiente registro
-    const int reg_assigned = reg_manager.get_next_register();
+    const int reg_assigned = reg_manager.get_next_general_purpose_register();
 
     // -- Deliberar instruccion a emitir
     // ---- Operando de destino (registro)
@@ -144,6 +145,9 @@ int IR_Translator_Expression::translate_expression_binary_operation_to_ir_instru
     }
 
     default:
+        // ---- Excepcion
+        std::string MSG = "[IR_Translation] Tipo de expresion (operacion binaria) no soportada para traduccion a IR.";
+        throw std::runtime_error(MSG);
         break;
     }
 
@@ -156,7 +160,7 @@ int IR_Translator_Expression::translate_expression_unary_operation_to_ir_instruc
     const int reg_left = this->translate_expression_to_ir_instructions(expr->expr.expression_unary_operation.left,from_subprogram);
 
     // -- Obtener identificador de siguiente registro
-    const int reg_assigned = reg_manager.get_next_register();
+    const int reg_assigned = reg_manager.get_next_general_purpose_register();
 
     // -- Deliberar instruccion a emitir
     // ---- Operando de destino (registro)
@@ -180,6 +184,9 @@ int IR_Translator_Expression::translate_expression_unary_operation_to_ir_instruc
     }
     
     default:
+        // ---- Excepcion
+        std::string MSG = "[IR_Translation] Tipo de expresion (operacion unaria) no soportada para traduccion a IR.";
+        throw std::runtime_error(MSG);
         break;
     }
 
@@ -188,14 +195,14 @@ int IR_Translator_Expression::translate_expression_unary_operation_to_ir_instruc
 }
 
 int IR_Translator_Expression::translate_expression_identifier_to_ir_instructions(struct expression * expr, bool from_subprogram){
-    // -- Obtener nombre de variable
+    // -- 0. Obtener nombre de variable
     std::string var_name = std::string(expr->expr.expression_identifier.id);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // --- Comprobar si el identificador corresponde a una variable de subprograma
+    // -- 1. Comprobar si el identificador corresponde a una variable de subprograma
     if(from_subprogram){
-        int reg_var_local = assistant_translator.get_reg_from_var_local_name_subprog(var_name);
+        int reg_var_local = assistant_translator.get_reg_from_var_local_subprog(var_name);
 
         // -- Si se ha encontrado, entonces emitir instrucciones adecuadas
         if(reg_var_local != -1){
@@ -213,7 +220,7 @@ int IR_Translator_Expression::translate_expression_identifier_to_ir_instructions
         id_variable_in_table = tables.get_index_from_global_variable(var_name);
 
     // -- Realizar carga del valor de variable en un registro
-    const int reg_assigned = this->reg_manager.get_next_register();
+    const int reg_assigned = this->reg_manager.get_next_general_purpose_register();
 
     // -- 3.B : Comprobar si el acceso se esta haciendo sobre un array
     IR_operand op_dest = instructions.emit_operand_register(reg_assigned);
@@ -241,7 +248,7 @@ int IR_Translator_Expression::translate_expression_identifier_to_ir_instructions
 
 int IR_Translator_Expression::translate_expression_literal_to_ir_instructions(struct expression * expr, bool from_subprogram){
     // -- Obtener identificador de siguiente registro
-    const int reg_assigned = this->reg_manager.get_next_register();
+    const int reg_assigned = this->reg_manager.get_next_general_purpose_register();
 
     // -- Deliberar instruccion a emitir
     // ---- Operando de destino (registro)
@@ -306,8 +313,46 @@ int IR_Translator_Expression::translate_expression_literal_to_ir_instructions(st
 }
 
 int IR_Translator_Expression::translate_expression_function_inv_to_ir_instructions(struct expression * expr, bool from_subprogram){
-    // TODO
-    return -1;
+    // ----- 0. Obtener nombre de subprograma funcion
+    std::string function_name = std::string(expr->expr.expression_function_inv.function_name);
+
+    // ---- 1. Generar instrucciones IR para cada argumento de funcion
+    int addr_reg_argument;
+    IR_operand op_reg_argument, op_reg_parameter;
+
+    // ---- 1.1 Recorrer la lista de argumentos de invocacion
+    struct expression * current_argument = expr->expr.expression_function_inv.arguments_list;
+    while(current_argument){
+        // ---- Obtener registro donde se encontrara la expresion
+        addr_reg_argument = translate(current_argument,from_subprogram);
+
+        // ---- Definir operando
+        op_reg_argument = instructions.emit_operand_register(addr_reg_argument);
+        
+        // ---- Emitir instruccion de push en pila
+        instructions.emit_instruction(IR_OP_PUSH,op_reg_argument);
+
+        // ---- Ir a siguiente argumento
+        current_argument = current_argument->next;
+    }
+
+    // ---- 2. Generar instruccion de llamada a funcion
+    // ----- Obtener indice en tabla donde se encuentra la etiqueta de inicio de funcion
+    std::string call_function_label = std::string("start_subprog_") + std::string(expr->expr.expression_function_inv.function_name);
+    int index_label_in_table = tables.get_index_from_label_id(call_function_label);
+    if(index_label_in_table == -1){
+        // -- Crear placeholder para etiqueta
+        index_label_in_table = tables.add_entry_label(call_function_label,-2);
+    }
+
+    // ----- Operando etiqueta para realizar el salto
+    IR_operand op_label_function = instructions.emit_operand_label(index_label_in_table);
+
+    // ----- Emitir instruccion de llamada a funcion
+    instructions.emit_instruction(IR_OP_CALL,op_label_function);
+    
+    // ----- Retornar registro donde se encuentra el resultado de la llamada
+    return reg_manager.get_return_subprog_register();
 }
 
 // ===============================================================
@@ -319,10 +364,12 @@ IR_Translator_Expression& IR_Translator_Expression::get_instance(){
     return instance;
 }
 
-int IR_Translator_Expression::translate(struct expression * expr, bool from_subprogam){
-    // -- Aplicar optimizacion sobre expresion (constant folding)
-    expr = optimizer.constant_folding(expr);
+struct expression * IR_Translator_Expression::optimize(struct expression * expr){
+    return optimizer.constant_folding(expr);
+}
 
+int IR_Translator_Expression::translate(struct expression * expr, bool from_subprogam){
     // -- Traducir
-    return this->translate_expression_to_ir_instructions(expr,from_subprogam);
+    int reg = this->translate_expression_to_ir_instructions(expr,from_subprogam);
+    return reg;
 }

@@ -151,7 +151,7 @@ class IR_Instruction_Table{
          * @param op_2 : operando 2
          */
         void emit_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1, IR_operand op_2);
-
+        
         /**
          * @brief Sobrecarga del operador []
          * @param i : indice de acceso a instruccion
@@ -165,6 +165,11 @@ class IR_Instruction_Table{
          * @return  Referencia a instruccion (constante)
          */
         const IR_instruction& operator[](int i) const;
+
+        /**
+         * @brief Limpia el vector de instrucciones IR
+         */
+        void clear() { instruction_table.clear(); }
 };
 
 #endif //_LAMPORT_IR_INSTRUCTION_TABLE_DPR_

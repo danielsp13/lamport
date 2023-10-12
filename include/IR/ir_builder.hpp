@@ -20,6 +20,8 @@
 #include "ir_translator_stmt.hpp"       ///< Traductor de sentencias
 #include "ir_translator_proc.hpp"       ///< Traductor de procesos
 #include "ir_translator_subprog.hpp"    ///< Traductor de subprogramas
+#include "ir_translator_assistant.hpp"  ///< Asistente de traduccion
+#include "ir_reg_manager.hpp"           ///< Asignador de registros
 
 // ===============================================================
 
@@ -39,6 +41,8 @@ class IR_Builder{
         IR_Tables& tables = IR_Tables::get_instance();
         // -- Instrucciones IR
         IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
+        // -- Asignador de registros
+        IR_Reg_Manager& reg_manager = IR_Reg_Manager::get_instance();
 
         // -- Traductor de declaraciones
         IR_Translator_Declaration& decl_translator = IR_Translator_Declaration::get_instance();
@@ -48,6 +52,8 @@ class IR_Builder{
         IR_Translator_Process& proc_translator = IR_Translator_Process::get_instance();
         // -- Traductor de subprogramas
         IR_Translator_Subprogram& subprog_translator = IR_Translator_Subprogram::get_instance();
+        // -- Asistente de traduccion
+        IR_Translator_Assistant& assistant_translator = IR_Translator_Assistant::get_instance();
 
         /**
          * @brief Constructor de la clase (privado por ser singleton)

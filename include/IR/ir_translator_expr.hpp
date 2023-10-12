@@ -114,6 +114,13 @@ class IR_Translator_Expression{
         void operator=(const IR_Translator_Expression&) = delete;
 
         /**
+         * @brief Optimiza la expresion pasada como argumento
+         * @param expr : expresion
+         * @return expresion reducida
+         */
+        struct expression * optimize(struct expression * expr);
+
+        /**
          * @brief Traduce una expresion a codigo IR
          * @param expr : expresion
          * @param from_subprogram : especifica si la expresion proviene de un subprograma

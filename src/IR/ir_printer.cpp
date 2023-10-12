@@ -153,3 +153,7 @@ void IR_Printer::add_ir_instruction_to_printer(IR_instruction instr){
 void IR_Printer::add_ir_instruction_to_printer(IR_instruction instr, int position){
     this->ir_instructions_str.insert(ir_instructions_str.begin()+position,this->ir_instruction_to_string(instr));
 }
+
+void IR_Printer::operator()(int i, const IR_instruction & instr){
+    ir_instructions_str[i] = this->ir_instruction_to_string(instr);
+}

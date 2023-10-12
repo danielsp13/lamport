@@ -11,7 +11,7 @@
 const std::string TABLE_SEPARATOR = "================================================================================";
 const unsigned int gap_literals = 16;
 const unsigned int gap_variables = 16;
-const unsigned int gap_labels = 27;
+const unsigned int gap_labels = 35;
 
 // ===============================================================
 

@@ -92,7 +92,13 @@ typedef enum{
     IR_END_PROCESS,             ///< Instruccion de fin de proceso
 
     // -- Definicion de instruccion de fin de programa
+    IR_START_PROGRAM,           ///< Instruccion de inicio de programa
     IR_END_PROGRAM,             ///< Instruccion de fin de programa          
+
+    // ----------------------------------------------------
+
+    NOT_IR_START_SUBPROGRAM_INSTR,
+    NOT_IR_END_SUBPROGRAM_INSTR,
 
 } IR_instruction_type_t;
 
@@ -131,7 +137,10 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {IR_OP_POP_LOCAL,"IR_OP_POP_LOCAL"},
     {IR_START_PROCESS,"IR_START_PROCESS"},
     {IR_END_PROCESS,"IR_END_PROCESS"},
+    {IR_START_PROGRAM,"IR_START_PROGRAM"},
     {IR_END_PROGRAM,"IR_END_PROGRAM"},
+    {NOT_IR_START_SUBPROGRAM_INSTR, " -------- START SUBPROGRAMS SECTION --------"},
+    {NOT_IR_END_SUBPROGRAM_INSTR, " -------- END SUBPROGRAMS SECTION --------"},
 };
 
 #endif //_LAMPORT_IR_IR_INSTRUCTION_TYPE_

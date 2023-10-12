@@ -22,16 +22,8 @@ void IR_Translator_Subprogram::translate_subprogram_to_ir_instructions(struct su
     std::string start_label_subprog = std::string("start_subprog_") + subprog_name;
     const int start_subprog_addr = instructions.size()+1;
 
-    // -- 3.1 Comprobar si existe etiqueta en tabla
-    int id_label_in_table = tables.get_index_from_label_id(start_label_subprog);
-    if(id_label_in_table != -1){
-        // -- 3.1.1 Modificar valor de placeholder con la direccion real
-        tables.modify_entry_label(start_label_subprog,start_subprog_addr);
-    }
-    else{
-        // -- 3.1.2 Insertar nueva etiqueta
-        id_label_in_table = tables.add_entry_label(start_label_subprog,start_subprog_addr);
-    }
+    // -- 3.1.1 Insertar nueva etiqueta
+    int id_label_in_table = tables.add_entry_label(start_label_subprog,start_subprog_addr);
 
     // -- 4. Emitir instruccion de punto de salida de subprograma
     IR_operand op_label = instructions.emit_operand_label(id_label_in_table);
@@ -76,7 +68,9 @@ void IR_Translator_Subprogram::translate_subprogram_to_ir_instructions(struct su
     instructions.emit_instruction(IR_LABEL,op_label);
 
     // -- Limpiar registro de variables locales de subprograma
-    assistant_translator.clear_var_local_subprog();
+    assistant_translator.clear_locals_subprog();
+    // -- Resetear registros de subprograma
+    reg_manager.reset_subprog_register_counter();
 }
 
 void IR_Translator_Subprogram::translate_list_subprograms_to_ir_instructions(struct subprogram * list_subprog){
@@ -99,9 +93,23 @@ void IR_Translator_Subprogram::translate_list_parameters_to_ir_instructions(stru
     // ------ Operando de registro donde se encontrara el valor del parametro
     IR_operand op_reg_param;
 
+    std::stack<struct parameter*> stack_parameters;
     while(current_parameter){
-        // --- 2.A Obtener el registro del parametro (sacandolo de la pila)
-        addr_reg_param = reg_manager.pop_reg_from_stack();
+        stack_parameters.push(current_parameter);
+
+        // --- Ir al siguiente parametro
+        current_parameter = current_parameter->next;
+    }
+
+    std::string name_parameter;
+    while(!stack_parameters.empty()){
+        current_parameter = stack_parameters.top();
+
+        // ---- 2.0 Obtener nombre de parametro
+        name_parameter = std::string(current_parameter->name_parameter);
+
+        // ---- 2.A Obtener registros para pasar parametros
+        addr_reg_param = reg_manager.get_next_subprog_register();
 
         // ---- 2.B Definir operando de registro
         op_reg_param = instructions.emit_operand_register(addr_reg_param);
@@ -110,10 +118,9 @@ void IR_Translator_Subprogram::translate_list_parameters_to_ir_instructions(stru
         instructions.emit_instruction(IR_OP_POP,op_reg_param);
 
         // ---- 2.D Registrar parametro como una variable local de subprograma
-        assistant_translator.insert_var_local_subprog(std::string(current_parameter->name_parameter),addr_reg_param);
+        assistant_translator.insert_var_local_subprog(name_parameter,addr_reg_param);
 
-        // --- Ir al siguiente parametro
-        current_parameter = current_parameter->next;
+        stack_parameters.pop();
     }
 }
 

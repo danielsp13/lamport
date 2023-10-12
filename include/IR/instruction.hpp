@@ -118,6 +118,24 @@ class IR_instruction{
          * @return operando 2
          */
         std::optional<IR_operand> get_operand_2() const { return op_2; } ;
+
+        /**
+         * @brief Especifica si existe el operando de destino
+         * @return TRUE si la instruccion tiene operando destino, FALSE en otro caso
+         */
+        bool exists_operand_destiny() const {return op_destiny.has_value(); };
+
+        /**
+         * @brief Especifica si existe el operando de destino
+         * @return TRUE si la instruccion tiene operando destino, FALSE en otro caso
+         */
+        bool exists_operand_1() const {return op_1.has_value(); };
+
+        /**
+         * @brief Especifica si existe el operando de destino
+         * @return TRUE si la instruccion tiene operando destino, FALSE en otro caso
+         */
+        bool exists_operand_2() const {return op_2.has_value(); };
 };
 
 #endif // _LAMPORT_IR_INSTRUCTION_DPR_
