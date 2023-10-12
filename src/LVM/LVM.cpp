@@ -70,10 +70,7 @@ bool LVM::run(){
         this->state == LVM_STATE_RUNNING;
         
         // -- Ejecucion de listado de instrucciones
-        while(cpu.get_program_counter() < this->instructions.size()){
-            //std::cout << "PC --> " << this->program_counter << std::endl;
-            cpu.execute_next_instruction(instructions[cpu.get_program_counter()]);
-        }
+        cpu.execute_instructions();
 
         return true;
     }

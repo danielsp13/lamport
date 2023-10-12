@@ -73,11 +73,12 @@ inline bool LVM_CPU::instruction_is_start_or_end_process(const IR_instruction & 
     return result;
 }
         
-inline bool LVM_CPU::instruction_is_end_program(const IR_instruction & instr){
+inline bool LVM_CPU::instruction_is_start_or_end_program(const IR_instruction & instr){
     bool result = false;
     const IR_instruction_type_t kind = instr.get_code_instr();
 
     result = kind == IR_END_PROGRAM;
+    result = result == true ? true : kind == IR_START_PROGRAM;
 
     return result;
 }
@@ -176,6 +177,16 @@ inline bool LVM_CPU::instruction_is_call_or_ret_subprogram(const IR_instruction 
     return result; 
 }
 
+inline bool LVM_CPU::instruction_is_not_instruction(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == NOT_IR_END_SUBPROGRAM_INSTR;
+    result = result == true ? true : kind == NOT_IR_START_SUBPROGRAM_INSTR;
+
+    return result;  
+}
+
 std::vector<LVM_Register> LVM_CPU::get_registers_from_operands(const IR_instruction & instr){
     std::vector<LVM_Register> registers;
 
@@ -270,9 +281,13 @@ void LVM_CPU::execute_instruction(const IR_instruction & instr_to_exec){
     else if(this->instruction_is_call_or_ret_subprogram(instr_to_exec)){
         this->execute_instruction_call_or_ret(instr_to_exec);
     }
-    // ---- INSTRUCCION DE FIN DE PROGRAMA
-    else if(this->instruction_is_end_program(instr_to_exec)){
-        this->execute_instruction_end_program(instr_to_exec);
+    // ---- INSTRUCCION DE INICIO/FIN DE PROGRAMA
+    else if(this->instruction_is_start_or_end_program(instr_to_exec)){
+        this->execute_instruction_start_or_end_program(instr_to_exec);
+    }
+    // ---- INSTRUCCION NOT INSTRUCTION
+    else if(this->instruction_is_not_instruction(instr_to_exec)){
+        this->program_counter++;
     }
     // ---- OPERACION NO SOPORTADA
     else{
@@ -323,6 +338,51 @@ void LVM_CPU::execute_instruction_end_process(const IR_instruction & instr){
         }
     }
 
+}
+
+void LVM_CPU::execute_instruction_start_or_end_program(const IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_START_PROGRAM:
+    {
+        this->execute_instruction_start_program(instr);
+        break;
+    }
+    case IR_END_PROGRAM:
+    {
+        this->execute_instruction_end_program(instr);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
+void LVM_CPU::execute_instruction_start_program(const IR_instruction & instr){
+    // ---- Incrementar contador de programa
+    this->program_counter++;
+    // ---- Recorrer instrucciones
+    bool start_subprog_reached = false, end_subprog_reached = false;
+    for(int i=this->program_counter; i<total_instructions; i++){
+        // ---- Recuperar instruccion
+        IR_instruction instr = instructions[i];
+        // ---- Comprobar si se ha alcanzado el inicio de seccion de subprogramas
+        if(instr.get_code_instr() == NOT_IR_START_SUBPROGRAM_INSTR && !start_subprog_reached)
+            start_subprog_reached = true;
+        // ---- Comprobar si se ha alcanzado el fin de seccion de subprogramas
+        else if(instr.get_code_instr() == NOT_IR_END_SUBPROGRAM_INSTR && !end_subprog_reached)
+            end_subprog_reached = true;
+        // ---- Comprobar si se ha alcanzado el inicio de un proceso
+        else if(instr.get_code_instr() == IR_START_PROCESS)
+            return;
+
+        // ---- Comprobar casos
+        if(!start_subprog_reached)
+            this->execute_instruction(instr);
+        else if(!end_subprog_reached)
+            this->program_counter++;
+    }
 }
 
 void LVM_CPU::execute_instruction_end_program(const IR_instruction & instr){
@@ -444,7 +504,7 @@ void LVM_CPU::execute_instruction_store(const IR_instruction & instr){
             break;
         }
         default:
-            throw std::invalid_argument("CONTENIDO DE REGISTRO PARA OP_STORE INVÁLIDO.");
+            throw std::invalid_argument("CONTENIDO DE REGISTRO PARA OP_STORE INVÁLIDO, INSTRUCCION [" + std::to_string(this->program_counter) + "].");
             break;
         }
 
@@ -476,6 +536,9 @@ void LVM_CPU::execute_instruction_binary_operation(const IR_instruction & instr)
 
     // -- Obtener codigo de instruccion
     IR_instruction_type_t instr_code = instr.get_code_instr();
+
+    IR_operand op_1 = *instr.get_operand_1();
+    IR_operand op_2 = *instr.get_operand_2();
 
     // -- Realizar operacion en funcion de codigo
     switch (instr_code)
@@ -810,7 +873,7 @@ void LVM_CPU::execute_instruction_ret(const IR_instruction & instr){
     this->program_counter = old_context.program_counter;
     this->program_counter++;
     // --- Devolver tabla de registros
-    for(int i=0; i<old_context.register_table.size();i++){
+    for(int i=reg_manager.get_return_subprog_register()+1; i<old_context.register_table.size();i++){
         this->register_table[i] = old_context.register_table[i];
     }
 
@@ -826,19 +889,9 @@ void LVM_CPU::execute_instruction_push_or_pop(const IR_instruction & instr){
         this->execute_instruction_push(instr);
         break;
     }
-    case IR_OP_PUSH_LOCAL:
-    {
-        this->execute_instruction_push_local(instr);
-        break;
-    }
     case IR_OP_POP:
     {
         this->execute_instruction_pop(instr);
-        break;
-    }
-    case IR_OP_POP_LOCAL:
-    {
-        this->execute_instruction_pop_local(instr);
         break;
     }
     
@@ -903,7 +956,7 @@ void LVM_CPU::execute_instruction_pop(const IR_instruction & instr, bool from_lo
     // -- Obtener direccion de registro
     int reg_addr = op_reg.get_address();
     // -- Obtener bloque de pila (tope)
-    LVM_Stack_Block stack_block = stack.top();
+    LVM_Stack_Block stack_block = stack.top(); stack.pop();
     // -- Generar registro
     LVM_Register reg;
 
@@ -952,11 +1005,14 @@ void LVM_CPU::execute_instruction_pop_local(const IR_instruction & instr){
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [CPU] -----
 
-LVM_CPU& LVM_CPU::get_instance(int total_instructions){
-    static LVM_CPU instance(total_instructions);
+LVM_CPU& LVM_CPU::get_instance(){
+    static LVM_CPU instance;
     return instance;
 }
 
-void LVM_CPU::execute_next_instruction(const IR_instruction & instr){
-    this->execute_instruction(instr);
+void LVM_CPU::execute_instructions(){
+    while(get_program_counter() < total_instructions){
+        //std::cout << "PC: " << program_counter << std::endl;
+        execute_instruction(instructions[this->program_counter]);
+    }
 }

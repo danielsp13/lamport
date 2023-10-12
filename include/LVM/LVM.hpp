@@ -46,10 +46,8 @@ class LVM{
     private:
         // -- Iniciador de memoria maquina virtual
         LVM_Initializer& initializer = LVM_Initializer::get_instance();
-        // -- Tabla de instrucciones a ejecutar
-        IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
         // -- CPU de la maquina virtual
-        LVM_CPU& cpu = LVM_CPU::get_instance(instructions.size());
+        LVM_CPU& cpu = LVM_CPU::get_instance();
 
         // -- Especifica el estado en el que se encuentra la maquina virtual
         LVM_states_t state = LVM_STATE_BORN;

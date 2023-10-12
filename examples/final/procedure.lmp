@@ -3,22 +3,27 @@
 
 program HolaMundo
 
-procedure saluda(n : string);
-	var numero : integer := 2*4+4-1;
-	var nombre : string := n;
+procedure saluda(n : string, a : real);
 begin
-	print("El procedure te saluda: ",nombre);
-	print("El valor del numero es: ",numero);
+	print("El procedure te saluda: ",n);
+	print("parametro a vale: ",a);
 end
 
-procedure despide(n : string);
+procedure saludaNVeces(nombre : string, n : integer);
 begin
-	print(n, ", el procedure te despide");
+	for i := 1 to n do
+	begin
+		print("Hola: ",nombre);
+	end
+	
+	print("ya te salude bastante");
 end
 
 process Main;
 	var usuario : string := "Daniel";
+	var valor : real := 3.0;
 begin
-	saluda(usuario);
-	despide(usuario);
+	saluda(usuario,valor);
+	print("");
+	saludaNVeces(usuario,5);
 end

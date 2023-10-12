@@ -129,7 +129,9 @@ LVM_Register LVM_Register::operator+(const LVM_Register& otro) const{
     }
     
     default:
-        throw std::invalid_argument("OPERACIÓN DE REGISTRO (+) NO SOPORTADA.");
+        std::string MSG = "OPERACIÓN DE REGISTRO (+) NO SOPORTADA ";
+        MSG += ": suma de (" + get_type_of_alloc_str() + ") con (" + otro.get_type_of_alloc_str() + ").";
+        throw std::invalid_argument(MSG);
         break;
     }
 }

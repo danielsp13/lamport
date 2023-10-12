@@ -25,6 +25,7 @@
 
 #include "IR/instruction.hpp"       ///< Instruccion
 #include "IR/instruction_table.hpp"    ///< Tabla de instrucciones
+#include "IR/ir_reg_manager.hpp"       ///< Manejador de registros
 
 // ===============================================================
 
@@ -34,6 +35,10 @@ class LVM_CPU{
     private:
         // -- Registros de maquina virtual
         LVM_Register_Table& register_table = LVM_Register_Table::get_instance();
+        // -- Gestor de registros
+        IR_Reg_Manager& reg_manager = IR_Reg_Manager::get_instance();
+        // -- Tabla de instrucciones a ejecutar
+        IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
         // -- Pila (para manejo de subprogramas)
         std::stack<LVM_Stack_Block> stack;
         // -- Pila de contextos
@@ -46,14 +51,13 @@ class LVM_CPU{
 
         // -- Contador de programa
         int program_counter = 0;
-        // -- Contador de total de instrucciones a ejecutar
-        const int total_instructions;
+        // -- Total de instrucciones
+        const int total_instructions = instructions.size();
 
         /**
          * @brief Constructor de la clase
-         * @param total_instructions : total de instrucciones a ejecutar
          */
-        LVM_CPU(int total_instructions) : total_instructions(total_instructions) {};
+        LVM_CPU() = default;
 
         /**
          * @brief Obtiene el la direccion fisica a partir de una virtual proporcionada
@@ -75,7 +79,7 @@ class LVM_CPU{
          * @param instr : instruccion
          * @return TRUE si es una operacion de fin de programa
          */
-        inline bool instruction_is_end_program(const IR_instruction & instr);
+        inline bool instruction_is_start_or_end_program(const IR_instruction & instr);
 
         /**
          * @brief Comprueba si una instruccion es una operacion de carga
@@ -132,6 +136,12 @@ class LVM_CPU{
          * @return TRUE si es una operacion esperada, FALSE en otro caso
          */
         inline bool instruction_is_call_or_ret_subprogram(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion no es una instruccion (inicio de seccion de subprogramas)
+         * @param instr : instruccion
+         */
+        inline bool instruction_is_not_instruction(const IR_instruction & instr);
         
         /**
          * @brief Obtiene el conjunto de registros a los que refiere una instruccion
@@ -163,6 +173,18 @@ class LVM_CPU{
          * @param instr : instruccion IR_END_PROCESS
          */
         void execute_instruction_end_process(const IR_instruction & instr);
+        
+        /**
+         * @brief Ejecuta una instruccion de inicio/fin de programa
+         * @param instr : instruccion
+         */
+        void execute_instruction_start_or_end_program(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion de inicio de programa
+         * @param instr : instruccion
+         */
+        void execute_instruction_start_program(const IR_instruction & instr);
 
         /**
          * @brief Ejecuta una instruccion de fin de programa
@@ -286,10 +308,9 @@ class LVM_CPU{
     public:
         /**
          * @brief Obtiene la instancia
-         * @param total_instructions : total de instrucciones a ejecutar
          * @return instancia
          */
-        static LVM_CPU& get_instance(int total_instructions);
+        static LVM_CPU& get_instance();
 
         /**
          * @brief Destructor de la clase
@@ -313,9 +334,9 @@ class LVM_CPU{
         int get_program_counter() const { return this->program_counter; };
 
         /**
-         * @brief Ejecuta la instruccion a la que apunta el contador de programa
+         * @brief Ejecuta la lista de instrucciones
          */
-        void execute_next_instruction(const IR_instruction & instr);
+        void execute_instructions();
 };
 
 #endif //_LAMPORT_LVM_CPU_DPR_

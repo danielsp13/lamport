@@ -32,7 +32,7 @@
 #define LMP_LOGGING_LVM_IS_AVAIABLE true
 #define LMP_LVM_EXECUTION_IS_AVAIABLE true
 
-#define LMP_TASK_DELAY_IS_AVAIABLE true
+#define LMP_TASK_DELAY_IS_AVAIABLE false
 
 // ===============================================================
 
