@@ -13,7 +13,7 @@
 // ----- INCLUSION DE DEPENDENCIAS -----
 
 #include <iostream>
-#include <stack>
+#include <string>
 
 // ===============================================================
 
@@ -25,13 +25,20 @@
  */
 class IR_Reg_Manager{
     private:
-        // Variable contadora de registros
-        int reg_counter = 0;
+        // Especifica valor inicial de registros de proposito general
+        const int STARTING_REG_GENERAL_PURPOSE = 32;
+        // Especifica valor inicial/final de registros de valores locales de subprograma
+        const int STARTING_REG_SUBPROGRAM_VARS = 0;
+        const int ENDING_REG_SUBPROGRAM_VARS = 30;
+        // Especifica registro de retorno de funciones
+        const int RETURN_REG_SUBPROGRAM_FUNCTION = 31;
+
+        // Variables contadora de registros
+        int reg_general_purpose_id = STARTING_REG_GENERAL_PURPOSE;
+        int reg_subprogram_vars_id = STARTING_REG_SUBPROGRAM_VARS;
+        
         // Flag que especifica si hay reset de registros
         const bool RESET_REGISTERS_AVARIABLE = false;
-        // Pila de indices de registros para llamadas a subprograma
-        std::stack<int> reg_stack;
-
         /**
          * @brief Constructor por defecto
          */
@@ -48,38 +55,29 @@ class IR_Reg_Manager{
          * @brief Obtiene el siguiente registro
          * @return identificador de siguiente registro
          */
-        int get_next_register() {return this->reg_counter++; };
+        int get_next_general_purpose_register();
 
         /**
          * @brief Resetea el contador de registro
          */
-        void reset_register_counter() { RESET_REGISTERS_AVARIABLE ? this->reg_counter = 0 : false ;};
+        void reset_general_purpose_register_counter();
 
         /**
-         * @brief Inserta un indice de registro en la pila
-         * @param id_reg : indice de registro en la pila
+         * @brief Obtiene el siguiente registro de subprograma
+         * @return identificador de siguiente registro (de subprograma)
          */
-        void push_reg_into_stack(int id_reg) {
-            reg_stack.push(id_reg); 
-        };
+        int get_next_subprog_register();
 
         /**
-         * @brief Retira el indice de registro del tope de la pila
-         * @return indice de registro del tope de pila
+         * @brief Obtiene el registro de retorno de un subprograma (funcion)
+         * @return registro de retorno
          */
-        int pop_reg_from_stack() {
-            int top = reg_stack.top();
-            reg_stack.pop();
-            return top;
-        }; 
+        int get_return_subprog_register();
 
         /**
-         * @brief Limpia la pila de registros
+         * @brief Reseta el contador de registros dedicados a subprogramas
          */
-        void clean_stack() {
-            while(!reg_stack.empty())
-                reg_stack.pop();
-        };
+        void reset_subprog_register_counter();
 
         /**
          * @brief Constructor de copia (eliminado)
