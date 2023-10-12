@@ -194,7 +194,7 @@ struct statement * create_statement_for(char *counter_name, struct expression *i
     // -- Asignar linea donde se utilizo el identificador de contador
     st->stmt.statement_for.line = line;
     // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
-    //st->stmt.statement_for.symb = NULL;
+    st->stmt.statement_for.symb = NULL;
 
     // -- Retornar sentencia creada e inicializada
     return st;
@@ -431,10 +431,10 @@ void free_statement(struct statement *stmt){
         stmt->stmt.statement_for.body = NULL;
 
         // -- Liberacion de simbolo
-        /*if(stmt->stmt.statement_for.symb){
+        if(stmt->stmt.statement_for.symb){
             free_symbol(stmt->stmt.statement_for.symb);
             stmt->stmt.statement_for.symb = NULL;
-        }*/
+        }
         break;
     }
 
@@ -524,6 +524,12 @@ void free_statement(struct statement *stmt){
     {
         free_expression(stmt->stmt.statement_return.returned_expr);
         stmt->stmt.statement_return.returned_expr = NULL;
+
+        /*if(stmt->stmt.statement_return.function_name){
+            free(stmt->stmt.statement_return.function_name);
+            stmt->stmt.statement_return.function_name = NULL;
+        }*/
+
         break;
     }
 

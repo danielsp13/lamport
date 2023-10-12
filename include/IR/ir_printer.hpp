@@ -102,6 +102,18 @@ class IR_Printer{
          * @brief Operador de asignacion (eliminado)
          */
         void operator=(const IR_Printer&) = delete;
+
+        /**
+         * @brief Sobrecarga de operador ()
+         * @param i : indice
+         * @param instr : instruccion
+         */
+        void operator()(int i, const IR_instruction & instr);
+
+        /**
+         * @brief Limpia el vector de instrucciones str
+         */
+        void clear() { ir_instructions_str.clear(); };
 };
 
 #endif //_LAMPORT_IR_PRINTER_DPR_

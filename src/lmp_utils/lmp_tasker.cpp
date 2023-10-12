@@ -18,12 +18,19 @@ void LMP_Tasker::task_delay(){
     std::this_thread::sleep_for(std::chrono::milliseconds(TASK_DELAY));
 }
 
+void LMP_Tasker::task_execution_delay(){
+    if(!this->DELAY_AVAIABLE)
+        return;
+        
+    std::this_thread::sleep_for(std::chrono::milliseconds(TASK_EXECUTION_DELAY));
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [TASKER] -----
 
-LMP_Tasker& LMP_Tasker::get_instance(){
-    static LMP_Tasker instance;
+LMP_Tasker& LMP_Tasker::get_instance(bool delay){
+    static LMP_Tasker instance(delay);
     return instance;
 }
 
@@ -56,7 +63,7 @@ void LMP_Tasker::task_parser(){
 
 void LMP_Tasker::task_semantic_name_resolution(){
     print_yellow();
-    std::cout << this->TASK_HEADER_MSG << "Realizando analisis sintactico de fichero (resolución de nombres) ... ";
+    std::cout << this->TASK_HEADER_MSG << "Realizando analisis semantico de fichero (resolución de nombres) ... ";
     std::cout.flush();
     print_reset();
 
@@ -65,7 +72,7 @@ void LMP_Tasker::task_semantic_name_resolution(){
 
 void LMP_Tasker::task_semantic_type_checking(){
     print_yellow();
-    std::cout << this->TASK_HEADER_MSG << "Realizando analisis sintactico de fichero (comprobación de tipos) ... ";
+    std::cout << this->TASK_HEADER_MSG << "Realizando analisis semantico de fichero (comprobación de tipos) ... ";
     std::cout.flush();
     print_reset();
 
@@ -117,6 +124,15 @@ void LMP_Tasker::task_logging_ir(std::string filename){
     this->task_delay();
 }
 
+void LMP_Tasker::task_logging_lvm(std::string filename){
+    print_blue();
+    std::cout << this->TASK_HEADER_MSG << "Registrando contenido de memoria y tabla de paginas de máquina virtual en fichero (" << filename << ") ... ";
+    std::cout.flush();
+    print_reset();
+
+    this->task_delay();
+}
+
 void LMP_Tasker::task_free_resources(){
     print_yellow();
     std::cout << this->TASK_HEADER_MSG << "Liberando memoria dinámica reservada para recursos ... ";
@@ -124,6 +140,35 @@ void LMP_Tasker::task_free_resources(){
     print_reset();
 
     this->task_delay();
+}
+
+void LMP_Tasker::task_preload_lvm(){
+    print_yellow();
+    std::cout << this->TASK_HEADER_MSG << "Preparando Máquina Virtual. Volcando información a memoria ... ";
+    std::cout.flush();
+    print_reset();
+
+    this->task_delay();
+}
+
+void LMP_Tasker::task_execute_lvm(){
+    std::cout << std::endl;
+    std::cout.flush();
+    print_wall_white(); print_bold(); print_blue();
+    std::cout << this->TASK_HEADER_MSG << "Iniciando Máquina Virtual. Ejecutando código ... " << ANSI_COLOR_RESET << std::endl << std::endl;
+    std::cout.flush();
+
+    this->task_execution_delay();
+}
+
+void LMP_Tasker::task_shutdown_lvm(){
+    std::cout << std::endl;
+    std::cout.flush();
+    print_wall_white(); print_bold(); print_blue();
+    std::cout << this->TASK_HEADER_MSG << "Finalizando ejecución de Máquina Virtual ... " << ANSI_COLOR_RESET << std::endl;
+    std::cout.flush();
+
+    this->task_execution_delay();
 }
 
 void LMP_Tasker::task_ok(){

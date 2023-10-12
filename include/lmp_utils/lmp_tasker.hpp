@@ -34,20 +34,32 @@ class LMP_Tasker{
         const std::string ANSI_COLOR_YELLOW = "\033[33m";
         const std::string ANSI_COLOR_BLUE = "\033[34m";
         const std::string ANSI_COLOR_RESET = "\033[0m";
+
+        const std::string ANSI_COLOR_WALL_WHITE = "\033[47m";
+        const std::string ANSI_COLOR_BOLD = "\033[1m";
+
         const bool COLORS_AVAIABLE = true;
 
-        const int TASK_DELAY = 500;
-        bool DELAY_AVAIABLE = true;
+        const int TASK_DELAY = 200;
+        const int TASK_EXECUTION_DELAY = 400;
+        bool DELAY_AVAIABLE;
 
         /**
          * @brief Constructor de la clase
+         * @param delay : especifica si hay delay
          */
-        LMP_Tasker(){};
+        LMP_Tasker(bool delay = false)
+            : DELAY_AVAIABLE(delay) {};
 
         /**
          * @brief Produce un retardo en la ejecucion de una tarea
          */
         void task_delay();
+
+        /**
+         * @brief Produce un retardo en la ejecucion del simulador
+         */
+        void task_execution_delay();
 
         /**
          * @brief Imprime un mensaje en verde
@@ -74,6 +86,16 @@ class LMP_Tasker{
          */
         inline void print_reset() { std::cout << (COLORS_AVAIABLE ? ANSI_COLOR_RESET : ""); };
 
+        /**
+         * @brief Imprime fondo blanco
+         */
+        inline void print_wall_white() { std::cout << (COLORS_AVAIABLE ? ANSI_COLOR_WALL_WHITE : ""); };
+
+        /**
+         * @brief Imprime negrita
+         */
+        inline void print_bold() { std::cout << (COLORS_AVAIABLE ? ANSI_COLOR_BOLD : ""); };
+
     public:
         /**
          * @brief Destructor de la clase
@@ -82,9 +104,10 @@ class LMP_Tasker{
 
         /**
          * @brief Obtiene la instancia del manejador
+         * @param delay : especifica si hay delay
          * @return instancia
          */
-        static LMP_Tasker& get_instance();
+        static LMP_Tasker& get_instance(bool delay = false);
 
         /**
          * @brief Indica la tarea de apertura de archivo
@@ -143,9 +166,30 @@ class LMP_Tasker{
         void task_logging_ir(std::string filename);
 
         /**
+         * @brief Indica la tarea de logging de LVM
+         * @param filename : archivo de registro
+         */
+        void task_logging_lvm(std::string filename);
+
+        /**
          * @brief Indica la tarea de liberacion de recursos
          */
         void task_free_resources();
+
+        /**
+         * @brief Indica la tarea de preparacion de maquina virtual
+         */
+        void task_preload_lvm();
+
+        /**
+         * @brief Indica la tarea de ejecucion de maquina virtual
+         */
+        void task_execute_lvm();
+
+        /**
+         * @brief Indica la tarea de apagado de maquina virtual
+         */
+        void task_shutdown_lvm();
 
         /**
          * @brief Indica que la tarea se completo con exito

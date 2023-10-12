@@ -9,10 +9,12 @@
 
 // ----- INCLUSION DE COMPONENTES DE GESTION DE INTERPRETE -----
 
-#include "lmp_utils/lmp_io.hpp"         ///< Gestion de entrada/salida de lmp
-#include "lmp_utils/lmp_analysis.hpp"   ///< Parsing de fichero de lmp
-#include "lmp_utils/lmp_ir.hpp"         ///< Gestion de codigo intermedio
-#include "lmp_utils/lmp_logging.hpp"    ///< Gestion de logging de lmp
+#include "lmp_utils/lmp_io.hpp"             ///< Gestion de entrada/salida de lmp
+#include "lmp_utils/lmp_analysis.hpp"       ///< Parsing de fichero de lmp
+#include "lmp_utils/lmp_ir.hpp"             ///< Gestion de codigo intermedio
+#include "lmp_utils/lmp_lvm_launcher.hpp"   ///< Gestion de maquina virtual (LVM)
+#include "lmp_utils/lmp_logging.hpp"        ///< Gestion de logging de lmp
+#include "lmp_utils/lmp_tasker.hpp"         ///< Notificador de tareas de interprete
 
 // ===============================================================
 
@@ -23,8 +25,14 @@
 #define LMP_ANALYSIS_VERBOSE_RESULT_IS_AVAIABLE false
 #define LMP_LOGGING_ANALYSIS_IS_AVAIABLE true
 #define LMP_IR_IS_AVAIABLE true
-#define LMP_IR_VERBOSE_RESULT_IS_AVAIABLE true
+#define LMP_IR_VERBOSE_RESULT_IS_AVAIABLE false
 #define LMP_LOGGING_IR_IS_AVAIABLE true
+#define LMP_LVM_PRELOAD_IS_AVAIABLE true
+#define LMP_LVM_VERBOSE_PRELOAD_IS_AVAIABLE false
+#define LMP_LOGGING_LVM_IS_AVAIABLE true
+#define LMP_LVM_EXECUTION_IS_AVAIABLE true
+
+#define LMP_TASK_DELAY_IS_AVAIABLE false
 
 // ===============================================================
 
@@ -40,22 +48,9 @@ int lmp(int nargs, char *argv[]);
 
 // ===============================================================
 
-// ----- FUNCIONES DE DEPURACION -----
-
-/**
- * @brief Funcion provisional para realizacion de tests sobre
- * implementaciones
- */
-void beta_test();
-
-// ===============================================================
-
 // ----- PROGRAMA PRINCIPAL -----
 
 int main(int nargs, char *argv[]){
-    // -- Ejecutar tests
-    //beta_test();
-
     // -- Ejecutar motor de interprete
     return lmp(nargs, argv);
 }
@@ -67,6 +62,9 @@ int main(int nargs, char *argv[]){
 int lmp(int nargs, char *argv[]){
     int exec_result = 0;
     std::string lmp_file;
+
+    // --- Inicializar tasker con valor de delay asignado
+    LMP_Tasker::get_instance(LMP_TASK_DELAY_IS_AVAIABLE);
 
     /////////////////////////////////////////////////////////////////////////
 
@@ -123,17 +121,28 @@ int lmp(int nargs, char *argv[]){
     // ---- Obtener ficheros de logging
     LMP_Logging::get_instance().log_ir();
 
+    /////////////////////////////////////////////////////////////////////////
+
+    // -- Comprobar disponibilidad de maquina virtual
+    if(!LMP_LVM_PRELOAD_IS_AVAIABLE)
+        return exec_result;
+
+    // ---- Preparar maquina virtual
+    exec_result = LMP_LVM_Launcher::get_instance().preload_lvm(LMP_LVM_VERBOSE_PRELOAD_IS_AVAIABLE);
+
+    // -- Comprobar disponibilidad de logging de maquina virtual
+    if(LMP_LOGGING_LVM_IS_AVAIABLE)
+        LMP_Logging::get_instance().log_lvm();
+
+    // -- Comprobar disponibilidad de ejecucion de maquina virtual
+    if(!LMP_LVM_EXECUTION_IS_AVAIABLE)
+        return exec_result;
+
+    // ---- Ejecutar maquina virtual
+    exec_result = LMP_LVM_Launcher::get_instance().start();
+    
+    /////////////////////////////////////////////////////////////////////////
+    
     // -- Retornar codigo de exito
     return exec_result;
-}
-
-// ===============================================================
-
-// ----- IMPLEMENTCION DE FUNCIONES DE DEPURACION -----
-
-void beta_test(){
-    // --- Aqui va codigo de prueba de estructuras
-    
-    // -- Salir de forma exitosa
-    exit(EXIT_SUCCESS);
 }

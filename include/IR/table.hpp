@@ -101,6 +101,14 @@ class IR_Tables{
         int add_entry_label(std::string label_id, int addr);
 
         /**
+         * @brief Modifica el contenido de una entrada de etiquetas
+         * @param label_id : identificador de etiqueta
+         * @param new_addr : nueva direccion a la que apunta la etiqueta
+         * @return direccion de registro de etiqueta
+         */
+        int modify_entry_label(std::string label_id, int new_addr);
+
+        /**
          * @brief Inserta una variable en la tabla de variables
          * @param kind : tipo de variable (local/global)
          * @param var_name : nombre de variable
@@ -118,6 +126,24 @@ class IR_Tables{
          * @return direccion de registro de variable
          */
         int add_entry_variable(IR_variable_t kind, std::string var_name, IR_variable_type_t arr_type, size_t arr_size);
+
+        /**
+         * @brief Obtiene la dimension de la tabla de literales
+         * @return size de tabla de etiquetas
+         */
+        int get_size_table_literals() {return this->table_literals.size(); };
+
+        /**
+         * @brief Obtiene la dimension de la tabla de variables
+         * @return size de tabla de etiquetas
+         */
+        int get_size_table_variables() {return this->table_variables.size(); };
+
+        /**
+         * @brief Obtiene la dimension de la tabla de etiquetas
+         * @return size de tabla de etiquetas
+         */
+        int get_size_table_labels() {return this->table_labels.size(); };
 
         /**
          * @brief Obtiene un literal de la tabla dado un indice

@@ -164,7 +164,7 @@ struct statement{
             struct statement *body;                 ///< Cuerpo del bucle (conjunto de sentencias)
 
             unsigned long line;                     ///< Linea donde se uso el identificador
-            //struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
+            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_for;
         
         // Estructura de sentencia de if-else
@@ -209,6 +209,9 @@ struct statement{
         struct {
             struct expression *returned_expr;       ///< Expresion de retorno
             unsigned long line;                     ///< Linea donde se definio la sentencia
+
+            //char *function_name;                    ///< Nombre de funcion
+            //struct symbol *symb;                    ///< Referencia al simbolo asociado en la tabla de simbolos
         } statement_return;
 
         // Estructura de sentencia de impresion

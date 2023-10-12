@@ -86,6 +86,22 @@ class IR_instruction{
         IR_instruction_type_t get_code_instr() const { return instr_code; };
 
         /**
+         * @brief Devuelve el codigo de instruccion en str
+         * @return codigo de instruccion
+         */
+        std::string get_code_instr_str() const {
+            // -- Definir codigo de instruccion str
+            std::string instr_code_str = "<unknown code_instruction>";
+
+            auto it = instructions_str.find(instr_code);
+            if(it != instructions_str.end())
+                instr_code_str = it->second;
+
+            // -- Retornar codigo de instruccion
+            return instr_code_str;
+        };
+
+        /**
          * @brief Devuelve el operando de destino
          * @return operando de destino
          */
@@ -102,6 +118,24 @@ class IR_instruction{
          * @return operando 2
          */
         std::optional<IR_operand> get_operand_2() const { return op_2; } ;
+
+        /**
+         * @brief Especifica si existe el operando de destino
+         * @return TRUE si la instruccion tiene operando destino, FALSE en otro caso
+         */
+        bool exists_operand_destiny() const {return op_destiny.has_value(); };
+
+        /**
+         * @brief Especifica si existe el operando de destino
+         * @return TRUE si la instruccion tiene operando destino, FALSE en otro caso
+         */
+        bool exists_operand_1() const {return op_1.has_value(); };
+
+        /**
+         * @brief Especifica si existe el operando de destino
+         * @return TRUE si la instruccion tiene operando destino, FALSE en otro caso
+         */
+        bool exists_operand_2() const {return op_2.has_value(); };
 };
 
 #endif // _LAMPORT_IR_INSTRUCTION_DPR_

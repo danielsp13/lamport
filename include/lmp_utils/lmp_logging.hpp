@@ -23,6 +23,7 @@
 
 #include "lmp_c_analysis_bridge.hpp"    ///< Puente de C a C++ para analizador lamport
 #include "IR/ir_printer.hpp"            ///< Impresor de instrucciones IR
+#include "LVM/LVM.hpp"                  ///< Maquina virtual de lamport
 #include "lmp_tasker.hpp"               ///< Notificador de eventos
 
 // ===============================================================
@@ -41,6 +42,8 @@ class LMP_Logging{
         FILE * LMP_LOGGING_AST_FILE = nullptr;
         // -- Fichero de registro de IR
         std::ofstream LMP_LOGGING_IR_FILE;
+        // -- Fichero de registro de LVM
+        std::ofstream LMP_LOGGING_LVM_FILE;
 
         // -- Nombre de directorio donde se almacenaran los registros
         const std::string LMP_LOG_DIR = "log";
@@ -50,6 +53,8 @@ class LMP_Logging{
         const std::string LMP_AST_DIR = "AST";
         // -- Nombre de directorio donde se almacena los registros de representacion intermedia
         const std::string LMP_IR_DIR = "IR";
+        // -- Nombre de directorio donde se almacena los registros de maquina virtual
+        const std::string LMP_LVM_DIR = "LVM";
 
         // -- Extension de fichero de logging
         const std::string LMP_LOG_FILE_EXT = ".log";
@@ -60,6 +65,8 @@ class LMP_Logging{
         const std::string LMP_LOG_FILE_AST_HEADER = "log_ast_";
         // -- Cabecera de nombre de fichero de logging de ir
         const std::string LMP_LOG_FILE_IR_HEADER = "log_ir_";
+        // -- Cabecera de nombre de fichero de logging de lvm
+        const std::string LMP_LOG_FILE_LVM_HEADER = "log_lvm_";
 
         // -- Nombre de fichero 
         std::string LMP_FILE;
@@ -114,6 +121,12 @@ class LMP_Logging{
         bool create_logging_ir_dir();
 
         /**
+         * @brief Crea el directorio de logging de LVM
+         * @return TRUE si lo creo con exito, FALSE en otro caso
+         */
+        bool create_logging_lvm_dir();
+
+        /**
          * @brief Crea un fichero dentro del directorio especificado
          * @param dirname : nombre de directorio
          * @param log_header : cabecera de nombre de fichero
@@ -148,6 +161,12 @@ class LMP_Logging{
         bool init_log_ir();
 
         /**
+         * @brief Prepara el logging de LVM, creando directorios y ficheros
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool init_log_lvm();
+
+        /**
          * @brief Realiza el logging de errores
          * @return TRUE si se realizo con exito, FALSE en otro caso
          */
@@ -164,6 +183,12 @@ class LMP_Logging{
          * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         bool make_log_ir();
+
+        /**
+         * @brief Realiza el logging de LVM
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool make_log_lvm();
 
         /**
          * @brief Constructor de la clase
@@ -190,9 +215,13 @@ class LMP_Logging{
 
         /**
          * @brief Realiza el log de generacion de codigo intermedio
-         * @param lmp_file : fichero analizado por el interprete
          */
         void log_ir();
+
+        /**
+         * @brief Realiza el log de maquina virtual
+         */
+        void log_lvm();
 
         /**
          * @brief Constructor de copia (eliminado)

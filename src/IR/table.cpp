@@ -11,7 +11,7 @@
 const std::string TABLE_SEPARATOR = "================================================================================";
 const unsigned int gap_literals = 16;
 const unsigned int gap_variables = 16;
-const unsigned int gap_labels = 27;
+const unsigned int gap_labels = 35;
 
 // ===============================================================
 
@@ -162,6 +162,18 @@ int IR_Tables::add_entry_label(std::string label_id, int addr){
 
     // -- Retornar direccion de almacenamiento de literal
     return table_labels.size()-1;
+}
+
+int IR_Tables::modify_entry_label(std::string label_id, int new_addr){
+    int id_label_in_table = get_index_from_label_id(label_id);
+
+    if(id_label_in_table == -1)
+        return -1;
+
+    IR_label * lab = get_entry_label(id_label_in_table);
+    lab->set_addr(new_addr);
+
+    return id_label_in_table;
 }
 
 // ===============================================================
@@ -324,7 +336,7 @@ int IR_Tables::get_index_from_label_id(std::string id_label){
     // -- Recorrer tabla de etiquetas
     IR_label * label = nullptr;
 
-    for(int i=0; i<table_literals.size(); i++){
+    for(int i=0; i<table_labels.size(); i++){
         // -- Recuperar entrada
         label = table_labels[i].get()->get_label();
 
@@ -346,14 +358,14 @@ int IR_Tables::get_index_from_local_variable(std::string var_name){
         entry = table_variables[i].get();
 
         // -- Comprobar si es una entrada de tipo entero
-        if(entry->get_kind_variable() != IR_variable_t::IR_VAR_LOCAL)
+        if(entry->get_kind_variable() != IR_VAR_LOCAL)
             continue;
 
         // -- Recuperar literal
         var = entry->get_variable();
 
         // -- Comprobar si el valor coincide
-        if(var->get_name() == std::string(var_name))
+        if(var->get_name() == var_name)
             return i;
     }
 
@@ -371,14 +383,14 @@ int IR_Tables::get_index_from_global_variable(std::string var_name){
         entry = table_variables[i].get();
 
         // -- Comprobar si es una entrada de tipo entero
-        if(entry->get_kind_variable() != IR_variable_t::IR_VAR_GLOBAL)
+        if(entry->get_kind_variable() != IR_VAR_GLOBAL)
             continue;
 
-        // -- Recuperar literal
+        // -- Recuperar variable
         var = entry->get_variable();
 
         // -- Comprobar si el valor coincide
-        if(var->get_name() == std::string(var_name))
+        if(var->get_name() == var_name)
             return i;
     }
 
@@ -423,7 +435,7 @@ void IR_Tables::print_variables_table(std::ostream& os){
         var = table_variables[i].get()->get_variable();
 
         // -- Imprimir contenido
-        os << std::left << std::setw(gap_variables) << i << std::setw(gap_variables) << var->get_name() << std::setw(gap_variables) << var->get_kind_str() << std::setw(gap_variables) << var->get_type_str() <<  std::setw(gap_variables) << var->get_value_str() << std::endl;
+        os << std::left << std::setw(gap_variables) << i << std::setw(gap_variables) << var->get_name() << std::setw(gap_variables) << var->get_kind_str() << std::setw(gap_variables) << var->get_type_str() <<  std::setw(gap_variables) << var->get_initial_value_str() << std::endl;
     }
 
 }

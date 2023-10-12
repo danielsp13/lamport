@@ -1,0 +1,13 @@
+{Programa: zerodivision.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program Operaciones
+	var num1 : integer := 1;
+
+process Main;
+	var num2 : integer := 0;
+	var resultado : integer;
+begin
+	{GENERA EXCEPCION EN LVM: Division zero}
+	resultado := num1/num2;
+end

@@ -13,9 +13,7 @@
 
 // ----- INCLUSION DE DEPENDENCIAS -----
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <variant>
@@ -76,6 +74,7 @@ typedef enum{
     IR_VAR_TYPE_SEMAPHORE,           ///< Tipo semaforo
     IR_VAR_TYPE_DPROCESS,            ///< Tipo proceso dinamico
     IR_VAR_TYPE_PROCESS,             ///< Tipo proceso estatico
+    IR_VAR_TYPE_SUBPROGRAM,          ///< Tipo subprograma
 } IR_variable_type_t;
 
 /**
@@ -91,6 +90,7 @@ const std::unordered_map<IR_variable_type_t, std::string> IR_variable_type_t_str
     {IR_VAR_TYPE_SEMAPHORE, "semaphore"},
     {IR_VAR_TYPE_DPROCESS, "dynamic process"},
     {IR_VAR_TYPE_PROCESS, "static process"},
+    {IR_VAR_TYPE_SUBPROGRAM,"subprogram"},
 };
 
 /**
@@ -125,7 +125,8 @@ class IR_variable_type{
          * @brief Constructor de tipo de dato de variable
          * @param kind : tipo de dato
          */
-        IR_variable_type(IR_variable_type_t kind) : type(kind) {};
+        IR_variable_type(IR_variable_type_t kind) 
+            : type(kind), array_size(1) {};
 
         /**
          * @brief Constructor de tipo de dato array
@@ -149,79 +150,10 @@ class IR_variable_type{
 
 // ===============================================================
 
-// ----- DEFINICION DE CLASE VALOR DE VARIABLE IR -----
+// ----- DEFINICION DE CLASE VARIABLE IR -----
 
 // -- Especificamos que es un tipo de dato atomico
-using atomic_type = std::variant<int,float,char,std::string,bool>;
-
-/**
- * @brief Clase que representa un valor de variable en el lenguaje
- * de representacion intermedia
- */
-class IR_variable_value{
-    private:
-        atomic_type value;                          ///< Valor atomico
-        std::vector<atomic_type> array_value;       ///< Valor array
-
-        /**
-         * @brief Comprueba si el acceso a array esta dentro de los limites
-         * @param index : indice de acceso
-         * @return TRUE si es valido, FALSE en otro caso
-         */
-        bool check_array_bounds(int index) const;
-
-    public:
-        /**
-         * @brief Constructor de clase
-         */
-        IR_variable_value(){};
-
-        /**
-         * @brief Constructor de valor array
-         * @param size : longitud de array
-         */
-        IR_variable_value(size_t size) : array_value(size) {};
-
-        /**
-         * @brief Asigna un valor a la variable
-         * @param v : valor de variable
-         */
-        template <typename T>
-        void set_value(T v);
-
-        /**
-         * @brief Asigna un valor a la variable array
-         * @param index : indice de variable
-         * @param v : valor de variable
-         */
-        template <typename T>
-        bool set_value_in_array(int index, T v);
-
-        /**
-         * @brief Obtiene el valor de variable
-         * @return valor de variable
-         */
-        template <typename T>
-        T get_value() const;
-
-        /**
-         * @brief Obtiene el valor de variable array
-         * @param index : indice
-         * @return valor de variable
-         */
-        template <typename T>
-        T get_array_value(int index) const;
-
-        /**
-         * @brief Obtiene el valor de variable en str
-         * @return valor en str
-         */
-        std::string get_value_str() const;
-};
-
-// ===============================================================
-
-// ----- DEFINICION DE CLASE VARIABLE IR -----
+using data_type = std::variant<int,float,char,std::string,bool>;
 
 /**
  * @brief Clase que representa una variable en el lenguaje de representacion
@@ -232,18 +164,14 @@ class IR_variable{
     private:
         IR_variable_t kind;             ///< Tipo de variable
         std::string var_name;           ///< Nombre de variable
+        std::string pseudo_name;        ///< Pseudonimo de variable (si es indice)
         IR_variable_type type;          ///< Tipo de dato de variable
-        IR_variable_value value;        ///< Valor de variable
+        data_type value;                ///< Valor de variable
         
         /**
          * @brief Inicializa la variable con un valor por defecto
          */
         void initialize_variable();
-
-        /**
-         * @brief Inicializa la variable array con un valor por defecto
-         */
-        void initialize_array_variable();
 
     public:
         /**
@@ -263,13 +191,7 @@ class IR_variable{
          * @param size : size de array
          */
         IR_variable(IR_variable_t kind, const char *var_name, IR_variable_type_t type, size_t size)
-            : kind(kind), var_name(var_name), type(type,size), value(size) { initialize_array_variable(); };
-
-        /**
-         * @brief Obtiene el tipo de variable
-         * @return tipo de variable
-         */
-        IR_variable_t get_kind() { return kind; };
+            : kind(kind), var_name(var_name), type(type,size) { initialize_variable(); };
 
         /**
          * @brief Destructor de variable (por defecto)
@@ -277,16 +199,22 @@ class IR_variable{
         ~IR_variable() = default;
 
         /**
+         * @brief Obtiene el tipo de variable
+         * @return tipo de variable
+         */
+        IR_variable_t get_kind() const { return kind; };
+
+        /**
          * @brief Comprueba que la variable es local
          * @return TRUE si es local, FALSE en otro caso
          */
-        bool is_local() {return kind == IR_VAR_LOCAL; };
+        bool is_local() const {return kind == IR_VAR_LOCAL; };
 
         /**
          * @brief Comprueba que la variable es global
          * @return TRUE si es global, FALSE en otro caso
          */
-        bool is_global() {return kind == IR_VAR_GLOBAL; };
+        bool is_global() const {return kind == IR_VAR_GLOBAL; };
 
         /**
          * @brief Obtiene nombre de variable
@@ -307,16 +235,16 @@ class IR_variable{
         IR_variable_type_t get_array_type() const {return type.array_subtype; } ;
 
         /**
+         * @brief Obtiene la dimension del array de variable
+         * @return dimension de variable
+         */
+        size_t get_size_array() const {return type.array_size; };
+
+        /**
          * @brief Comprueba si la variable es un array
          * @return TRUE si es un array, FALSE en otro caso
          */
         bool is_array() { return type.is_array(); };
-
-        /**
-         * @brief Instancia de variable a string
-         * @return nombre de variable
-         */
-        std::string to_string() const{ return var_name; }
 
         /**
          * @brief Obtiene el tipo de variable en formato string
@@ -331,39 +259,17 @@ class IR_variable{
         std::string get_type_str() { return type.get_type_str(); };
 
         /**
-         * @brief Asigna un valor a la variable
-         * @param v : valor de variable
+         * @brief Obtiene el valor inicial de variable en formato string
+         * @return valor en str
          */
-        void set_value(atomic_type& v);
+        std::string get_initial_value_str() const;
 
         /**
-         * @brief Asigna un valor a la posicion de array de variable
-         * @param index : indice de array
-         * @param v : valor de variable
-         * @return TRUE si se realizo con exito, FALSE en otro caso
-         */
-        bool set_array_value(int index, atomic_type& v);
-
-        /**
-         * @brief Obtiene el valor almacenado en la variable
+         * @brief Obtiene el valor inicial de variable
          * @return valor de variable
          */
         template <typename T>
-        T get_value() const;
-
-        /**
-         * @brief Obtiene el valor almacenado en el array de variable
-         * @param index : indice de acceso
-         * @return valor de variable en array
-         */
-        template <typename T>
-        T get_array_value(int index) const;
-
-        /**
-         * @brief Obtiene el valor almacenado en formato string
-         * @return valor en str
-         */
-        std::string get_value_str() const;
+        T get_initial_value() const { return std::get<T>(value); };
 };
 
 #endif //_LAMPORT_IR_VARIABLE_DPR_

@@ -1,12 +1,12 @@
 {Programa: print.lmp}
 {Autor: Daniel Pérez Ruiz}
-{Descripción: Proceso que saluda al usuario}
 
 program HolaMundo
 
 process Main;
-	var user : string := "Daniel";
+	var usuario : string := "Daniel";
+	var edad : integer := 23;
 begin
-	print("Imprimiendo saludo...");
-	print("Hola ", user, " : ¿Qué tal estás?");
+	print("Hola ", usuario, ", ¿qué tal estás?");
+	print("Tu edad es: ",edad);
 end

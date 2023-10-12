@@ -1,0 +1,35 @@
+{Programa: arithmetic_operations.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program Operaciones
+	var num1 : integer := (-4 + 6) * 10 - 2;
+	var num2 : real := 3.0;
+
+process Main;
+	var num3 : integer := 5;
+	var num4 : real := (3.5 * 4.2) + (6.7 - 2.3) / 1.1;
+begin
+	print("num1 tiene de valor: ",num1);
+	print("num3 tiene de valor: ",num3);
+	print("");
+	
+	print("num1 + num3 = ",num1+num3);
+	print("num1 - num3 = ",num1-num3);
+	print("num1 * num3 = ",num1*num3);
+	print("num1 / num3 = ",num1/num3);
+	print("num1 % num3 = ",num1%num3);
+	print("-num1 = ",-num1);
+	
+	print("");
+	
+	print("num2 tiene de valor: ",num2);
+	print("num4 tiene de valor: ",num4);	
+	print("");
+	
+	print("num2 + num4 = ",num2+num4);
+	print("num2 - num4 = ",num2-num4);
+	print("num2 * num4 = ",num2*num4);
+	print("num2 / num4 = ",num2/num4);
+	print("-num4 = ",-num4);
+	
+end

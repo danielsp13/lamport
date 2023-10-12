@@ -36,6 +36,12 @@ extern "C" {
 // Se indica que se ha usado un procedimiento que no ha sido definido antes
 #define ERR_UNDEFINED_PROCEDURE_MSG "uso de procedimiento no definido"
 
+// Se indica que el numero de argumentos encontrado no es el esperado
+#define ERR_UNDEFINED_PARAMETERS_MSG "llamada a subprograma no coincidente con declaracion (faltan/sobran argumentos)"
+
+// Se indica que se definio un array de forma indebida
+#define ERR_INVALID_ARRAY_DECLARATION_MSG "no se puede definir un array estatico con una expresion que no es un literal puro."
+
 // Se indica que se ha usado un proceso que no ha sido definido antes
 #define ERR_UNDEFINED_PROCESS_MSG "proceso no definido"
 
@@ -50,6 +56,9 @@ extern "C" {
 
 // Se indica que se ha redefinido un parametro
 #define ERR_DUPLICATED_PARAMETER_MSG "redefinicion de parametro"
+
+// Se indica que se ha redefinido un indice
+#define ERR_DUPLICATED_INDEX_MSG "redefinicion de indice"
 
 // ===============================================================
 
@@ -73,6 +82,15 @@ struct error * create_error_semantic(error_semantic_t kind, char *id, unsigned l
  * @return puntero a error semantico inicializado
  */
 struct error * create_error_semantic_undefined_symbol(char *id, unsigned long err_line, char *msg);
+
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo: TOTAL DE ARGUMENTOS DE SUBPROGAMA NO COINCIDENTE
+ * @param id : identificador de simbolo
+ * @param err_line : linea donde se produjo el error semantico
+ * @param msg : mensaje de error
+ * @return puntero a error semantico inicializado
+ */
+struct error * create_error_semantic_invalid_parameters(char *id, unsigned long err_line, char *msg);
 
 /**
  * @brief Crea y reserva memoria para un error semantico de tipo: DEFINCION DE SIMBOLO DUPLICADO
@@ -122,6 +140,14 @@ struct error * create_error_semantic_unmatched_types(unsigned long err_line, cha
  * @return puntero a error inicializado
  */
 struct error * create_error_semantic_invalid_array_size(unsigned long err_line, char *type_a);
+
+/**
+ * @brief Crea y reserva memoria para un error semantico de tipo: definicion de size de array invalido (no literal)
+ * @param err_line : linea donde se produjo el error
+ * @param msg : mensaje de error
+ * @return puntero a error inicializado
+ */
+struct error * create_error_semantic_invalid_static_array(unsigned long err_line);
 
 /**
  * @brief Crea y reserva memoria para un error semantico de tipo: comparacion de tipos incorrecta (OPERACIONES BINARIAS)

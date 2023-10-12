@@ -50,6 +50,10 @@ struct error * create_error_semantic_undefined_symbol(char *id, unsigned long er
     return create_error_semantic(UNDEFINED_SYMBOL,id, err_line, msg);
 }
 
+struct error * create_error_semantic_invalid_parameters(char *id, unsigned long err_line, char *msg){
+    return create_error_semantic(UNDEFINED_SYMBOL,id, err_line, msg);
+}
+
 struct error * create_error_semantic_duplicated_symbol(char *id, unsigned long err_line, unsigned long def_line, char *msg){
     struct error *err = create_error_semantic(DUPLICATED_SYMBOL,id, err_line, msg);
 
@@ -241,6 +245,11 @@ struct error * create_error_semantic_unmatched_types_expression_unary(unsigned l
 struct error * create_error_semantic_unmatched_types_declaration(unsigned long err_line, char *type_a, char *type_b){
     // -- Construir mensaje de error
     char *msg = create_message_error_semantic_unmatched_types(UNMATCHED_TYPES_DECLARATION, "asignar", type_a, type_b);
+    return create_error_semantic_unmatched_types(err_line, &msg);
+}
+
+struct error * create_error_semantic_invalid_static_array(unsigned long err_line){
+    char *msg = strdup(ERR_INVALID_ARRAY_DECLARATION_MSG);
     return create_error_semantic_unmatched_types(err_line, &msg);
 }
 

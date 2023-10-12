@@ -110,6 +110,19 @@ bool LMP_Logging::create_logging_ir_dir(){
     return true;
 }
 
+bool LMP_Logging::create_logging_lvm_dir(){
+    std::string dirname = this->LMP_LOG_DIR + "/" + this->LMP_LVM_DIR;
+    
+    // -- Comprobar existencia de directorio
+    if(!this->check_dir(dirname)){
+        // -- Si no existe, crear
+        return this->create_dir(dirname);
+    }
+
+    // -- Retornar true porque existe directorio
+    return true;   
+}
+
 FILE * LMP_Logging::create_logging_file_in_dir(std::string dirname, std::string log_header){
     // -- Definir fichero
     FILE * f = nullptr;
@@ -128,7 +141,7 @@ std::ofstream LMP_Logging::create_logging_file_stream_in_dir(std::string dirname
     actual_log_file = dirname + "/" + log_header + this->LMP_FILE + this->LMP_LOG_FILE_EXT;
 
     // -- Abrir el archivo con std::ofstream
-    std::ofstream ofs(actual_log_file);
+    std::ofstream ofs(actual_log_file,std::ios::out | std::ios::trunc);
 
     return ofs;
 }
@@ -205,6 +218,29 @@ bool LMP_Logging::init_log_ir(){
     return log_result;
 }
 
+bool LMP_Logging::init_log_lvm(){
+    // -- Definir resultado de operacion
+    bool log_result = true;
+
+    // -- Intentar crear fichero de log de ast
+    log_result = this->create_logging_lvm_dir();
+
+    // -- Crear fichero de logging de errores
+    if(log_result){
+        std::string dirlog = this->LMP_LOG_DIR + "/" + this->LMP_LVM_DIR;
+        this->LMP_LOGGING_LVM_FILE = this->create_logging_file_stream_in_dir(dirlog,this->LMP_LOG_FILE_LVM_HEADER);
+    }
+
+    // -- Comprobar creacion de fichero
+    if(!this->LMP_LOGGING_LVM_FILE.is_open())
+        log_result = false;
+
+    tasker.task_logging_lvm(actual_log_file);
+
+    // -- Retornar resultado
+    return log_result;
+}
+
 bool LMP_Logging::make_log_errors(){
     // -- Comprobar que hay errores
     bool exists_errors = get_total_error_syntax() > 0 || get_total_error_semantic() > 0;
@@ -266,6 +302,22 @@ bool LMP_Logging::make_log_ir(){
     return false;
 }
 
+bool LMP_Logging::make_log_lvm(){
+    // -- Inicializar logging de lvm
+    if(!this->init_log_lvm()){
+        tasker.task_nop();
+        std::cout << "Error. Logging de LVM no disponible." << std::endl;
+        return false;
+    }
+
+    // -- Realizar logging de lvm
+    LVM::get_instance().print_pages_table(this->LMP_LOGGING_LVM_FILE);
+    LVM::get_instance().print_memory(this->LMP_LOGGING_LVM_FILE);
+    tasker.task_ok();
+
+    return false;
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [LOGGING] -----
@@ -291,6 +343,11 @@ LMP_Logging::~LMP_Logging(){
     // -- Intentar cerrar fichero de log de IR
     if(this->LMP_LOGGING_IR_FILE.is_open()){
         this->LMP_LOGGING_IR_FILE.close();
+    }
+
+    // -- Intentar cerrar fichero de log de LVM
+    if(this->LMP_LOGGING_LVM_FILE.is_open()){
+        this->LMP_LOGGING_LVM_FILE.close();
     }
 }
 
@@ -323,4 +380,18 @@ void LMP_Logging::log_ir(){
         // -- Realizar logging de IR
         this->make_log_ir();
     }
+}
+
+void LMP_Logging::log_lvm(){
+    // -- Crear directorio de logging principal
+    if(!this->create_logging_dir()){
+        std::cout << "Error. No se puede realizar logging de maquina virtual sobre fichero: " << this->LMP_FILE << "." << std::endl;
+        return;
+    }
+
+    // -- Intentar realizar logging de errores
+    if(!this->make_log_errors()){
+        // -- Realizar logging de LVM
+        this->make_log_lvm();
+    }   
 }
