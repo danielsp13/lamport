@@ -147,8 +147,10 @@ void LVM_Page_Table::print_page_table(std::ostream& os){
     print_segment(SEGMENT_FOR_LITERALS,os);
     // -- Imprimir segmento de variables
     print_segment(SEGMENT_FOR_VARIABLES,os);
-    // -- Imprimir segmento de variables (array)
-    print_segment_array(SEGMENT_FOR_VARIABLES_ARRAY,os);
+    if(!address_array_table.empty()){
+        // -- Imprimir segmento de variables (array)
+        print_segment_array(SEGMENT_FOR_VARIABLES_ARRAY,os);
+    }
     // -- Imprimir segmento de etiquetas
     print_segment(SEGMENT_FOR_LABELS,os);
 }
