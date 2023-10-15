@@ -26,7 +26,7 @@ jobs:
              
          - name: Instalar dependencias de compilación y testeo
            if: steps.cache-apt.outputs.cache-hit != 'true'
-           run: make install_source_dependencies
+           run: make install_interpreter_dependencies && make install_tests_dependencies
            
          - name: Comprobar sintaxis y escanear fuentes
            run: make check
