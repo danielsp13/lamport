@@ -21,7 +21,7 @@ COPY --chown=lamport ./include ./include
 COPY --chown=lamport ./src ./src
 COPY --chown=lamport Makefile ./
 
-RUN make install_compiler_dependencies &&\
+RUN make install_interpreter_dependencies &&\
 	make parallel &&\
     rm Makefile
 
