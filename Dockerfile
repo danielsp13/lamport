@@ -45,12 +45,12 @@ ENV HOME="/home/lamport"
 
 COPY --from=builder /builddir/bin /bin
 
-RUN echo '#!/bin/sh' > /bin/launch_lmp_docker.sh && \
-    echo '/bin/lmp $ENV_LMP_FILE' >> /bin/launch_lmp_docker.sh && \
-    chmod +x /bin/launch_lmp_docker.sh
+RUN echo '#!/bin/sh' > /bin/launch_lmp.sh && \
+    echo '/bin/lmp $ENV_LMP_FILE' >> /bin/launch_lmp.sh && \
+    chmod +x /bin/launch_lmp.sh
 
 USER lamport
 
 WORKDIR /app/
 
-CMD ["/bin/launch_lmp_docker.sh"]
+CMD ["/bin/launch_lmp.sh"]
