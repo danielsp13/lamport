@@ -27,6 +27,18 @@ ifeq ($(UNAME), Linux)
         CHECK_PACKAGES_V1 = dpkg -l $(1) 2>/dev/null | grep -qw 'ii'
         CHECK_PACKAGES_V2 = dpkg -s $(1) >/dev/null 2>&1
     endif
+    # -- Detectar SO Linux (Alpine)
+    ifeq ($(DISTRIBUTION), alpine)
+        PACKAGE_MANAGER:=apk
+        UPDATE_OPTION:=$(PACKAGE_MANAGER) update
+        INSTALL_OPTION:=$(PACKAGE_MANAGER) add --no-cache
+        REMOVE_OPTION:=$(PACKAGE_MANAGER) remove
+        AUTOREMOVE_OPTION:=$(PACKAGE_MANAGER) autoremove
+        CHECK_PACKAGES_V1=apk info -e $(DEP) > /dev/null 2>&1
+        CHECK_PACKAGES_V2=apk info -e $(DEP) > /dev/null 2>&1
+
+        TEST_CMOCKA=cmocka-dev 
+    endif
 endif
 
 .PHONY: backup build_bin_dir clean_bin_dir build_obj_dir clean_obj_dir clean_log_dir update_packages
@@ -43,6 +55,8 @@ VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
 COMPILER_DEPENDENCIES=gcc g++ flex libfl-dev bison parallel
 TEST_DEPENDENCIES=cppcheck valgrind
+VIRTUALENV_DEPENDENCIES=docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+PREVIOUS_DOCKER_DEPENDENCIES=ca-certificates curl gnupg
 
 # -- Variables referentes a compilacion/comprobacion de ficheros
 CFLAGS:=-Wall -Wextra
@@ -103,6 +117,9 @@ LMP_UTILS_MODULE:=lmp_utils
 IR_MODULE:=IR
 TEST_UTILS_MODULE:=test_utils
 LVM_MODULE:=LVM
+
+# -- Variables de entorno virtual
+DOCKER_IMAGE=danielsp13/lamport
 
 # -- Variables referentes a directorios de modulos (cabeceras)
 HEADER_LEXER:=$(HEADER_DIR)/$(LEXER_MODULE)
@@ -344,6 +361,14 @@ define compile_unique_object_skeleton
 	}
 endef
 
+define check_docker_image_skeleton
+	@{ \
+		if ! docker images | grep -q "$(1)"; then \
+			make -s build_docker ; \
+		fi ; \
+	}
+endef
+
 define generate_object_rules
 $(addprefix $(OBJ_DIR)/, $(3)): $(2)
 	$(call compile_unique_object_skeleton,$(1),$(2),$(3),$(4))
@@ -443,8 +468,8 @@ help:
 	@printf "%-30s %s\n" "make parallel" "Constuye el intérprete de lamport en paralelo"
 	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
 	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
-	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, intérprete, tests)."
-	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, intérprete, tests)."
+	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests, contenedor virtual)."
+	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests, contenedor virtual)."
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 	@printf "%-30s %s\n" "make compile" "Compila todos los fuentes del proyecto."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
@@ -459,16 +484,13 @@ help:
 # ========================================================================================
 
 # -- Instala todas las dependencias del proyecto
-install_dependencies: update_packages install_tex_dependencies install_source_dependencies
-
-# -- Instala todas las dependencias relacionadas con el codigo fuente del proyecto
-install_source_dependencies: update_packages install_compiler_dependencies install_tests_dependencies
+install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies install_virtualenv_dependencies
 
 # -- Desinstala todas las dependencias del proyecto
-uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies
+uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies uninstall_virtualenv_dependencies
 
 # -- Muestra la versión de todas las dependencias del proyecto
-version_dependencies: version_tex_dependencies version_compiler_dependencies version_tests_dependencies
+version_dependencies: version_tex_dependencies version_compiler_dependencies version_tests_dependencies version_virtualenv_dependencies
 
 # ----------------------------------------------------------------------------------------
 
@@ -509,6 +531,28 @@ uninstall_tests_dependencies:
 # -- Muestra la versión de todas las dependencias relacionadas con el intérprete
 version_tests_dependencies:
 	$(call version_dependencies_skeleton,"tests sobre intérprete",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
+	
+# ----------------------------------------------------------------------------------------
+
+# -- Instala todas las dependencias relacionadas con los contenedores virtuales
+install_virtualenv_dependencies:
+	$(call install_dependencies_skeleton,"dependencias de contenedores virtuales",$(PREVIOUS_DOCKER_DEPENDENCIES),CHECK_PACKAGES_V1)
+	@sudo install -m 0755 -d /etc/apt/keyrings
+	@curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+	@sudo chmod a+r /etc/apt/keyrings/docker.gpg
+	@echo \
+	"deb [arch="$(DPKG_ARCHITECTURE)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+	"$(VERSION_DISTRIBUTION_LINUX)" stable" | \
+	sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	$(call install_dependencies_skeleton,"contenedores virtuales",$(VIRTUALENV_DEPENDENCIES),CHECK_PACKAGES_V1)
+	
+# -- Desinstala todas las dependencias relacionadas con el intérprete
+uninstall_virtualenv_dependencies:
+	$(call uninstall_dependencies_skeleton,"contenedores virtuales",$(VIRTUALENV_DEPENDENCIES),CHECK_PACKAGES_V1)
+
+# -- Muestra la versión de todas las dependencias relacionadas con el intérprete
+version_virtualenv_dependencies:
+	$(call version_dependencies_skeleton,"contenedores virtuales",$(VIRTUALENV_DEPENDENCIES),CHECK_PACKAGES_V1)
     
 # ========================================================================================
 # DEFINICION DE REGLAS DE GESTION DE INFORME TEX
@@ -680,3 +724,21 @@ tests_parallel:
 # -- Ejecuta valgrind para realizar test de fugas de memoria utilizando un fichero
 mem_check:
 	@valgrind --leak-check=full $(BIN_DIR)/$(LMP_MAIN_NAME) $(LMP_FILE)
+	
+# ========================================================================================
+# DEFINICION DE REGLAS DE GESTION DE CONTENEDORES VIRTUALES
+# ========================================================================================
+
+# -- Construye la imagen de contenedor Docker
+build_docker:
+	@echo "$(COLOR_BLUE)Construyendo contenedor Docker $(COLOR_PURPLE)$(DOCKER_IMAGE)$(COLOR_BLUE)...$(COLOR_RESET)"
+	@docker build -t $(DOCKER_IMAGE):latest .
+
+# -- Destruye la imagen de contenedor docker
+rmi_docker:
+	@docker rmi $(DOCKER_IMAGE) 2> /dev/null
+
+# -- Ejecuta el contenedor docker
+run_docker:
+	$(call check_docker_image_skeleton,$(DOCKER_IMAGE))
+	@docker run -it --rm -v `pwd`:/app -e ENV_LMP_FILE=$(LMP_FILE) $(DOCKER_IMAGE)
