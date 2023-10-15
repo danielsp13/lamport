@@ -2,11 +2,16 @@ name: Publicar contenedor Docker Lamport
 
 on:
   push:
-      paths:
-         - '**.h'
-         - '**.c'
-         - 'Makefile'
-         - 'Dockerfile'
+    branches:
+      - main
+    paths:
+      - '**.h'
+      - '**.c'
+      - 'Makefile'
+      - 'Dockerfile'
+  pull_request:
+    types:
+      - closed
          
 jobs:
   build_and_push:
