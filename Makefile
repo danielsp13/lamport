@@ -53,7 +53,7 @@ DPKG_ARCHITECTURE=`dpkg --print-architecture`
 VERSION_DISTRIBUTION_LINUX=`. /etc/os-release && echo "$$VERSION_CODENAME"`
 
 TEX_DEPENDENCIES=texlive texlive-lang-spanish texlive-fonts-extra
-COMPILER_DEPENDENCIES=gcc g++ flex libfl-dev bison parallel
+interpreter_dependencies=gcc g++ flex libfl-dev bison parallel
 TEST_DEPENDENCIES=cppcheck valgrind
 VIRTUALENV_DEPENDENCIES=docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 PREVIOUS_DOCKER_DEPENDENCIES=ca-certificates curl gnupg
@@ -475,6 +475,9 @@ help:
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
 	@printf "%-30s %s\n" "make tests" "Ejecuta tests automaticos de fugas de memoria en intérprete utilizando ficheros de prueba."
 	@printf "%-30s %s\n" "make tests_parallel" "Ejecuta los mismos tests que la orden anterior pero en paralelo."
+	@printf "%-30s %s\n" "make build_docker" "Construye el interprete y crea un contenedor virtual."
+	@printf "%-30s %s\n" "make rmi_docker" "Elimina el contenedor virtual del interprete lamport."
+	@printf "%-30s %s\n" "make run_docker" "Ejecuta el intérprete lamport en un contenedor virtual."
 	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 	@echo "$(COLOR_RESET)"
 
@@ -484,13 +487,13 @@ help:
 # ========================================================================================
 
 # -- Instala todas las dependencias del proyecto
-install_dependencies: install_tex_dependencies install_compiler_dependencies install_tests_dependencies install_virtualenv_dependencies
+install_dependencies: install_tex_dependencies install_interpreter_dependencies install_tests_dependencies install_virtualenv_dependencies
 
 # -- Desinstala todas las dependencias del proyecto
-uninstall_dependencies: uninstall_tex_dependencies uninstall_compiler_dependencies uninstall_tests_dependencies uninstall_virtualenv_dependencies
+uninstall_dependencies: uninstall_tex_dependencies uninstall_interpreter_dependencies uninstall_tests_dependencies uninstall_virtualenv_dependencies
 
 # -- Muestra la versión de todas las dependencias del proyecto
-version_dependencies: version_tex_dependencies version_compiler_dependencies version_tests_dependencies version_virtualenv_dependencies
+version_dependencies: version_tex_dependencies version_interpreter_dependencies version_tests_dependencies version_virtualenv_dependencies
 
 # ----------------------------------------------------------------------------------------
 
@@ -509,14 +512,14 @@ version_tex_dependencies:
 # ----------------------------------------------------------------------------------------
 
 # -- Instala todas las dependencias relacionadas con el intérprete
-install_compiler_dependencies:
-	$(call install_dependencies_skeleton,"construccion de intérprete",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)	
+install_interpreter_dependencies:
+	$(call install_dependencies_skeleton,"construccion de intérprete",$(interpreter_dependencies),CHECK_PACKAGES_V2)	
 
-uninstall_compiler_dependencies:
-	$(call uninstall_dependencies_skeleton,"construccion de intérprete",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)	
+uninstall_interpreter_dependencies:
+	$(call uninstall_dependencies_skeleton,"construccion de intérprete",$(interpreter_dependencies),CHECK_PACKAGES_V2)	
     
-version_compiler_dependencies:
-	$(call version_dependencies_skeleton,"construccion de intérprete",$(COMPILER_DEPENDENCIES),CHECK_PACKAGES_V2)
+version_interpreter_dependencies:
+	$(call version_dependencies_skeleton,"construccion de intérprete",$(interpreter_dependencies),CHECK_PACKAGES_V2)
     
 # ----------------------------------------------------------------------------------------
 
