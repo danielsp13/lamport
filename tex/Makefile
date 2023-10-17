@@ -1,8 +1,8 @@
 DOC := proyecto.tex
 
-all: docs
+all: doc
 
-docs: $(DOC:.tex=.pdf)
+doc: $(DOC:.tex=.pdf)
 
 all: proyecto.pdf
 
