@@ -14,8 +14,9 @@ En el siguiente índice se resumen los contenidos principales de este README:
 
 * :question: **[Resumen del proyecto](#lamport-resume)** : Describe los objetivos y el propósito de este proyecto.
 * :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX.
-* :shell: **[Instalación y verificación](#lamport-install)** : Indica cómo se realiza la gestión de dependencias del proyecto mediante el `Makefile` implementado para ello.
+* :shell: **[Instalación de dependencias y verificación](#lamport-install)** : Indica cómo se realiza la gestión de dependencias del proyecto mediante el `Makefile` implementado para ello.
 * :building_construction: **[Construcción del intérprete](#lamport-compile)** : Indica cómo construir el proyecto completo para su uso.
+*  :whale2: **[Uso del intérprete en contenedor Docker](#lamport-docker)** : Indica cómo ejecutar el intérprete utilizando el contenedor Docker que lo contiene.
 * :white_check_mark: **[Testeo de módulos](#lamport-test)** : Indica cómo realizar pruebas sobre el código implementado.
 
 ****
@@ -139,10 +140,56 @@ Esto hará que el ejecutable final se encuentre en el directorio `bin/`.
 
 
 
+Puede además utilizar la orden de ejecución paralela, para reducir el tiempo:
+
+~~~bash
+$ make parallel
+~~~
+
+con el mismo efecto que la orden anterior.
+
+
+
 Para eliminar todos los ficheros ejecutables generados:
 
 ~~~bash
 $ make clean
+~~~
+
+
+
+
+
+****
+
+ ### :whale2: <a name="lamport-docker"></a> Uso del intérprete en contenedor Docker
+
+Este proyecto dispone  de un `Dockerfile` que construye un contenedor virtual con todas las dependencias necesarias para el funcionamiento del intérprete, aislándolo del SO por completo.
+
+
+
+:warning: **Nota:** Es imprescindible tener Docker instalado en el sistema, puede instalarlo con la orden:
+
+~~~bash
+$ make install_virtualenv_dependencies
+~~~
+
+
+
+Para construir y ejecutar el intérprete dockerizado, utilice el script de la siguiente forma:
+
+~~~bash
+$ ./lmp_docker.sh <fichero_lamport.lmp>
+~~~
+
+Esto hará que se ejecute directamente el intérprete desde el contenedor de la misma manera que si se compilara de la forma tradicional.
+
+
+
+Para eliminar el contenedor docker construido:
+
+~~~bash
+$ make rmi_docker
 ~~~
 
 
