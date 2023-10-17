@@ -1,0 +1,35 @@
+{Programa: helloWorld.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program HolaMundo
+{Variables globales}
+var magico : integer;
+
+{Procedimiento que saluda al usuario}
+{Param nombre : nombre del usuario}
+procedure SaludaUsuario(nombre : string);
+begin
+    print("Hola ", nombre, "!");
+end
+
+{Funcion que recibe un numero y devuelve otro}
+{Param n : numero entero}
+{Return numero magico}
+function ObtieneNumero(n : integer) : integer;
+    var constant : integer := (-4 + 6) * 10 - 2;
+begin
+    return constant + n;
+end
+
+{Proceso principal del programa}
+process Main;
+    var usuario : string := "Daniel";
+    var numero : integer := 23;
+begin
+    {Llamar a saludar usuario}
+    SaludaUsuario(usuario);
+	
+    {Llamar a obtener numero}
+    magico := ObtieneNumero(numero);
+    print("El numero magico vale: ", magico);
+end
