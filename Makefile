@@ -597,28 +597,28 @@ generate_parser: $(SOURCE_PARSER)/$(PARSER_MODULE)$(BISON_EXT)
 # ========================================================================================
 
 $(foreach src, $(INDEX_LEXER_FILES), \
-	$(eval $(call generate_object_rules,gcc,$(SOURCE_LEXER)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)),$(LDFLEX))))
+	$(eval $(call generate_object_rules,gcc $(STATIC),$(SOURCE_LEXER)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)),$(LDFLEX))))
 	
 $(foreach src, $(INDEX_PARSER_FILES), \
-	$(eval $(call generate_object_rules,gcc,$(SOURCE_PARSER)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)),$(LDFLEX))))
+	$(eval $(call generate_object_rules,gcc $(STATIC),$(SOURCE_PARSER)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)),$(LDFLEX))))
 	
 $(foreach src, $(INDEX_AST_FILES), \
-	$(eval $(call generate_object_rules,gcc,$(SOURCE_AST)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	$(eval $(call generate_object_rules,gcc $(STATIC),$(SOURCE_AST)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
 	
 $(foreach src, $(INDEX_SEMANTIC_FILES), \
-	$(eval $(call generate_object_rules,gcc,$(SOURCE_SEMANTIC)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	$(eval $(call generate_object_rules,gcc $(STATIC),$(SOURCE_SEMANTIC)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
 	
 $(foreach src, $(INDEX_ERROR_FILES), \
-	$(eval $(call generate_object_rules,gcc,$(SOURCE_ERROR)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	$(eval $(call generate_object_rules,gcc $(STATIC),$(SOURCE_ERROR)/$(src)$(SOURCE_C_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
 	
 $(foreach src, $(INDEX_LMP_UTILS_FILES), \
-	$(eval $(call generate_object_rules,g++ --std=c++17,$(SOURCE_LMP_UTILS)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	$(eval $(call generate_object_rules,g++ --std=c++17 $(STATIC),$(SOURCE_LMP_UTILS)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
 	
 $(foreach src, $(INDEX_IR_FILES), \
-	$(eval $(call generate_object_rules,g++ --std=c++17,$(SOURCE_IR)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	$(eval $(call generate_object_rules,g++ --std=c++17 $(STATIC),$(SOURCE_IR)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
 	
 $(foreach src, $(INDEX_LVM_FILES), \
-	$(eval $(call generate_object_rules,g++ --std=c++17,$(SOURCE_LVM)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
+	$(eval $(call generate_object_rules,g++ --std=c++17 $(STATIC),$(SOURCE_LVM)/$(src)$(SOURCE_CPLUS_EXT),$(addsuffix $(OBJ_EXT),$(src)))))
 
 # ========================================================================================
 # DEFINICION DE REGLAS DE COMPILACION (OBJETOS)
@@ -629,14 +629,21 @@ compile: compile_sources compile_lamport
 	
 compile_parallel:
 	@echo "$(COLOR_BLUE)CONSTRUYENDO INTÉRPRETE DE LAMPORT [EN PARALELO]...$(COLOR_RESET)" && echo
-	@echo compile_{lexer,parser,ast,semantic,error,lmp_utils,ir,lvm} | tr ' ' '\n' | parallel -j8 make -s
+	@make -s compile_sources_parallel
 	@make -s compile_lamport
 
 compile_lamport: build_bin_dir
 	@echo
 	$(call compile_lamport_skeleton,g++ -std=c++17,$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
 	
+compile_static: compile_sources_parallel build_bin_dir
+	@echo
+	$(call compile_lamport_skeleton,g++ -std=c++17 -static-libstdc++ -static-libgcc,$(INDEX_OBJ_FILES),$(LMP_MAIN_NAME))
+	
 compile_sources: compile_lexer compile_parser compile_ast compile_error compile_semantic compile_ir compile_lvm compile_lmp_utils
+
+compile_sources_parallel:
+	@echo compile_{lexer,parser,ast,semantic,error,lmp_utils,ir,lvm} | tr ' ' '\n' | parallel -j8 make -s
 	
 # -- Genera codigo objeto para el analizador lexico
 compile_lexer_msg:

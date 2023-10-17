@@ -22,7 +22,7 @@ COPY --chown=lamport ./src ./src
 COPY --chown=lamport Makefile ./
 
 RUN make install_interpreter_dependencies &&\
-	make parallel &&\
+	make compile_static &&\
     rm Makefile
 
 RUN rm -r ./include/* &&\
@@ -32,7 +32,7 @@ RUN rm -r ./include/* &&\
 # ----- Etapa final
 FROM alpine:latest
 
-RUN apk add bash g++ gcc bison flex flex-dev
+RUN apk add bash flex-dev bison
 
 LABEL maintainer="danielperezruiz.10@gmail.com" \
       version="0.0.9"
