@@ -27,11 +27,11 @@ end
 {INTERCAMBIE EL ORDEN DE EJECUCION PARA VER LAS EXCEPCIONES}
 process main;
 begin
-	{EXCEPCION TIPO 3: Recorrido en bucle que se sale de los limites}
-	printBadArray();
-	
 	{EXCEPCION TIPO 2: Acceso a region fuera del limite superior}
 	excedBound();
+	
+	{EXCEPCION TIPO 3: Recorrido en bucle que se sale de los limites}
+	printBadArray();
 
 	{EXCEPCION TIPO 1: Acceso negativo}
 	negativeBound();

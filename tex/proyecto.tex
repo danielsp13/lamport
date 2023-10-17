@@ -11,6 +11,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
 \usepackage{listings} % para insertar código con formato similar al editor
+\usepackage{color}  % si quieres usar colores en tu código
 \usepackage[spanish, es-tabla]{babel} % Selecciona el español para palabras introducidas automáticamente, p.ej. "septiembre" en la fecha y especifica que se use la palabra Tabla en vez de Cuadro
 \usepackage{url} % ,href} %para incluir URLs e hipervínculos dentro del texto (aunque hay que instalar href)
 \usepackage{graphics,graphicx, float} %para incluir imágenes y colocarlas
@@ -21,7 +22,71 @@
 \usepackage{graphicx}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{adjustbox}
+\usepackage{geometry}
+\usepackage{amsmath}
 \usepackage{subfigure}
+\usepackage{textcomp}
+\usepackage{longtable}
+\usepackage{mwe} % Paquete necesario para la columna tipo 'm'
+\usepackage{mathrsfs}
+\usepackage{upquote}
+\usepackage{mdframed}
+
+
+\lstdefinestyle{lamportStyle}{
+    language=Pascal,          % Usar configuración base de Pascal
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    tabsize=4,
+    extendedchars=true,
+    breaklines=true,
+    keywordstyle=\color{blue},
+    stringstyle=\color{orange}, % Cadena de caracteres en naranja
+    commentstyle=\color{gray},
+    frame=b,
+    morekeywords={program, procedure, function, process, integer, real, char, boolean, string, begin, end, cobegin, coend, return},
+    captionpos=b             % Posiciona el caption debajo del bloque de código   
+}
+
+
+\lstnewenvironment{BNFCode}{%
+\lstset{
+  language={}, % Vacío, no basarse en ningún lenguaje específico
+  basicstyle=\ttfamily\color{black}, % Fuente de estilo básico en color negro
+  morestring=[b]", % Define las cadenas de texto entre comillas dobles
+  stringstyle=\color{red}, % Color rojo para cadenas de texto
+  commentstyle=\color{orange}, % Color naranja para comentarios
+  morecomment=[l]{\#}, % Define cómo se indican los comentarios
+  keepspaces=true, % Mantiene los espacios
+  breaklines=true, % Permite romper las líneas
+  breakindent=1.5cm, % Sangría después de romper una línea
+  breakatwhitespace=false, % Permite romper en cualquier espacio, no solo en espacios en blanco
+  columns=fullflexible,
+}
+}{}
+
+\lstdefinestyle{customflex}{
+    language=C, % Flex se basa en C, así que esto debería resaltar la mayoría de la sintaxis correctamente
+    basicstyle=\ttfamily\small,
+    commentstyle=\color{gray},
+    keywordstyle=\color{blue},
+    numbers=left,
+    breaklines=true,
+    frame=single,
+    captionpos=b
+    \lstset{upquote=true}
+}
+
+\lstdefinestyle{myInlineCode}{
+    basicstyle=\ttfamily,
+    breaklines=true,  % Opcional: permite que el código se divida entre líneas
+    keepspaces=true   % Opcional: conserva los espacios en el código
+}
+
 
 \usepackage[table,xcdraw]{xcolor}
 \hypersetup{
@@ -49,6 +114,12 @@
 \setcounter{secnumdepth}{4}
 \usepackage[Lenny]{fncychap}
 
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+
+\renewcommand{\lstlistingname}{Programa}
+\newcommand{\code}[1]{\lstinline[style=myInlineCode]!#1!}
+
+
 
 \begin{document}
 
@@ -73,41 +144,37 @@
 	% Introducción 
 	\input{secciones/01_introduccion}
 
+        
+
 	% Descripción del problema y hasta donde se llega
-	\input{secciones/02_descripcion}
+	\input{secciones/03_descripcion}
 
 	% Estado del arte
-	% 	1. Crítica al estado del arte
-	% 	2. Propuesta
-	\input{secciones/03_estado_del_arte}
-	
-	\input{secciones/04_planificacion}
+	\input{secciones/04_estado_del_arte}
+
+        \input{secciones/02_planificacion}
 
 	% Análisis del problema
-	% 1. Análisis de requisitos
-	% 2. Análisis de las soluciones
-	% 3. Solucion propuesta
-	% 4. Análisis de seguridad
 	\input{secciones/05_analisis}
 
-	% Desarrollo bajo sprints: 
-	% 	1. Permitir registros y login de usuarios
-	% 	2. Desarrollo del sistema de incidencias
-	% 	3. Desarrollo del sistema de denuncias administrativas y accidentes
-	% 	4. Desarrollo del sistema de croquis
-	%   5. Instalación de la aplicación de manera automática
-	\input{secciones/06_implementacion}
+        % Desarrollo bajo sprints: 
+	\input{secciones/06_espec_lenguaje}
 
-	% Presupuesto
+	% Desarrollo bajo sprints: 
+	\input{secciones/07_implementacion}
 
 	% Conclusiones
-	\input{secciones/07_conclusiones}
+	\input{secciones/08_programas}
+
+	% Conclusiones
+	\input{secciones/09_conclusiones}
 
 	% Trabajos futuros
 
 
 	
 	\newpage
+        \nocite{*}
 	\bibliography{bibliografia}
 	\bibliographystyle{plain}
 	

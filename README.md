@@ -13,9 +13,9 @@
 En el siguiente índice se resumen los contenidos principales de este README:
 
 * :question: **[Resumen del proyecto](#lamport-resume)** : Describe los objetivos y el propósito de este proyecto.
-* :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX, así como proporciona enlaces documentación propia del repo.
+* :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX.
 * :shell: **[Instalación y verificación](#lamport-install)** : Indica cómo se realiza la gestión de dependencias del proyecto mediante el `Makefile` implementado para ello.
-* :building_construction: **[Construcción del compilador](#lamport-compile)** : Indica cómo construir el proyecto completo para su uso.
+* :building_construction: **[Construcción del intérprete](#lamport-compile)** : Indica cómo construir el proyecto completo para su uso.
 * :white_check_mark: **[Testeo de módulos](#lamport-test)** : Indica cómo realizar pruebas sobre el código implementado.
 
 ****
@@ -52,18 +52,11 @@ $ make clean_tex
 
 
 
-#### Documentación en Markdown
-
-Si desea consultar la documentación referente al proceso de construcción del compilador del lenguaje lamport, ésta se encuentra disponible en el directorio `docs/`. Aquí se muestra un listado con todos los apartados de interés:
-
-*  :books: **[Ejemplos de pseudocódigo de SCD](docs/ejemplos_pseudocodigo.md)** : Se muestran los ejemplos utilizados para la definición del lenguaje lamport, extraídos de las transparencias de la asignatura.
-* :detective: **[Análisis de pseudocódigo de SCD](docs/analisis_pseudocodigo.md)** : Se documenta el análisis realizado sobre los ejemplos de código y la información extraída, como la sintaxis del lenguaje, especificación de precedencia de operadores, y tabla de tokens.
-
 ****
 
 ### :shell: <a name="lamport-install"></a> Instalación y verificación de dependencias
 
-En este proyecto hay diferentes bibliotecas y programas que son necesarias para poder construir el compilador adecuadamente. Para ello, se han definido reglas en el `Makefile` que permiten la gestión de dichas dependencias:
+En este proyecto hay diferentes bibliotecas y programas que son necesarias para poder construir el intérprete adecuadamente. Para ello, se han definido reglas en el `Makefile` que permiten la gestión de dichas dependencias:
 
 Si desea instalar todas las dependencias del proyecto:
 
@@ -130,19 +123,19 @@ $ make version_tests_dependencies
 
 ****
 
- ### :building_construction: <a name="lamport-compile"></a> Construcción del compilador
+ ### :building_construction: <a name="lamport-compile"></a> Construcción del intérprete
 
-Para poder utilizar el compilador desarrollado para el lenguaje de lamport, hay que compilar todos los módulos implementados.
+Para poder utilizar el intérprete desarrollado para el lenguaje de lamport, hay que compilar todos los módulos implementados.
 
 
 
-Para constuir el compilador completo (incluyendo los tests de los módulos):
+Para constuir el intérprete completo:
 
 ~~~bash
 $ make compile
 ~~~
 
-Esto hará que los ejecutables se encuentren en el directorio `bin/`.
+Esto hará que el ejecutable final se encuentre en el directorio `bin/`.
 
 
 
@@ -152,15 +145,13 @@ Para eliminar todos los ficheros ejecutables generados:
 $ make clean
 ~~~
 
-Esto limpiará también todos los ficheros de tests generados
-
 
 
 ****
 
 ### :white_check_mark: <a name="lamport-test"></a> Testeo de módulos
 
-Todo el código que se desarrolle, debe ser probado. Para ello en este proyecto se ha utilizado una herramienta de análisis ([cppcheck](https://cppcheck.sourceforge.io/)) para realizar análisis sobre las clases en búsqueda de errores / fallos que el compilador no es capaz de detectar.
+En este proyecto se ha utilizado una herramienta de análisis ([cppcheck](https://cppcheck.sourceforge.io/)) para analizar las clases en búsqueda de errores / fallos que el compilador no es capaz de detectar.
 
 
 
