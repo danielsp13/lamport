@@ -392,11 +392,38 @@ void IR_Translator_Statement::translate_statement_return_to_ir_instructions(stru
 }
 
 void IR_Translator_Statement::translate_statement_fork_to_ir_instructions(struct statement * stmt, bool from_subprogram){
-    //TODO
+    // -- 0. Obtener nombre de procedimiento
+    std::string procedure_name = std::string(stmt->stmt.statement_fork.forked_procedure);
+
+    // -- 1. Generar nombre para proceso dinamico
+    std::string dprocess_name = std::string("dp_") + procedure_name;
+    // -- 2. Registrar como variable local
+    int id_variable_in_table = tables.add_entry_variable(IR_VAR_LOCAL,dprocess_name,IR_VAR_TYPE_DPROCESS);
+    // -- 3. Generar operando de variable dinamic
+    IR_operand op_1 = instructions.emit_operand_variable(id_variable_in_table);
+    // -- 4. Obtener etiqueta de salto a procedimiento
+    std::string call_procedure_label = std::string("start_subprog_") + procedure_name;
+    int index_label_in_table = tables.get_index_from_label_id(call_procedure_label);
+    // -- 5. Obtener operando de etiqueta de salto
+    IR_operand op_2 = instructions.emit_operand_label(index_label_in_table);
+
+    // -- 4. Emitir instruccion
+    instructions.emit_instruction(IR_OP_FORK,false,op_1,op_2);
 }
         
 void IR_Translator_Statement::translate_statement_join_to_ir_instructions(struct statement * stmt, bool from_subprogram){
-    //TODO
+    // -- 0. Obtener nombre de procedimiento
+    std::string forked_procedure = std::string("dp_") + std::string(stmt->stmt.statement_join.joined_procedure);
+
+    // -- 1. Buscar referencia en la tabla de variables
+    int id_variable_in_table = tables.get_index_from_local_variable(forked_procedure);
+    if(id_variable_in_table == -1)
+        id_variable_in_table = tables.get_index_from_global_variable(forked_procedure);
+
+    // -- 2. Emitir operando
+    IR_operand op_1 = instructions.emit_operand_variable(id_variable_in_table);
+    // -- 3. Emitir instruccion
+    instructions.emit_instruction(IR_OP_JOIN,op_1);
 }
 
 void IR_Translator_Statement::translate_list_statements_to_ir_instructions(struct statement * list_stmt, bool from_subprogram){

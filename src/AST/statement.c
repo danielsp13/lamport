@@ -283,9 +283,9 @@ struct statement * create_statement_fork(char *process_name, unsigned long line)
         return NULL;
 
     // -- Asignar nombre de proceso
-    st->stmt.statement_fork.forked_process = strdup(process_name);
+    st->stmt.statement_fork.forked_procedure = strdup(process_name);
     // -- Comprobar asignacion de nombre de proceso exitosa
-    if(!st->stmt.statement_fork.forked_process){
+    if(!st->stmt.statement_fork.forked_procedure){
         // -- Liberar memoria reservada para la sentencia
         free(st);
         return NULL;
@@ -309,9 +309,9 @@ struct statement * create_statement_join(char *process_name, unsigned long line)
         return NULL;
 
     // -- Asignar nombre de proceso
-    st->stmt.statement_join.joined_process = strdup(process_name);
+    st->stmt.statement_join.joined_procedure = strdup(process_name);
     // -- Comprobar asignacion de nombre de proceso exitosa
-    if(!st->stmt.statement_join.joined_process){
+    if(!st->stmt.statement_join.joined_procedure){
         // -- Liberar memoria reservada para la sentencia
         free(st);
         return NULL;
@@ -489,8 +489,8 @@ void free_statement(struct statement *stmt){
 
     case STMT_FORK:
     {
-        free(stmt->stmt.statement_fork.forked_process);
-        stmt->stmt.statement_fork.forked_process = NULL;
+        free(stmt->stmt.statement_fork.forked_procedure);
+        stmt->stmt.statement_fork.forked_procedure = NULL;
 
         // -- Liberacion de simbolo
         if(stmt->stmt.statement_fork.symb){
@@ -502,8 +502,8 @@ void free_statement(struct statement *stmt){
 
     case STMT_JOIN:
     {
-        free(stmt->stmt.statement_join.joined_process);
-        stmt->stmt.statement_join.joined_process = NULL;
+        free(stmt->stmt.statement_join.joined_procedure);
+        stmt->stmt.statement_join.joined_procedure = NULL;
 
         // -- Liberacion de simbolo
         if(stmt->stmt.statement_join.symb){
@@ -648,13 +648,13 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth,
 
         case STMT_FORK:
         {
-            fprintf(output,"%s%s %c FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_fork.forked_process);
+            fprintf(output,"%s%s %c FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_fork.forked_procedure);
             break;
         }
 
         case STMT_JOIN:
         {
-            fprintf(output,"%s%s %c JOIN DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_join.joined_process);
+            fprintf(output,"%s%s %c JOIN DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_join.joined_procedure);
             break;
         }
         

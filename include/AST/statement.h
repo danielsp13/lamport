@@ -192,14 +192,14 @@ struct statement{
 
         // Estructura de sentencia fork
         struct {
-            char *forked_process;                   ///< Nombre del proceso
+            char *forked_procedure;                   ///< Nombre del procedimiento
 
             unsigned long line;                     ///< Linea donde se uso el identificador
             struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_fork;
 
         struct{
-            char *joined_process;                   ///< Nombre del proceso
+            char *joined_procedure;                   ///< Nombre del proceso
 
             unsigned long line;                     ///< Linea donde se uso el identificador
             struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.

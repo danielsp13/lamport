@@ -145,6 +145,8 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {NOT_IR_END_SUBPROGRAM_INSTR, " -------- END SUBPROGRAMS SECTION --------"},
     {IR_OP_ATOMIC_BEGIN," -->-- ATOMIC_BEGIN --<--"},
     {IR_OP_ATOMIC_END," -->-- ATOMIC_END --<--"},
+    {IR_OP_FORK,"IR_OP_FORK"},
+    {IR_OP_JOIN,"IR_OP_JOIN"},
 };
 
 #endif //_LAMPORT_IR_IR_INSTRUCTION_TYPE_

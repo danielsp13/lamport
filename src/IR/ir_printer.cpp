@@ -97,12 +97,19 @@ std::string IR_Printer::ir_instruction_to_string(IR_instruction instr){
     std::optional<IR_operand> instr_op_2 = instr.get_operand_2();
     std::string instr_op_2_str = "";
     if(instr_op_2.has_value()){
-        if(instr.get_code_instr() == IR_OP_JMP_TRUE || instr.get_code_instr() == IR_OP_JMP_FALSE)
-            instr_op_2_str = " >>> ";
-        else
+        if(instr.get_code_instr() == IR_OP_JMP_TRUE || instr.get_code_instr() == IR_OP_JMP_FALSE){
+            instr_op_2_str = " >>> ";   
+        }
+        else{
             instr_op_2_str = " , ";
+        }
         
-        instr_op_2_str += this->ir_operand_instruction_to_string(instr_op_2.value());
+        if(instr.get_code_instr() == IR_OP_FORK || instr.get_code_instr() == IR_OP_JOIN){
+            instr_op_2_str = "";
+        }
+        else{
+            instr_op_2_str += this->ir_operand_instruction_to_string(instr_op_2.value());
+        }
     }
 
     // -- Obtener instruccion str final

@@ -99,6 +99,14 @@ void IR_Instruction_Table::emit_instruction(IR_instruction_type_t code_instr, IR
     this->add_instruction_to_list(instr);
 }
 
+void IR_Instruction_Table::emit_instruction(IR_instruction_type_t code_instr, bool dest, IR_operand op_1, IR_operand op_2){
+    // -- Crear instruccion
+    IR_instruction instr(code_instr,false,op_1,op_2);
+
+    // -- Incluir
+    this->add_instruction_to_list(instr);
+}
+
 IR_instruction& IR_Instruction_Table::operator[](int i){
     return this->instruction_table[i];
 }

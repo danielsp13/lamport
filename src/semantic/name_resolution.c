@@ -615,13 +615,13 @@ void resolve_statement_fork(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de proceso
     // -- Asignar referencia de simbolo a este proceso
-    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_fork.forked_process);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_fork.forked_procedure);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!target_symb){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_fork.forked_process,stmt->stmt.statement_fork.line, ERR_UNDEFINED_PROCESS_MSG);
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_fork.forked_procedure,stmt->stmt.statement_fork.line, ERR_UNDEFINED_PROCESS_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
@@ -629,6 +629,7 @@ void resolve_statement_fork(struct statement *stmt){
     // -- Asignar simbolo
     else{
         stmt->stmt.statement_fork.symb = copy_symbol(target_symb);
+        stmt->stmt.statement_fork.symb->type = create_dprocess_type();
     }
 }
 
@@ -640,13 +641,13 @@ void resolve_statement_join(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de proceso
     // -- Asignar referencia de simbolo a este proceso
-    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_join.joined_process);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_join.joined_procedure);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!target_symb){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_join.joined_process,stmt->stmt.statement_join.line, ERR_UNDEFINED_PROCESS_MSG);
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_join.joined_procedure,stmt->stmt.statement_join.line, ERR_UNDEFINED_PROCESS_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
@@ -654,6 +655,7 @@ void resolve_statement_join(struct statement *stmt){
     // -- Asignar simbolo
     else{
         stmt->stmt.statement_join.symb = copy_symbol(target_symb);
+        stmt->stmt.statement_join.symb->type = create_dprocess_type();
     }
 }
 
