@@ -1,0 +1,10 @@
+{Programa: helloWorld.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program Global
+	var x : integer := 2;
+	
+process Main;
+begin
+	print("process vale: ", x);
+end

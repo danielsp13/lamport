@@ -1,18 +1,19 @@
 {Programa: process_multiple.lmp}
-{Autor: Daniel Pérez Ruiz}
+{Autor: Daniel Perez Ruiz}
 
 program MultipleProcess
 
-var total : integer := 0;
-
 process Proc1;
 begin
-    total := total + 1;
-    print("Proc1 incrementa el total a: ", total);
+    print("Proc1 te saluda");
 end
 
 process Proc2;
 begin
-	total := total + 5;
-	print("Proc2 incrementa el total a: ", total);
+	print("Proc2 te saluda");
+end
+
+process Proc3;
+begin
+	print("Proc3 te saluda");
 end

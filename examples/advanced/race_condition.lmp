@@ -1,0 +1,25 @@
+{Programa: race_condition.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program Race
+	var x : integer := 0;
+	
+process P1;
+begin
+	for i := 1 to 10 do
+	begin
+		x := x+1;
+	end
+
+	print("x vale: ", x);
+end
+
+process P2;
+begin
+	for i := 1 to 10 do
+	begin
+		x := x-1;
+	end
+	
+	print("x vale: ", x);
+end
