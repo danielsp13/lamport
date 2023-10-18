@@ -916,14 +916,21 @@ void LVM_CPU::execute_instruction_call_or_ret(const IR_instruction & instr){
 }
 
 void LVM_CPU::execute_instruction_call(const IR_instruction & instr){
-    // Crear un contexto nuevo y almacenar el estado actual de la maquina virtual
-    LVM_Context new_context;
-    // --- Guardar contador de programa actual
-    new_context.program_counter = this->program_counter;
-    // --- Guardar tabla de registros
-    new_context.register_table = this->register_table.get_registers();
-    // --- Realizar push de contexto en pila
-    stack_contexts.push(new_context);
+    // -- Obtener elementos de la pila
+    std::vector<LVM_Stack_Block> stack_blocks;
+    while(!stack.empty()){
+        stack_blocks.push_back(stack.top());
+        stack.pop();
+    }
+    // -- Crear LVM_Stack_Block para la direccion de retorno
+    LVM_Stack_Block return_dir; return_dir.allocate_value<long>(this->program_counter);
+    stack_blocks.push_back(return_dir);
+    // -- Revertir array
+    std::reverse(stack_blocks.begin(), stack_blocks.end());
+    // -- Reconstruir pila
+    for(int i=0; i<stack_blocks.size(); i++){
+        stack.push(stack_blocks[i]);
+    }
 
     // -- Obtener operando de instruccion
     IR_operand op_call = *instr.get_operand_1();
@@ -941,17 +948,9 @@ void LVM_CPU::execute_instruction_call(const IR_instruction & instr){
 }
 
 void LVM_CPU::execute_instruction_ret(const IR_instruction & instr){
-    // --- Obtener el contexto guardado
-    LVM_Context old_context = stack_contexts.top();
-    // --- Devolver contador de programa a estado original
-    this->program_counter = old_context.program_counter;
-    this->program_counter++;
-    // --- Devolver tabla de registros
-    for(int i=reg_manager.get_return_subprog_register()+1; i<old_context.register_table.size();i++){
-        this->register_table[i] = old_context.register_table[i];
-    }
-
-    // FUTURE
+    // --- Obtener la direccion de retorno
+    LVM_Stack_Block return_dir = stack.top(); stack.pop();
+    this->program_counter = return_dir.get_value<long>() + 1;
 }
 
 void LVM_CPU::execute_instruction_push_or_pop(const IR_instruction & instr){
@@ -1103,7 +1102,8 @@ LVM_CPU& LVM_CPU::get_instance(){
 
 void LVM_CPU::pre_start(){
     current_thread = new LVM_Thread(0,1,LVM_Segment_Table::SEGMENT_FOR_GLOBAL_VARIABLES);
-    execute_instruction(instructions[1]);
+    this->program_counter++;
+    execute_instruction(instructions[this->program_counter]);
     delete current_thread; current_thread = nullptr;
 }
 

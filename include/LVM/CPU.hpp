@@ -12,6 +12,7 @@
 
 // ----- INCLUSION DE DEPENDENCIAS -----
 
+#include <vector>
 #include <stack>
 #include <algorithm>
 #include <string>
@@ -43,8 +44,6 @@ class LVM_CPU{
         IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
         // -- Pila (para manejo de subprogramas)
         std::stack<LVM_Stack_Block> stack;
-        // -- Pila de contextos
-        std::stack<LVM_Context> stack_contexts;
         // -- Planificador de hebras
         LVM_Scheduler& scheduler = LVM_Scheduler::get_instance();
         // -- Hebra actual ejecutando CPU
