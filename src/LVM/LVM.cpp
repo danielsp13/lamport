@@ -49,6 +49,9 @@ bool LVM::preload_lvm(bool verbose_avaiable){
         // -- Volcar contenido a memoria
         this->initializer.dump_to_memory();
 
+        // -- Crear hebras iniciales
+        this->initializer.create_threads();
+
         // -- Imprimir contenido (si esta habilitado)
         if(verbose_avaiable){
             // -- Imprimir tabla de paginas
@@ -68,9 +71,14 @@ bool LVM::run(){
     if(this->state == LVM_STATE_PREPARED){
         // -- Cambiar estado a ejecutandose
         this->state == LVM_STATE_RUNNING;
+
+        // -- Preinicializar el programa
+        cpu.pre_start();
         
         // -- Ejecucion de listado de instrucciones
-        cpu.execute_instructions();
+        while(cpu.get_program_counter() < cpu.get_total_instructions()){
+            cpu.execute_next_instruction();
+        }
 
         return true;
     }

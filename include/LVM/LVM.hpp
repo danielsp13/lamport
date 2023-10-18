@@ -21,7 +21,6 @@
 #include "segment_table.hpp"            ///< Tabla de segmentos
 #include "initializer.hpp"              ///< Iniciador de maquina virtual
 #include "CPU.hpp"                      ///< CPU de la maquina virtual
-#include "IR/instruction_table.hpp"     ///< Tabla de instrucciones
 
 // ===============================================================
 

@@ -311,7 +311,7 @@ bool LMP_Logging::make_log_lvm(){
     }
 
     // -- Realizar logging de lvm
-    LVM::get_instance().print_pages_table(this->LMP_LOGGING_LVM_FILE);
+    LVM::get_instance().print_segment_table(this->LMP_LOGGING_LVM_FILE);
     LVM::get_instance().print_memory(this->LMP_LOGGING_LVM_FILE);
     tasker.task_ok();
 

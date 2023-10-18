@@ -19,11 +19,12 @@
 #include <unordered_map>
 #include <variant>
 
-#include "memory.hpp"               ///< Memoria de LVM
-#include "segment_table.hpp"        ///< Tabla de segmentos de LVM
-#include "bounds.hpp"               ///< Registro de limites de arrays
-#include "IR/table.hpp"             ///< Tablas IR
-#include "instruction_table.hpp"    ///< Tabla de instrucciones IR
+#include "memory.hpp"                   ///< Memoria de LVM
+#include "segment_table.hpp"            ///< Tabla de segmentos de LVM
+#include "bounds.hpp"                   ///< Registro de limites de arrays
+#include "scheduler.hpp"                ///< Planificador
+#include "IR/table.hpp"                 ///< Tablas IR
+#include "IR/instruction_table.hpp"     ///< Tabla de instrucciones IR
 
 
 // ===============================================================
@@ -51,6 +52,9 @@ class LVM_Initializer{
         // -- Registro de limites de arrays
         LVM_Bounds& bounds_arrays = LVM_Bounds::get_instance();
         // -- Planificador
+        LVM_Scheduler& scheduler = LVM_Scheduler::get_instance();
+        // -- Tabla de instrucciones
+        IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
         
 
         /**
@@ -107,6 +111,9 @@ class LVM_Initializer{
          */
         void dump_to_memory();
 
+        /**
+         * @brief Crea las hebras para la ejecucion de la maquina virtual
+         */
         void create_threads();
 };
 

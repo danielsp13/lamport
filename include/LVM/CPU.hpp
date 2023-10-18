@@ -23,6 +23,7 @@
 #include "memory.hpp"               ///< Memoria de Maquina Virtual
 #include "segment_table.hpp"        ///< Tabla de segmentos de memoria virtual
 #include "bounds.hpp"               ///< Registro de limites de arrays
+#include "scheduler.hpp"            ///< Planificador de hebras
 
 #include "IR/instruction.hpp"       ///< Instruccion
 #include "IR/instruction_table.hpp" ///< Tabla de instrucciones
@@ -44,6 +45,10 @@ class LVM_CPU{
         std::stack<LVM_Stack_Block> stack;
         // -- Pila de contextos
         std::stack<LVM_Context> stack_contexts;
+        // -- Planificador de hebras
+        LVM_Scheduler& scheduler = LVM_Scheduler::get_instance();
+        // -- Hebra actual ejecutando CPU
+        LVM_Thread* current_thread = nullptr;
         
         // -- Memoria de la maquina virtual
         LVM_Memory& memory = LVM_Memory::get_instance();
@@ -139,6 +144,20 @@ class LVM_CPU{
          * @return TRUE si es una operacion esperada, FALSE en otro caso
          */
         inline bool instruction_is_call_or_ret_subprogram(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es atomica
+         * @param instr : instruccion
+         * @return TRUE si es una operacion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_atomic(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es fork o join
+         * @param instr : instruccion
+         * @return TRUE si es una operacion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_fork_or_join(const IR_instruction & instr);
 
         /**
          * @brief Comprueba si una instruccion no es una instruccion (inicio de seccion de subprogramas)
@@ -308,6 +327,11 @@ class LVM_CPU{
          */
         void execute_instruction_pop_local(const IR_instruction & instr);
 
+        /**
+         * @brief Ejecuta un bloque de instrucciones atomicas
+         */
+        void execute_instruction_atomic();
+
     public:
         /**
          * @brief Obtiene la instancia
@@ -337,9 +361,22 @@ class LVM_CPU{
         int get_program_counter() const { return this->program_counter; };
 
         /**
-         * @brief Ejecuta la lista de instrucciones
+         * @brief Devuelve el total de instrucciones a ejecutar
+         * @return total de instrucciones
          */
-        void execute_instructions();
+        int get_total_instructions() const { return this->total_instructions; };
+
+        /**
+         * @brief Preinicia el programa, llegando a una seccion de proceso
+         */
+        void pre_start();
+
+        /**
+         * @brief Ejecuta la siguiente instruccion a la que apunta el contador de programa
+         */
+        void execute_next_instruction();
+
+        
 };
 
 #endif //_LAMPORT_LVM_CPU_DPR_

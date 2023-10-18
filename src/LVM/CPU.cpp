@@ -26,16 +26,34 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
     case IR_OPERAND_LITERAL:
     {
         virtual_segment = segments_table.SEGMENT_FOR_LITERALS;
+
+        // -- Obtener direccion fisica mirando en la tabla de segmentos
+        phisical_address = this->segments_table(virtual_segment,virtual_address);
+
         break;
     }
     case IR_OPERAND_VARIABLE:
     {
-        virtual_segment = 0;//segments_table.SEGMENT_FOR_VARIABLES;
+        virtual_segment = current_thread->get_segment();
+
+        // -- Obtener direccion fisica mirando en la tabla de segmentos
+        phisical_address = this->segments_table(virtual_segment,virtual_address);
+
+
+        // -- Si se ha obtenido -3, volver a intentarlo con variable global
+        if(phisical_address != -3)
+            break;
+
+        virtual_segment = segments_table.SEGMENT_FOR_GLOBAL_VARIABLES;
+
+        // -- Obtener direccion fisica mirando en la tabla de segmentos
+        phisical_address = this->segments_table(virtual_segment,virtual_address);
+
         break;
     }
     case IR_OPERAND_VARIABLE_ARRAY:
     {
-        virtual_segment = 0;//segments_table.SEGMENT_FOR_VARIABLES_ARRAY;
+        virtual_segment = current_thread->get_segment();
 
         // -- Obtener el registro que contiene el offset, y a continuacion el offset
         LVM_Register reg_offset = register_table[reg_index_offset];
@@ -46,6 +64,12 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
 
         // -- Preobtener direccion fisica
         phisical_address = this->segments_table(virtual_segment,virtual_address,offset);
+
+        // -- Si se ha obtenido -3, volver a intentarlo con variable global
+        if(phisical_address == -3){
+            virtual_segment = segments_table.SEGMENT_FOR_GLOBAL_VARIABLES;
+            phisical_address = this->segments_table(virtual_segment,virtual_address,offset);
+        }
 
         // -- Comprobar limites de array
         bounds_arrays.check_if_exceds_bound(virtual_address,phisical_address,offset);
@@ -58,15 +82,17 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
     case IR_OPERAND_LABEL:
     {
         virtual_segment = segments_table.SEGMENT_FOR_LABELS;
+
+        // -- Obtener direccion fisica mirando en la tabla de segmentos
+        phisical_address = this->segments_table(virtual_segment,virtual_address);
+
+
         break;
     }
     default:
         throw std::invalid_argument("SEGMENTO VIRTUAL DE OPERANDO INVALIDO.");
         break;
     }
-
-    // -- Obtener direccion fisica mirando en la tabla de paginas
-    phisical_address = this->segments_table(virtual_segment,virtual_address);
 
     // -- Retornar direccion fisica
     return phisical_address;
@@ -160,6 +186,7 @@ inline bool LVM_CPU::instruction_is_print(const IR_instruction & instr){
     const IR_instruction_type_t kind = instr.get_code_instr();
     
     result = kind == IR_OP_PRINT;
+    result = result == true ? true : kind == IR_END_PRINT;
 
     return result; 
 }
@@ -184,6 +211,25 @@ inline bool LVM_CPU::instruction_is_call_or_ret_subprogram(const IR_instruction 
     result = result == true ? true : kind == IR_OP_RET;
 
     return result; 
+}
+
+inline bool LVM_CPU::instruction_is_atomic(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_ATOMIC_BEGIN;
+
+    return result; 
+}
+
+inline bool LVM_CPU::instruction_is_fork_or_join(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_FORK;
+    result = result == true ? true : kind == IR_OP_JOIN;
+
+    return result;   
 }
 
 inline bool LVM_CPU::instruction_is_not_instruction(const IR_instruction & instr){
@@ -293,6 +339,14 @@ void LVM_CPU::execute_instruction(const IR_instruction & instr_to_exec){
     // ---- INSTRUCCION DE INICIO/FIN DE PROGRAMA
     else if(this->instruction_is_start_or_end_program(instr_to_exec)){
         this->execute_instruction_start_or_end_program(instr_to_exec);
+    }
+    // ---- INSTRUCCION ATOMICA
+    else if(this->instruction_is_atomic(instr_to_exec)){
+        this->execute_instruction_atomic();
+    }
+    // ---- INSTRUCCION FORK/JOIN
+    else if(this->instruction_is_fork_or_join(instr_to_exec)){
+        //TODO
     }
     // ---- INSTRUCCION NOT INSTRUCTION
     else if(this->instruction_is_not_instruction(instr_to_exec)){
@@ -775,6 +829,7 @@ void LVM_CPU::execute_instruction_jump(const IR_instruction & instr){
 }
 
 void LVM_CPU::execute_instruction_print(const IR_instruction & instr){
+
     // 1.B Elementos para ejecucion
     // ----- Operandos de instruccion
     IR_operand op_1;
@@ -828,6 +883,16 @@ void LVM_CPU::execute_instruction_print(const IR_instruction & instr){
     default:
         break;
     }
+
+
+
+    if(instructions[this->program_counter+1].get_code_instr() == IR_END_PRINT){
+        this->program_counter++;
+
+        // -- Imprimir salto de linea
+        std::cout << std::endl;
+    }
+
 }
 
 void LVM_CPU::execute_instruction_call_or_ret(const IR_instruction & instr){
@@ -1010,6 +1075,23 @@ void LVM_CPU::execute_instruction_pop_local(const IR_instruction & instr){
     this->execute_instruction_pop(instr,true);
 }
 
+void LVM_CPU::execute_instruction_atomic(){
+    // -- Buscar fin de seccion critica
+    int end_atomic_instr = program_counter+1;
+    for(int i=program_counter+1; i<total_instructions; i++){
+        if(instructions[i].get_code_instr() == IR_OP_ATOMIC_END){
+            end_atomic_instr = i;
+            break;
+        }
+    }
+
+    this->program_counter++;
+    while(program_counter != end_atomic_instr){
+        execute_instruction(instructions[this->program_counter]);
+    }
+    this->program_counter++;
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [CPU] -----
@@ -1019,9 +1101,32 @@ LVM_CPU& LVM_CPU::get_instance(){
     return instance;
 }
 
-void LVM_CPU::execute_instructions(){
-    while(get_program_counter() < total_instructions){
-        //std::cout << "PC: " << program_counter << std::endl;
+void LVM_CPU::pre_start(){
+    current_thread = new LVM_Thread(0,1,LVM_Segment_Table::SEGMENT_FOR_GLOBAL_VARIABLES);
+    execute_instruction(instructions[1]);
+    delete current_thread; current_thread = nullptr;
+}
+
+void LVM_CPU::execute_next_instruction(){
+    // -- Comprobar que el programa no ha terminado
+    if(!scheduler.program_terminated()){
+        // -- Planificar
+        scheduler.schedule();
+        // -- Obtener nueva hebra del planificador
+        current_thread = scheduler.get_current_thread();
+        // -- Obtener contador de programa actual
+        program_counter = current_thread->get_pc();
+
+        // -- Ejecutar instruccion
         execute_instruction(instructions[this->program_counter]);
+
+        // -- Guardar nuevo contador de programa
+        current_thread->set_pc(this->program_counter);
+
+        // -- Marcar que la hebra ha terminado su trabajo
+        current_thread->instruction_finished();
+    }
+    else{
+        this->program_counter = total_instructions;
     }
 }
