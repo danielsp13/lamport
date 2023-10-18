@@ -31,8 +31,9 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
     // ---- SENTENCIA DE BLOQUE DE SENTENCIAS ATOMICAS
     case STMT_ATOMIC:
     {
-        // TODO (ESPECIFICAR INICIO Y FIN DE BLOQUE ATOMICO)
+        instructions.emit_instruction(IR_OP_ATOMIC_BEGIN);
         this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_block.body,from_subprogram);
+        instructions.emit_instruction(IR_OP_ATOMIC_END);
         break;
     }
     // ---- SENTENCIA ASIGNACION
@@ -324,20 +325,8 @@ void IR_Translator_Statement::translate_statement_print_to_ir_instructions(struc
         current_expr_to_print = current_expr_to_print->next;
     }
 
-    // -- Cargar literal de salto de linea e imprimir al final de la sentencia
-    struct expression * expr_endl = create_expression_literal_string(std::string("\n").c_str());
-
-    // -- Obtener registro de carga de expresion
-    reg_expression = expr_translator.translate(expr_endl);
-
-    // -- Generar operando de registro
-    op_print = instructions.emit_operand_register(reg_expression);
-
-    // -- Emitir instruccion de impresion
-    instructions.emit_instruction(IR_OP_PRINT,op_print);
-
-    // -- Liberar expresion utilizada
-    free_expression(expr_endl);
+    // -- Emitir instruccion de fin de impresion
+    instructions.emit_instruction(IR_END_PRINT);
 }
 
 void IR_Translator_Statement::translate_statement_procedure_inv_to_ir_instructions(struct statement * stmt, bool from_subprogram){

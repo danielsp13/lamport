@@ -65,6 +65,7 @@ typedef enum{
 
     // -- Definicion de instrucciones de entrada/salida
     IR_OP_PRINT,                ///< Instruccion de impresion
+    IR_END_PRINT,               ///< Indica fin de flujo de salida
 
     // -- Definicion de instrucciones para procedimientos/funciones (subprogramas)
     IR_OP_CALL,                 ///< Instruccion de llamada a subprograma
@@ -128,6 +129,7 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {IR_OP_JMP_TRUE, "IR_OP_JMP_TRUE"},
     {IR_OP_JMP_FALSE, "IR_OP_JMP_FALSE"},
     {IR_OP_PRINT, "IR_OP_PRINT"},
+    {IR_END_PRINT,"IR_END_PRINT"},
     {IR_OP_CALL, "IR_OP_CALL"},
     {IR_OP_RET, "IR_OP_RET"},
     {IR_LABEL, ""},
@@ -141,6 +143,8 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {IR_END_PROGRAM,"IR_END_PROGRAM"},
     {NOT_IR_START_SUBPROGRAM_INSTR, " -------- START SUBPROGRAMS SECTION --------"},
     {NOT_IR_END_SUBPROGRAM_INSTR, " -------- END SUBPROGRAMS SECTION --------"},
+    {IR_OP_ATOMIC_BEGIN," -->-- ATOMIC_BEGIN --<--"},
+    {IR_OP_ATOMIC_END," -->-- ATOMIC_END --<--"},
 };
 
 #endif //_LAMPORT_IR_IR_INSTRUCTION_TYPE_
