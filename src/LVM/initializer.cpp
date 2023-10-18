@@ -211,9 +211,10 @@ void LVM_Initializer::dump_variables(){
                 // --- Continuar
                 continue;
             }
-            else if(var_type == IR_VAR_TYPE_DPROCESS){
-                continue;
-            }
+            
+        }
+        else if(var_type == IR_VAR_TYPE_DPROCESS){
+            continue;
         }
 
         // -- 2 comprobar si la variable refiere a un array
