@@ -1,0 +1,25 @@
+{Fichero: typecheck_expressions.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripcion: Contiene errores semanticos de typechecking: expresiones}
+
+program Sentencias
+	var v1 : boolean := false;
+	var v2 : string := "hola";
+	var v3 : integer;
+	var v4 : real := 8.0;
+	
+process Main;
+	var v5 : real := 8.5;
+	var v6 : string := "adios";
+	var v7 : char := 'd';
+	var resultado1 : boolean;
+begin
+	{CORRECTO}
+	resultado1 := v2 == v6 and v4 > v5;
+	{ERROR}
+	resultado1 := v6 < v4;
+	{ERROR}
+	resultado1 := v7 != v1;
+	{ERROR}
+	resultado1 := v6 < v2;
+end
