@@ -25,17 +25,17 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
     {
     case IR_OPERAND_LITERAL:
     {
-        virtual_segment = pages_table.SEGMENT_FOR_LITERALS;
+        virtual_segment = segments_table.SEGMENT_FOR_LITERALS;
         break;
     }
     case IR_OPERAND_VARIABLE:
     {
-        virtual_segment = pages_table.SEGMENT_FOR_VARIABLES;
+        virtual_segment = 0;//segments_table.SEGMENT_FOR_VARIABLES;
         break;
     }
     case IR_OPERAND_VARIABLE_ARRAY:
     {
-        virtual_segment = pages_table.SEGMENT_FOR_VARIABLES_ARRAY;
+        virtual_segment = 0;//segments_table.SEGMENT_FOR_VARIABLES_ARRAY;
 
         // -- Obtener el registro que contiene el offset, y a continuacion el offset
         LVM_Register reg_offset = register_table[reg_index_offset];
@@ -45,7 +45,7 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
         bounds_arrays.check_if_is_negative_offset(offset);
 
         // -- Preobtener direccion fisica
-        phisical_address = this->pages_table(virtual_segment,virtual_address,offset);
+        phisical_address = this->segments_table(virtual_segment,virtual_address,offset);
 
         // -- Comprobar limites de array
         bounds_arrays.check_if_exceds_bound(virtual_address,phisical_address,offset);
@@ -57,7 +57,7 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
     }
     case IR_OPERAND_LABEL:
     {
-        virtual_segment = pages_table.SEGMENT_FOR_LABELS;
+        virtual_segment = segments_table.SEGMENT_FOR_LABELS;
         break;
     }
     default:
@@ -66,7 +66,7 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
     }
 
     // -- Obtener direccion fisica mirando en la tabla de paginas
-    phisical_address = this->pages_table(virtual_segment,virtual_address);
+    phisical_address = this->segments_table(virtual_segment,virtual_address);
 
     // -- Retornar direccion fisica
     return phisical_address;

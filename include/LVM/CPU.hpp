@@ -21,12 +21,12 @@
 #include "context.hpp"              ///< Contexto
 
 #include "memory.hpp"               ///< Memoria de Maquina Virtual
-#include "page_table.hpp"           ///< Tabla de paginas de memoria virtual
+#include "segment_table.hpp"        ///< Tabla de segmentos de memoria virtual
 #include "bounds.hpp"               ///< Registro de limites de arrays
 
 #include "IR/instruction.hpp"       ///< Instruccion
-#include "IR/instruction_table.hpp"    ///< Tabla de instrucciones
-#include "IR/ir_reg_manager.hpp"       ///< Manejador de registros
+#include "IR/instruction_table.hpp" ///< Tabla de instrucciones
+#include "IR/ir_reg_manager.hpp"    ///< Manejador de registros
 
 // ===============================================================
 
@@ -48,7 +48,7 @@ class LVM_CPU{
         // -- Memoria de la maquina virtual
         LVM_Memory& memory = LVM_Memory::get_instance();
         // -- Tabla de paginas
-        LVM_Page_Table& pages_table = LVM_Page_Table::get_instance();
+        LVM_Segment_Table& segments_table = LVM_Segment_Table::get_instance();
         // -- Registro de limites de array
         LVM_Bounds& bounds_arrays = LVM_Bounds::get_instance();
 

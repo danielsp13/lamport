@@ -18,7 +18,7 @@
 #include <stack>
 
 #include "memory.hpp"                   ///< Memoria de la maquina virtual
-#include "page_table.hpp"               ///< Tabla de paginas
+#include "segment_table.hpp"            ///< Tabla de segmentos
 #include "initializer.hpp"              ///< Iniciador de maquina virtual
 #include "CPU.hpp"                      ///< CPU de la maquina virtual
 #include "IR/instruction_table.hpp"     ///< Tabla de instrucciones
@@ -70,10 +70,10 @@ class LVM{
         ~LVM();
 
         /**
-         * @brief Imprime el contenido de la tabla de paginas
+         * @brief Imprime el contenido de la tabla de segmentos
          * @param os : flujo de impresion
          */
-        void print_pages_table(std::ostream& os = std::cout);
+        void print_segment_table(std::ostream& os = std::cout);
 
         /**
          * @brief Imprime el contenido de la memoria

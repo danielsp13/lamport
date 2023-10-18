@@ -27,11 +27,11 @@ LVM::~LVM(){
         this->state = LVM_STATE_SHUTDOWN;
 }
 
-void LVM::print_pages_table(std::ostream& os){
+void LVM::print_segment_table(std::ostream& os){
     if(this->state == LVM_STATE_BORN)
         return;
 
-    LVM_Page_Table::get_instance().print_page_table(os);
+    LVM_Segment_Table::get_instance().print_segment_table(os);
 }
 
 void LVM::print_memory(std::ostream& os){
@@ -52,7 +52,7 @@ bool LVM::preload_lvm(bool verbose_avaiable){
         // -- Imprimir contenido (si esta habilitado)
         if(verbose_avaiable){
             // -- Imprimir tabla de paginas
-            this->print_pages_table();
+            this->print_segment_table();
 
             // -- Imprimir memoria
             this->print_memory();
