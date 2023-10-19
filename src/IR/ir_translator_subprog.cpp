@@ -76,10 +76,18 @@ void IR_Translator_Subprogram::translate_subprogram_to_ir_instructions(struct su
 void IR_Translator_Subprogram::translate_list_subprograms_to_ir_instructions(struct subprogram * list_subprog){
     struct subprogram *current_subprog = list_subprog;
     while(current_subprog != NULL){
+        std::string subprog_name = std::string(current_subprog->name_subprogram);
+        decl_translator.set_precedence(subprog_name);
+        stmt_translator.set_precedence(subprog_name);
+
+
         // -- Traducir declaracion
         this->translate_subprogram_to_ir_instructions(current_subprog);
         // -- Ir a siguiente declaracion
         current_subprog = current_subprog->next;
+
+        decl_translator.reset_precedence();
+        stmt_translator.reset_precedence();
     }
 }
 

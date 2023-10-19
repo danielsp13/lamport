@@ -46,6 +46,7 @@ int IR_Translator_Declaration::initialize_variable_local_subprogram(std::string 
 
     // --- 4.B.1.A.3 Obtener variable para valor de inicializacion
     IR_variable var_local(IR_VAR_LOCAL,var_name.c_str(),var_type);
+    var_local.set_precedence(this->precedence);
 
     int id_literal_in_table;
     switch (var_local.get_type())
@@ -119,8 +120,15 @@ void IR_Translator_Declaration::translate_declaration_to_ir_instruction(struct d
                 initialize_variable_local_subprogram(var_name,var_type);
         }
         else{
-            // -- 4.A.3.A Registrar variable
-            id_variable_in_table = tables.add_entry_variable(var_scope,var_name,var_type,var_size);
+            if(var_scope == IR_VAR_GLOBAL){
+                // -- 4.A.3.A Registrar variable
+                id_variable_in_table = tables.add_entry_variable(var_scope,var_name,var_type,var_size);
+            }
+            else{
+                // -- 4.A.3.A Registrar variable
+                id_variable_in_table = tables.add_entry_variable(var_scope,var_name,precedence,var_type,var_size);
+            }
+            
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -134,8 +142,15 @@ void IR_Translator_Declaration::translate_declaration_to_ir_instruction(struct d
             id_register_subprog_variable = initialize_variable_local_subprogram(var_name,var_type);
         }
         else{
-            // --- 4.B.1.B.1 Registrar variable
-            id_variable_in_table = tables.add_entry_variable(var_scope,var_name,var_type);
+            if(var_scope == IR_VAR_GLOBAL){
+                // --- 4.B.1.B.1 Registrar variable
+                id_variable_in_table = tables.add_entry_variable(var_scope,var_name,var_type);
+            }
+            else{
+                // --- 4.B.1.B.1 Registrar variable
+                id_variable_in_table = tables.add_entry_variable(var_scope,var_name,precedence,var_type);
+            }
+            
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -186,8 +201,12 @@ void IR_Translator_Declaration::translate_declaration_to_ir_instruction(struct d
 void IR_Translator_Declaration::translate_list_declarations_to_ir_instructions(struct declaration * list_decl, bool from_subprogram){
     struct declaration *current_decl = list_decl;
     while(current_decl != NULL){
+        expr_translator.set_precedence(precedence);
+
         // -- Traducir declaracion
         this->translate_declaration_to_ir_instruction(current_decl,from_subprogram);
+
+        expr_translator.reset_precedence();
 
         // -- Ir a siguiente declaracion
         current_decl = current_decl->next;

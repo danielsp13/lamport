@@ -148,9 +148,31 @@ int IR_Tables::add_entry_variable(IR_variable_t kind, std::string var_name, IR_v
     return table_variables.size()-1;
 }
 
+int IR_Tables::add_entry_variable(IR_variable_t kind, std::string var_name, std::string precedence, IR_variable_type_t type){
+    // -- Crear entrada para variable e insertar
+    std::unique_ptr<IR_Table_Entry_Variable> entry = std::make_unique<IR_Table_Entry_Variable>(kind,var_name.c_str(),type);
+    entry->set_precedence(precedence);
+
+    table_variables.push_back(std::move(entry));
+
+    // -- Retornar direccion de almacenamiento de literal
+    return table_variables.size()-1;
+}
+
 int IR_Tables::add_entry_variable(IR_variable_t kind, std::string var_name, IR_variable_type_t arr_type, size_t arr_size){
     // -- Crear entrada para variable e insertar
     table_variables.push_back(std::make_unique<IR_Table_Entry_Variable>(kind,var_name.c_str(),arr_type,arr_size));
+
+    // -- Retornar direccion de almacenamiento de literal
+    return table_variables.size()-1;
+}
+
+int IR_Tables::add_entry_variable(IR_variable_t kind, std::string var_name, std::string precedence, IR_variable_type_t arr_type, size_t arr_size){
+    // -- Crear entrada para variable e insertar
+    std::unique_ptr<IR_Table_Entry_Variable> entry = std::make_unique<IR_Table_Entry_Variable>(kind,var_name.c_str(),arr_type,arr_size);
+    entry->set_precedence(precedence);
+
+    table_variables.push_back(std::move(entry));
 
     // -- Retornar direccion de almacenamiento de literal
     return table_variables.size()-1;
@@ -349,7 +371,7 @@ int IR_Tables::get_index_from_label_id(std::string id_label){
     return -1;
 }
 
-int IR_Tables::get_index_from_local_variable(std::string var_name){
+int IR_Tables::get_index_from_local_variable(std::string var_name, std::string precedence){
     // -- Recorrer tabla de literales
     IR_Table_Entry_Variable * entry = nullptr;
     IR_variable * var = nullptr;
@@ -361,11 +383,11 @@ int IR_Tables::get_index_from_local_variable(std::string var_name){
         if(entry->get_kind_variable() != IR_VAR_LOCAL)
             continue;
 
-        // -- Recuperar literal
+        // -- Recuperar variable
         var = entry->get_variable();
 
         // -- Comprobar si el valor coincide
-        if(var->get_name() == var_name)
+        if(var->get_name() == var_name && var->get_precedence() == precedence)
             return i;
     }
 

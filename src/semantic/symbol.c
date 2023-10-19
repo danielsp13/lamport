@@ -68,12 +68,27 @@ struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, in
     // -- Asignar linea en la que se encontro el simbolo
     symb->line = line;
 
+    symb->precedence = NULL;
+
     // -- Retornar simbolo creado e inicializado
     return symb;
 }
 
-struct symbol * create_symbol_local(struct type * type, char * name, unsigned long line){
-    return create_symbol(SYMBOL_LOCAL, type, name, -1, line);
+struct symbol * create_symbol_local(struct type * type, char * name, char * precedence, unsigned long line){
+    struct symbol * symb = create_symbol(SYMBOL_LOCAL, type, name, -1, line);
+    if(!symb)
+        return NULL;
+
+    if(!precedence)
+        return symb;
+
+    symb->precedence = strdup(precedence);
+    if(!symb->precedence){
+        free_symbol(symb);
+        return NULL;
+    }
+
+    return symb;
 }
 
 struct symbol * create_symbol_global(struct type * type, char * name, unsigned long line){
@@ -122,6 +137,11 @@ void free_symbol(struct symbol * symb){
     if(symb->type){
         free_type(symb->type);
         symb->type = NULL;
+    }
+
+    if(symb->precedence){
+        free(symb->precedence);
+        symb->precedence = NULL;
     }
 
     // -- Apuntar a NULL la lista de tipos de parametros

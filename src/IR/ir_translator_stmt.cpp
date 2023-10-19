@@ -135,7 +135,7 @@ void IR_Translator_Statement::translate_statement_assignment_to_ir_instructions(
     }
     // ---- 2.B En otro caso, buscar en la tabla
     else{
-        id_variable_in_table = tables.get_index_from_local_variable(var_name);
+        id_variable_in_table = tables.get_index_from_local_variable(var_name,precedence);
         if(id_variable_in_table == -1){
             // ---- Buscar en otro scope
             id_variable_in_table = tables.get_index_from_global_variable(var_name);
@@ -217,7 +217,7 @@ void IR_Translator_Statement::translate_statement_for_to_ir_instructions(struct 
     // ---- 0. Obtener identificador de contador de bucle
     std::string index_name = std::string(stmt->stmt.statement_for.counter_name);
     // ---- 1. Registrar en tabla de variables
-    int id_variable_in_table = tables.add_entry_variable(IR_VAR_LOCAL,index_name,IR_VAR_TYPE_INT);
+    int id_variable_in_table = tables.add_entry_variable(IR_VAR_LOCAL,index_name,precedence,IR_VAR_TYPE_INDEX);
 
     // ---- 2. Inicializar el contador
     const int reg_index_init = expr_translator.translate(stmt->stmt.statement_for.intialization,from_subprogram);
@@ -398,7 +398,7 @@ void IR_Translator_Statement::translate_statement_fork_to_ir_instructions(struct
     // -- 1. Generar nombre para proceso dinamico
     std::string dprocess_name = std::string("dp_") + procedure_name;
     // -- 2. Registrar como variable local
-    int id_variable_in_table = tables.add_entry_variable(IR_VAR_LOCAL,dprocess_name,IR_VAR_TYPE_DPROCESS);
+    int id_variable_in_table = tables.add_entry_variable(IR_VAR_LOCAL,dprocess_name,precedence,IR_VAR_TYPE_DPROCESS);
     // -- 3. Generar operando de variable dinamic
     IR_operand op_1 = instructions.emit_operand_variable(id_variable_in_table);
     // -- 4. Obtener etiqueta de salto a procedimiento
@@ -416,7 +416,7 @@ void IR_Translator_Statement::translate_statement_join_to_ir_instructions(struct
     std::string forked_procedure = std::string("dp_") + std::string(stmt->stmt.statement_join.joined_procedure);
 
     // -- 1. Buscar referencia en la tabla de variables
-    int id_variable_in_table = tables.get_index_from_local_variable(forked_procedure);
+    int id_variable_in_table = tables.get_index_from_local_variable(forked_procedure,precedence);
     if(id_variable_in_table == -1)
         id_variable_in_table = tables.get_index_from_global_variable(forked_procedure);
 
@@ -427,6 +427,8 @@ void IR_Translator_Statement::translate_statement_join_to_ir_instructions(struct
 }
 
 void IR_Translator_Statement::translate_list_statements_to_ir_instructions(struct statement * list_stmt, bool from_subprogram){
+    expr_translator.set_precedence(precedence);
+
     struct statement *current_stmt = list_stmt;
     while(current_stmt != NULL){
         // -- Traducir sentencia
@@ -434,6 +436,8 @@ void IR_Translator_Statement::translate_list_statements_to_ir_instructions(struc
         // -- Ir a siguiente sentencia
         current_stmt = current_stmt->next;
     }
+
+    expr_translator.reset_precedence();
 }
 
 // ===============================================================

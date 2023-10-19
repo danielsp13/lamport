@@ -75,6 +75,7 @@ typedef enum{
     IR_VAR_TYPE_DPROCESS,            ///< Tipo proceso dinamico
     IR_VAR_TYPE_PROCESS,             ///< Tipo proceso estatico
     IR_VAR_TYPE_SUBPROGRAM,          ///< Tipo subprograma
+    IR_VAR_TYPE_INDEX,               ///< Tipo indice
 } IR_variable_type_t;
 
 /**
@@ -91,6 +92,7 @@ const std::unordered_map<IR_variable_type_t, std::string> IR_variable_type_t_str
     {IR_VAR_TYPE_DPROCESS, "dynamic process"},
     {IR_VAR_TYPE_PROCESS, "static process"},
     {IR_VAR_TYPE_SUBPROGRAM,"subprogram"},
+    {IR_VAR_TYPE_INDEX, "index"},
 };
 
 /**
@@ -165,6 +167,7 @@ class IR_variable{
         IR_variable_t kind;             ///< Tipo de variable
         std::string var_name;           ///< Nombre de variable
         std::string pseudo_name;        ///< Pseudonimo de variable (si es indice)
+        std::string precedence;         ///< Precedencia de la variable (solo para locales)
         IR_variable_type type;          ///< Tipo de dato de variable
         data_type value;                ///< Valor de variable
         
@@ -197,6 +200,17 @@ class IR_variable{
          * @brief Destructor de variable (por defecto)
          */
         ~IR_variable() = default;
+
+        /**
+         * 
+         */
+        void set_precedence(std::string prec){ precedence = prec; };
+
+        /**
+         * @brief Obtiene la precedencia de la variable
+         * @return precedence
+         */
+        std::string get_precedence() {return precedence; };
 
         /**
          * @brief Obtiene el tipo de variable

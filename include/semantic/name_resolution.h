@@ -33,8 +33,9 @@ extern "C" {
 /**
  * @brief Realiza la resolucion de nombres a una lista de declaraciones
  * @param list_declarations : puntero a lista de declaraciones
+ * @param precedence : nombre de precedencia de la lista de declaraciones
  */
-void resolve_list_declarations(struct declaration *list_declarations);
+void resolve_list_declarations(struct declaration *list_declarations, char * precedence);
 
 /**
  * @brief Realiza la resolucion de nombres a una lista de expresiones
@@ -73,8 +74,9 @@ void resolve_list_subprograms(struct subprogram *list_subprograms);
 /**
  * @brief Realiza la resolución de nombres dentro de una declaración de variable.
  * @param decl : puntero a declaracion de una variable
+ * @param precedence : precedencia de la declaracion
  */
-void resolve_declaration(struct declaration *decl);
+void resolve_declaration(struct declaration *decl, char * precedence);
 
 // ===============================================================
 

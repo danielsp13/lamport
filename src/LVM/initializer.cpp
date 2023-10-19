@@ -241,6 +241,10 @@ void LVM_Initializer::dump_variables(){
             bounds_arrays.insert_upper_bounds(i,start_addr+address-1);
         }
         else{
+            if(var_type == IR_VAR_TYPE_INDEX){
+                segment_address = segment_table.SEGMENT_FOR_INDEXES;
+            }
+
             // -- 2. Obtener el bloque de memoria inicializado
             mem_block = this->initialize_mem_block(1,var);
 

@@ -39,6 +39,9 @@ class IR_Translator_Statement{
         /// Asistente de traduccion
         IR_Translator_Assistant& assistant_translator = IR_Translator_Assistant::get_instance();
 
+        // -- Precedencia de las operaciones
+        std::string precedence = "";
+
         /**
          * @brief Constructor de la clase
          */
@@ -121,6 +124,16 @@ class IR_Translator_Statement{
          * @return instance
          */
         static IR_Translator_Statement& get_instance();
+
+        /**
+         * @brief Especifica la precedencia de las operaciones de sentencia
+         */
+        void set_precedence(std::string prec){ precedence = prec; };
+
+        /**
+         * @brief Resetea precedencia de operaciones de sentencia
+         */
+        void reset_precedence() {precedence = ""; };
 
         /**
          * @brief Destructor de la clase (por defecto)

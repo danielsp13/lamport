@@ -12,14 +12,14 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES DE RESOLUCION DE NOMBRES (LISTAS) -----
 
-void resolve_list_declarations(struct declaration *list_declarations){
+void resolve_list_declarations(struct declaration *list_declarations, char * precedence){
     // -- Obtener declaracion actual de la lista
     struct declaration *current_declaration = list_declarations;
 
     // -- Realizar procedimiento mientras haya un nodo en la lista
     while(current_declaration){
         // -- Aplicar resolucion de nombres a nodo
-        resolve_declaration(current_declaration);
+        resolve_declaration(current_declaration,precedence);
 
         // -- Ir a siguiente declaracion
         current_declaration = current_declaration->next;
@@ -104,7 +104,7 @@ void resolve_list_subprograms(struct subprogram *list_subprograms){
 
 // ----- IMPLEMENTACION DE FUNCIONES DE RESOLUCION DE NOMBRES (NODO DECLARACIONES) -----
 
-void resolve_declaration(struct declaration *decl){
+void resolve_declaration(struct declaration *decl, char * precedence){
     // -- Comprobar que la declaracion existe
     if(!decl)
         return;
@@ -131,7 +131,7 @@ void resolve_declaration(struct declaration *decl){
         {
         case SYMBOL_LOCAL:
         {
-            decl->symb = create_symbol_local(decl->type, decl->name, decl->line);
+            decl->symb = create_symbol_local(decl->type, decl->name, precedence, decl->line);
             break;
         }
 
@@ -508,7 +508,7 @@ void resolve_statement_for(struct statement *stmt){
     else{
         // -- Creamos un simbolo de tipo local
         struct type * type_symb = create_basic_type(TYPE_INTEGER);
-        struct symbol * new_symb = create_symbol_local(type_symb, stmt->stmt.statement_for.counter_name, stmt->stmt.statement_for.line);
+        struct symbol * new_symb = create_symbol_local(type_symb, stmt->stmt.statement_for.counter_name,NULL, stmt->stmt.statement_for.line);
         free_type(type_symb);
 
         if(new_symb){
@@ -718,7 +718,7 @@ void resolve_process(struct process *proc){
     push_scope_to_symbol_table();
 
     // -- Aplicar resolucion de nombres a declaraciones de proceso
-    resolve_list_declarations(proc->declarations);
+    resolve_list_declarations(proc->declarations,proc->name_process);
 
     switch (proc->kind)
     {
@@ -767,9 +767,9 @@ void resolve_process_vector(struct process *proc){
         add_error_semantic_to_list(error);
     }
     else{
-        // -- Creamos un simbolo de tipo global
+        // -- Creamos un simbolo de tipo local
         struct type * type_symb = create_basic_type(TYPE_INTEGER);
-        struct symbol * new_symb = create_symbol_global(type_symb, proc->index_identifier, proc->line);
+        struct symbol * new_symb = create_symbol_local(type_symb, proc->index_identifier, proc->name_process, proc->line);
         free_type(type_symb);
 
         if(new_symb){
@@ -910,7 +910,7 @@ void resolve_subprogram(struct subprogram *subprog){
     resolve_list_parameters(subprog->parameters);
 
     // -- Aplicar resolucion de nombres a declaraciones
-    resolve_list_declarations(subprog->declarations);
+    resolve_list_declarations(subprog->declarations,subprog->name_subprogram);
 
     // -- Aplicar resolucion de nombres a sentencias
     resolve_list_statements(subprog->statements);
@@ -938,7 +938,7 @@ void resolve_program(struct program *prog){
     push_scope_to_symbol_table();
 
     // -- Aplicar resolucion de nombres a lista de declaraciones
-    resolve_list_declarations(prog->declarations);
+    resolve_list_declarations(prog->declarations,NULL);
 
     // -- Aplicar resolucion de nombres a lista de subprogramas
     resolve_list_subprograms(prog->subprograms);
