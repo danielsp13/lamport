@@ -96,7 +96,11 @@ typedef enum{
 
     // -- Definicion de instruccion de fin de programa
     IR_START_PROGRAM,           ///< Instruccion de inicio de programa
-    IR_END_PROGRAM,             ///< Instruccion de fin de programa          
+    IR_END_PROGRAM,             ///< Instruccion de fin de programa  
+
+    // -- Definicion de instrucciones de manejo de semaforos
+    IR_OP_SEM_WAIT,             ///< Instruccion de wait de semaforo
+    IR_OP_SEM_SIGNAL,           ///< Instruccion de signal de semaforo
 
     // ----------------------------------------------------
 
@@ -110,7 +114,6 @@ typedef enum{
 // ----- MAPA CONVERSOR DE ENUMERADO A STRING -----
 
 const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = {
-    //{IR_LABEL, ""},
     {IR_OP_LOAD, "IR_OP_LOAD"},
     {IR_OP_STORE, "IR_OP_STORE"},
     {IR_OP_ADD, "IR_OP_ADD"},
@@ -153,7 +156,9 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {IR_START_COBEGIN_THREAD,"START_COBEGIN_THREAD"},
     {IR_END_COBEGIN_THREAD,"END_COBEGIN_THREAD"},
     {IR_OP_FORK,"IR_OP_FORK"},
-    {IR_OP_JOIN,"IR_OP_JOIN"}
+    {IR_OP_JOIN,"IR_OP_JOIN"},
+    {IR_OP_SEM_WAIT,"IR_SEM_WAIT --> "},
+    {IR_OP_SEM_SIGNAL,"IR_SEM_SIGNAL --> "},
 };
 
 #endif //_LAMPORT_IR_IR_INSTRUCTION_TYPE_

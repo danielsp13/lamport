@@ -112,8 +112,9 @@
 %token ATOM_INI 316
 %token ATOM_FIN 317
 %token PRINT 318
-%token NEWLINE 319
-%token UNRECOGNIZED_TOKEN 320
+%token SEM_WAIT 319
+%token SEM_SIGNAL 320
+%token UNRECOGNIZED_TOKEN 321
 
 // ---- Indicar a bison donde encontrar la cabecera de tokens
 %define api.header.include { "lexer/token.h" }
@@ -203,6 +204,8 @@
 %type <stmt> fork-statement join-statement
 %type <stmt> return-statement 
 %type <stmt> print-statement
+%type <stmt> sem-wait-statement
+%type <stmt> sem-signal-statement
 
 // ---- TIPO identifier
 %type <ident> IDENT
@@ -892,6 +895,12 @@ statement:
     | print-statement{
         $$ = $1;
     }
+    | sem-wait-statement{
+        $$ = $1;
+    }
+    | sem-signal-statement{
+        $$ = $1;
+    }
     | block-statements-atomic{
         $$ = $1;
     }
@@ -1078,6 +1087,30 @@ list-print:
     | expression{
         if(!have_syntax_errors()){
             $$ = $1;
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    ;
+
+sem-wait-statement:
+    SEM_WAIT IDENT DELIM_PC{
+        if(!have_syntax_errors()){
+            $$ = create_statement_sem_wait($2, yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    ;
+
+sem-signal-statement:
+    SEM_SIGNAL IDENT DELIM_PC{
+        if(!have_syntax_errors()){
+            $$ = create_statement_sem_signal($2, yylineno);
+            add_statement_to_register($$);
         }
         else{
             $$ = 0;

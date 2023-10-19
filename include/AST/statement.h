@@ -46,7 +46,9 @@ typedef enum{
     STMT_JOIN,           ///< Sentencia join
     STMT_ATOMIC,         ///< Sentencia atomica
     STMT_RETURN,         ///< Sentencia de retorno (para funciones)
-    STMT_PRINT           ///< Sentencia de impresion de expresiones
+    STMT_PRINT,          ///< Sentencia de impresion de expresiones
+    STMT_SEM_WAIT,       ///< Sentencia de wait de semaforo
+    STMT_SEM_SIGNAL,     ///< Sentencia de signal de semaforo       
 } statement_t;
 
 // ===============================================================
@@ -131,6 +133,17 @@ typedef enum{
  *    --> Estado de los atributos del struct:
  *          ///> kind       -> STMT_PRINT
  *          ///> stmt       -> statement_print
+ * 
+ * STMT_WAIT :
+ *    --> Descripcion: Indica la operacion wait sobre un semaforo
+ *          ///> kind       -> STMT_WAIT
+ *          ///> stmt       -> statement_sem_wait
+ * 
+ * STMT_SIGNAL :
+ *    --> Descripcion: Indica la operacion signal sobre un semaforo
+ *    --> Estado de los atributos del struct:
+ *          ///> kind       -> STMT_SIGNAL
+ *          ///> stmt       -> statement_sem_signal
  */
 struct statement{
     statement_t kind;                               ///< Tipo de sentencia
@@ -218,6 +231,15 @@ struct statement{
         struct{
             struct expression *expressions_list;    ///< Lista de expresiones a imprimir
         } statement_print;
+
+        // Estructura de sentencia wait de semaforo
+        struct{
+            char * semaphore_name;
+            unsigned long line;
+
+            struct symbol *symb;        
+        } statement_semaphore;
+
     } stmt;                                         ///< Sentencia
     
 };
@@ -342,7 +364,21 @@ struct statement * create_statement_return(struct expression *returned_expr, uns
  */
 struct statement * create_statement_print(struct expression *expressions_list);
 
+/**
+ * @brief Crea y reserva memoria para una sentencia de wait de semaforo
+ * @param semaphore_id : identificador de semaforo
+ * @param line : linea de definicion de sentencia
+ * @return puntero a sentencia creada e inicializada
+ */
+struct statement * create_statement_sem_wait(char * semaphore_id, unsigned long line);
 
+/**
+ * @brief Crea y reserva memoria para una sentencia de signal de semaforo
+ * @param semaphore_id : identificador de semaforo
+ * @param line : linea de definicion de sentencia
+ * @return puntero a sentencia creada e inicializada
+ */
+struct statement * create_statement_sem_signal(char * semaphore_id, unsigned long line);
 
 // ===============================================================
 

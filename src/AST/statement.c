@@ -95,6 +95,18 @@ struct statement * create_statement(statement_t kind){
         break;
     }
 
+    case STMT_SEM_WAIT:
+    {
+        st->kind_str = strdup("sem wait");
+        break;
+    }
+
+    case STMT_SEM_SIGNAL:
+    {
+        st->kind_str = strdup("sem signal");
+        break;
+    }
+
     default:
     {
         st->kind_str = NULL;
@@ -358,6 +370,36 @@ struct statement * create_statement_print(struct expression *expressions_list){
     return st;
 }
 
+struct statement * create_statement_sem_wait(char * semaphore_id, unsigned long line){
+    struct statement *st = create_statement(STMT_SEM_WAIT);
+
+    if(!st)
+        return NULL;
+
+    st->stmt.statement_semaphore.semaphore_name = strdup(semaphore_id);
+    if(!st->stmt.statement_semaphore.semaphore_name){
+        return NULL;
+    }
+    st->stmt.statement_semaphore.line = line;
+
+    return st;
+}
+
+struct statement * create_statement_sem_signal(char * semaphore_id, unsigned long line){
+    struct statement *st = create_statement(STMT_SEM_SIGNAL);
+
+    if(!st)
+        return NULL;
+
+    st->stmt.statement_semaphore.semaphore_name = strdup(semaphore_id);
+    if(!st->stmt.statement_semaphore.semaphore_name){
+        return NULL;
+    }
+    st->stmt.statement_semaphore.line = line;
+
+    return st;
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE FUNCIONES PARA LIBERACION DE MEMORIA DEL AST (NODO SENTENCIAS) -----
@@ -539,6 +581,24 @@ void free_statement(struct statement *stmt){
         stmt->stmt.statement_print.expressions_list = NULL;
         break;
     }
+
+    case STMT_SEM_WAIT:
+    {
+        if(stmt->stmt.statement_semaphore.semaphore_name){
+            free(stmt->stmt.statement_semaphore.semaphore_name);
+            stmt->stmt.statement_semaphore.semaphore_name = NULL;
+        }
+        break;
+    }
+
+    case STMT_SEM_SIGNAL:
+    {
+        if(stmt->stmt.statement_semaphore.semaphore_name){
+            free(stmt->stmt.statement_semaphore.semaphore_name);
+            stmt->stmt.statement_semaphore.semaphore_name = NULL;
+        }
+        break;
+    }
     }
     
     // -- Liberar nodo
@@ -669,6 +729,18 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth,
         {
             fprintf(output,"%s%s %c LISTADO DE EXPRESIONES A IMPRIMIR:\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_print.expressions_list,NEXT_NODE_DEPTH,output);
+            break;
+        }
+
+        case STMT_SEM_WAIT:
+        {
+            fprintf(output,"%s%s %c WAIT SOBRE SEMAFORO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL,current_statement->stmt.statement_semaphore.semaphore_name);
+            break;
+        }
+
+        case STMT_SEM_SIGNAL:
+        {
+            fprintf(output,"%s%s %c SIGNAL SOBRE SEMAFORO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL,current_statement->stmt.statement_semaphore.semaphore_name);
             break;
         }
         }

@@ -1,0 +1,36 @@
+{Programa: semaphore.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program Semaphore
+    var x : integer := 0;
+    var sem : semaphore := 1;
+
+procedure Increment();
+begin
+    for i := 1 to 100 do
+    begin
+        WAIT sem;
+        x := x + 1;
+        SIGNAL sem;
+    end
+end
+
+procedure Decrement();
+begin
+    for i := 1 to 100 do
+    begin
+        WAIT sem;
+        x := x - 1;
+        SIGNAL sem;
+    end
+end
+
+process Main;
+begin
+    fork Increment;
+    fork Decrement;
+    join Increment;
+    join Decrement;
+    
+    print("x vale: ", x);
+end
