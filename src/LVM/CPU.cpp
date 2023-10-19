@@ -253,6 +253,16 @@ inline bool LVM_CPU::instruction_is_thread_cobegin(const IR_instruction & instr)
     return result;
 }
 
+inline bool LVM_CPU::instruction_is_sem_wait_or_signal(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_SEM_WAIT;
+    result = result == true ? true : kind == IR_OP_SEM_SIGNAL;
+
+    return result;
+}
+
 inline bool LVM_CPU::instruction_is_not_instruction(const IR_instruction & instr){
     bool result = false; 
     const IR_instruction_type_t kind = instr.get_code_instr();
@@ -377,6 +387,10 @@ void LVM_CPU::execute_instruction(const IR_instruction & instr_to_exec){
     // ---- INSTRUCTION COBEGIN_THREAD
     else if(this->instruction_is_thread_cobegin(instr_to_exec)){
         this->execute_instruction_thread_cobegin(instr_to_exec);
+    }
+    // ---- INSTRUCTION SEM WAIT/SIGNAL
+    else if(this->instruction_is_sem_wait_or_signal(instr_to_exec)){
+        this->execute_instruction_sem_wait_or_signal(instr_to_exec);
     }
     // ---- INSTRUCCION NOT INSTRUCTION
     else if(this->instruction_is_not_instruction(instr_to_exec)){
@@ -1195,9 +1209,12 @@ void LVM_CPU::execute_instruction_join(const IR_instruction & instr){
         // -- Marcar join
         scheduler.mark_joined(this->program_counter);
 
-        // -- Bloquear hebra actual
-        scheduler.block_current_thread();
-        
+        // -- Comprobar si sus hijas no han terminado
+        if(!current_thread->childs_have_finished()){
+             // -- Bloquear hebra actual
+            scheduler.block_current_thread();
+        }
+
         // -- Incrementar contador de programa
         this->program_counter++;
     }
@@ -1270,6 +1287,86 @@ void LVM_CPU::execute_instruction_thread_cobegin(const IR_instruction & instr){
     }
 }
 
+void LVM_CPU::execute_instruction_sem_wait_or_signal(const IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_OP_SEM_WAIT:
+    {
+        this->execute_instruction_sem_wait(instr);
+        break;
+    }
+    case IR_OP_SEM_SIGNAL:
+    {
+        this->execute_instruction_sem_signal(instr);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
+void LVM_CPU::execute_instruction_sem_wait(const IR_instruction & instr){
+    // -- Traer directamente de memoria el bloque que contiene la referencia al semaforo
+    IR_operand op_1 = *instr.get_operand_1();
+    int sem_addr = op_1.get_address();
+    // -- Definir segmento global y direccion fisica
+    int segment_sem = segments_table.SEGMENT_FOR_GLOBAL_VARIABLES;
+    int phisical_address = this->segments_table(segment_sem,sem_addr);
+    // -- Bloque de memoria
+    LVM_Memory_Block mem_block = this->memory[phisical_address];
+    
+    // -- Obtener valor de contador
+    int sem_counter = mem_block.get_value<int>();
+
+    // -- Decrementar contador
+    sem_counter--;
+
+    // -- Comprobar condicion de semaforo
+    if(sem_counter < 0){
+        // -- Bloquear esta hebra
+        scheduler.semaphore_block_thread();
+    }
+
+    // -- Alojar valor nuevo en memoria
+    mem_block.allocate_value<int>(sem_counter);
+    this->memory[phisical_address] = mem_block;
+
+    // -- Incrementar contador
+    this->program_counter++;
+}
+
+void LVM_CPU::execute_instruction_sem_signal(const IR_instruction & instr){
+    // -- Traer directamente de memoria el bloque que contiene la referencia al semaforo
+    IR_operand op_1 = *instr.get_operand_1();
+    int sem_addr = op_1.get_address();
+    // -- Definir segmento global y direccion fisica
+    int segment_sem = segments_table.SEGMENT_FOR_GLOBAL_VARIABLES;
+    int phisical_address = this->segments_table(segment_sem,sem_addr);
+    // -- Bloque de memoria
+    LVM_Memory_Block mem_block = this->memory[phisical_address];
+    
+    // -- Obtener valor de contador
+    int sem_counter = mem_block.get_value<int>();
+
+    // -- Incrementar contador
+    sem_counter++;
+
+
+    // -- Comprobar condicion de semaforo
+    if(sem_counter <= 0){
+        // -- Desbloquear primera hebra bloqueada
+        scheduler.semaphore_unblock_thread();
+    }
+
+    // -- Alojar valor nuevo en memoria
+    mem_block.allocate_value<int>(sem_counter);
+    this->memory[phisical_address] = mem_block;
+
+    // -- Incrementar contador
+    this->program_counter++;
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [CPU] -----
@@ -1306,6 +1403,8 @@ void LVM_CPU::execute_next_instruction(){
         stack = current_thread->get_stack();
         // -- Obtener registros de la hebra
         register_table.restore_registers(current_thread->get_registers());
+
+        //std::cout << "---- Thread: " << current_thread->get_id() << " PC: " << program_counter << std::endl; std::cout.flush();
 
         // -- Ejecutar instruccion
         execute_instruction(instructions[this->program_counter]);

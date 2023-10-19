@@ -112,6 +112,16 @@ class IR_Translator_Statement{
         void translate_statement_join_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
 
         /**
+         * @brief Traduce una sentencia sem wait a instrucciones IR
+         */
+        void translate_statement_sem_wait_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
+
+        /**
+         * @brief Traduce una sentencia sem signal a instrucciones IR
+         */
+        void translate_statement_sem_signal_to_ir_instructions(struct statement * stmt, bool from_subprogram = false);
+
+        /**
          * @brief Traduce una lista de sentencias a instrucciones IR
          * @param list_stmt : lista de sentencias AST
          * @param from_subprogram : comprueba si se refiere a un subprograma

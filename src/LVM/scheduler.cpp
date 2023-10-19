@@ -86,6 +86,11 @@ LVM_Thread* LVM_Scheduler::get_current_thread(){
 }
 
 void LVM_Scheduler::schedule(){
+    /*std::cout << "(PLANIFICADOR) planificando... " << std::endl; std::cout.flush();
+    std::cout << "Nuevas (" << new_queue.size() << "), ";
+    std::cout << "Listas (" << ready_queue.size() << "), ";
+    std::cout << "Bloqueadas (" << blocked_queue.size() << "), ";
+    std::cout << "Terminadas (" << terminated_queue.size() << ")" << std::endl; std::cout.flush();*/
     // -- 0. Preparar al planificador si no se ha hecho antes
     prepare_scheduler();
 
@@ -123,7 +128,7 @@ void LVM_Scheduler::schedule(){
                 parent->remove_child(current_thread.get());
 
                 // -- 3.1.1.3 Intentar desbloquear al padre
-                if(parent->childs_has_finished()){
+                if(parent->childs_have_finished()){
                     unblock_thread(parent->get_id());
                 }
             }
@@ -195,6 +200,24 @@ void LVM_Scheduler::block_current_thread(){
 
    
     current_thread = nullptr;
+}
+
+void LVM_Scheduler::semaphore_block_thread(){
+    // -- Marcar hebra actual como bloqueada
+    current_thread->set_state(LVM_THREAD_BLOCKED);
+    // -- Mandar hebra actual a la cola de bloqueadas
+    semaphore_blocked_queue.push(std::move(current_thread));
+
+    current_thread = nullptr;
+}
+
+void LVM_Scheduler::semaphore_unblock_thread(){
+    if(!semaphore_blocked_queue.empty()){
+        std::unique_ptr thread = std::move(semaphore_blocked_queue.pop());
+        thread->set_state(LVM_THREAD_READY);
+
+        ready_queue.push(std::move(thread));
+    }
 }
 
 void LVM_Scheduler::unblock_thread(int id){

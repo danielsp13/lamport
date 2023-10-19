@@ -2,14 +2,15 @@
 {Autor: Daniel Perez Ruiz}
 
 program Semaphore
-    var x : integer := 0;
+    var x : integer := 2;
     var sem : semaphore := 1;
 
 procedure Increment();
 begin
-    for i := 1 to 100 do
+    for i := 1 to 4 do
     begin
         WAIT sem;
+        print("Incrementando...");
         x := x + 1;
         SIGNAL sem;
     end
@@ -17,9 +18,10 @@ end
 
 procedure Decrement();
 begin
-    for i := 1 to 100 do
+    for i := 1 to 4 do
     begin
         WAIT sem;
+        print("Decrementando...");
         x := x - 1;
         SIGNAL sem;
     end
@@ -30,7 +32,9 @@ begin
     fork Increment;
     fork Decrement;
     join Increment;
+    print("INCREMENT TERMINADO");
     join Decrement;
+    print("DECREMENT TERMINADO");
     
     print("x vale: ", x);
 end

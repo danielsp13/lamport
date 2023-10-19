@@ -119,6 +119,16 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
         this->translate_statement_join_to_ir_instructions(stmt,from_subprogram);
         break;
     }
+    case STMT_SEM_WAIT:
+    {
+        this->translate_statement_sem_wait_to_ir_instructions(stmt,from_subprogram);
+        break;
+    }
+    case STMT_SEM_SIGNAL:
+    {
+        this->translate_statement_sem_signal_to_ir_instructions(stmt,from_subprogram);
+        break;
+    }
     
     default:
         break;
@@ -442,6 +452,45 @@ void IR_Translator_Statement::translate_statement_join_to_ir_instructions(struct
     IR_operand op_1 = instructions.emit_operand_variable(id_variable_in_table);
     // -- 3. Emitir instruccion
     instructions.emit_instruction(IR_OP_JOIN,op_1);
+}
+
+void IR_Translator_Statement::translate_statement_sem_wait_to_ir_instructions(struct statement * stmt, bool from_subprogram){
+    // -- Obtener id de variable semaforo
+    std::string semaphore_name = std::string(stmt->stmt.statement_semaphore.semaphore_name);
+
+    // -- Buscar semaphore en la tabla de variables
+    int id_variable_in_table = tables.get_index_from_local_variable(semaphore_name,precedence);
+    if(id_variable_in_table == -1){
+        id_variable_in_table = tables.get_index_from_global_variable(semaphore_name);
+    }
+
+    // -- Emitir operando de variable semaforo
+    IR_operand op_sem_var = instructions.emit_operand_variable(id_variable_in_table);
+
+    // ------------------------------
+
+    // -- Emitir operacion de wait
+    instructions.emit_instruction(IR_OP_SEM_WAIT,op_sem_var);
+
+}
+
+void IR_Translator_Statement::translate_statement_sem_signal_to_ir_instructions(struct statement * stmt, bool from_subprogram){
+    // -- Obtener id de variable semaforo
+    std::string semaphore_name = std::string(stmt->stmt.statement_semaphore.semaphore_name);
+
+    // -- Buscar semaphore en la tabla de variables
+    int id_variable_in_table = tables.get_index_from_local_variable(semaphore_name,precedence);
+    if(id_variable_in_table == -1){
+        id_variable_in_table = tables.get_index_from_global_variable(semaphore_name);
+    }
+
+    // -- Emitir operando de variable semaforo
+    IR_operand op_sem_var = instructions.emit_operand_variable(id_variable_in_table);
+
+    // ------------------------------
+
+    // -- Emitir operacion de wait
+    instructions.emit_instruction(IR_OP_SEM_SIGNAL,op_sem_var);
 }
 
 void IR_Translator_Statement::translate_list_statements_to_ir_instructions(struct statement * list_stmt, bool from_subprogram){

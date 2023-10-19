@@ -172,6 +172,13 @@ class LVM_CPU{
         inline bool instruction_is_thread_cobegin(const IR_instruction & instr);
 
         /**
+         * @brief Comprueba si una instruccion es un sem wait o sem signal
+         * @param instr : instruccion
+         * @return TRUE si es una instruccion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_sem_wait_or_signal(const IR_instruction & instr);
+
+        /**
          * @brief Comprueba si una instruccion no es una instruccion (inicio de seccion de subprogramas)
          * @param instr : instruccion
          */
@@ -386,6 +393,13 @@ class LVM_CPU{
          * @param instr : instruccion
          */
         void execute_instruction_thread_cobegin(const IR_instruction & instr);
+
+
+        void execute_instruction_sem_wait_or_signal(const IR_instruction & instr);
+
+        void execute_instruction_sem_wait(const IR_instruction & instr);
+
+        void execute_instruction_sem_signal(const IR_instruction & instr);
 
     public:
         /**

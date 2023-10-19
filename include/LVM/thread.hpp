@@ -297,7 +297,7 @@ class LVM_Thread{
          * @brief Comprueba si todas las hebras hijas de la hebra han finalizado
          * @return TRUE si todas han terminado, FALSE en otro caso
          */
-        bool childs_has_finished(){
+        bool childs_have_finished(){
             return childs.size() == 0;
         };
 };

@@ -588,6 +588,12 @@ void free_statement(struct statement *stmt){
             free(stmt->stmt.statement_semaphore.semaphore_name);
             stmt->stmt.statement_semaphore.semaphore_name = NULL;
         }
+
+        if(stmt->stmt.statement_semaphore.symb){
+            free_symbol(stmt->stmt.statement_semaphore.symb);
+            stmt->stmt.statement_semaphore.symb = NULL;
+        }
+
         break;
     }
 
@@ -597,6 +603,12 @@ void free_statement(struct statement *stmt){
             free(stmt->stmt.statement_semaphore.semaphore_name);
             stmt->stmt.statement_semaphore.semaphore_name = NULL;
         }
+
+        if(stmt->stmt.statement_semaphore.symb){
+            free_symbol(stmt->stmt.statement_semaphore.symb);
+            stmt->stmt.statement_semaphore.symb = NULL;
+        }
+
         break;
     }
     }
