@@ -23,9 +23,27 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
     }
     // ---- SENTENCIA BLOQUE DE SENTENCIAS PARALELO
     case STMT_BLOCK_COBEGIN:
-    {
-        // TODO (ESPECIFICAR COBEGIN)
-        this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_block.body,from_subprogram);
+    {   
+        // -- Indicar inicio de cobegin
+        instructions.emit_instruction(IR_OP_COBEGIN);
+
+        expr_translator.set_precedence(precedence);
+
+        struct statement *current_stmt = stmt->stmt.statement_block.body;
+        while(current_stmt != NULL){
+            instructions.emit_instruction(IR_START_COBEGIN_THREAD);
+            // -- Traducir sentencia
+            this->translate_statement_to_ir_instructions(current_stmt,from_subprogram);
+            instructions.emit_instruction(IR_END_COBEGIN_THREAD);
+            
+            // -- Ir a siguiente sentencia
+            current_stmt = current_stmt->next;
+        }
+
+        expr_translator.reset_precedence();
+
+        // -- Indicar fin de coend
+        instructions.emit_instruction(IR_OP_COEND);
         break;
     }
     // ---- SENTENCIA DE BLOQUE DE SENTENCIAS ATOMICAS

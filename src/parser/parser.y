@@ -195,7 +195,6 @@
 %type <stmt> block-statements-cobegin-coend
 %type <stmt> block-statements-atomic
 %type <stmt> block-statements-function
-%type <stmt> block-statements-process
 %type <stmt> assignment-statement 
 %type <stmt> while-statement 
 %type <stmt> for-statement
@@ -594,7 +593,7 @@ process:
 
 process-def:
     // ===== CORRECTO: Proceso definido de tipo single
-    S_PROCESS process-name DELIM_PC list-declarations block-statements-process{
+    S_PROCESS process-name DELIM_PC list-declarations block-statements-begin-end{
         // -- Creacion de nodo PROCESO
         if(!have_syntax_errors()){
             $$ = create_process_single($2, $4, $5, yylineno);
@@ -606,12 +605,12 @@ process-def:
         
     }
     // <--> ERROR : Nombre de proceso incorrecto
-    | S_PROCESS error DELIM_PC list-declarations block-statements-process{
+    | S_PROCESS error DELIM_PC list-declarations block-statements-begin-end{
         mark_error_syntax_process_expected_identifier();
         //YYABORT;
     }
     // <--> ERROR : Falta ';'
-    | S_PROCESS process-name list-declarations block-statements-process{
+    | S_PROCESS process-name list-declarations block-statements-begin-end{
         mark_error_syntax_process_expected_delimpc($2);
         //YYABORT;
     }
@@ -619,7 +618,7 @@ process-def:
 
 process-def-array:
     // ===== CORRECTO: Proceso definido de tipo vector
-    S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statements-process{
+    S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC list-declarations block-statements-begin-end{
         // -- Creacion de nodo PROCESO
         if(!have_syntax_errors()){
             $$ = create_process_vector($2, $11, $12, $4, $6, $8, yylineno);
@@ -630,17 +629,17 @@ process-def-array:
         }
     }
     // <--> ERROR: Identificador de indexador de proceso incorrecto
-    | S_PROCESS process-name CORCH_IZDO error CORCH_DCHO DELIM_PC list-declarations block-statements-process{
+    | S_PROCESS process-name CORCH_IZDO error CORCH_DCHO DELIM_PC list-declarations block-statements-begin-end{
         mark_error_syntax_process_expected_index_identifier($2);
         //YYABORT;
     }
     // <--> ERROR: Falta ':'
-    | S_PROCESS process-name CORCH_IZDO IDENT error CORCH_DCHO DELIM_PC list-declarations block-statements-process{
+    | S_PROCESS process-name CORCH_IZDO IDENT error CORCH_DCHO DELIM_PC list-declarations block-statements-begin-end{
         mark_error_syntax_process_expected_delim2p($2);
         //YYABORT;
     }
     // <--> ERROR: Falta '..'
-    | S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression error expression CORCH_DCHO DELIM_PC list-declarations block-statements-process{
+    | S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression error expression CORCH_DCHO DELIM_PC list-declarations block-statements-begin-end{
         mark_error_syntax_process_expected_delimarr($2);
         //YYABORT;
     }
@@ -847,15 +846,6 @@ block-statements-function:
     }
     ;
 
-block-statements-process:
-    block-statements-begin-end{
-        $$ = $1;
-    }
-    | block-statements-cobegin-coend{
-        $$ = $1;
-    }
-    ;
-
 list-statements:
     statement{
         if(!have_syntax_errors()){
@@ -903,6 +893,9 @@ statement:
         $$ = $1;
     }
     | block-statements-atomic{
+        $$ = $1;
+    }
+    | block-statements-cobegin-coend{
         $$ = $1;
     }
     | error block-statements-begin-end{
