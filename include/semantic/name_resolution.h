@@ -188,6 +188,18 @@ void resolve_statement_return(struct statement *stmt);
  */
 void resolve_statement_print(struct statement *stmt);
 
+/**
+ * @brief Realiza la resolucion de nombres en una sentencia de tipo sem wait
+ * @param stmt : puntero a sentencia (sem wait)
+ */
+void resolve_statement_sem_wait(struct statement *stmt);
+
+/**
+ * @brief Realiza la resolucion de nombres en una sentencia de tipo sem signal
+ * @param stmt : puntero a sentencia (sem signal)
+ */
+void resolve_statement_sem_signal(struct statement *stmt);
+
 // ===============================================================
 
 // ----- PROTOTIPOS DE FUNCIONES DE RESOLUCION DE NOMBRES (NODO PROCESOS) -----

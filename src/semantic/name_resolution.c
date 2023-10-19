@@ -432,6 +432,18 @@ void resolve_statement(struct statement *stmt){
         resolve_statement_print(stmt);
         break;
     }
+
+    case STMT_SEM_WAIT:
+    {
+        resolve_statement_sem_wait(stmt);
+        break;
+    }
+
+    case STMT_SEM_SIGNAL:
+    {
+        resolve_statement_sem_signal(stmt);
+        break;
+    }
     
     default:
     {
@@ -675,6 +687,56 @@ void resolve_statement_print(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres a las expresiones de impresion
     resolve_list_expressions(stmt->stmt.statement_print.expressions_list);
+}
+
+void resolve_statement_sem_wait(struct statement *stmt){
+    // -- Comprobar que la sentencia existe
+    if(!stmt)
+        return;
+
+
+    // -- Aplicar resolucion de nombres al identificador de proceso
+    // -- Asignar referencia de simbolo a este proceso
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_semaphore.semaphore_name);
+
+    // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
+    if(!target_symb){
+        // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
+        // -- Crear error
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_semaphore.semaphore_name,stmt->stmt.statement_semaphore.line, ERR_UNDEFINED_PROCESS_MSG);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
+    }
+    // -- Asignar simbolo
+    else{
+        stmt->stmt.statement_semaphore.symb = copy_symbol(target_symb);
+    }
+}
+
+void resolve_statement_sem_signal(struct statement *stmt){
+    // -- Comprobar que la sentencia existe
+    if(!stmt)
+        return;
+
+
+    // -- Aplicar resolucion de nombres al identificador de proceso
+    // -- Asignar referencia de simbolo a este proceso
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_semaphore.semaphore_name);
+
+    // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
+    if(!target_symb){
+        // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
+        // -- Crear error
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_semaphore.semaphore_name,stmt->stmt.statement_semaphore.line, ERR_UNDEFINED_PROCESS_MSG);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
+    }
+    // -- Asignar simbolo
+    else{
+        stmt->stmt.statement_semaphore.symb = copy_symbol(target_symb);
+    }
 }
 
 // ===============================================================
