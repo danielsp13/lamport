@@ -7,10 +7,10 @@ program Semaphore
 
 procedure Increment();
 begin
-    for i := 1 to 4 do
+    for i := 1 to 5 do
     begin
         WAIT sem;
-        print("Incrementando...");
+        print("Incrementando x, que vale ahora: ", x);
         x := x + 1;
         SIGNAL sem;
     end
@@ -18,10 +18,10 @@ end
 
 procedure Decrement();
 begin
-    for i := 1 to 4 do
+    for i := 1 to 5 do
     begin
         WAIT sem;
-        print("Decrementando...");
+        print("Decrementando x, que vale ahora: ", x);
         x := x - 1;
         SIGNAL sem;
     end
