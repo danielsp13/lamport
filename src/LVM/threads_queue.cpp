@@ -28,6 +28,12 @@ std::unique_ptr<LVM_Thread> LVM_Threads_Queue::pop(){
     return thread;
 }
 
+void LVM_Threads_Queue::clear(){
+    while(!empty()){
+        pop();
+    }
+}
+
 void LVM_Threads_Queue::shuffle_once(){
     // -- Comprobar que no se ha barajado aun
     if(!shuffled){

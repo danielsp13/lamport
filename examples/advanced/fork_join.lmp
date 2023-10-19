@@ -1,0 +1,45 @@
+{Programa: fork.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program Fork
+	var x : integer := 0;
+
+procedure Increment();
+begin
+	for i := 1 to 100 do
+	begin
+		<< x := x+1; >>
+	end
+	
+	print("fin de increment");
+end
+
+procedure Decrement();
+begin
+	for j := 1 to 5 do
+	begin
+		<< x := x-1; >>
+	end
+	
+	print("fin de decrement");
+end
+
+process Main;
+begin
+	print("Realizando fork...");
+	fork Increment;
+	Decrement();
+	join Increment;
+	
+	print("x vale: ",x);
+	
+	
+	if(x == 95) then
+	begin
+		print("Se ha obtenido 95, el valor esperado");
+	end
+	else
+	begin
+		print("No se ha obtenido 95.");
+	end
+end

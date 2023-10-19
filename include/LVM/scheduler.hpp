@@ -14,6 +14,8 @@
 
 #include <iostream>
 #include <memory>
+#include <map>
+#include <random>
 
 #include "LVM/thread.hpp"           ///< Hebras
 #include "LVM/threads_queue.hpp"    ///< Colas de hebras
@@ -53,6 +55,11 @@ class LVM_Scheduler{
         // -- Estado de planificador
         LVM_Scheduler_state_t state = LVM_SCHED_INIT;
 
+        // -- Mapa de forks realizados
+        std::map<int,bool> forked_realized;
+        // -- Mapa de joins realizados
+        std::map<int,bool> joined_realized;
+
         /**
          * @brief Constructor de la clase, por defecto
          */
@@ -62,6 +69,17 @@ class LVM_Scheduler{
          * @brief Prepara al planificador de hebras para su funcionamiento
          */
         void prepare_scheduler();
+
+        /**
+         * @brief Genera un quantum para la hebra actual
+         * @return quantum
+         */
+        int generate_quantum();
+
+        /**
+         * @brief Transfiere las hebras de la cola de nuevas a la cola de listas
+         */
+        void transfer_new_threads_to_ready();
 
     public:
         /**
@@ -76,6 +94,12 @@ class LVM_Scheduler{
         ~LVM_Scheduler() = default;
 
         /**
+         * @brief Obtiene el total de hebras
+         * @return total threads
+         */
+        int get_total_threads() const { return total_threads; };
+
+        /**
          * @brief Obtiene la hebra actual
          * @return hebra actual
          */
@@ -85,12 +109,6 @@ class LVM_Scheduler{
          * @brief Funcion de planificacion
          */
         void schedule();
-
-        /**
-         * @brief Inserta una nueva hebra en la cola de nuevos
-         * @param thread : hebra
-         */
-        void new_thread(std::unique_ptr<LVM_Thread> thread);
         
         /**
          * @brief Inserta una nueva hebra en la cola de nuevos
@@ -109,10 +127,10 @@ class LVM_Scheduler{
         void block_current_thread();
 
         /**
-         * @brief Desbloquea la hebra del frente de cola de bloqueados y la
-         * mueve a la cola de listos
+         * @brief Desbloquea la hebra con el id especificado y la coloca en la cola de listos
+         * @param id : identificador de hebra
          */
-        void unblock_thread();
+        void unblock_thread(int id);
 
         /**
          * @brief Indica que la hebra actual ha terminado su ejecucion definitivamente
@@ -124,6 +142,48 @@ class LVM_Scheduler{
          * @return TRUE si han terminado todas y cada una de las hebras definidas, FALSE en otro caso
          */
         bool program_terminated() const { return total_threads == total_finished_threads; };
+
+        /**
+         * @brief Indica que la instruccion de fork ha sido realizada
+         * @param i : indice de instruccion
+         */
+        void mark_forked(int i) { forked_realized[i] = true; };
+
+        /**
+         * @brief Comprueba si la instruccion de fork se ha realizado
+         * @param i : indice de instruccion
+         * @return true si se ha realizado, false en otro caso
+         */
+        bool is_forked(int i) const {
+            auto it = forked_realized.find(i);
+            if (it != forked_realized.end()) {
+                return it->second;
+            }
+            return false;
+        };
+
+        /**
+         * @brief Indica que la instruccion de join ha sido realizada
+         * @param i : indice de instruccion
+         */
+        void mark_joined(int i) { joined_realized[i] = true; };
+
+        /**
+         * @brief Comprueba si la instruccion de join se ha realizado
+         * @param i : indice de instruccion
+         * @return true si se ha realizado, false en otro caso
+         */
+        bool is_joined(int i) const {
+            auto it = joined_realized.find(i);
+            if (it != joined_realized.end()) {
+                return it->second;
+            }
+            return false;
+        };
+
+
+
+        
 };
 
 #endif //_LAMPORT_LVM_SCHEDULER_DPR_

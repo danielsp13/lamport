@@ -42,6 +42,7 @@ class LVM_Segment_Table{
             new_segment(SEGMENT_FOR_LITERALS,"literales");
             new_segment(SEGMENT_FOR_LABELS,"etiquetas");
             new_segment(SEGMENT_FOR_GLOBAL_VARIABLES,"variables globales");
+            new_segment(SEGMENT_FOR_INDEXES,"indices");
         };
 
         /**
@@ -77,7 +78,8 @@ class LVM_Segment_Table{
         static const int SEGMENT_FOR_LITERALS = 0;
         static const int SEGMENT_FOR_LABELS = 1;
         static const int SEGMENT_FOR_GLOBAL_VARIABLES = 2;
-        static const int SEGMENT_FOR_THREADS = 3;
+        static const int SEGMENT_FOR_INDEXES = 3;
+        static const int SEGMENT_FOR_THREADS = 4;
 
         // -- Variables de inicio y fin de memoria fisica
         static const int START_ADDR_FOR_LITERALS = 0;

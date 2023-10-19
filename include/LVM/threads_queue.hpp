@@ -63,6 +63,17 @@ class LVM_Threads_Queue{
         bool empty() const { return queue.empty(); };
 
         /**
+         * @brief Obtiene el numero de elementos de la cola
+         * @return size
+         */
+        size_t size() const {return queue.size(); };
+
+        /**
+         * @brief Limpia la cola
+         */
+        void clear();
+
+        /**
          * @brief Bajara el contenido de la cola una vez
          */
         void shuffle_once();

@@ -101,6 +101,12 @@ class LVM_Register_Table{
         const LVM_Register& operator[](int i) const;
 
         /**
+         * @brief Restaura los registros de un punto determinado
+         * @param regs : vector de registros
+         */
+        void restore_registers(std::vector<LVM_Register> regs);
+
+        /**
          * @brief Imprime la tabla de registros
          * @param os : flujo de impresion
          */

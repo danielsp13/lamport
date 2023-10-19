@@ -54,8 +54,7 @@ class LVM_Initializer{
         // -- Planificador
         LVM_Scheduler& scheduler = LVM_Scheduler::get_instance();
         // -- Tabla de instrucciones
-        IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
-        
+        IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();        
 
         /**
          * @brief Constructor de la clase

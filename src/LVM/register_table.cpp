@@ -96,6 +96,10 @@ const LVM_Register& LVM_Register_Table::operator[](int i) const{
     return this->register_table[i];
 }
 
+void LVM_Register_Table::restore_registers(std::vector<LVM_Register> regs){
+    this->register_table = regs;
+}
+
 void LVM_Register_Table::print_register_table(std::ostream & os){
     const std::string TABLE_SEPARATOR = "===================================================================";
     const int gap = 16;

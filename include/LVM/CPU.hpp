@@ -19,7 +19,6 @@
 
 #include "register_table.hpp"       ///< Tabla de registros
 #include "stack_block.hpp"          ///< Bloque
-#include "context.hpp"              ///< Contexto
 
 #include "memory.hpp"               ///< Memoria de Maquina Virtual
 #include "segment_table.hpp"        ///< Tabla de segmentos de memoria virtual
@@ -327,9 +326,28 @@ class LVM_CPU{
         void execute_instruction_pop_local(const IR_instruction & instr);
 
         /**
-         * @brief Ejecuta un bloque de instrucciones atomicas
+         * @brief Ejecuta el inicio/fin de seccion atomica
+         * @param instr : instruccion IR_OP_ATOMIC_BEGIN / IR_OP_ATOMIC_END
          */
-        void execute_instruction_atomic();
+        void execute_instruction_atomic(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion fork o join
+         * @param instr : instruccion
+         */
+        void execute_instruction_fork_or_join(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion fork
+         * @param instr : instruccion
+         */
+        void execute_instruction_fork(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion join
+         * @param instr : instruccion
+         */
+        void execute_instruction_join(const IR_instruction & instr);
 
     public:
         /**

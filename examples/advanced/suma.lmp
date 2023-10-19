@@ -1,0 +1,26 @@
+{Programa: race_condition.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program Suma
+
+function suma(a : integer, b : integer) : integer;
+begin
+	print("sumando: ",a,"+",b);
+	return a+b;
+end
+	
+process P1;
+	var resultado : integer;
+begin
+	resultado := suma(3,2);
+	
+	print("P1 resultado vale: ", resultado);
+end
+
+process P2;
+	var resultado : integer;
+begin
+	resultado := suma(5,4);
+	
+	print("P2 resultado vale: ", resultado);
+end
