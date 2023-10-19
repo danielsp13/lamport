@@ -58,6 +58,8 @@ void LVM_Scheduler::transfer_new_threads_to_ready(){
             new_thread->set_state(LVM_THREAD_READY);
             // -- Mandar a la cola de listas
             ready_queue.push(std::move(new_thread));
+
+           
         }
 
         // -- Cuando se ha terminado, mover la hebra actual tambien a la cola de listas
@@ -104,6 +106,7 @@ void LVM_Scheduler::schedule(){
 
     // -- 3. Comprobar si hay una hebra actual
     if(current_thread){
+
         // -- 3.0 Comprobar si la hebra ha entrado en seccion critica
         if(current_thread->in_atomic_section()){
             // -- 3.0.1 Retornar, se queda en CPU hasta que se marque que ha salido
@@ -124,6 +127,7 @@ void LVM_Scheduler::schedule(){
                     unblock_thread(parent->get_id());
                 }
             }
+
             // -- 3.1.2 Enviar a la cola de terminadas
             terminate_thread();
             // -- 3.1.3 Ejecutar otra hebra de la cola de listas (si hay)
@@ -189,6 +193,7 @@ void LVM_Scheduler::block_current_thread(){
     // -- Mandar hebra actual a la cola de bloqueadas
     blocked_queue.push(std::move(current_thread));
 
+   
     current_thread = nullptr;
 }
 
@@ -210,6 +215,8 @@ void LVM_Scheduler::unblock_thread(int id){
             blocked_queue.push(std::move(blocked_threads[i]));
         }
     }
+
+   
 }
 
 void LVM_Scheduler::terminate_thread(){

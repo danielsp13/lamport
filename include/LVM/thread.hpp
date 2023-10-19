@@ -288,6 +288,12 @@ class LVM_Thread{
         };
 
         /**
+         * @brief Comprueba cuantos hijos activos tiene
+         * @return hijos vivos
+         */
+        int childs_alive() const {return childs.size(); };
+
+        /**
          * @brief Comprueba si todas las hebras hijas de la hebra han finalizado
          * @return TRUE si todas han terminado, FALSE en otro caso
          */

@@ -49,6 +49,8 @@ class LVM_Scheduler{
 
         // -- Total de hebras
         int total_threads = 0;
+        // -- Total de hebras activas
+        int total_active_threads = 0;
         // -- Total de hebras terminadas
         int total_finished_threads = 0;
 

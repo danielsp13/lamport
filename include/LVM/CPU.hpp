@@ -158,6 +158,20 @@ class LVM_CPU{
         inline bool instruction_is_fork_or_join(const IR_instruction & instr);
 
         /**
+         * @brief Comprueba si una instruccion es un acceso a bloque cobegin-coend
+         * @param instr : instruccion
+         * @return TRUE si es una operacion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_cobegin(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion marca el inicio/fin de hebra cobegin
+         * @param instr : instruccion
+         * @return TRUE si es una operacion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_thread_cobegin(const IR_instruction & instr);
+
+        /**
          * @brief Comprueba si una instruccion no es una instruccion (inicio de seccion de subprogramas)
          * @param instr : instruccion
          */
@@ -348,6 +362,30 @@ class LVM_CPU{
          * @param instr : instruccion
          */
         void execute_instruction_join(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion cobegin/coend
+         * @param instr : instruccion
+         */
+        void execute_instruction_cobegin_or_coend(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion cobegin
+         * @param instr : instruccion
+         */
+        void execute_instruction_cobegin(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion cobegin
+         * @param instr : instruccion
+         */
+        void execute_instruction_coend(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion de gestion de thread cobegin
+         * @param instr : instruccion
+         */
+        void execute_instruction_thread_cobegin(const IR_instruction & instr);
 
     public:
         /**

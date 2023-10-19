@@ -36,8 +36,6 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
     {
         virtual_segment = current_thread->get_segment();
 
-        //std::cout << "(get_phisical_address) segment: " << virtual_segment << " virtual addr: " << virtual_address << std::endl; std::cout.flush();
-
         // -- Obtener direccion fisica mirando en la tabla de segmentos
         phisical_address = this->segments_table(virtual_segment,virtual_address);
 
@@ -235,6 +233,26 @@ inline bool LVM_CPU::instruction_is_fork_or_join(const IR_instruction & instr){
     return result;   
 }
 
+inline bool LVM_CPU::instruction_is_cobegin(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_COBEGIN;
+    result = result == true ? true : kind == IR_OP_COEND;
+
+    return result;  
+}
+
+inline bool LVM_CPU::instruction_is_thread_cobegin(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_START_COBEGIN_THREAD;
+    result = result == true ? true : kind == IR_END_COBEGIN_THREAD;
+
+    return result;
+}
+
 inline bool LVM_CPU::instruction_is_not_instruction(const IR_instruction & instr){
     bool result = false; 
     const IR_instruction_type_t kind = instr.get_code_instr();
@@ -351,6 +369,14 @@ void LVM_CPU::execute_instruction(const IR_instruction & instr_to_exec){
     // ---- INSTRUCCION FORK/JOIN
     else if(this->instruction_is_fork_or_join(instr_to_exec)){
         this->execute_instruction_fork_or_join(instr_to_exec);
+    }
+    // ---- INSTRUCTION COBEGIN
+    else if(this->instruction_is_cobegin(instr_to_exec)){
+        this->execute_instruction_cobegin_or_coend(instr_to_exec);
+    }
+    // ---- INSTRUCTION COBEGIN_THREAD
+    else if(this->instruction_is_thread_cobegin(instr_to_exec)){
+        this->execute_instruction_thread_cobegin(instr_to_exec);
     }
     // ---- INSTRUCCION NOT INSTRUCTION
     else if(this->instruction_is_not_instruction(instr_to_exec)){
@@ -525,8 +551,6 @@ void LVM_CPU::execute_instruction_store(const IR_instruction & instr){
     else{
         // -- Determinar direccion fisica donde se almacenara el valor de registro
         phisical_address = this->get_phisical_address_from_operand(op_dest);
-
-        //std::cout << "Store to address: " << phisical_address << std::endl; std::cout.flush();
 
         // -- Obtener registro
         reg = this->register_table(register_address);
@@ -1179,6 +1203,73 @@ void LVM_CPU::execute_instruction_join(const IR_instruction & instr){
     }
 }
 
+void LVM_CPU::execute_instruction_cobegin_or_coend(const IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_OP_COBEGIN:
+    {
+        this->execute_instruction_cobegin(instr);
+        break;
+    }
+    case IR_OP_COEND:
+    {
+        this->execute_instruction_coend(instr);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
+void LVM_CPU::execute_instruction_cobegin(const IR_instruction & instr){
+    // --- Bloquear a esta hebra
+    scheduler.block_current_thread();
+
+    // --- Buscar a desde aqui el final de coend
+    for(int i=program_counter; i<instructions.size(); i++){
+        // -- Comprobar si es inicio de thread
+        if(instructions[i].get_code_instr() == IR_START_COBEGIN_THREAD){
+            // -- Crear nueva hebra
+            LVM_Thread * child_thread = new LVM_Thread(scheduler.get_total_threads(),i,current_thread->get_segment(),current_thread);
+            // -- Incluir hebra en el padre
+            current_thread->set_child(child_thread);
+
+            // -- Incluir en la cola de nuevas
+            scheduler.new_thread_raw(child_thread);
+        }
+        // -- Comprobar si se ha alcanzado el final de bloque cobegin-coend
+        if(instructions[i].get_code_instr() == IR_OP_COEND){
+            this->program_counter = i;
+        }
+    }
+}
+
+void LVM_CPU::execute_instruction_coend(const IR_instruction & instr){
+    this->program_counter++;
+}
+
+void LVM_CPU::execute_instruction_thread_cobegin(const IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_START_COBEGIN_THREAD:
+    {
+        this->program_counter++;
+        break;
+    }
+    case IR_END_COBEGIN_THREAD:
+    {
+        this->program_counter++;
+        // -- Marcar esta hebra como finalizada
+        current_thread->set_state(LVM_THREAD_TERMINATED);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [CPU] -----
@@ -1215,8 +1306,6 @@ void LVM_CPU::execute_next_instruction(){
         stack = current_thread->get_stack();
         // -- Obtener registros de la hebra
         register_table.restore_registers(current_thread->get_registers());
-
-        //std::cout << "Hebra [" << current_thread->get_id() << "] PC: --> " << program_counter << std::endl; std::cout.flush();
 
         // -- Ejecutar instruccion
         execute_instruction(instructions[this->program_counter]);
