@@ -44,8 +44,8 @@ class LVM_Scheduler{
         // -- Cola de hebras terminadas
         LVM_Threads_Queue terminated_queue;
 
-        // -- Cola de hebras bloqueadas por un semaforo
-        LVM_Threads_Queue semaphore_blocked_queue;
+        // -- Mapa de colas de semaforos
+        std::map<int,LVM_Threads_Queue> semaphores;
 
         // -- Hebra actual
         std::unique_ptr<LVM_Thread> current_thread = nullptr;
@@ -132,17 +132,6 @@ class LVM_Scheduler{
         void block_current_thread();
 
         /**
-         * @brief Bloquea la hebra actual proveniente de hacer un SEM WAIT y la manda
-         * a la cola de bloqueados
-         */
-        void semaphore_block_thread();
-
-        /**
-         * @brief Desbloquea la primera hebra de la cola de semaforos, gracias a un SEM SIGNAL
-         */
-        void semaphore_unblock_thread();
-
-        /**
          * @brief Desbloquea la hebra con el id especificado y la coloca en la cola de listos
          * @param id : identificador de hebra
          */
@@ -197,9 +186,23 @@ class LVM_Scheduler{
             return false;
         };
 
+        /**
+         * @brief Define una nueva cola de semaforo para la direccion especificada
+         * @param sem_addr : direccion de semaforo
+         */
+        void emplace_sem(int sem_addr);
 
+        /**
+         * @brief Realiza sem wait sobre el semaforo de la direccion especificada
+         * @param sem_addr : direccion de semaforo
+         */
+        void sem_wait(int sem_addr);
 
-        
+        /**
+         * @brief Realiza sem signal sobre el semaforo de la direccion especificada
+         * @param sem_addr : direccion de semaforo
+         */
+        void sem_signal(int sem_addr);
 };
 
 #endif //_LAMPORT_LVM_SCHEDULER_DPR_

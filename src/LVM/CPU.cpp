@@ -1315,6 +1315,7 @@ void LVM_CPU::execute_instruction_sem_wait(const IR_instruction & instr){
     int phisical_address = this->segments_table(segment_sem,sem_addr);
     // -- Bloque de memoria
     LVM_Memory_Block mem_block = this->memory[phisical_address];
+    scheduler.emplace_sem(phisical_address);
     
     // -- Obtener valor de contador
     int sem_counter = mem_block.get_value<int>();
@@ -1325,7 +1326,7 @@ void LVM_CPU::execute_instruction_sem_wait(const IR_instruction & instr){
     // -- Comprobar condicion de semaforo
     if(sem_counter < 0){
         // -- Bloquear esta hebra
-        scheduler.semaphore_block_thread();
+        scheduler.sem_wait(phisical_address);
     }
 
     // -- Alojar valor nuevo en memoria
@@ -1348,6 +1349,7 @@ void LVM_CPU::execute_instruction_sem_signal(const IR_instruction & instr){
     
     // -- Obtener valor de contador
     int sem_counter = mem_block.get_value<int>();
+    scheduler.emplace_sem(phisical_address);
 
     // -- Incrementar contador
     sem_counter++;
@@ -1356,7 +1358,7 @@ void LVM_CPU::execute_instruction_sem_signal(const IR_instruction & instr){
     // -- Comprobar condicion de semaforo
     if(sem_counter <= 0){
         // -- Desbloquear primera hebra bloqueada
-        scheduler.semaphore_unblock_thread();
+        scheduler.sem_signal(phisical_address);
     }
 
     // -- Alojar valor nuevo en memoria

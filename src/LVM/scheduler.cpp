@@ -202,24 +202,6 @@ void LVM_Scheduler::block_current_thread(){
     current_thread = nullptr;
 }
 
-void LVM_Scheduler::semaphore_block_thread(){
-    // -- Marcar hebra actual como bloqueada
-    current_thread->set_state(LVM_THREAD_BLOCKED);
-    // -- Mandar hebra actual a la cola de bloqueadas
-    semaphore_blocked_queue.push(std::move(current_thread));
-
-    current_thread = nullptr;
-}
-
-void LVM_Scheduler::semaphore_unblock_thread(){
-    if(!semaphore_blocked_queue.empty()){
-        std::unique_ptr thread = std::move(semaphore_blocked_queue.pop());
-        thread->set_state(LVM_THREAD_READY);
-
-        ready_queue.push(std::move(thread));
-    }
-}
-
 void LVM_Scheduler::unblock_thread(int id){
     // -- Obtener vector con los elementos de la cola
     std::vector<std::unique_ptr<LVM_Thread>> blocked_threads;
@@ -251,4 +233,24 @@ void LVM_Scheduler::terminate_thread(){
     total_finished_threads++;
 
     current_thread = nullptr;
+}
+
+void LVM_Scheduler::emplace_sem(int sem_addr){
+    semaphores.emplace(sem_addr,LVM_Threads_Queue());
+}
+
+void LVM_Scheduler::sem_wait(int sem_addr){
+    // -- Mover esta hebra a la cola del semaforo especificado
+    current_thread->set_state(LVM_THREAD_BLOCKED);
+    semaphores[sem_addr].push(std::move(current_thread));
+
+    current_thread = nullptr;
+}
+
+void LVM_Scheduler::sem_signal(int sem_addr){
+    std::unique_ptr<LVM_Thread> thread = std::move(semaphores[sem_addr].pop());
+    // -- Mover esta hebra a la cola del semaforo especificado
+    thread->set_state(LVM_THREAD_READY);
+
+    ready_queue.push(std::move(thread));
 }

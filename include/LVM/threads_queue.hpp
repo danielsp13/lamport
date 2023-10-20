@@ -44,6 +44,37 @@ class LVM_Threads_Queue{
          */
         ~LVM_Threads_Queue() = default;
 
+
+        /**
+         * @brief Constructor de movimiento
+         */
+        LVM_Threads_Queue(LVM_Threads_Queue&& other) noexcept
+            : queue(std::move(other.queue)), shuffled(other.shuffled) {
+                other.shuffled = false;  // Reset other's shuffled flag
+        }
+
+        /**
+         * @brief Operador de asignación de movimiento
+         */
+        LVM_Threads_Queue& operator=(LVM_Threads_Queue&& other) noexcept {
+            if (this != &other) {  // Self-assignment check
+                queue = std::move(other.queue);
+                shuffled = other.shuffled;
+                other.shuffled = false;  // Reset other's shuffled flag
+            }
+            return *this;
+        }
+
+        /**
+         * @brief Constructor de copia (eliminado)
+         */
+        LVM_Threads_Queue(const LVM_Threads_Queue&) = delete;
+
+        /**
+         * @brief Operador de asignacion (eliminado)
+         */
+        LVM_Threads_Queue& operator=(const LVM_Threads_Queue&) = delete;
+
         /**
          * @brief Inserta un nuevo hilo en la cola
          * @param thread : hilo a insertar en la cola
