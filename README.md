@@ -23,7 +23,11 @@ En el siguiente índice se resumen los contenidos principales de este README:
 
 ### :question: <a name="lamport-resume"></a> Resumen del proyecto
 
-:construction:
+***Lamport*** es un lenguaje de programación interpretado para la simulación de sistemas concurrentes y distribuidos. Utiliza una máquina virtual para la ejecución de las instrucciones, por lo que su uso no necesita de una arquitectura hardware específica.
+
+Su nombre es en honor al informático Leslie Lamport, una de las mayores eminencias en el campo de la programación concurrente, y que dentro de las muchas contribuciones que realizó, uno muy notorio es la introducción de un sistema lógico formal para la verificación de las propiedades de los sistemas concurrentes, denominado: **Lógica Temporal de Acciones.**
+
+En este repositorio se encuentra el código fuente del intérprete desarrollado, así como el estudio teórico del trabajo de Lamport en la materia de verificación.
 
 ****
 
