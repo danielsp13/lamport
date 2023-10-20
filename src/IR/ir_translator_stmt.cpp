@@ -23,16 +23,35 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
     }
     // ---- SENTENCIA BLOQUE DE SENTENCIAS PARALELO
     case STMT_BLOCK_COBEGIN:
-    {
-        // TODO (ESPECIFICAR COBEGIN)
-        this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_block.body,from_subprogram);
+    {   
+        // -- Indicar inicio de cobegin
+        instructions.emit_instruction(IR_OP_COBEGIN);
+
+        expr_translator.set_precedence(precedence);
+
+        struct statement *current_stmt = stmt->stmt.statement_block.body;
+        while(current_stmt != NULL){
+            instructions.emit_instruction(IR_START_COBEGIN_THREAD);
+            // -- Traducir sentencia
+            this->translate_statement_to_ir_instructions(current_stmt,from_subprogram);
+            instructions.emit_instruction(IR_END_COBEGIN_THREAD);
+            
+            // -- Ir a siguiente sentencia
+            current_stmt = current_stmt->next;
+        }
+        std::cout << "entro aqui" << std::endl; std::cout.flush();
+        expr_translator.reset_precedence();
+
+        // -- Indicar fin de coend
+        instructions.emit_instruction(IR_OP_COEND);
         break;
     }
     // ---- SENTENCIA DE BLOQUE DE SENTENCIAS ATOMICAS
     case STMT_ATOMIC:
     {
-        // TODO (ESPECIFICAR INICIO Y FIN DE BLOQUE ATOMICO)
+        instructions.emit_instruction(IR_OP_ATOMIC_BEGIN);
         this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_block.body,from_subprogram);
+        instructions.emit_instruction(IR_OP_ATOMIC_END);
         break;
     }
     // ---- SENTENCIA ASIGNACION
@@ -70,6 +89,7 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
     // ---- SENTENCIA PRINT
     case STMT_PRINT:
     {
+        expr_translator.set_precedence(precedence);
         this->translate_statement_print_to_ir_instructions(stmt,from_subprogram);
         // -- Resetear registros
         reg_manager.reset_general_purpose_register_counter();
@@ -98,6 +118,16 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
     case STMT_JOIN:
     {
         this->translate_statement_join_to_ir_instructions(stmt,from_subprogram);
+        break;
+    }
+    case STMT_SEM_WAIT:
+    {
+        this->translate_statement_sem_wait_to_ir_instructions(stmt,from_subprogram);
+        break;
+    }
+    case STMT_SEM_SIGNAL:
+    {
+        this->translate_statement_sem_signal_to_ir_instructions(stmt,from_subprogram);
         break;
     }
     
@@ -134,7 +164,7 @@ void IR_Translator_Statement::translate_statement_assignment_to_ir_instructions(
     }
     // ---- 2.B En otro caso, buscar en la tabla
     else{
-        id_variable_in_table = tables.get_index_from_local_variable(var_name);
+        id_variable_in_table = tables.get_index_from_local_variable(var_name,precedence);
         if(id_variable_in_table == -1){
             // ---- Buscar en otro scope
             id_variable_in_table = tables.get_index_from_global_variable(var_name);
@@ -216,7 +246,7 @@ void IR_Translator_Statement::translate_statement_for_to_ir_instructions(struct 
     // ---- 0. Obtener identificador de contador de bucle
     std::string index_name = std::string(stmt->stmt.statement_for.counter_name);
     // ---- 1. Registrar en tabla de variables
-    int id_variable_in_table = tables.add_entry_variable(IR_VAR_LOCAL,index_name,IR_VAR_TYPE_INT);
+    int id_variable_in_table = tables.add_entry_variable(IR_VAR_LOCAL,index_name,precedence,IR_VAR_TYPE_INDEX);
 
     // ---- 2. Inicializar el contador
     const int reg_index_init = expr_translator.translate(stmt->stmt.statement_for.intialization,from_subprogram);
@@ -324,20 +354,8 @@ void IR_Translator_Statement::translate_statement_print_to_ir_instructions(struc
         current_expr_to_print = current_expr_to_print->next;
     }
 
-    // -- Cargar literal de salto de linea e imprimir al final de la sentencia
-    struct expression * expr_endl = create_expression_literal_string(std::string("\n").c_str());
-
-    // -- Obtener registro de carga de expresion
-    reg_expression = expr_translator.translate(expr_endl);
-
-    // -- Generar operando de registro
-    op_print = instructions.emit_operand_register(reg_expression);
-
-    // -- Emitir instruccion de impresion
-    instructions.emit_instruction(IR_OP_PRINT,op_print);
-
-    // -- Liberar expresion utilizada
-    free_expression(expr_endl);
+    // -- Emitir instruccion de fin de impresion
+    instructions.emit_instruction(IR_END_PRINT);
 }
 
 void IR_Translator_Statement::translate_statement_procedure_inv_to_ir_instructions(struct statement * stmt, bool from_subprogram){
@@ -403,14 +421,82 @@ void IR_Translator_Statement::translate_statement_return_to_ir_instructions(stru
 }
 
 void IR_Translator_Statement::translate_statement_fork_to_ir_instructions(struct statement * stmt, bool from_subprogram){
-    //TODO
+    // -- 0. Obtener nombre de procedimiento
+    std::string procedure_name = std::string(stmt->stmt.statement_fork.forked_procedure);
+
+    // -- 1. Generar nombre para proceso dinamico
+    std::string dprocess_name = std::string("dp_") + procedure_name;
+    // -- 2. Registrar como variable local
+    int id_variable_in_table = tables.add_entry_variable(IR_VAR_LOCAL,dprocess_name,precedence,IR_VAR_TYPE_DPROCESS);
+    // -- 3. Generar operando de variable dinamic
+    IR_operand op_1 = instructions.emit_operand_variable(id_variable_in_table);
+    // -- 4. Obtener etiqueta de salto a procedimiento
+    std::string call_procedure_label = std::string("start_subprog_") + procedure_name;
+    int index_label_in_table = tables.get_index_from_label_id(call_procedure_label);
+    // -- 5. Obtener operando de etiqueta de salto
+    IR_operand op_2 = instructions.emit_operand_label(index_label_in_table);
+
+    // -- 4. Emitir instruccion
+    instructions.emit_instruction(IR_OP_FORK,false,op_1,op_2);
 }
         
 void IR_Translator_Statement::translate_statement_join_to_ir_instructions(struct statement * stmt, bool from_subprogram){
-    //TODO
+    // -- 0. Obtener nombre de procedimiento
+    std::string forked_procedure = std::string("dp_") + std::string(stmt->stmt.statement_join.joined_procedure);
+
+    // -- 1. Buscar referencia en la tabla de variables
+    int id_variable_in_table = tables.get_index_from_local_variable(forked_procedure,precedence);
+    if(id_variable_in_table == -1)
+        id_variable_in_table = tables.get_index_from_global_variable(forked_procedure);
+
+    // -- 2. Emitir operando
+    IR_operand op_1 = instructions.emit_operand_variable(id_variable_in_table);
+    // -- 3. Emitir instruccion
+    instructions.emit_instruction(IR_OP_JOIN,op_1);
+}
+
+void IR_Translator_Statement::translate_statement_sem_wait_to_ir_instructions(struct statement * stmt, bool from_subprogram){
+    // -- Obtener id de variable semaforo
+    std::string semaphore_name = std::string(stmt->stmt.statement_semaphore.semaphore_name);
+
+    // -- Buscar semaphore en la tabla de variables
+    int id_variable_in_table = tables.get_index_from_local_variable(semaphore_name,precedence);
+    if(id_variable_in_table == -1){
+        id_variable_in_table = tables.get_index_from_global_variable(semaphore_name);
+    }
+
+    // -- Emitir operando de variable semaforo
+    IR_operand op_sem_var = instructions.emit_operand_variable(id_variable_in_table);
+
+    // ------------------------------
+
+    // -- Emitir operacion de wait
+    instructions.emit_instruction(IR_OP_SEM_WAIT,op_sem_var);
+
+}
+
+void IR_Translator_Statement::translate_statement_sem_signal_to_ir_instructions(struct statement * stmt, bool from_subprogram){
+    // -- Obtener id de variable semaforo
+    std::string semaphore_name = std::string(stmt->stmt.statement_semaphore.semaphore_name);
+
+    // -- Buscar semaphore en la tabla de variables
+    int id_variable_in_table = tables.get_index_from_local_variable(semaphore_name,precedence);
+    if(id_variable_in_table == -1){
+        id_variable_in_table = tables.get_index_from_global_variable(semaphore_name);
+    }
+
+    // -- Emitir operando de variable semaforo
+    IR_operand op_sem_var = instructions.emit_operand_variable(id_variable_in_table);
+
+    // ------------------------------
+
+    // -- Emitir operacion de wait
+    instructions.emit_instruction(IR_OP_SEM_SIGNAL,op_sem_var);
 }
 
 void IR_Translator_Statement::translate_list_statements_to_ir_instructions(struct statement * list_stmt, bool from_subprogram){
+    expr_translator.set_precedence(precedence);
+
     struct statement *current_stmt = list_stmt;
     while(current_stmt != NULL){
         // -- Traducir sentencia
@@ -418,6 +504,8 @@ void IR_Translator_Statement::translate_list_statements_to_ir_instructions(struc
         // -- Ir a siguiente sentencia
         current_stmt = current_stmt->next;
     }
+
+    expr_translator.reset_precedence();
 }
 
 // ===============================================================

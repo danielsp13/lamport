@@ -25,17 +25,35 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
     {
     case IR_OPERAND_LITERAL:
     {
-        virtual_segment = pages_table.SEGMENT_FOR_LITERALS;
+        virtual_segment = segments_table.SEGMENT_FOR_LITERALS;
+
+        // -- Obtener direccion fisica mirando en la tabla de segmentos
+        phisical_address = this->segments_table(virtual_segment,virtual_address);
+
         break;
     }
     case IR_OPERAND_VARIABLE:
     {
-        virtual_segment = pages_table.SEGMENT_FOR_VARIABLES;
+        virtual_segment = current_thread->get_segment();
+
+        // -- Obtener direccion fisica mirando en la tabla de segmentos
+        phisical_address = this->segments_table(virtual_segment,virtual_address);
+
+
+        // -- Si se ha obtenido -3, volver a intentarlo con variable global
+        if(phisical_address != -3)
+            break;
+
+        virtual_segment = segments_table.SEGMENT_FOR_GLOBAL_VARIABLES;
+
+        // -- Obtener direccion fisica mirando en la tabla de segmentos
+        phisical_address = this->segments_table(virtual_segment,virtual_address);
+
         break;
     }
     case IR_OPERAND_VARIABLE_ARRAY:
     {
-        virtual_segment = pages_table.SEGMENT_FOR_VARIABLES_ARRAY;
+        virtual_segment = current_thread->get_segment();
 
         // -- Obtener el registro que contiene el offset, y a continuacion el offset
         LVM_Register reg_offset = register_table[reg_index_offset];
@@ -45,7 +63,13 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
         bounds_arrays.check_if_is_negative_offset(offset);
 
         // -- Preobtener direccion fisica
-        phisical_address = this->pages_table(virtual_segment,virtual_address,offset);
+        phisical_address = this->segments_table(virtual_segment,virtual_address,offset);
+
+        // -- Si se ha obtenido -3, volver a intentarlo con variable global
+        if(phisical_address == -3){
+            virtual_segment = segments_table.SEGMENT_FOR_GLOBAL_VARIABLES;
+            phisical_address = this->segments_table(virtual_segment,virtual_address,offset);
+        }
 
         // -- Comprobar limites de array
         bounds_arrays.check_if_exceds_bound(virtual_address,phisical_address,offset);
@@ -57,16 +81,18 @@ int LVM_CPU::get_phisical_address_from_operand(const IR_operand & op){
     }
     case IR_OPERAND_LABEL:
     {
-        virtual_segment = pages_table.SEGMENT_FOR_LABELS;
+        virtual_segment = segments_table.SEGMENT_FOR_LABELS;
+
+        // -- Obtener direccion fisica mirando en la tabla de segmentos
+        phisical_address = this->segments_table(virtual_segment,virtual_address);
+
+
         break;
     }
     default:
         throw std::invalid_argument("SEGMENTO VIRTUAL DE OPERANDO INVALIDO.");
         break;
     }
-
-    // -- Obtener direccion fisica mirando en la tabla de paginas
-    phisical_address = this->pages_table(virtual_segment,virtual_address);
 
     // -- Retornar direccion fisica
     return phisical_address;
@@ -160,6 +186,7 @@ inline bool LVM_CPU::instruction_is_print(const IR_instruction & instr){
     const IR_instruction_type_t kind = instr.get_code_instr();
     
     result = kind == IR_OP_PRINT;
+    result = result == true ? true : kind == IR_END_PRINT;
 
     return result; 
 }
@@ -184,6 +211,56 @@ inline bool LVM_CPU::instruction_is_call_or_ret_subprogram(const IR_instruction 
     result = result == true ? true : kind == IR_OP_RET;
 
     return result; 
+}
+
+inline bool LVM_CPU::instruction_is_atomic(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_ATOMIC_BEGIN;
+    result = result == true ? true : kind == IR_OP_ATOMIC_END;
+
+    return result; 
+}
+
+inline bool LVM_CPU::instruction_is_fork_or_join(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_FORK;
+    result = result == true ? true : kind == IR_OP_JOIN;
+
+    return result;   
+}
+
+inline bool LVM_CPU::instruction_is_cobegin(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_COBEGIN;
+    result = result == true ? true : kind == IR_OP_COEND;
+
+    return result;  
+}
+
+inline bool LVM_CPU::instruction_is_thread_cobegin(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_START_COBEGIN_THREAD;
+    result = result == true ? true : kind == IR_END_COBEGIN_THREAD;
+
+    return result;
+}
+
+inline bool LVM_CPU::instruction_is_sem_wait_or_signal(const IR_instruction & instr){
+    bool result = false; 
+    const IR_instruction_type_t kind = instr.get_code_instr();
+    
+    result = kind == IR_OP_SEM_WAIT;
+    result = result == true ? true : kind == IR_OP_SEM_SIGNAL;
+
+    return result;
 }
 
 inline bool LVM_CPU::instruction_is_not_instruction(const IR_instruction & instr){
@@ -243,6 +320,7 @@ std::vector<LVM_Register> LVM_CPU::get_registers_from_operands(const IR_instruct
 }
 
 void LVM_CPU::execute_instruction(const IR_instruction & instr_to_exec){
+    //std::cout << "PC: " << program_counter << std::endl;
     // -- Decidir accion
     // ---- INSTRUCCION DE COMIENZO/FIN DE PROCESO
     if(instruction_is_start_or_end_process(instr_to_exec)){
@@ -294,6 +372,26 @@ void LVM_CPU::execute_instruction(const IR_instruction & instr_to_exec){
     else if(this->instruction_is_start_or_end_program(instr_to_exec)){
         this->execute_instruction_start_or_end_program(instr_to_exec);
     }
+    // ---- INSTRUCCION ATOMICA
+    else if(this->instruction_is_atomic(instr_to_exec)){
+        this->execute_instruction_atomic(instr_to_exec);
+    }
+    // ---- INSTRUCCION FORK/JOIN
+    else if(this->instruction_is_fork_or_join(instr_to_exec)){
+        this->execute_instruction_fork_or_join(instr_to_exec);
+    }
+    // ---- INSTRUCTION COBEGIN
+    else if(this->instruction_is_cobegin(instr_to_exec)){
+        this->execute_instruction_cobegin_or_coend(instr_to_exec);
+    }
+    // ---- INSTRUCTION COBEGIN_THREAD
+    else if(this->instruction_is_thread_cobegin(instr_to_exec)){
+        this->execute_instruction_thread_cobegin(instr_to_exec);
+    }
+    // ---- INSTRUCTION SEM WAIT/SIGNAL
+    else if(this->instruction_is_sem_wait_or_signal(instr_to_exec)){
+        this->execute_instruction_sem_wait_or_signal(instr_to_exec);
+    }
     // ---- INSTRUCCION NOT INSTRUCTION
     else if(this->instruction_is_not_instruction(instr_to_exec)){
         this->program_counter++;
@@ -330,23 +428,8 @@ void LVM_CPU::execute_instruction_start_process(const IR_instruction & instr){
 }
 
 void LVM_CPU::execute_instruction_end_process(const IR_instruction & instr){
-    IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
-    
-    // -- 1. Buscar otro proceso
-    for(int i=this->program_counter; i<total_instructions; i++){
-        // -- 2. Buscar un start process
-        if(instructions[i].get_code_instr() == IR_START_PROCESS){
-            this->program_counter = i;
-            return;
-        }
-
-        // -- 2. Buscar un end program
-        if(instructions[i].get_code_instr() == IR_END_PROGRAM){
-            this->program_counter = i;
-            return;
-        }
-    }
-
+    current_thread->set_state(LVM_THREAD_TERMINATED);
+    this->program_counter++;
 }
 
 void LVM_CPU::execute_instruction_start_or_end_program(const IR_instruction & instr){
@@ -442,6 +525,8 @@ void LVM_CPU::execute_instruction_load(const IR_instruction & instr){
     phisical_address = this->get_phisical_address_from_operand(op_1);
     // -- Traer el bloque de memoria de esa direccion fisica
     mem_block = this->memory[phisical_address];
+
+    //std::cout << "(load) in reg: " << register_address << " from phisical addr: " << phisical_address << std::endl; std::cout.flush();
 
     // -- Enviar a registro
     this->register_table(register_address,mem_block);
@@ -775,6 +860,7 @@ void LVM_CPU::execute_instruction_jump(const IR_instruction & instr){
 }
 
 void LVM_CPU::execute_instruction_print(const IR_instruction & instr){
+
     // 1.B Elementos para ejecucion
     // ----- Operandos de instruccion
     IR_operand op_1;
@@ -828,6 +914,14 @@ void LVM_CPU::execute_instruction_print(const IR_instruction & instr){
     default:
         break;
     }
+
+    if(instructions[this->program_counter+1].get_code_instr() == IR_END_PRINT){
+        this->program_counter++;
+
+        // -- Imprimir salto de linea
+        std::cout << std::endl;
+    }
+
 }
 
 void LVM_CPU::execute_instruction_call_or_ret(const IR_instruction & instr){
@@ -851,14 +945,21 @@ void LVM_CPU::execute_instruction_call_or_ret(const IR_instruction & instr){
 }
 
 void LVM_CPU::execute_instruction_call(const IR_instruction & instr){
-    // Crear un contexto nuevo y almacenar el estado actual de la maquina virtual
-    LVM_Context new_context;
-    // --- Guardar contador de programa actual
-    new_context.program_counter = this->program_counter;
-    // --- Guardar tabla de registros
-    new_context.register_table = this->register_table.get_registers();
-    // --- Realizar push de contexto en pila
-    stack_contexts.push(new_context);
+    // -- Obtener elementos de la pila
+    std::vector<LVM_Stack_Block> stack_blocks;
+    while(!stack.empty()){
+        stack_blocks.push_back(stack.top());
+        stack.pop();
+    }
+    // -- Crear LVM_Stack_Block para la direccion de retorno
+    LVM_Stack_Block return_dir; return_dir.allocate_value<long>(this->program_counter);
+    stack_blocks.push_back(return_dir);
+    // -- Revertir array
+    std::reverse(stack_blocks.begin(), stack_blocks.end());
+    // -- Reconstruir pila
+    for(int i=0; i<stack_blocks.size(); i++){
+        stack.push(stack_blocks[i]);
+    }
 
     // -- Obtener operando de instruccion
     IR_operand op_call = *instr.get_operand_1();
@@ -876,17 +977,13 @@ void LVM_CPU::execute_instruction_call(const IR_instruction & instr){
 }
 
 void LVM_CPU::execute_instruction_ret(const IR_instruction & instr){
-    // --- Obtener el contexto guardado
-    LVM_Context old_context = stack_contexts.top();
-    // --- Devolver contador de programa a estado original
-    this->program_counter = old_context.program_counter;
-    this->program_counter++;
-    // --- Devolver tabla de registros
-    for(int i=reg_manager.get_return_subprog_register()+1; i<old_context.register_table.size();i++){
-        this->register_table[i] = old_context.register_table[i];
-    }
+    // --- Obtener la direccion de retorno
+    LVM_Stack_Block return_dir = stack.top(); stack.pop();
+    this->program_counter = return_dir.get_value<long>() + 1;
 
-    // FUTURE
+    if(current_thread->is_child()){
+        current_thread->set_state(LVM_THREAD_TERMINATED);
+    }
 }
 
 void LVM_CPU::execute_instruction_push_or_pop(const IR_instruction & instr){
@@ -1010,6 +1107,268 @@ void LVM_CPU::execute_instruction_pop_local(const IR_instruction & instr){
     this->execute_instruction_pop(instr,true);
 }
 
+void LVM_CPU::execute_instruction_atomic(const IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_OP_ATOMIC_BEGIN:
+    {
+        // -- Marcar hebra actual como entrante de seccion critica
+        current_thread->mark_atomic();
+        break;
+    }
+    case IR_OP_ATOMIC_END:
+    {
+        // -- Marcar hebra actual como saliente de seccion critica
+        current_thread->unmark_atomic();
+        break;
+    }
+    
+    default:
+        break;
+    }
+    
+    this->program_counter++;
+}
+
+void LVM_CPU::execute_instruction_fork_or_join(const IR_instruction & instr){
+    IR_instruction_type_t kind = instr.get_code_instr();
+    switch (kind)
+    {
+    case IR_OP_FORK:
+    {
+        this->execute_instruction_fork(instr);
+        break;
+    }
+    case IR_OP_JOIN:
+    {
+        this->execute_instruction_join(instr);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
+void LVM_CPU::execute_instruction_fork(const IR_instruction & instr){
+    if(scheduler.is_forked(this->program_counter)){
+        this->program_counter++;
+        return;
+    }
+
+    // -- Marcar fork
+    scheduler.mark_forked(this->program_counter);
+
+    // -- Obtener operandos de instruccion
+    IR_operand op_2 = *instr.get_operand_2();
+
+    // -- Obtener direccion fisica
+    int phisical_address = this->get_phisical_address_from_operand(op_2);
+
+    // -- Obtener bloque
+    LVM_Memory_Block mem_block = this->memory[phisical_address];
+
+    // -- Obtener direccion de salto
+    int pc = mem_block.get_value<long>();
+
+    this->program_counter++;
+
+    // -- Crear hebra hija
+    LVM_Thread * child_thread = new LVM_Thread(scheduler.get_total_threads(),pc,current_thread->get_segment(),current_thread);
+
+    // -- Guardar estado de la pila actual
+    LVM_Stack_Block ret_dir; ret_dir.allocate_value<long>(this->program_counter);
+    std::vector<LVM_Stack_Block> stack_blocks;
+    while(!stack.empty()){
+        stack_blocks.push_back(stack.top());
+        stack.pop();
+    }
+    stack_blocks.push_back(ret_dir);
+    std::reverse(stack_blocks.begin(), stack_blocks.end());
+    for(int i=0; i<stack_blocks.size(); i++){
+        stack.push(stack_blocks[i]);
+    }
+
+    child_thread->set_stack(stack);
+
+    // -- Guardar estado de registros actual
+    child_thread->set_registers(register_table.get_registers());
+
+    // -- Incluir el estado de la hebra hija en el padre
+    current_thread->set_child(child_thread);
+
+    // -- Incluir en el planificador
+    scheduler.new_thread_raw(child_thread);
+}
+
+void LVM_CPU::execute_instruction_join(const IR_instruction & instr){
+    if(scheduler.is_joined(this->program_counter)){
+        program_counter++;
+    }
+    else{
+        // -- Marcar join
+        scheduler.mark_joined(this->program_counter);
+
+        // -- Comprobar si sus hijas no han terminado
+        if(!current_thread->childs_have_finished()){
+             // -- Bloquear hebra actual
+            scheduler.block_current_thread();
+        }
+
+        // -- Incrementar contador de programa
+        this->program_counter++;
+    }
+}
+
+void LVM_CPU::execute_instruction_cobegin_or_coend(const IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_OP_COBEGIN:
+    {
+        this->execute_instruction_cobegin(instr);
+        break;
+    }
+    case IR_OP_COEND:
+    {
+        this->execute_instruction_coend(instr);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
+void LVM_CPU::execute_instruction_cobegin(const IR_instruction & instr){
+    // --- Bloquear a esta hebra
+    scheduler.block_current_thread();
+
+    // --- Buscar a desde aqui el final de coend
+    for(int i=program_counter; i<instructions.size(); i++){
+        // -- Comprobar si es inicio de thread
+        if(instructions[i].get_code_instr() == IR_START_COBEGIN_THREAD){
+            // -- Crear nueva hebra
+            LVM_Thread * child_thread = new LVM_Thread(scheduler.get_total_threads(),i,current_thread->get_segment(),current_thread);
+            // -- Incluir hebra en el padre
+            current_thread->set_child(child_thread);
+
+            // -- Incluir en la cola de nuevas
+            scheduler.new_thread_raw(child_thread);
+        }
+        // -- Comprobar si se ha alcanzado el final de bloque cobegin-coend
+        if(instructions[i].get_code_instr() == IR_OP_COEND){
+            this->program_counter = i;
+        }
+    }
+}
+
+void LVM_CPU::execute_instruction_coend(const IR_instruction & instr){
+    this->program_counter++;
+}
+
+void LVM_CPU::execute_instruction_thread_cobegin(const IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_START_COBEGIN_THREAD:
+    {
+        this->program_counter++;
+        break;
+    }
+    case IR_END_COBEGIN_THREAD:
+    {
+        this->program_counter++;
+        // -- Marcar esta hebra como finalizada
+        current_thread->set_state(LVM_THREAD_TERMINATED);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
+void LVM_CPU::execute_instruction_sem_wait_or_signal(const IR_instruction & instr){
+    switch (instr.get_code_instr())
+    {
+    case IR_OP_SEM_WAIT:
+    {
+        this->execute_instruction_sem_wait(instr);
+        break;
+    }
+    case IR_OP_SEM_SIGNAL:
+    {
+        this->execute_instruction_sem_signal(instr);
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
+
+void LVM_CPU::execute_instruction_sem_wait(const IR_instruction & instr){
+    // -- Traer directamente de memoria el bloque que contiene la referencia al semaforo
+    IR_operand op_1 = *instr.get_operand_1();
+    int sem_addr = op_1.get_address();
+    // -- Definir segmento global y direccion fisica
+    int segment_sem = segments_table.SEGMENT_FOR_GLOBAL_VARIABLES;
+    int phisical_address = this->segments_table(segment_sem,sem_addr);
+    // -- Bloque de memoria
+    LVM_Memory_Block mem_block = this->memory[phisical_address];
+    scheduler.emplace_sem(phisical_address);
+    
+    // -- Obtener valor de contador
+    int sem_counter = mem_block.get_value<int>();
+
+    // -- Decrementar contador
+    sem_counter--;
+
+    // -- Comprobar condicion de semaforo
+    if(sem_counter < 0){
+        // -- Bloquear esta hebra
+        scheduler.sem_wait(phisical_address);
+    }
+
+    // -- Alojar valor nuevo en memoria
+    mem_block.allocate_value<int>(sem_counter);
+    this->memory[phisical_address] = mem_block;
+
+    // -- Incrementar contador
+    this->program_counter++;
+}
+
+void LVM_CPU::execute_instruction_sem_signal(const IR_instruction & instr){
+    // -- Traer directamente de memoria el bloque que contiene la referencia al semaforo
+    IR_operand op_1 = *instr.get_operand_1();
+    int sem_addr = op_1.get_address();
+    // -- Definir segmento global y direccion fisica
+    int segment_sem = segments_table.SEGMENT_FOR_GLOBAL_VARIABLES;
+    int phisical_address = this->segments_table(segment_sem,sem_addr);
+    // -- Bloque de memoria
+    LVM_Memory_Block mem_block = this->memory[phisical_address];
+    
+    // -- Obtener valor de contador
+    int sem_counter = mem_block.get_value<int>();
+    scheduler.emplace_sem(phisical_address);
+
+    // -- Incrementar contador
+    sem_counter++;
+
+
+    // -- Comprobar condicion de semaforo
+    if(sem_counter <= 0){
+        // -- Desbloquear primera hebra bloqueada
+        scheduler.sem_signal(phisical_address);
+    }
+
+    // -- Alojar valor nuevo en memoria
+    mem_block.allocate_value<int>(sem_counter);
+    this->memory[phisical_address] = mem_block;
+
+    // -- Incrementar contador
+    this->program_counter++;
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [CPU] -----
@@ -1019,9 +1378,52 @@ LVM_CPU& LVM_CPU::get_instance(){
     return instance;
 }
 
-void LVM_CPU::execute_instructions(){
-    while(get_program_counter() < total_instructions){
-        //std::cout << "PC: " << program_counter << std::endl;
+void LVM_CPU::pre_start(){
+    current_thread = new LVM_Thread(1000,1,LVM_Segment_Table::SEGMENT_FOR_GLOBAL_VARIABLES);
+    this->program_counter++;
+    execute_instruction(instructions[this->program_counter]);
+    delete current_thread; current_thread = nullptr;
+}
+
+void LVM_CPU::execute_next_instruction(){
+    // -- Comprobar que el programa no ha terminado
+    if(!scheduler.program_terminated()){
+        // -- Planificar
+        scheduler.schedule();
+        // -- Obtener nueva hebra del planificador
+        current_thread = scheduler.get_current_thread();
+
+        // -- Volver a verificar si el programa ha terminado
+        if(scheduler.program_terminated()){
+            this->program_counter = total_instructions;
+            return;
+        }
+
+        // -- Obtener contador de programa actual
+        program_counter = current_thread->get_pc();
+        // -- Obtener pila de la hebra
+        stack = current_thread->get_stack();
+        // -- Obtener registros de la hebra
+        register_table.restore_registers(current_thread->get_registers());
+
+        //std::cout << "---- Thread: " << current_thread->get_id() << " PC: " << program_counter << std::endl; std::cout.flush();
+
+        // -- Ejecutar instruccion
         execute_instruction(instructions[this->program_counter]);
+
+        // -- Guardar nuevo contador de programa
+        current_thread->set_pc(this->program_counter);
+
+        // -- Guardar estado de la pila actual
+        current_thread->set_stack(stack);
+
+        // -- Guardar estado de registros actual
+        current_thread->set_registers(register_table.get_registers());
+
+        // -- Marcar que la hebra ha terminado su trabajo
+        current_thread->instruction_executed();
+    }
+    else{
+        this->program_counter = total_instructions;
     }
 }

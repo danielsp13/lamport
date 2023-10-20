@@ -145,6 +145,12 @@ class IR_Table_Entry_Variable : public IR_Table_Entry{
          */
         IR_Table_Entry_Variable(IR_variable_t kind,const char *var_name, IR_variable_type_t arr_type, size_t arr_size)
             : var(std::make_unique<IR_variable>(kind,var_name,arr_type,arr_size)) {};
+        
+        /**
+         * @brief Especifica una precedencia para la variable alojada
+         * @param prec : precedencia
+         */
+        void set_precedence(std::string prec){ var->set_precedence(prec); };
 
         /**
          * @brief Obtiene el tipo de entrada de tabla

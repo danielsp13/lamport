@@ -95,6 +95,18 @@ struct statement * create_statement(statement_t kind){
         break;
     }
 
+    case STMT_SEM_WAIT:
+    {
+        st->kind_str = strdup("sem wait");
+        break;
+    }
+
+    case STMT_SEM_SIGNAL:
+    {
+        st->kind_str = strdup("sem signal");
+        break;
+    }
+
     default:
     {
         st->kind_str = NULL;
@@ -283,9 +295,9 @@ struct statement * create_statement_fork(char *process_name, unsigned long line)
         return NULL;
 
     // -- Asignar nombre de proceso
-    st->stmt.statement_fork.forked_process = strdup(process_name);
+    st->stmt.statement_fork.forked_procedure = strdup(process_name);
     // -- Comprobar asignacion de nombre de proceso exitosa
-    if(!st->stmt.statement_fork.forked_process){
+    if(!st->stmt.statement_fork.forked_procedure){
         // -- Liberar memoria reservada para la sentencia
         free(st);
         return NULL;
@@ -309,9 +321,9 @@ struct statement * create_statement_join(char *process_name, unsigned long line)
         return NULL;
 
     // -- Asignar nombre de proceso
-    st->stmt.statement_join.joined_process = strdup(process_name);
+    st->stmt.statement_join.joined_procedure = strdup(process_name);
     // -- Comprobar asignacion de nombre de proceso exitosa
-    if(!st->stmt.statement_join.joined_process){
+    if(!st->stmt.statement_join.joined_procedure){
         // -- Liberar memoria reservada para la sentencia
         free(st);
         return NULL;
@@ -355,6 +367,36 @@ struct statement * create_statement_print(struct expression *expressions_list){
     st->stmt.statement_print.expressions_list = expressions_list;
 
     // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
+struct statement * create_statement_sem_wait(char * semaphore_id, unsigned long line){
+    struct statement *st = create_statement(STMT_SEM_WAIT);
+
+    if(!st)
+        return NULL;
+
+    st->stmt.statement_semaphore.semaphore_name = strdup(semaphore_id);
+    if(!st->stmt.statement_semaphore.semaphore_name){
+        return NULL;
+    }
+    st->stmt.statement_semaphore.line = line;
+
+    return st;
+}
+
+struct statement * create_statement_sem_signal(char * semaphore_id, unsigned long line){
+    struct statement *st = create_statement(STMT_SEM_SIGNAL);
+
+    if(!st)
+        return NULL;
+
+    st->stmt.statement_semaphore.semaphore_name = strdup(semaphore_id);
+    if(!st->stmt.statement_semaphore.semaphore_name){
+        return NULL;
+    }
+    st->stmt.statement_semaphore.line = line;
+
     return st;
 }
 
@@ -489,8 +531,8 @@ void free_statement(struct statement *stmt){
 
     case STMT_FORK:
     {
-        free(stmt->stmt.statement_fork.forked_process);
-        stmt->stmt.statement_fork.forked_process = NULL;
+        free(stmt->stmt.statement_fork.forked_procedure);
+        stmt->stmt.statement_fork.forked_procedure = NULL;
 
         // -- Liberacion de simbolo
         if(stmt->stmt.statement_fork.symb){
@@ -502,8 +544,8 @@ void free_statement(struct statement *stmt){
 
     case STMT_JOIN:
     {
-        free(stmt->stmt.statement_join.joined_process);
-        stmt->stmt.statement_join.joined_process = NULL;
+        free(stmt->stmt.statement_join.joined_procedure);
+        stmt->stmt.statement_join.joined_procedure = NULL;
 
         // -- Liberacion de simbolo
         if(stmt->stmt.statement_join.symb){
@@ -537,6 +579,36 @@ void free_statement(struct statement *stmt){
     {
         free_list_expressions(stmt->stmt.statement_print.expressions_list);
         stmt->stmt.statement_print.expressions_list = NULL;
+        break;
+    }
+
+    case STMT_SEM_WAIT:
+    {
+        if(stmt->stmt.statement_semaphore.semaphore_name){
+            free(stmt->stmt.statement_semaphore.semaphore_name);
+            stmt->stmt.statement_semaphore.semaphore_name = NULL;
+        }
+
+        if(stmt->stmt.statement_semaphore.symb){
+            free_symbol(stmt->stmt.statement_semaphore.symb);
+            stmt->stmt.statement_semaphore.symb = NULL;
+        }
+
+        break;
+    }
+
+    case STMT_SEM_SIGNAL:
+    {
+        if(stmt->stmt.statement_semaphore.semaphore_name){
+            free(stmt->stmt.statement_semaphore.semaphore_name);
+            stmt->stmt.statement_semaphore.semaphore_name = NULL;
+        }
+
+        if(stmt->stmt.statement_semaphore.symb){
+            free_symbol(stmt->stmt.statement_semaphore.symb);
+            stmt->stmt.statement_semaphore.symb = NULL;
+        }
+
         break;
     }
     }
@@ -648,13 +720,13 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth,
 
         case STMT_FORK:
         {
-            fprintf(output,"%s%s %c FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_fork.forked_process);
+            fprintf(output,"%s%s %c FORK DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_fork.forked_procedure);
             break;
         }
 
         case STMT_JOIN:
         {
-            fprintf(output,"%s%s %c JOIN DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_join.joined_process);
+            fprintf(output,"%s%s %c JOIN DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_join.joined_procedure);
             break;
         }
         
@@ -669,6 +741,18 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth,
         {
             fprintf(output,"%s%s %c LISTADO DE EXPRESIONES A IMPRIMIR:\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
             print_AST_expressions(current_statement->stmt.statement_print.expressions_list,NEXT_NODE_DEPTH,output);
+            break;
+        }
+
+        case STMT_SEM_WAIT:
+        {
+            fprintf(output,"%s%s %c WAIT SOBRE SEMAFORO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL,current_statement->stmt.statement_semaphore.semaphore_name);
+            break;
+        }
+
+        case STMT_SEM_SIGNAL:
+        {
+            fprintf(output,"%s%s %c SIGNAL SOBRE SEMAFORO: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL,current_statement->stmt.statement_semaphore.semaphore_name);
             break;
         }
         }

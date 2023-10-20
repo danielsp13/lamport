@@ -21,8 +21,6 @@
 
 class LVM_Context{
     public:
-        // --- Contador de programa
-        int program_counter = 0;
         // --- Tabla de registros
         std::vector<LVM_Register> register_table;
 

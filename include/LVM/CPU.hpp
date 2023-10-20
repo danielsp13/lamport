@@ -12,21 +12,22 @@
 
 // ----- INCLUSION DE DEPENDENCIAS -----
 
+#include <vector>
 #include <stack>
 #include <algorithm>
 #include <string>
 
 #include "register_table.hpp"       ///< Tabla de registros
 #include "stack_block.hpp"          ///< Bloque
-#include "context.hpp"              ///< Contexto
 
 #include "memory.hpp"               ///< Memoria de Maquina Virtual
-#include "page_table.hpp"           ///< Tabla de paginas de memoria virtual
+#include "segment_table.hpp"        ///< Tabla de segmentos de memoria virtual
 #include "bounds.hpp"               ///< Registro de limites de arrays
+#include "scheduler.hpp"            ///< Planificador de hebras
 
 #include "IR/instruction.hpp"       ///< Instruccion
-#include "IR/instruction_table.hpp"    ///< Tabla de instrucciones
-#include "IR/ir_reg_manager.hpp"       ///< Manejador de registros
+#include "IR/instruction_table.hpp" ///< Tabla de instrucciones
+#include "IR/ir_reg_manager.hpp"    ///< Manejador de registros
 
 // ===============================================================
 
@@ -42,13 +43,15 @@ class LVM_CPU{
         IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
         // -- Pila (para manejo de subprogramas)
         std::stack<LVM_Stack_Block> stack;
-        // -- Pila de contextos
-        std::stack<LVM_Context> stack_contexts;
+        // -- Planificador de hebras
+        LVM_Scheduler& scheduler = LVM_Scheduler::get_instance();
+        // -- Hebra actual ejecutando CPU
+        LVM_Thread* current_thread = nullptr;
         
         // -- Memoria de la maquina virtual
         LVM_Memory& memory = LVM_Memory::get_instance();
         // -- Tabla de paginas
-        LVM_Page_Table& pages_table = LVM_Page_Table::get_instance();
+        LVM_Segment_Table& segments_table = LVM_Segment_Table::get_instance();
         // -- Registro de limites de array
         LVM_Bounds& bounds_arrays = LVM_Bounds::get_instance();
 
@@ -139,6 +142,41 @@ class LVM_CPU{
          * @return TRUE si es una operacion esperada, FALSE en otro caso
          */
         inline bool instruction_is_call_or_ret_subprogram(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es atomica
+         * @param instr : instruccion
+         * @return TRUE si es una operacion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_atomic(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es fork o join
+         * @param instr : instruccion
+         * @return TRUE si es una operacion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_fork_or_join(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es un acceso a bloque cobegin-coend
+         * @param instr : instruccion
+         * @return TRUE si es una operacion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_cobegin(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion marca el inicio/fin de hebra cobegin
+         * @param instr : instruccion
+         * @return TRUE si es una operacion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_thread_cobegin(const IR_instruction & instr);
+
+        /**
+         * @brief Comprueba si una instruccion es un sem wait o sem signal
+         * @param instr : instruccion
+         * @return TRUE si es una instruccion esperada, FALSE en otro caso
+         */
+        inline bool instruction_is_sem_wait_or_signal(const IR_instruction & instr);
 
         /**
          * @brief Comprueba si una instruccion no es una instruccion (inicio de seccion de subprogramas)
@@ -308,6 +346,61 @@ class LVM_CPU{
          */
         void execute_instruction_pop_local(const IR_instruction & instr);
 
+        /**
+         * @brief Ejecuta el inicio/fin de seccion atomica
+         * @param instr : instruccion IR_OP_ATOMIC_BEGIN / IR_OP_ATOMIC_END
+         */
+        void execute_instruction_atomic(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion fork o join
+         * @param instr : instruccion
+         */
+        void execute_instruction_fork_or_join(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion fork
+         * @param instr : instruccion
+         */
+        void execute_instruction_fork(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion join
+         * @param instr : instruccion
+         */
+        void execute_instruction_join(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion cobegin/coend
+         * @param instr : instruccion
+         */
+        void execute_instruction_cobegin_or_coend(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion cobegin
+         * @param instr : instruccion
+         */
+        void execute_instruction_cobegin(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion cobegin
+         * @param instr : instruccion
+         */
+        void execute_instruction_coend(const IR_instruction & instr);
+
+        /**
+         * @brief Ejecuta una instruccion de gestion de thread cobegin
+         * @param instr : instruccion
+         */
+        void execute_instruction_thread_cobegin(const IR_instruction & instr);
+
+
+        void execute_instruction_sem_wait_or_signal(const IR_instruction & instr);
+
+        void execute_instruction_sem_wait(const IR_instruction & instr);
+
+        void execute_instruction_sem_signal(const IR_instruction & instr);
+
     public:
         /**
          * @brief Obtiene la instancia
@@ -337,9 +430,22 @@ class LVM_CPU{
         int get_program_counter() const { return this->program_counter; };
 
         /**
-         * @brief Ejecuta la lista de instrucciones
+         * @brief Devuelve el total de instrucciones a ejecutar
+         * @return total de instrucciones
          */
-        void execute_instructions();
+        int get_total_instructions() const { return this->total_instructions; };
+
+        /**
+         * @brief Preinicia el programa, llegando a una seccion de proceso
+         */
+        void pre_start();
+
+        /**
+         * @brief Ejecuta la siguiente instruccion a la que apunta el contador de programa
+         */
+        void execute_next_instruction();
+
+        
 };
 
 #endif //_LAMPORT_LVM_CPU_DPR_

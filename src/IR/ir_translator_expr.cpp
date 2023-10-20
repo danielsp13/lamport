@@ -213,7 +213,7 @@ int IR_Translator_Expression::translate_expression_identifier_to_ir_instructions
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // -- Obtener indice de identificador de variable
-    int id_variable_in_table = tables.get_index_from_local_variable(var_name);
+    int id_variable_in_table = tables.get_index_from_local_variable(var_name,precedence);
 
     // -- Comprobar si el indice es distinto de -1, en otro caso, buscar en otro scope
     if(id_variable_in_table == -1)

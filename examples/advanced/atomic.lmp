@@ -1,0 +1,31 @@
+{Programa: atomic.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program Race
+
+process P1;
+	var id : integer := 1;
+begin
+	while true do
+	begin
+		<< print("te saluda el proceso: ",id); >>
+	end
+end
+
+process P2;
+	var id2 : integer := 2;
+begin
+	while true do
+	begin
+		<< print("te saluda el proceso: ",id2); >>
+	end
+end
+
+process P3;
+	var id3 : integer := 3;
+begin
+	while true do
+	begin
+		<< print("te saluda el proceso: ",id3); >>
+	end
+end

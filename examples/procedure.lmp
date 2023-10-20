@@ -26,4 +26,7 @@ begin
 	saluda(usuario,valor);
 	print("");
 	saludaNVeces(usuario,5);
+	
+	print("");
+	print("Fin de procedimiento");
 end

@@ -12,14 +12,14 @@
 
 // ----- IMPLEMENTACION DE FUNCIONES DE RESOLUCION DE NOMBRES (LISTAS) -----
 
-void resolve_list_declarations(struct declaration *list_declarations){
+void resolve_list_declarations(struct declaration *list_declarations, char * precedence){
     // -- Obtener declaracion actual de la lista
     struct declaration *current_declaration = list_declarations;
 
     // -- Realizar procedimiento mientras haya un nodo en la lista
     while(current_declaration){
         // -- Aplicar resolucion de nombres a nodo
-        resolve_declaration(current_declaration);
+        resolve_declaration(current_declaration,precedence);
 
         // -- Ir a siguiente declaracion
         current_declaration = current_declaration->next;
@@ -104,7 +104,7 @@ void resolve_list_subprograms(struct subprogram *list_subprograms){
 
 // ----- IMPLEMENTACION DE FUNCIONES DE RESOLUCION DE NOMBRES (NODO DECLARACIONES) -----
 
-void resolve_declaration(struct declaration *decl){
+void resolve_declaration(struct declaration *decl, char * precedence){
     // -- Comprobar que la declaracion existe
     if(!decl)
         return;
@@ -131,7 +131,7 @@ void resolve_declaration(struct declaration *decl){
         {
         case SYMBOL_LOCAL:
         {
-            decl->symb = create_symbol_local(decl->type, decl->name, decl->line);
+            decl->symb = create_symbol_local(decl->type, decl->name, precedence, decl->line);
             break;
         }
 
@@ -432,6 +432,18 @@ void resolve_statement(struct statement *stmt){
         resolve_statement_print(stmt);
         break;
     }
+
+    case STMT_SEM_WAIT:
+    {
+        resolve_statement_sem_wait(stmt);
+        break;
+    }
+
+    case STMT_SEM_SIGNAL:
+    {
+        resolve_statement_sem_signal(stmt);
+        break;
+    }
     
     default:
     {
@@ -508,7 +520,7 @@ void resolve_statement_for(struct statement *stmt){
     else{
         // -- Creamos un simbolo de tipo local
         struct type * type_symb = create_basic_type(TYPE_INTEGER);
-        struct symbol * new_symb = create_symbol_local(type_symb, stmt->stmt.statement_for.counter_name, stmt->stmt.statement_for.line);
+        struct symbol * new_symb = create_symbol_local(type_symb, stmt->stmt.statement_for.counter_name,NULL, stmt->stmt.statement_for.line);
         free_type(type_symb);
 
         if(new_symb){
@@ -615,13 +627,13 @@ void resolve_statement_fork(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de proceso
     // -- Asignar referencia de simbolo a este proceso
-    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_fork.forked_process);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_fork.forked_procedure);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!target_symb){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_fork.forked_process,stmt->stmt.statement_fork.line, ERR_UNDEFINED_PROCESS_MSG);
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_fork.forked_procedure,stmt->stmt.statement_fork.line, ERR_UNDEFINED_PROCESS_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
@@ -629,6 +641,7 @@ void resolve_statement_fork(struct statement *stmt){
     // -- Asignar simbolo
     else{
         stmt->stmt.statement_fork.symb = copy_symbol(target_symb);
+        stmt->stmt.statement_fork.symb->type = create_dprocess_type();
     }
 }
 
@@ -640,13 +653,13 @@ void resolve_statement_join(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres al identificador de proceso
     // -- Asignar referencia de simbolo a este proceso
-    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_join.joined_process);
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_join.joined_procedure);
 
     // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
     if(!target_symb){
         // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
         // -- Crear error
-        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_join.joined_process,stmt->stmt.statement_join.line, ERR_UNDEFINED_PROCESS_MSG);
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_join.joined_procedure,stmt->stmt.statement_join.line, ERR_UNDEFINED_PROCESS_MSG);
 
         // -- Insertar error en la lista de errores semanticos
         add_error_semantic_to_list(error);
@@ -654,6 +667,7 @@ void resolve_statement_join(struct statement *stmt){
     // -- Asignar simbolo
     else{
         stmt->stmt.statement_join.symb = copy_symbol(target_symb);
+        stmt->stmt.statement_join.symb->type = create_dprocess_type();
     }
 }
 
@@ -673,6 +687,56 @@ void resolve_statement_print(struct statement *stmt){
 
     // -- Aplicar resolucion de nombres a las expresiones de impresion
     resolve_list_expressions(stmt->stmt.statement_print.expressions_list);
+}
+
+void resolve_statement_sem_wait(struct statement *stmt){
+    // -- Comprobar que la sentencia existe
+    if(!stmt)
+        return;
+
+
+    // -- Aplicar resolucion de nombres al identificador de proceso
+    // -- Asignar referencia de simbolo a este proceso
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_semaphore.semaphore_name);
+
+    // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
+    if(!target_symb){
+        // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
+        // -- Crear error
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_semaphore.semaphore_name,stmt->stmt.statement_semaphore.line, ERR_UNDEFINED_PROCESS_MSG);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
+    }
+    // -- Asignar simbolo
+    else{
+        stmt->stmt.statement_semaphore.symb = copy_symbol(target_symb);
+    }
+}
+
+void resolve_statement_sem_signal(struct statement *stmt){
+    // -- Comprobar que la sentencia existe
+    if(!stmt)
+        return;
+
+
+    // -- Aplicar resolucion de nombres al identificador de proceso
+    // -- Asignar referencia de simbolo a este proceso
+    struct symbol * target_symb = lookup_symbol_from_all_scopes(stmt->stmt.statement_semaphore.semaphore_name);
+
+    // -- Comprobar existencia de simbolo en la tabla (se manifiesta viendo que la asociacion no es nula)
+    if(!target_symb){
+        // -- Realizar handling de este error : USO DE SIMBOLO SIN DECLARAR
+        // -- Crear error
+        struct error * error = create_error_semantic_undefined_symbol(stmt->stmt.statement_semaphore.semaphore_name,stmt->stmt.statement_semaphore.line, ERR_UNDEFINED_PROCESS_MSG);
+
+        // -- Insertar error en la lista de errores semanticos
+        add_error_semantic_to_list(error);
+    }
+    // -- Asignar simbolo
+    else{
+        stmt->stmt.statement_semaphore.symb = copy_symbol(target_symb);
+    }
 }
 
 // ===============================================================
@@ -716,7 +780,7 @@ void resolve_process(struct process *proc){
     push_scope_to_symbol_table();
 
     // -- Aplicar resolucion de nombres a declaraciones de proceso
-    resolve_list_declarations(proc->declarations);
+    resolve_list_declarations(proc->declarations,proc->name_process);
 
     switch (proc->kind)
     {
@@ -765,9 +829,9 @@ void resolve_process_vector(struct process *proc){
         add_error_semantic_to_list(error);
     }
     else{
-        // -- Creamos un simbolo de tipo global
+        // -- Creamos un simbolo de tipo local
         struct type * type_symb = create_basic_type(TYPE_INTEGER);
-        struct symbol * new_symb = create_symbol_global(type_symb, proc->index_identifier, proc->line);
+        struct symbol * new_symb = create_symbol_local(type_symb, proc->index_identifier, proc->name_process, proc->line);
         free_type(type_symb);
 
         if(new_symb){
@@ -908,7 +972,7 @@ void resolve_subprogram(struct subprogram *subprog){
     resolve_list_parameters(subprog->parameters);
 
     // -- Aplicar resolucion de nombres a declaraciones
-    resolve_list_declarations(subprog->declarations);
+    resolve_list_declarations(subprog->declarations,subprog->name_subprogram);
 
     // -- Aplicar resolucion de nombres a sentencias
     resolve_list_statements(subprog->statements);
@@ -936,7 +1000,7 @@ void resolve_program(struct program *prog){
     push_scope_to_symbol_table();
 
     // -- Aplicar resolucion de nombres a lista de declaraciones
-    resolve_list_declarations(prog->declarations);
+    resolve_list_declarations(prog->declarations,NULL);
 
     // -- Aplicar resolucion de nombres a lista de subprogramas
     resolve_list_subprograms(prog->subprograms);

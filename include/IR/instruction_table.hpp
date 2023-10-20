@@ -144,6 +144,15 @@ class IR_Instruction_Table{
         void emit_instruction(IR_instruction_type_t code_instr, IR_operand op_dest, IR_operand op_1);
 
         /**
+         * @brief Emite e incluye una nueva instruccion IR (no destino y 2 operandos)
+         * @param code_instr : codigo de instruccion
+         * @param dest : discriminante de destino
+         * @param op_1 : operando 1
+         * @param op_2 : operando 2
+         */
+        void emit_instruction(IR_instruction_type_t code_instr, bool dest, IR_operand op_1, IR_operand op_2);
+
+        /**
          * @brief Emite e incluye una nueva instruccion IR (1 destino y 2 operando)
          * @param code_instr : codigo de instruccion
          * @param op_dest : operando de destino

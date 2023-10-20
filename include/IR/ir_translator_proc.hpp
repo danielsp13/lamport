@@ -19,6 +19,7 @@
 
 #include "ir_translator_decl.hpp"   ///< Traductor de declaraciones
 #include "ir_translator_stmt.hpp"   ///< Traductor de sentencias
+#include "ir_translator_expr.hpp"   ///< Traductor de expresiones
 
 // ===============================================================
 
@@ -37,6 +38,8 @@ class IR_Translator_Process{
         IR_Translator_Declaration& decl_translator = IR_Translator_Declaration::get_instance();
         // -- Traductor de sentencias
         IR_Translator_Statement& stmt_translator = IR_Translator_Statement::get_instance();
+        // -- Traductor de sentencias
+        IR_Translator_Expression& expr_translator = IR_Translator_Expression::get_instance();
 
         /**
          * @brief Constructor de la clase

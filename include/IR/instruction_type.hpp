@@ -65,6 +65,7 @@ typedef enum{
 
     // -- Definicion de instrucciones de entrada/salida
     IR_OP_PRINT,                ///< Instruccion de impresion
+    IR_END_PRINT,               ///< Indica fin de flujo de salida
 
     // -- Definicion de instrucciones para procedimientos/funciones (subprogramas)
     IR_OP_CALL,                 ///< Instruccion de llamada a subprograma
@@ -79,13 +80,15 @@ typedef enum{
     // -- Definicion de instrucciones de gestion de bloques concurrentes
     IR_OP_COBEGIN,              ///< Instruccion de inicio de bloque concurrente
     IR_OP_COEND,                ///< Instruccion de fin de bloque concurrente
+    IR_START_COBEGIN_THREAD,    ///< Instruccion que indica creacion de una nueva hebra para cobegin
+    IR_END_COBEGIN_THREAD,      ///< Instruccion que indica fin de hebra cobegin
+
+    // -- Definicion de instrucciones de tipo etiqueta
+    IR_LABEL,
 
     // -- Definicion de instrucciones de gestion de bloques atomicos
     IR_OP_ATOMIC_BEGIN,         ///< Instruccion de inicio de bloque atomico
     IR_OP_ATOMIC_END,           ///< Instruccion de fin de bloque atomico
-
-    // -- Definicion de instrucciones de tipo etiqueta
-    IR_LABEL,
 
     // -- Definicion de instrucciones de inicio y fin de proceso
     IR_START_PROCESS,           ///< Instruccion de comienzo de proceso
@@ -93,7 +96,11 @@ typedef enum{
 
     // -- Definicion de instruccion de fin de programa
     IR_START_PROGRAM,           ///< Instruccion de inicio de programa
-    IR_END_PROGRAM,             ///< Instruccion de fin de programa          
+    IR_END_PROGRAM,             ///< Instruccion de fin de programa  
+
+    // -- Definicion de instrucciones de manejo de semaforos
+    IR_OP_SEM_WAIT,             ///< Instruccion de wait de semaforo
+    IR_OP_SEM_SIGNAL,           ///< Instruccion de signal de semaforo
 
     // ----------------------------------------------------
 
@@ -128,9 +135,9 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {IR_OP_JMP_TRUE, "IR_OP_JMP_TRUE"},
     {IR_OP_JMP_FALSE, "IR_OP_JMP_FALSE"},
     {IR_OP_PRINT, "IR_OP_PRINT"},
+    {IR_END_PRINT,"IR_END_PRINT"},
     {IR_OP_CALL, "IR_OP_CALL"},
     {IR_OP_RET, "IR_OP_RET"},
-    {IR_LABEL, ""},
     {IR_OP_PUSH,"IR_OP_PUSH"},
     {IR_OP_PUSH_LOCAL,"IR_OP_PUSH_LOCAL"},
     {IR_OP_POP,"IR_OP_POP"},
@@ -141,6 +148,17 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {IR_END_PROGRAM,"IR_END_PROGRAM"},
     {NOT_IR_START_SUBPROGRAM_INSTR, " -------- START SUBPROGRAMS SECTION --------"},
     {NOT_IR_END_SUBPROGRAM_INSTR, " -------- END SUBPROGRAMS SECTION --------"},
+    {IR_LABEL," "},
+    {IR_OP_ATOMIC_BEGIN," -->-- ATOMIC_BEGIN --<--"},
+    {IR_OP_ATOMIC_END," -->-- ATOMIC_END --<--"},
+    {IR_OP_COBEGIN, " <<>> COBEGIN <<>>"},
+    {IR_OP_COEND, " <<>> COEND <<>>"},
+    {IR_START_COBEGIN_THREAD,"START_COBEGIN_THREAD"},
+    {IR_END_COBEGIN_THREAD,"END_COBEGIN_THREAD"},
+    {IR_OP_FORK,"IR_OP_FORK"},
+    {IR_OP_JOIN,"IR_OP_JOIN"},
+    {IR_OP_SEM_WAIT,"IR_SEM_WAIT --> "},
+    {IR_OP_SEM_SIGNAL,"IR_SEM_SIGNAL --> "},
 };
 
 #endif //_LAMPORT_IR_IR_INSTRUCTION_TYPE_

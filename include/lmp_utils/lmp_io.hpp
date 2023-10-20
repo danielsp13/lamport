@@ -36,7 +36,7 @@ class LMP_IO_Manager{
         std::string lmp_file_name;
 
         // -- Version de interprete
-        const std::string INTERPRETER_VERSION = "0.0.9";
+        const std::string INTERPRETER_VERSION = "0.1.0";
         // -- Autor de interprete
         const std::string AUTHOR = "Daniel Perez Ruiz";
 

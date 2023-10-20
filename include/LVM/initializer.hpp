@@ -19,10 +19,12 @@
 #include <unordered_map>
 #include <variant>
 
-#include "memory.hpp"               ///< Memoria de LVM
-#include "page_table.hpp"           ///< Tabla de paginas de LVM
-#include "bounds.hpp"               ///< Registro de limites de arrays
-#include "IR/table.hpp"             ///< Tablas IR
+#include "memory.hpp"                   ///< Memoria de LVM
+#include "segment_table.hpp"            ///< Tabla de segmentos de LVM
+#include "bounds.hpp"                   ///< Registro de limites de arrays
+#include "scheduler.hpp"                ///< Planificador
+#include "IR/table.hpp"                 ///< Tablas IR
+#include "IR/instruction_table.hpp"     ///< Tabla de instrucciones IR
 
 
 // ===============================================================
@@ -36,6 +38,8 @@ using mem_block_content = std::variant<IR_literal,IR_variable,IR_label>;
  * @brief Cargador de arranque del sistema. Esta clase es la encargada de consultar las tablas
  * de literales, de variables y de etiquetas, y volcar su contenido a la memoria
  * Ademas implementa la traduccion de direcciones virtuales a direcciones fisicas
+ * 
+ * Finalmente, es la encargada de crear las diferentes hebras de ejecucion del sistema
  */
 class LVM_Initializer{
     private:
@@ -43,10 +47,14 @@ class LVM_Initializer{
         IR_Tables& tables = IR_Tables::get_instance();
         // -- Memoria de maquina virtual
         LVM_Memory& memory = LVM_Memory::get_instance();
-        // -- Tabla de paginas
-        LVM_Page_Table& page_table = LVM_Page_Table::get_instance();
+        // -- Tabla de segmentos
+        LVM_Segment_Table& segment_table = LVM_Segment_Table::get_instance();
         // -- Registro de limites de arrays
         LVM_Bounds& bounds_arrays = LVM_Bounds::get_instance();
+        // -- Planificador
+        LVM_Scheduler& scheduler = LVM_Scheduler::get_instance();
+        // -- Tabla de instrucciones
+        IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();        
 
         /**
          * @brief Constructor de la clase
@@ -70,11 +78,6 @@ class LVM_Initializer{
          * @brief Vuelca a memoria las variables registradas en la tabla IR
          */
         void dump_variables();
-
-        /**
-         * @brief Vuelca a memoria las variables array registradas en la tabla IR
-         */
-        void dump_variables_array();
 
         /**
          * @brief Vuelca a memoria las etiquetas registradas en la tabla IR
@@ -106,6 +109,11 @@ class LVM_Initializer{
          * @brief Vuelca a memoria el contenido de las tablas IR
          */
         void dump_to_memory();
+
+        /**
+         * @brief Crea las hebras para la ejecucion de la maquina virtual
+         */
+        void create_threads();
 };
 
 #endif //_LAMPORT_LVM_INITIALIZER_DPR_

@@ -56,6 +56,7 @@ struct symbol{
     struct type * type;                     ///< Tipo de dato del simbolo
     struct type * list_type_parameters;     ///< Tipos de dato de parametros de simbolo (solo si kind = SYMBOL_GLOBAL_SUBPROGRAM)
     char * name;                            ///< Nombre del simbolo
+    char * precedence;                      ///< Precedencia del simbolo (solo en el caso local)
     unsigned long line;                     ///< Linea donde aparece el simbolo
     int which;                              ///< Posicion en la lista de parametros (solo si kind = SYMBOL_PARAM)
 };
@@ -79,10 +80,11 @@ struct symbol * create_symbol(symbol_t kind, struct type * type, char * name, in
  * @brief Crea y reserva memoria para un simbolo local
  * @param type : Tipo de dato del simbolo
  * @param name : Nombre del simbolo
+ * @param precedence : Precedencia del simbolo local
  * @param line : linea donde aparece el simbolo
  * @return puntero a simbolo inicializado, NULL en otro caso
  */
-struct symbol * create_symbol_local(struct type * type, char * name, unsigned long line);
+struct symbol * create_symbol_local(struct type * type, char * name, char * precedence, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para un simbolo global

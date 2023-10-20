@@ -91,6 +91,8 @@ comentario  "{"[^}]*"}"
 "."             {return(DELIM_P);}
 "<<"            {return(ATOM_INI);}
 ">>"            {return(ATOM_FIN);}
+"WAIT"          {return(SEM_WAIT);}
+"SIGNAL"        {return(SEM_SIGNAL);}
 {id}            {
     // -- Incluir cadena al registro de cadenas
     if(add_string_to_register(strdup(yytext)))

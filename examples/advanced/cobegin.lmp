@@ -1,0 +1,17 @@
+{Programa: cobegin.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program Cobegin
+	var x : integer := 0;
+	
+process Main;
+begin
+	print("iniciando bloque cobegin ...");
+
+	cobegin
+		x := x+1;
+		x := x-1;
+	coend
+	
+	print("x vale: ",x);
+end

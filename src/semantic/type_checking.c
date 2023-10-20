@@ -121,12 +121,12 @@ struct type * typecheck_expression_binary(struct expression *expr){
     }
     case EXPR_EQ:
     {
-        result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
+        result = typecheck_expression_binary_comparison_equality(action,type_left,type_right,def_line);
         break;
     }
     case EXPR_NEQ:
     {
-        result = typecheck_expression_binary_comparison(action,type_left,type_right,def_line);
+        result = typecheck_expression_binary_comparison_equality(action,type_left,type_right,def_line);
         break;
     }
     case EXPR_AND:
@@ -324,8 +324,26 @@ struct type * typecheck_expression_binary_arithmetic(char *action, struct type *
 
 struct type * typecheck_expression_binary_comparison(char *action, struct type *type_left, struct type *type_right,unsigned long line){
     // -- Caso 1: Ambos tipos son iguales
-    if(type_left->kind == type_right->kind)
+    if(type_left->kind == type_right->kind){
+        // -- Comprobar ademas que son numeros (o enteros o reales)
+        if(type_left->kind == TYPE_INTEGER || type_left->kind == TYPE_REAL){
+            return create_basic_type(TYPE_BOOLEAN);
+        }
+    }
+
+    // -- Caso 2: Error de tipos, incluir error semantico
+    struct error * err = create_error_semantic_unmatched_types_expression_binary(line,type_left->kind_str,type_right->kind_str,action);
+    add_error_semantic_to_list(err);
+
+    // -- Retornar BOOLEAN (aunque se haya producido un error)
+    return create_basic_type(TYPE_BOOLEAN);
+}
+
+struct type * typecheck_expression_binary_comparison_equality(char *action, struct type *type_left, struct type *type_right,unsigned long line){
+    // -- Caso 1: Ambos tipos son iguales
+    if(type_left->kind == type_right->kind){
         return create_basic_type(TYPE_BOOLEAN);
+    }
 
     // -- Caso 2: Error de tipos, incluir error semantico
     struct error * err = create_error_semantic_unmatched_types_expression_binary(line,type_left->kind_str,type_right->kind_str,action);
@@ -620,6 +638,38 @@ void typecheck_statement(struct statement *stmt){
     case STMT_PRINT:
     {
         // -- No se hace nada aqui
+        break;
+    }
+    case STMT_SEM_WAIT:
+    {
+        // -- Realizar typechecking al simbolo de proceso
+        type_a = copy_type(stmt->stmt.statement_semaphore.symb->type);
+
+        if(type_a->kind != TYPE_SEMAPHORE){
+            // -- Realizar handling de error: no join a proceso
+            struct error *err = create_error_semantic_unmatched_types_statement_semaphore(stmt->stmt.statement_semaphore.line,type_a->kind_str);
+            add_error_semantic_to_list(err);
+        }
+
+        // -- Liberar tipos
+        free_type(type_a); free_type(type_b); free_type(type_c);
+
+        break;
+    }
+    case STMT_SEM_SIGNAL:
+    {
+        // -- Realizar typechecking al simbolo de proceso
+        type_a = copy_type(stmt->stmt.statement_semaphore.symb->type);
+
+        if(type_a->kind != TYPE_SEMAPHORE){
+            // -- Realizar handling de error: no join a proceso
+            struct error *err = create_error_semantic_unmatched_types_statement_semaphore(stmt->stmt.statement_semaphore.line,type_a->kind_str);
+            add_error_semantic_to_list(err);
+        }
+
+        // -- Liberar tipos
+        free_type(type_a); free_type(type_b); free_type(type_c);
+
         break;
     }
     default:

@@ -12,7 +12,7 @@
 // ----- IMPLEMENTACION DE METODOS PRIVADOS [REGISTER TABLE] -----
 
 void LVM_Register_Table::resize_register_table(){
-    const int N_REGISTERS_INCREMENT = 101;
+    const int N_REGISTERS_INCREMENT = 1024;
 
     if(this->RESIZE_AVAIABLE){
         this->register_table.resize(N_REGISTERS_INCREMENT);
@@ -94,6 +94,10 @@ const LVM_Register& LVM_Register_Table::operator[](int i) const{
         throw std::out_of_range("INDICE DE REGISTRO FUERA DE RANGO.");
 
     return this->register_table[i];
+}
+
+void LVM_Register_Table::restore_registers(std::vector<LVM_Register> regs){
+    this->register_table = regs;
 }
 
 void LVM_Register_Table::print_register_table(std::ostream & os){

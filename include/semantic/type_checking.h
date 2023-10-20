@@ -92,7 +92,7 @@ struct type * typecheck_expression_grouped(struct expression *expr);
 struct type * typecheck_expression_binary_arithmetic(char *action, struct type *type_left, struct type *type_right,unsigned long line);
 
 /**
- * @brief Funcion evaluadora de expresiones de operacion binaria de comparacion
+ * @brief Funcion evaluadora de expresiones de operacion binaria de comparacion (desigualdades)
  * @param action : accion de operacion
  * @param type_left : tipo de dato del operando izquierdo de la expresion
  * @param type_right : tipo de dato del operando derecho de la expresion
@@ -100,6 +100,16 @@ struct type * typecheck_expression_binary_arithmetic(char *action, struct type *
  * @return puntero a tipo de dato resultante de la evaluacion de ambos miembros
  */
 struct type * typecheck_expression_binary_comparison(char *action, struct type *type_left, struct type *type_right,unsigned long line);
+
+/**
+ * @brief Funcion evaluadora de expresiones de operacion binaria de comparacion (igualdades)
+ * @param action : accion de operacion
+ * @param type_left : tipo de dato del operando izquierdo de la expresion
+ * @param type_right : tipo de dato del operando derecho de la expresion
+ * @param line : linea donde se definio la expresion
+ * @return puntero a tipo de dato resultante de la evaluacion de ambos miembros
+ */
+struct type * typecheck_expression_binary_comparison_equality(char *action, struct type *type_left, struct type *type_right,unsigned long line);
 
 /**
  * @brief Funcion evaluadora de expresiones de operacion unaria aritmetica

@@ -110,7 +110,7 @@ class IR_Tables{
 
         /**
          * @brief Inserta una variable en la tabla de variables
-         * @param kind : tipo de variable (local/global)
+         * @param kind : tipo de variable (global)
          * @param var_name : nombre de variable
          * @param type : tipo de variable
          * @return direccion de registro de variable
@@ -118,14 +118,35 @@ class IR_Tables{
         int add_entry_variable(IR_variable_t kind, std::string var_name, IR_variable_type_t type);
 
         /**
+         * @brief Inserta una variable en la tabla de variables
+         * @param kind : tipo de variable (local)
+         * @param var_name : nombre de variable
+         * @param precedence : precedencia de la variable
+         * @param type : tipo de variable
+         * @return direccion de registro de variable
+         */
+        int add_entry_variable(IR_variable_t kind, std::string var_name, std::string precedence, IR_variable_type_t type);
+
+        /**
          * @brief Inserta una variable array en la tabla de variables
-         * @param kind : tipo de variable (local/global)
+         * @param kind : tipo de variable (global)
          * @param var_name : nombre de variable
          * @param arr_type : tipo de variable
          * @param arr_size : longitud de array
          * @return direccion de registro de variable
          */
         int add_entry_variable(IR_variable_t kind, std::string var_name, IR_variable_type_t arr_type, size_t arr_size);
+
+        /**
+         * @brief Inserta una variable array en la tabla de variables
+         * @param kind : tipo de variable (local)
+         * @param var_name : nombre de variable
+         * @param precedence : precedencia de la variable
+         * @param arr_type : tipo de variable
+         * @param arr_size : longitud de array
+         * @return direccion de registro de variable
+         */
+        int add_entry_variable(IR_variable_t kind, std::string var_name, std::string precedence, IR_variable_type_t arr_type, size_t arr_size);
 
         /**
          * @brief Obtiene la dimension de la tabla de literales
@@ -211,9 +232,10 @@ class IR_Tables{
         /**
          * @brief Obtiene el indice donde se encuentra el registro de la variable local
          * @param var_name : nombre de variable
+         * @param precedence : precedencia de variable
          * @return posicion en tabla, -1 en otro caso
          */
-        int get_index_from_local_variable(std::string var_name);
+        int get_index_from_local_variable(std::string var_name, std::string precedence);
 
         /**
          * @brief Obtiene el indice donde se encuentra el registro de la variable global

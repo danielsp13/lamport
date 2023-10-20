@@ -1,0 +1,14 @@
+{Programa: process_vector.lmp}
+{Autor: Daniel Pérez Ruiz}
+{Descripción: Programa que incrementa un contador mediante varios procesos}
+
+program SumaIndice
+
+	var total : integer := 0;
+	var inicio : integer := 1;
+
+process VectorProc[index: 1..3];
+begin
+    << total := total + index;
+   	print("proceso (",index,") incrementa total a: ", total); >>
+end
