@@ -141,6 +141,7 @@ void IR_Translator_Process::translate_list_process_to_ir_instructions(struct pro
             std::string process_name = std::string(current_proc->name_process);
             decl_translator.set_precedence(process_name);
             stmt_translator.set_precedence(process_name);
+            expr_translator.set_precedence(process_name);
 
 
             // 8. Emitir instruccion de fin de proceso
@@ -151,6 +152,7 @@ void IR_Translator_Process::translate_list_process_to_ir_instructions(struct pro
 
             decl_translator.reset_precedence();
             stmt_translator.reset_precedence();
+            expr_translator.reset_precedence();
         }
         // -- Ir a siguiente declaracion
         current_proc = current_proc->next;

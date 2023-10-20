@@ -39,7 +39,7 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
             // -- Ir a siguiente sentencia
             current_stmt = current_stmt->next;
         }
-
+        std::cout << "entro aqui" << std::endl; std::cout.flush();
         expr_translator.reset_precedence();
 
         // -- Indicar fin de coend
@@ -89,6 +89,7 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
     // ---- SENTENCIA PRINT
     case STMT_PRINT:
     {
+        expr_translator.set_precedence(precedence);
         this->translate_statement_print_to_ir_instructions(stmt,from_subprogram);
         // -- Resetear registros
         reg_manager.reset_general_purpose_register_counter();

@@ -79,6 +79,7 @@ void IR_Translator_Subprogram::translate_list_subprograms_to_ir_instructions(str
         std::string subprog_name = std::string(current_subprog->name_subprogram);
         decl_translator.set_precedence(subprog_name);
         stmt_translator.set_precedence(subprog_name);
+        expr_translator.set_precedence(subprog_name);
 
 
         // -- Traducir declaracion
@@ -88,6 +89,7 @@ void IR_Translator_Subprogram::translate_list_subprograms_to_ir_instructions(str
 
         decl_translator.reset_precedence();
         stmt_translator.reset_precedence();
+        expr_translator.reset_precedence();
     }
 }
 

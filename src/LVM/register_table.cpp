@@ -12,7 +12,7 @@
 // ----- IMPLEMENTACION DE METODOS PRIVADOS [REGISTER TABLE] -----
 
 void LVM_Register_Table::resize_register_table(){
-    const int N_REGISTERS_INCREMENT = 101;
+    const int N_REGISTERS_INCREMENT = 1024;
 
     if(this->RESIZE_AVAIABLE){
         this->register_table.resize(N_REGISTERS_INCREMENT);
