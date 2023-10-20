@@ -39,7 +39,6 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
             // -- Ir a siguiente sentencia
             current_stmt = current_stmt->next;
         }
-        std::cout << "entro aqui" << std::endl; std::cout.flush();
         expr_translator.reset_precedence();
 
         // -- Indicar fin de coend

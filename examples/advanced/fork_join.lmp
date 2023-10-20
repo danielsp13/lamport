@@ -16,7 +16,7 @@ end
 
 procedure Decrement();
 begin
-	for j := 1 to 5 do
+	for j := 1 to 20 do
 	begin
 		<< x := x-1; >>
 	end
@@ -29,17 +29,16 @@ begin
 	print("Realizando fork...");
 	fork Increment;
 	Decrement();
-	join Increment;
 	
 	print("x vale: ",x);
 	
 	
-	if(x == 95) then
+	if(x == 80) then
 	begin
-		print("Se ha obtenido 95, el valor esperado");
+		print("Se ha obtenido 80, el valor esperado");
 	end
 	else
 	begin
-		print("No se ha obtenido 95.");
+		print("No se ha obtenido 80.");
 	end
 end
