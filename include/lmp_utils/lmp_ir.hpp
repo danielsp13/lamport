@@ -16,16 +16,13 @@
 #include <string>
 #include <cstring>
 
-#include "IR/ir_builder.hpp"        ///< Constructor de codigo intermedio
+#include "IR/builder/ir_builder.hpp"        ///< Constructor de codigo intermedio
 #include "lmp_tasker.hpp"           ///< Notificador de eventos
 
 // ===============================================================
 
 // ----- DEFINICION DE CLASE MANEJADORA DE CODIGO IR -----
 
-/**
- * 
- */
 class LMP_IR_Manager{
     private:
         // -- Constructor de instrucciones IR

@@ -241,6 +241,29 @@ bool LMP_Logging::init_log_lvm(){
     return log_result;
 }
 
+bool LMP_Logging::init_log_lvm_trace(){
+    // -- Definir resultado de operacion
+    bool log_result = true;
+
+    // -- Intentar crear fichero de log de ast
+    log_result = this->create_logging_lvm_dir();
+
+    // -- Crear fichero de logging de errores
+    if(log_result){
+        std::string dirlog = this->LMP_LOG_DIR + "/" + this->LMP_LVM_DIR;
+        this->LMP_LOGGING_LVM_TRACE_FILE = this->create_logging_file_stream_in_dir(dirlog,this->LMP_LOG_FILE_LVM_TRACE_HEADER);
+    }
+
+    // -- Comprobar creacion de fichero
+    if(!this->LMP_LOGGING_LVM_TRACE_FILE.is_open())
+        log_result = false;
+
+    tasker.task_logging_lvm_trace(actual_log_file);
+
+    // -- Retornar resultado
+    return log_result;
+}
+
 bool LMP_Logging::make_log_errors(){
     // -- Comprobar que hay errores
     bool exists_errors = get_total_error_syntax() > 0 || get_total_error_semantic() > 0;
@@ -318,6 +341,21 @@ bool LMP_Logging::make_log_lvm(){
     return false;
 }
 
+bool LMP_Logging::make_log_lvm_trace(){
+    // -- Inicializar logging de lvm
+    if(!this->init_log_lvm_trace()){
+        tasker.task_nop();
+        std::cout << "Error. Logging de traza de ejecucion de LVM no disponible." << std::endl;
+        return false;
+    }
+
+    // -- Realizar logging de lvm
+    LVM::get_instance().print_lvm_trace(this->LMP_LOGGING_LVM_TRACE_FILE);
+    tasker.task_ok();
+
+    return false;
+}
+
 // ===============================================================
 
 // ----- IMPLEMENTACION DE METODOS PUBLICOS [LOGGING] -----
@@ -348,6 +386,11 @@ LMP_Logging::~LMP_Logging(){
     // -- Intentar cerrar fichero de log de LVM
     if(this->LMP_LOGGING_LVM_FILE.is_open()){
         this->LMP_LOGGING_LVM_FILE.close();
+    }
+
+    // -- Intentar cerrar fichero de log de LVM (traza)
+    if(this->LMP_LOGGING_LVM_TRACE_FILE.is_open()){
+        this->LMP_LOGGING_LVM_TRACE_FILE.close();
     }
 }
 
@@ -394,4 +437,18 @@ void LMP_Logging::log_lvm(){
         // -- Realizar logging de LVM
         this->make_log_lvm();
     }   
+}
+
+void LMP_Logging::log_lvm_trace(){
+    // -- Crear directorio de logging principal
+    if(!this->create_logging_dir()){
+        std::cout << "Error. No se puede realizar logging de maquina virtual sobre fichero: " << this->LMP_FILE << "." << std::endl;
+        return;
+    }
+
+    // -- Intentar realizar logging de errores
+    if(!this->make_log_errors()){
+        // -- Realizar logging de LVM
+        this->make_log_lvm_trace();
+    } 
 }
