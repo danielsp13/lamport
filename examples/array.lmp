@@ -1,7 +1,7 @@
 {Programa: for.lmp}
 {Autor: Daniel Pérez Ruiz}
 
-program Arrays
+program Arrays;
 	var numeros : array [5] integer;
 process main;
 	var letras : array [3] char;

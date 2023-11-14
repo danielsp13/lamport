@@ -1,7 +1,7 @@
 {Programa: compare_operations.lmp}
 {Autor: Daniel Pérez Ruiz}
 
-program Operaciones
+program Operaciones;
 	var a : boolean := true;
 	var b : boolean := false;
 

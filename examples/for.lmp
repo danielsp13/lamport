@@ -1,7 +1,7 @@
 {Programa: for.lmp}
 {Autor: Daniel Pérez Ruiz}
 
-program CompruebaEdad
+program CompruebaEdad;
 	var contador : integer := 5;
 
 process main;

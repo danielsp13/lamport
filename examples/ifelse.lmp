@@ -1,7 +1,7 @@
 {Programa: ifelse.lmp}
 {Autor: Daniel Pérez Ruiz}
 
-program CompruebaEdad
+program CompruebaEdad;
 	var nombre1 : string := "Jorge";
 	var edad1 : integer := 17;
 	

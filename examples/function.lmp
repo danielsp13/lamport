@@ -1,7 +1,7 @@
 {Programa: function.lmp}
 {Autor: Daniel Pérez Ruiz}
 
-program HolaMundo
+program HolaMundo;
 
 function incrementaNVeces(numero : integer, n : integer) : integer;
 	var resultado : integer := numero;

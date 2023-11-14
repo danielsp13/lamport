@@ -73,6 +73,11 @@ extern "C" {
 #define ERR_SYNTAX_STATEMENT_EXPECTED_NON_EMPTY_BLOCK_MSG "bloque de sentencias vacio"
 #define ERR_SYNTAX_STATEMENT_EXPECTED_RETURN_STATEMENT_MSG "falta sentencia de retorno (return)"
 
+#define ERR_PROGRAM_UNEXPECTED_TOKEN_IN_HEADER "se encontraron tokens que no se esperaban al comienzo del programa"
+#define ERR_PROGRAM_UNEXPECTED_TOKEN_IN_DECL  "se encontraron tokens que no se esperaban en la definicion de declaracion"
+#define ERR_PROGRAM_UNEXPECTED_TOKEN "se encontraron tokens que no se esperaban en el bloque de sentencias"
+#define ERR_PROGRAM_UNEXPECTED_TOKEN_IN_PROC "se encontraron tokens que no se esperaban en la definicion de proceso"
+
 // ===============================================================
 
 // ----- PROTOTIPO DE FUNCIONES DE GESTION DE ERRORES (SINTACTICOS) ----
@@ -182,6 +187,14 @@ extern void mark_error_syntax_process_expected_delimarr(char *id);
 extern void mark_error_syntax_program_expected_program(char *id);
 
 extern void mark_error_syntax_program_expected_identifier();
+
+extern void mark_error_syntax_program_unexpected_literal();
+
+extern void mark_error_syntax_program_unexpected_literal_in_header();
+
+extern void mark_error_syntax_program_unexpected_literal_in_decl(char * id);
+
+extern void mark_error_syntax_program_unexpected_literal_in_proc(char * id);
 
 #ifdef __cplusplus
 }

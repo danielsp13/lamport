@@ -1,0 +1,12 @@
+{Programa: sleep.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program Sleep
+
+process Main;
+	var sleepTime : integer := 1000;
+begin
+	print("Dormire durante: ",sleepTime," milisegundos...");
+	sleep sleepTime;
+	print("Terminado!");
+end
