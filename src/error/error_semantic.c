@@ -173,6 +173,11 @@ char * create_message_error_semantic_unmatched_types(error_semantic_type_checkin
         sprintf(sub_buff,"join a un identificador que no es un proceso. se encontro (%s)",type_a);
         break;
     }
+    case UNMATCHED_TYPES_STMT_SLEEP:
+    {
+        sprintf(sub_buff,"expresion en milisegundos de sleep no integer. se encontro (%s)",type_a);
+        break;
+    }
     case UNMATCHED_TYPES_STMT_SEMAPHORE:
     {
         sprintf(sub_buff,"operacion sobre identificador que no es un semaforo. se encontro (%s)",type_a);
@@ -343,6 +348,13 @@ struct error * create_error_semantic_unmatched_types_statement_join(unsigned lon
     // -- Construir mensaje de error
     char *msg = create_message_error_semantic_unmatched_types(UNMATCHED_TYPES_STMT_JOIN,NULL,type,NULL);
     
+    return create_error_semantic_unmatched_types(err_line, &msg);
+}
+
+struct error * create_error_semantic_unmatched_types_statement_sleep(unsigned long err_line, char *type){
+    // -- Construir mensaje de error
+    char *msg = create_message_error_semantic_unmatched_types(UNMATCHED_TYPES_STMT_SLEEP,NULL,type,NULL);
+
     return create_error_semantic_unmatched_types(err_line, &msg);
 }
 

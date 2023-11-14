@@ -83,6 +83,12 @@ struct statement * create_statement(statement_t kind){
         break;
     }
 
+    case STMT_SLEEP:
+    {
+        st->kind_str = strdup("sleep process");
+        break;
+    }
+
     case STMT_RETURN:
     {
         st->kind_str = strdup("return statement");
@@ -313,27 +319,32 @@ struct statement * create_statement_fork(char *process_name, unsigned long line)
     return st;
 }
 
-struct statement * create_statement_join(char *process_name, unsigned long line){
+struct statement * create_statement_join(unsigned long line){
     struct statement *st = create_statement(STMT_JOIN);
 
     // -- Comprobar reserva de memoria exitosa
     if(!st)
         return NULL;
 
-    // -- Asignar nombre de proceso
-    st->stmt.statement_join.joined_procedure = strdup(process_name);
-    // -- Comprobar asignacion de nombre de proceso exitosa
-    if(!st->stmt.statement_join.joined_procedure){
-        // -- Liberar memoria reservada para la sentencia
-        free(st);
-        return NULL;
-    }
-
     // -- Asignar linea donde se uso el identificador de proceso
     st->stmt.statement_join.line = line;
 
-    // -- Asignar referencia de simbolo de tabla de simbolos (NULL)
-    st->stmt.statement_join.symb = NULL;
+    // -- Retornar sentencia creada e inicializada
+    return st;
+}
+
+struct statement * create_statement_sleep(struct expression *sleep_expr, unsigned long line){
+    struct statement *st = create_statement(STMT_SLEEP);
+
+    // -- Comprobar reserva de memoria exitosa
+    if(!st)
+        return NULL;
+
+    // -- Asignar linea donde se uso el identificador de proceso
+    st->stmt.statement_sleep.sleep_expr = sleep_expr;
+
+    // -- Asignar linea donde se uso el identificador de proceso
+    st->stmt.statement_sleep.line = line;
 
     // -- Retornar sentencia creada e inicializada
     return st;
@@ -544,14 +555,14 @@ void free_statement(struct statement *stmt){
 
     case STMT_JOIN:
     {
-        free(stmt->stmt.statement_join.joined_procedure);
-        stmt->stmt.statement_join.joined_procedure = NULL;
+        
+        break;
+    }
 
-        // -- Liberacion de simbolo
-        if(stmt->stmt.statement_join.symb){
-            free_symbol(stmt->stmt.statement_join.symb);
-            stmt->stmt.statement_join.symb = NULL;   
-        }
+    case STMT_SLEEP:
+    {
+        free_expression(stmt->stmt.statement_sleep.sleep_expr);
+        stmt->stmt.statement_sleep.sleep_expr = NULL;
         break;
     }
 
@@ -726,7 +737,14 @@ void print_AST_statements(struct statement *statements_list, unsigned int depth,
 
         case STMT_JOIN:
         {
-            fprintf(output,"%s%s %c JOIN DEL PROCESO CON NOMBRE: [%s]\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL, current_statement->stmt.statement_join.joined_procedure);
+            fprintf(output,"%s%s %c JOIN DE PROCESOS\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            break;
+        }
+
+        case STMT_SLEEP:
+        {
+            fprintf(output,"%s%s %c EXPRESION DE DURACION EN MILISEGUNDOS DE PROCESO DORMIDO:\n", IDENT_NODE, IDENT_BLANK_ARROW, IDENT_INIT_BRANCH_SYMBOL);
+            print_AST_expressions(current_statement->stmt.statement_sleep.sleep_expr,NEXT_NODE_DEPTH,output);
             break;
         }
         

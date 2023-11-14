@@ -55,6 +55,7 @@ comentario  "{"[^}]*"}"
 "coend"         {return(B_COEND);}
 "fork"          {return(S_FORK);}
 "join"          {return(JOIN);}
+"sleep"         {return(SLEEP);}
 "print"         {return(PRINT);}
 "if"            {return(IF);}
 "then"          {return(THEN);}

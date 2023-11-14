@@ -48,7 +48,8 @@ typedef enum{
     STMT_RETURN,         ///< Sentencia de retorno (para funciones)
     STMT_PRINT,          ///< Sentencia de impresion de expresiones
     STMT_SEM_WAIT,       ///< Sentencia de wait de semaforo
-    STMT_SEM_SIGNAL,     ///< Sentencia de signal de semaforo       
+    STMT_SEM_SIGNAL,     ///< Sentencia de signal de semaforo
+    STMT_SLEEP,          ///< Sentencia de dormir proceso  
 } statement_t;
 
 // ===============================================================
@@ -212,11 +213,13 @@ struct statement{
         } statement_fork;
 
         struct{
-            char *joined_procedure;                   ///< Nombre del proceso
-
             unsigned long line;                     ///< Linea donde se uso el identificador
-            struct symbol *symb;                    ///< Referencia al símbolo asociado en la tabla de símbolos.
         } statement_join;
+
+        struct{
+            struct expression *sleep_expr;             ///< Milisegundos para dormir proceso
+            unsigned long line;
+        } statement_sleep;
 
         // Estructura de sentencia return (para funciones)
         struct {
@@ -343,11 +346,18 @@ struct statement * create_statement_fork(char *process_name, unsigned long line)
 
 /**
  * @brief Crea y reserva memoria para una sentencia join
- * @param process_name : Nombre del proceso
  * @param line : linea donde se uso el identificador de proceso
  * @return puntero con la sentencia inicializada
  */
-struct statement * create_statement_join(char *process_name, unsigned long line);
+struct statement * create_statement_join(unsigned long line);
+
+/**
+ * @brief Crea y reserva memoria para una sentencia de sleep
+ * @param returned_expr : Expresion de milisegundos para dormir
+ * @param line : linea donde se definio la sentencia
+ * @return puntero con la sentencia inicializada
+ */
+struct statement * create_statement_sleep(struct expression *sleep_expr, unsigned long line);
 
 /**
  * @brief Crea y reserva memoria para una sentencia de retorno (para funciones)

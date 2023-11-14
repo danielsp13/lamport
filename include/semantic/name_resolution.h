@@ -177,6 +177,12 @@ void resolve_statement_fork(struct statement *stmt);
 void resolve_statement_join(struct statement *stmt);
 
 /**
+ * @brief Realiza la resolucion de nombres en una sentencia de tipo sleep
+ * @param stmt : puntero a sentencia (sleep)
+ */
+void resolve_statement_sleep(struct statement *stmt);
+
+/**
  * @brief Realiza la resolucion de nombres en una sentencia de tipo return
  * @param stmt : puntero a sentencia (return)
  */

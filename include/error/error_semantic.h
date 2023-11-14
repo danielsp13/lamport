@@ -230,6 +230,14 @@ struct error * create_error_semantic_unmatched_types_statement_fork(unsigned lon
 struct error * create_error_semantic_unmatched_types_statement_join(unsigned long err_line, char *type);
 
 /**
+ * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SENTENCIA SLEEP)
+ * @param err_line : linea donde se produjo el error
+ * @param type : nombre de tipo de dato
+ * @return puntero a error inicializado
+ */
+struct error * create_error_semantic_unmatched_types_statement_sleep(unsigned long err_line, char *type);
+
+/**
  * @brief Crea y reserva memoria para un error semantico de tipo : comparacion de tipos incorrecta (SEMAPHORE)
  * @param err_line : linea donde se produjo un error
  * @param type : nombre de tipo de dato

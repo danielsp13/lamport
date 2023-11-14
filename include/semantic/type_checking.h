@@ -26,12 +26,30 @@ extern "C" {
 
 // ===============================================================
 
+// ----- RECOLECTOR DE TIPOS DE DATO PARA GESTION DE MEMORIA -----
+
+extern struct type * type_register;
+extern struct type * last_type_register;
+
+/**
+ * @brief Registra la creacion de un nuevo tipo de dato
+ * @param type : tipo de dato
+ */
+void reg_type(struct type * type);
+
+/**
+ * @brief Libera el registro de tipos de dato
+ */
+void free_typecheck_type_register();
+
+// ===============================================================
+
 // ----- PROTOTIPO DE FUNCIONES DE GESTION DE TYPE CHECKING (EXPRESIONES) -----
 
 /**
  * @brief Aplica el algoritmo de comprobacion de tipos a una expresion
  * @param expr : expresion a evaluar
- * @return puntero a tipo de dato resultante de evaluar la expresion
+ * @return tipo de dato resultante de evaluar la expresion
  */
 struct type * typecheck_expression(struct expression *expr);
 
