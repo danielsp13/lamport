@@ -197,6 +197,8 @@ struct expression * create_expression_binary_operation(expression_binary_t kind,
     ex->expr.expression_binary_operation.right = right;
     // -- Asignar linea donde se definio la expresion
     ex->expr.expression_binary_operation.line = line;
+    // -- Indicar tipo de dato (null por defecto)
+    ex->expr.expression_binary_operation.type = NULL;
     
     // -- Retornar expresion creada e inicializada
     return ex;
@@ -246,6 +248,8 @@ struct expression * create_expression_unary_operation(expression_unary_t kind, c
     ex->expr.expression_unary_operation.left = left;
     // -- Asignar linea donde se definio la expresion
     ex->expr.expression_unary_operation.line = line;
+    // -- Indicar tipo de dato (null por defecto)
+    ex->expr.expression_unary_operation.type = NULL;
 
     // -- Retornar expresion creada e inicializada
     return ex;
@@ -431,29 +435,40 @@ void free_expression(struct expression *expr){
     {
     case EXPR_BINARY:
     {
+        free_expression(expr->expr.expression_binary_operation.left);
+        expr->expr.expression_binary_operation.left = NULL;
+        free_expression(expr->expr.expression_binary_operation.right);
+        expr->expr.expression_binary_operation.right = NULL;
+
         free(expr->expr.expression_binary_operation.operator_symb);
         expr->expr.expression_binary_operation.operator_symb = NULL;
 
         free(expr->expr.expression_binary_operation.action);
         expr->expr.expression_binary_operation.action = NULL;
 
-        free_expression(expr->expr.expression_binary_operation.left);
-        expr->expr.expression_binary_operation.left = NULL;
-        free_expression(expr->expr.expression_binary_operation.right);
-        expr->expr.expression_binary_operation.right = NULL;
+        //free_type(expr->expr.expression_binary_operation.type);
+        //expr->expr.expression_binary_operation.type = NULL;
+
+        
+
+        
         break;
     }
 
     case EXPR_UNARY:
     {
+        free_expression(expr->expr.expression_unary_operation.left);
+        expr->expr.expression_unary_operation.left = NULL;
+
         free(expr->expr.expression_unary_operation.operator_symb);
         expr->expr.expression_unary_operation.operator_symb = NULL;
 
         free(expr->expr.expression_unary_operation.action);
         expr->expr.expression_unary_operation.action = NULL;
 
-        free_expression(expr->expr.expression_unary_operation.left);
-        expr->expr.expression_unary_operation.left = NULL;
+        //free_type(expr->expr.expression_unary_operation.type);
+        //expr->expr.expression_unary_operation.type = NULL;
+
         break;
     }
 
@@ -549,6 +564,9 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
             print_AST_expressions(current_expression->expr.expression_binary_operation.left,NEXT_NODE_DEPTH,output);
             fprintf(output,"%s%s  OPERANDO DERECHO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_binary_operation.right,NEXT_NODE_DEPTH,output);
+            // --- Informacion adicional
+            //fprintf(output,"%s%s  TIPO DE OPERACION BINARIA:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            //print_AST_type(current_expression->expr.expression_binary_operation.type,NEXT_NODE_DEPTH,output);
             break;
         }
         
@@ -557,6 +575,9 @@ void print_AST_expressions(struct expression *expressions_list, unsigned int dep
             fprintf(output,"%s%s  SIMBOLO DE OPERACION: [%s]\n",IDENT_NODE, IDENT_BLANK_ARROW, current_expression->expr.expression_unary_operation.operator_symb);
             fprintf(output,"%s%s  OPERANDO IZQUIERDO:\n",IDENT_NODE, IDENT_BLANK_ARROW);
             print_AST_expressions(current_expression->expr.expression_unary_operation.left,NEXT_NODE_DEPTH,output);
+            // --- Informacion adicional
+            //fprintf(output,"%s%s  TIPO DE OPERACION UNARIA:\n",IDENT_NODE, IDENT_BLANK_ARROW);
+            //print_AST_type(current_expression->expr.expression_unary_operation.type,NEXT_NODE_DEPTH,output);
             break;
         }
 
