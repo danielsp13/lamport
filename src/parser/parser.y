@@ -114,7 +114,8 @@
 %token PRINT 318
 %token SEM_WAIT 319
 %token SEM_SIGNAL 320
-%token UNRECOGNIZED_TOKEN 321
+%token SLEEP 321
+%token UNRECOGNIZED_TOKEN 322
 
 // ---- Indicar a bison donde encontrar la cabecera de tokens
 %define api.header.include { "lexer/token.h" }
@@ -206,6 +207,7 @@
 %type <stmt> print-statement
 %type <stmt> sem-wait-statement
 %type <stmt> sem-signal-statement
+%type <stmt> sleep-statement
 
 // ---- TIPO identifier
 %type <ident> IDENT
@@ -892,6 +894,9 @@ statement:
     | join-statement{
         $$ = $1;
     }
+    | sleep-statement{
+        $$ = $1;
+    }
     | print-statement{
         $$ = $1;
     }
@@ -1022,9 +1027,9 @@ fork-statement:
 
 join-statement:
     // ===== CORRECTO: Join de proceso
-    JOIN IDENT DELIM_PC{
+    JOIN DELIM_PC{
         if(!have_syntax_errors()){
-            $$ = create_statement_join($2, yylineno);
+            $$ = create_statement_join(yylineno);
             add_statement_to_register($$);
         }
         else{
@@ -1032,7 +1037,25 @@ join-statement:
         }
     }
     // <--> ERROR: Falta ';'
-    | JOIN IDENT{
+    | JOIN{
+        mark_error_syntax_statement_expected_delimpc();
+        //YYABORT;
+    }
+    ;
+
+sleep-statement:
+    // ===== CORRECTO: Join de proceso
+    SLEEP expression DELIM_PC{
+        if(!have_syntax_errors()){
+            $$ = create_statement_sleep($2,yylineno);
+            add_statement_to_register($$);
+        }
+        else{
+            $$ = 0;
+        }
+    }
+    // <--> ERROR: Falta ';'
+    | SLEEP expression{
         mark_error_syntax_statement_expected_delimpc();
         //YYABORT;
     }

@@ -22,7 +22,7 @@ function esMayorEdad(edad : integer) : boolean;
 begin
 	if(edad < mayoriaEdad) then
 		begin
-			print("Mensaje de funcion: No eres mayor de edad");
+			print("Mensaje de funcion: No eres mayor de edad. Tienes: ", edad);
 			resultado := false;
 		end
 	else
@@ -39,7 +39,7 @@ process Main;
 	var numero1 : integer := 2;
 	var numero2 : integer := 15;
 	var resultado : integer;
-	var edad : integer := 15;
+	var edad : integer := 16;
 	var esMayor : boolean := esMayorEdad(edad);
 begin
 	resultado := incrementaNVeces(numero1,numero2);

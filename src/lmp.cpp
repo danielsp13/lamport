@@ -31,6 +31,7 @@
 #define LMP_LVM_VERBOSE_PRELOAD_IS_AVAIABLE false
 #define LMP_LOGGING_LVM_IS_AVAIABLE true
 #define LMP_LVM_EXECUTION_IS_AVAIABLE true
+#define LMP_LOGGING_LVM_TRACE_IS_AVAIABLE true
 
 #define LMP_TASK_DELAY_IS_AVAIABLE false
 
@@ -140,6 +141,10 @@ int lmp(int nargs, char *argv[]){
 
     // ---- Ejecutar maquina virtual
     exec_result = LMP_LVM_Launcher::get_instance().start();
+
+    // -- Comprobar disponiblidad de logging de traza de ejecucion de maquina virtual
+    if(LMP_LOGGING_LVM_TRACE_IS_AVAIABLE)
+        LMP_Logging::get_instance().log_lvm_trace();
     
     /////////////////////////////////////////////////////////////////////////
     

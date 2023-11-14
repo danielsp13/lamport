@@ -133,6 +133,15 @@ void LMP_Tasker::task_logging_lvm(std::string filename){
     this->task_delay();
 }
 
+void LMP_Tasker::task_logging_lvm_trace(std::string filename){
+    print_blue();
+    std::cout << this->TASK_HEADER_MSG << "Registrando traza de ejecucion de máquina virtual en fichero (" << filename << ") ... ";
+    std::cout.flush();
+    print_reset();
+
+    this->task_delay();
+}
+
 void LMP_Tasker::task_free_resources(){
     print_yellow();
     std::cout << this->TASK_HEADER_MSG << "Liberando memoria dinámica reservada para recursos ... ";

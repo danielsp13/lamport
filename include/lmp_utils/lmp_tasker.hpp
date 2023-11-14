@@ -172,6 +172,12 @@ class LMP_Tasker{
         void task_logging_lvm(std::string filename);
 
         /**
+         * @brief Indica la tarea de logging de traza de ejecucion de LVM
+         * @param filename : archivo de registro
+         */
+        void task_logging_lvm_trace(std::string filename);
+
+        /**
          * @brief Indica la tarea de liberacion de recursos
          */
         void task_free_resources();

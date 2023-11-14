@@ -22,7 +22,7 @@
 #include <string>
 
 #include "lmp_c_analysis_bridge.hpp"    ///< Puente de C a C++ para analizador lamport
-#include "IR/ir_printer.hpp"            ///< Impresor de instrucciones IR
+#include "IR/builder/ir_printer.hpp"            ///< Impresor de instrucciones IR
 #include "LVM/LVM.hpp"                  ///< Maquina virtual de lamport
 #include "lmp_tasker.hpp"               ///< Notificador de eventos
 
@@ -44,6 +44,8 @@ class LMP_Logging{
         std::ofstream LMP_LOGGING_IR_FILE;
         // -- Fichero de registro de LVM
         std::ofstream LMP_LOGGING_LVM_FILE;
+        // -- Fichero de registro de traza de LVM
+        std::ofstream LMP_LOGGING_LVM_TRACE_FILE;
 
         // -- Nombre de directorio donde se almacenaran los registros
         const std::string LMP_LOG_DIR = "log";
@@ -66,7 +68,9 @@ class LMP_Logging{
         // -- Cabecera de nombre de fichero de logging de ir
         const std::string LMP_LOG_FILE_IR_HEADER = "log_ir_";
         // -- Cabecera de nombre de fichero de logging de lvm
-        const std::string LMP_LOG_FILE_LVM_HEADER = "log_lvm_";
+        const std::string LMP_LOG_FILE_LVM_HEADER = "log_lvm_initial_";
+        // -- Cabecera de nombre de fichero de logging de traza de ejecucion
+        const std::string LMP_LOG_FILE_LVM_TRACE_HEADER = "log_lvm_trace_";
 
         // -- Nombre de fichero 
         std::string LMP_FILE;
@@ -167,6 +171,12 @@ class LMP_Logging{
         bool init_log_lvm();
 
         /**
+         * @brief Prepara el logging de traza de ejecucion de LVM, creando directorios y ficheros
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool init_log_lvm_trace();
+
+        /**
          * @brief Realiza el logging de errores
          * @return TRUE si se realizo con exito, FALSE en otro caso
          */
@@ -189,6 +199,12 @@ class LMP_Logging{
          * @return TRUE si se realizo con exito, FALSE en otro caso
          */
         bool make_log_lvm();
+
+        /**
+         * @brief Realiza el logging de la traza de ejecucion de LVM
+         * @return TRUE si se realizo con exito, FALSE en otro caso
+         */
+        bool make_log_lvm_trace();
 
         /**
          * @brief Constructor de la clase
@@ -222,6 +238,11 @@ class LMP_Logging{
          * @brief Realiza el log de maquina virtual
          */
         void log_lvm();
+
+        /**
+         * @brief Realiza el log de la traza de ejecucion de la maquina virtual
+         */
+        void log_lvm_trace();
 
         /**
          * @brief Constructor de copia (eliminado)

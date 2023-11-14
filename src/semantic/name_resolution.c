@@ -412,6 +412,12 @@ void resolve_statement(struct statement *stmt){
         break;
     }
 
+    case STMT_SLEEP:
+    {
+        resolve_statement_sleep(stmt);
+        break;
+    }
+
     case STMT_ATOMIC:
     {
         // -- Aplicar resolucion de nombres a sentencias de tipo bloque
@@ -647,7 +653,7 @@ void resolve_statement_fork(struct statement *stmt){
 
 void resolve_statement_join(struct statement *stmt){
     // -- Comprobar que la sentencia existe
-    if(!stmt)
+    /*if(!stmt)
         return;
 
 
@@ -668,7 +674,14 @@ void resolve_statement_join(struct statement *stmt){
     else{
         stmt->stmt.statement_join.symb = copy_symbol(target_symb);
         stmt->stmt.statement_join.symb->type = create_dprocess_type();
-    }
+    }*/
+}
+
+void resolve_statement_sleep(struct statement *stmt){
+    if(!stmt)
+        return;
+
+    resolve_expression(stmt->stmt.statement_sleep.sleep_expr);
 }
 
 void resolve_statement_return(struct statement *stmt){

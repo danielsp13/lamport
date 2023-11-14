@@ -85,6 +85,9 @@ LMP_Analyzer::~LMP_Analyzer(){
         // -- Liberar tabla de simbolos
         free_symbol_table();
 
+        // -- Liberar registro de typecheck
+        free_typecheck_type_register();
+
         tasker.task_ok();
     }
 }

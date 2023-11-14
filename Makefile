@@ -6,7 +6,7 @@
 # Autor: Daniel Perez Ruiz
 # Tutor: Carlos Ureña Almagro
 # ========================================================================================
-# Version: 0.1.0-alpha
+# Version: 1.0.0-alpha
 # ========================================================================================
 
 # -- Definicion del shell a utilizar
@@ -156,8 +156,8 @@ INDEX_AST_FILES:=AST declaration statement expression type parameter subprogram 
 INDEX_SEMANTIC_FILES:=symbol scope scope_stack symbol_table name_resolution type_checking
 INDEX_ERROR_FILES:=error error_syntax error_semantic error_manager
 INDEX_LMP_UTILS_FILES:=lmp_io lmp_analysis lmp_ir lmp_logging lmp_tasker lmp_lvm_launcher
-INDEX_IR_FILES:=literal variable table ir_optimizer instruction_table ir_reg_manager ir_printer ir_translator_decl ir_translator_stmt ir_translator_expr ir_translator_proc ir_translator_subprog ir_translator_assistant ir_builder
-INDEX_LVM_FILES:=memory_block memory initializer segment_table register register_table stack_block bounds threads_queue scheduler CPU LVM
+INDEX_IR_FILES:=builder/ir_builder builder/ir_optimizer builder/ir_printer elements/literal elements/variable tables/instruction_table tables/table translators/ir_translator_assistant translators/ir_translator_decl translators/ir_translator_expr translators/ir_translator_proc translators/ir_translator_prog translators/ir_translator_stmt translators/ir_translator_subprog tweaks/ir_reg_manager tweaks/ir_thread_id_manager
+INDEX_LVM_FILES:=CPU/ALU CPU/CU CPU/CU_checker CPU/EU CPU/CPU CPU/register CPU/registers memory/bounds memory/initializer memory/memory memory/memory_manager memory/segment_table SO/scheduler SO/syscall_manager SO/thread_manager SO/threads_queue SO/thread_stack tracker/chronometer tracker/tracker utils/block linux/posix_signals_manager LVM
 
 # -- Indice de ficheros (obj)
 INDEX_OBJ_LEXER_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LEXER_FILES))
@@ -169,7 +169,7 @@ INDEX_OBJ_LMP_UTILS_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LMP_UTILS_FILES))
 INDEX_OBJ_IR_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_IR_FILES))
 INDEX_OBJ_LVM_FILES:=$(addsuffix $(OBJ_EXT), $(INDEX_LVM_FILES))
 
-INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_FILES) $(INDEX_OBJ_IR_FILES) $(INDEX_OBJ_LVM_FILES)
+INDEX_OBJ_FILES:=$(INDEX_OBJ_LEXER_FILES) $(INDEX_OBJ_PARSER_FILES) $(INDEX_OBJ_AST_FILES) $(INDEX_OBJ_SEMANTIC_FILES) $(INDEX_OBJ_ERROR_FILES) $(INDEX_OBJ_LMP_FILES) $(notdir $(INDEX_OBJ_IR_FILES)) $(notdir $(INDEX_OBJ_LVM_FILES))
 
 # -- Indice de ficheros (source)
 INDEX_SOURCE_LEXER_FILES:=$(addprefix $(SOURCE_LEXER)/, $(addsuffix $(SOURCE_C_EXT), $(INDEX_LEXER_FILES)))
@@ -259,19 +259,19 @@ define compile_lamport_skeleton
 		echo "$(COLOR_BOLD)>>> Verificando dependencias de modulos para construir intérprete: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED modulos requeridos] ... $(COLOR_RESET)" ;\
 		N_FILES_CHECKED=0 ;\
 		for FILE in $(2); do \
-			echo "$(COLOR_YELLOW) ---> Comprobando existencia de [$$FILE] ...$(COLOR_RESET)" ; \
 			if [ -f $(OBJ_DIR)/$$FILE ]; then \
-				echo "$(COLOR_GREEN) ---> [$$FILE] existe, listo para su uso. $(COLOR_RESET)" ; \
 				N_FILES_CHECKED=$$(( N_FILES_CHECKED + 1 )) ; \
 			else \
 				echo "$(COLOR_RED) ---> [$$FILE] NO existe. $(COLOR_RESET)" ; \
 			fi ; \
 		done; \
-		echo ;\
 		if [ $${N_FILES_CHECKED} -lt $${N_FILES_EXPECTED} ]; then \
+			echo ; \
 			echo "$(COLOR_RED) ---> [ERROR] No se puede construir el intérprete de LAMPORT: Faltan dependencias de codigo objeto. $(COLOR_RESET)" ; \
 			echo "$(COLOR_RED) ---> [ERROR] Se esperaban $(COLOR_RESET_BOLD)[$$N_FILES_EXPECTED] modulos $(COLOR_RED), se encontraron $(COLOR_RESET_BOLD)[$$N_FILES_CHECKED] modulos$(COLOR_RESET)." ; \
 			exit 1; \
+		else \
+			echo "$(COLOR_GREEN) ---> Todas las dependencias de modulos se han verificado exitosamente. $(COLOR_RESET)" ; \
 		fi; \
 		echo ;\
 		echo "$(COLOR_BOLD)>>> Construyendo intérprete: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
@@ -370,8 +370,8 @@ define check_docker_image_skeleton
 endef
 
 define generate_object_rules
-$(addprefix $(OBJ_DIR)/, $(3)): $(2)
-	$(call compile_unique_object_skeleton,$(1),$(2),$(3),$(4))
+$(addprefix $(OBJ_DIR)/, $(notdir $(3))): $(2)
+	$(call compile_unique_object_skeleton,$(1),$(2),$(notdir $(3)),$(4))
 endef
 
 # ========================================================================================
@@ -457,7 +457,7 @@ author:
 	@echo " -- Nombre de proyecto: Lamport. Simulador de Sistemas Concurrentes y Distribuidos"
 	@echo " -- Autor: Daniel Pérez Ruiz"
 	@echo " -- Tutor: Carlos Ureña Almagro"
-	@echo " -- Version: 0.1.0-alpha"
+	@echo " -- Version: 1.0.0-alpha"
 	@echo "$(COLOR_RESET)"
 
 # -- Muestra las diferentes opciones de Makefile
@@ -697,7 +697,7 @@ compile_lmp_utils: $(INDEX_SOURCE_LMP_UTILS_FILES) compile_lmp_utils_msg $(addpr
 compile_ir_msg:
 	$(call compile_module_msg_skeleton,$(INDEX_IR_FILES),"gestor de representación intermedia de código")
 
-compile_ir: $(INDEX_SOURCE_IR_FILES) compile_ir_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_IR_FILES))
+compile_ir: $(INDEX_SOURCE_IR_FILES) compile_ir_msg $(addprefix $(OBJ_DIR)/, $(notdir $(INDEX_OBJ_IR_FILES)))
 	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)gestor de representación intermedia de código$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
 	@echo
 
@@ -705,7 +705,7 @@ compile_ir: $(INDEX_SOURCE_IR_FILES) compile_ir_msg $(addprefix $(OBJ_DIR)/, $(I
 compile_lvm_msg:
 	$(call compile_module_msg_skeleton,$(INDEX_LVM_FILES),"Lamport Virtual Machine \(LVM\)")
 
-compile_lvm: $(INDEX_SOURCE_LVM_FILES) compile_lvm_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_LVM_FILES))
+compile_lvm: $(INDEX_SOURCE_LVM_FILES) compile_lvm_msg $(addprefix $(OBJ_DIR)/, $(notdir $(INDEX_OBJ_LVM_FILES)))
 	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)Lamport Virtual Machine (LVM)$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
 	@echo
 

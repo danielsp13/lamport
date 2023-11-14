@@ -169,6 +169,7 @@ struct expression{
             unsigned long line;                             ///< Linea donde se definio la expresion
             struct expression *left;                        ///< Expresion izquierda de la operacion
             struct expression *right;                       ///< Expresion derecha de la operacion
+            struct type * type;                             ///< Tipo de la expresion binaria
         } expression_binary_operation;
 
         // Estructura de expresion de operacion unaria
@@ -178,6 +179,7 @@ struct expression{
             char *operator_symb;                            ///< Operador de operacion
             unsigned long line;                             ///< Linea donde se definio la expresion
             struct expression *left;                        ///< Expresion derecha de la operacion
+            struct type * type;                             ///< Tipo de la expresion unaria
         } expression_unary_operation;
 
         // Estructura de expresion de identificador

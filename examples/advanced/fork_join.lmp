@@ -4,24 +4,26 @@
 program Fork
 	var x : integer := 0;
 
+{OJO: Es importante tener en cuenta donde colocar bien la seccion atomica}
+
 procedure Increment();
 begin
-	for i := 1 to 100 do
+	<< for i := 1 to 100 do
 	begin
-		<< x := x+1; >>
+		x := x+1;
 	end
 	
-	print("fin de increment");
+	print("fin de increment"); >>
 end
 
 procedure Decrement();
 begin
-	for j := 1 to 20 do
+	<< for j := 1 to 20 do
 	begin
-		<< x := x-1; >>
+		x := x-1;
 	end
 	
-	print("fin de decrement");
+	print("fin de decrement"); >>
 end
 
 process Main;
@@ -29,6 +31,7 @@ begin
 	print("Realizando fork...");
 	fork Increment;
 	Decrement();
+	join;
 	
 	print("x vale: ",x);
 	

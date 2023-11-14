@@ -13,14 +13,19 @@
 // ----- INCLUSION DE DEPENDENCIAS -----
 
 #include <iostream>
+#include <string>
 #include <algorithm>
 #include <vector>
 #include <stack>
+#include <atomic>
 
-#include "memory.hpp"                   ///< Memoria de la maquina virtual
-#include "segment_table.hpp"            ///< Tabla de segmentos
-#include "initializer.hpp"              ///< Iniciador de maquina virtual
-#include "CPU.hpp"                      ///< CPU de la maquina virtual
+#include "IR/tables/instruction_table.hpp"
+
+#include "LVM/memory/memory_manager.hpp"        ///< Manejador de la memoria del sistema
+#include "LVM/CPU/CPU.hpp"                      ///< CPU de la maquina virtual
+#include "LVM/SO/thread_manager.hpp"            ///< Manejador de hebras
+#include "LVM/tracker/tracker.hpp"              ///< Seguimiento de ejecucion de maquina virtual
+#include "LVM/linux/posix_signals_manager.hpp"  ///< Gestor de signals de interrupcion de Linux
 
 // ===============================================================
 
@@ -38,23 +43,43 @@ typedef enum{
 
 // ----- DEFINICION DE CLASE LAMPORT VIRTUAL MACHINE -----
 
-/**
- * 
- */
 class LVM{
     private:
-        // -- Iniciador de memoria maquina virtual
-        LVM_Initializer& initializer = LVM_Initializer::get_instance();
+        // -- Gestor de memoria del sistema
+        LVM_Memory_Manager& memory_manager = LVM_Memory_Manager::get_instance();
+        // -- Gestor de hebras
+        LVM_Thread_Manager& thread_manager = LVM_Thread_Manager::get_instance();
         // -- CPU de la maquina virtual
-        LVM_CPU& cpu = LVM_CPU::get_instance();
+        LVM_CPU& CPU = LVM_CPU::get_instance();
+        // -- Gestor de seguimiento de ejecucion de maquina virtual
+        LVM_Tracker& tracker = LVM_Tracker::get_instance();
+        // -- Cabecera de mensajes de traza de ejecucion de LVM
+        const std::string TRACKER_HEADER = "[LVM]: ";
 
         // -- Especifica el estado en el que se encuentra la maquina virtual
         LVM_states_t state = LVM_STATE_BORN;
 
+        // -- Flag que especifica la captura de CTRL+C
+        std::atomic<bool> SIGINT_received;
+        // -- Flag que especifica la captura de violacion de segmento
+        std::atomic<bool> SIGSEGV_received;
+        // -- Flag que especifica la captura de aborto
+        std::atomic<bool> SIGABRT_received;
+
         /**
          * @brief Constructor de la maquina virtual
          */
-        LVM() = default;
+        LVM() : SIGINT_received(false), SIGSEGV_received(false), SIGABRT_received(false) {};
+
+        /**
+         * @brief Comprueba si se han procu
+         */
+        bool check_posix_interrupt_signals_received() const;
+
+        /**
+         * @brief Comprueba si se necesitan evaluar 
+         */
+        bool check_initialize_global_vars();
 
     public:
         /**
@@ -62,6 +87,21 @@ class LVM{
          * @return instancia
          */
         static LVM& get_instance();
+
+        /**
+         * @brief Notifica a la maquina virtual que se ha recibido SIGSEGV
+         */
+        void notify_posix_interrupt_sigsegv();
+
+        /**
+         * @brief Notifica a la maquina virtual que se ha recibido SIGABRT
+         */
+        void notify_posix_interrupt_sigabrt();
+
+        /**
+         * @brief Notifica a la maquina virtual que se ha recibido SIGINT
+         */
+        void notify_posix_interrupt_sigint();
 
         /**
          * @brief Destructor de la clase
@@ -79,6 +119,12 @@ class LVM{
          * @param os : flujo de impresion
          */
         void print_memory(std::ostream& os = std::cout);
+
+        /**
+         * @brief Imprime la traza de ejecucion de la maquina virtual
+         * @param os : flujo de impresion
+         */
+        void print_lvm_trace(std::ostream& os = std::cout);
 
         /**
          * @brief Prepara la maquina virtual para ser ejecutada

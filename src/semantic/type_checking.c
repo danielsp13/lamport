@@ -10,44 +10,83 @@
 
 // ===============================================================
 
+// ----- RECOLECTOR DE TIPOS DE DATO PARA GESTION DE MEMORIA -----
+
+struct type * type_register = NULL;
+struct type * last_type_register = NULL;
+
+void reg_type(struct type * type){
+    if(!type_register){
+        type_register = type;
+        last_type_register = type_register;
+    }
+    else{
+        last_type_register->next = type;
+        last_type_register = last_type_register->next;
+    }
+}
+
+void free_typecheck_type_register(){
+    struct type * current_type = type_register;
+    while(current_type){
+        // Obtener siguiente en la lista
+        struct type * next = current_type->next;
+
+        // Liberar contenido
+        free_type(current_type);
+
+        // Apuntar al siguiente de la lista
+        current_type = next;
+    }
+}
+
+// ===============================================================
+
 // ----- IMPLEMENTACION DE FUNCIONES DE GESTION DE TYPE CHECKING (EXPRESIONES) -----
 
 struct type * typecheck_expression(struct expression *expr){
     // -- Comprobar que hay tipo
     if(!expr)
         return NULL;
+    
+    struct type * result;
 
     // -- Retornar tipo en funcion del tipo de expresion
     switch (expr->kind)
     {
     case EXPR_BINARY:
     {
-        return typecheck_expression_binary(expr);
+        result = typecheck_expression_binary(expr);
+        reg_type(result);
         break;
     }
     case EXPR_UNARY:
     {
-        return typecheck_expression_unary(expr);
+        result = typecheck_expression_unary(expr);
+        reg_type(result);
         break;
     }
     case EXPR_IDENTIFIER:
     {
-        return typecheck_expression_identifier(expr);
+        result = typecheck_expression_identifier(expr);
+        reg_type(result);
         break;
     }
     case EXPR_LITERAL:
     {
-        return typecheck_expression_literal(expr);
+        result = typecheck_expression_literal(expr);
+        reg_type(result);
         break;
     }
     case EXPR_FUNCTION_INV:
     {
-        return typecheck_expression_function_inv(expr);
+        result = typecheck_expression_function_inv(expr);
+        reg_type(result);
         break;
     }
     case EXPR_GROUPED:
     {
-        return typecheck_expression_grouped(expr);
+        result = typecheck_expression_grouped(expr);
         break;
     }
     default:
@@ -56,6 +95,8 @@ struct type * typecheck_expression(struct expression *expr){
         break;
     }
     }
+
+    return result;
 }
 
 struct type * typecheck_expression_binary(struct expression *expr){
@@ -77,21 +118,29 @@ struct type * typecheck_expression_binary(struct expression *expr){
     case EXPR_ADD:
     {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
+        expr->expr.expression_binary_operation.type = result;
+
         break;
     }
     case EXPR_SUB:
     {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
+        expr->expr.expression_binary_operation.type = result;
+
         break;
     }
     case EXPR_MULT:
     {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
+        expr->expr.expression_binary_operation.type = result;
+        
         break;
     }
     case EXPR_DIV:
     {
         result = typecheck_expression_binary_arithmetic(action,type_left,type_right,def_line);
+        expr->expr.expression_binary_operation.type = result;
+
         break;
     }
     case EXPR_MOD:
@@ -144,8 +193,8 @@ struct type * typecheck_expression_binary(struct expression *expr){
     }
 
     // -- Liberar tipos de operandosas
-    free_type(type_left); type_left = NULL;
-    free_type(type_right); type_right = NULL;
+    //free_type(type_left); type_left = NULL;
+    //free_type(type_right); type_right = NULL;
 
     // -- retornar resultado
     return result;
@@ -169,6 +218,8 @@ struct type * typecheck_expression_unary(struct expression *expr){
     case EXPR_NEGATIVE:
     {
         result = typecheck_expression_unary_arithmetic(action,type_left,def_line);
+        expr->expr.expression_unary_operation.type = result;
+
         break;
     }
     case EXPR_NOT:
@@ -181,7 +232,7 @@ struct type * typecheck_expression_unary(struct expression *expr){
     }
 
     // -- Liberar tipos de operandos
-    free_type(type_left); type_left = NULL;
+    //free_type(type_left); type_left = NULL;
 
     // -- retornar resultado
     return result;
@@ -265,7 +316,7 @@ struct type * typecheck_expression_function_inv(struct expression *expr){
         current_type_parameter = current_type_parameter->next;
         position++;
 
-        free_type(type_a); type_a = NULL;
+        //free_type(type_a); type_a = NULL;
     }
 
     // -- retornar resultado
@@ -416,7 +467,7 @@ void typecheck_declaration(struct declaration *decl){
         }
 
         // -- Liberar memoria de tipos
-        free_type(type_size_arr); free_type(expected_type);
+        //free_type(type_size_arr); free_type(expected_type);
     }
 
     // Comprobar que tiene valor de inicializacion
@@ -433,7 +484,7 @@ void typecheck_declaration(struct declaration *decl){
     }
 
     // -- Liberar memoria de tipo
-    free_type(type_expr);
+    //free_type(type_expr);
 
 }
 
@@ -466,7 +517,7 @@ void typecheck_statement(struct statement *stmt){
         
 
         // -- Comprobar tipo de dato de asignacion
-        type_a = copy_type(stmt->stmt.statement_assignment.symb->type);
+        type_a = copy_type(stmt->stmt.statement_assignment.symb->type); reg_type(type_a);
         type_b = typecheck_expression(stmt->stmt.statement_assignment.expr);
 
         if(!equals_type(type_a,type_b)){
@@ -476,7 +527,7 @@ void typecheck_statement(struct statement *stmt){
         }
 
         // -- Liberar tipos
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
     }
@@ -492,7 +543,7 @@ void typecheck_statement(struct statement *stmt){
         }
 
         // -- Liberar tipos
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
         // -- Realizar typechecking al contenido del cuerpo
         typecheck_list_statements(stmt->stmt.statement_while.body);
@@ -502,7 +553,7 @@ void typecheck_statement(struct statement *stmt){
     case STMT_FOR:
     {
         // -- Comprobar que el la variable y la expresion de inicio coinciden en tipos
-        type_a = create_basic_type(TYPE_INTEGER);
+        type_a = create_basic_type(TYPE_INTEGER); reg_type(type_a);
         type_b = typecheck_expression(stmt->stmt.statement_for.intialization);
 
         if(!equals_type(type_a,type_b)){
@@ -521,7 +572,7 @@ void typecheck_statement(struct statement *stmt){
         }
 
         // -- Liberar la memoria antes de proceder
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
         // -- Realizar typechecking al contenido del cuerpo
         typecheck_list_statements(stmt->stmt.statement_for.body);
@@ -540,7 +591,7 @@ void typecheck_statement(struct statement *stmt){
         }
 
         // -- Liberar tipos
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
         // -- Realizar typechecking al contenido del cuerpo if
         typecheck_list_statements(stmt->stmt.statement_if_else.if_body);
@@ -556,7 +607,7 @@ void typecheck_statement(struct statement *stmt){
         typecheck_list_statements(stmt->stmt.statement_block.body);
 
         // -- Liberar tipos
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
     }
@@ -575,7 +626,7 @@ void typecheck_statement(struct statement *stmt){
     case STMT_FORK:
     {
         // -- Realizar typechecking al simbolo de proceso
-        type_a = copy_type(stmt->stmt.statement_fork.symb->type);
+        type_a = copy_type(stmt->stmt.statement_fork.symb->type); reg_type(type_a);
 
         if(type_a->kind != TYPE_DPROCESS){
             // -- Realizar handling de error: no fork a proceso
@@ -584,7 +635,7 @@ void typecheck_statement(struct statement *stmt){
         }
 
         // -- Liberar tipos
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
     }
@@ -592,17 +643,29 @@ void typecheck_statement(struct statement *stmt){
     case STMT_JOIN:
     {
         // -- Realizar typechecking al simbolo de proceso
-        type_a = copy_type(stmt->stmt.statement_join.symb->type);
+        /*type_a = copy_type(stmt->stmt.statement_join.symb->type); reg_type(type_a);
 
         if(type_a->kind != TYPE_DPROCESS){
             // -- Realizar handling de error: no join a proceso
             struct error *err = create_error_semantic_unmatched_types_statement_join(stmt->stmt.statement_join.line,type_a->kind_str);
             add_error_semantic_to_list(err);
-        }
+        }*/
 
         // -- Liberar tipos
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
+        break;
+    }
+    case STMT_SLEEP:
+    {
+        // -- Comprobar condicion de if, boolean
+        type_a = typecheck_expression(stmt->stmt.statement_sleep.sleep_expr);
+
+        if(type_a->kind != TYPE_INTEGER){
+            // -- Realizar handling de error: condicion no booleana
+            struct error *err = create_error_semantic_unmatched_types_statement_sleep(stmt->stmt.statement_sleep.line,type_a->kind_str);
+            add_error_semantic_to_list(err);
+        }
         break;
     }
     case STMT_PROCEDURE_INV:
@@ -624,7 +687,7 @@ void typecheck_statement(struct statement *stmt){
             position++;
 
             // -- Liberar tipos
-            free_type(type_a);
+            //free_type(type_a);
         }
 
         break;
@@ -637,38 +700,42 @@ void typecheck_statement(struct statement *stmt){
     }
     case STMT_PRINT:
     {
-        // -- No se hace nada aqui
+        struct expression * current_expr = stmt->stmt.statement_print.expressions_list;
+        while(current_expr){
+            typecheck_expression(current_expr);
+
+            current_expr = current_expr->next;
+        }
+
         break;
     }
     case STMT_SEM_WAIT:
     {
         // -- Realizar typechecking al simbolo de proceso
-        type_a = copy_type(stmt->stmt.statement_semaphore.symb->type);
+        type_a = copy_type(stmt->stmt.statement_semaphore.symb->type); reg_type(type_a);
 
         if(type_a->kind != TYPE_SEMAPHORE){
-            // -- Realizar handling de error: no join a proceso
             struct error *err = create_error_semantic_unmatched_types_statement_semaphore(stmt->stmt.statement_semaphore.line,type_a->kind_str);
             add_error_semantic_to_list(err);
         }
 
         // -- Liberar tipos
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
     }
     case STMT_SEM_SIGNAL:
     {
         // -- Realizar typechecking al simbolo de proceso
-        type_a = copy_type(stmt->stmt.statement_semaphore.symb->type);
+        type_a = copy_type(stmt->stmt.statement_semaphore.symb->type); reg_type(type_a);
 
         if(type_a->kind != TYPE_SEMAPHORE){
-            // -- Realizar handling de error: no join a proceso
             struct error *err = create_error_semantic_unmatched_types_statement_semaphore(stmt->stmt.statement_semaphore.line,type_a->kind_str);
             add_error_semantic_to_list(err);
         }
 
         // -- Liberar tipos
-        free_type(type_a); free_type(type_b); free_type(type_c);
+        //free_type(type_a); free_type(type_b); free_type(type_c);
 
         break;
     }
@@ -693,7 +760,7 @@ void typecheck_subprogram(struct subprogram *subprog){
             add_error_semantic_to_list(err);
         }
 
-        free_type(type_b);
+        //free_type(type_b);
     }
 }
 
@@ -704,7 +771,7 @@ void typecheck_process(struct process *proc){
         struct type * type_c = NULL;
 
         // -- Comprobar indexador, integer
-        type_a = copy_type(proc->symb_index->type);
+        type_a = copy_type(proc->symb_index->type); reg_type(type_a);
         if(type_a->kind != TYPE_INTEGER){
             // -- Handling error: indexador de proceso no integer
             struct error * err = create_error_semantic_unmatched_types_process_vector(UNMATCHED_TYPES_PROC_VECTOR_INDEX,proc->line,type_a->kind_str);
@@ -735,9 +802,9 @@ void typecheck_process(struct process *proc){
             add_error_semantic_to_list(err);
         }
 
-        free_type(type_a); type_a = NULL;
-        free_type(type_b); type_b = NULL;
-        free_type(type_c); type_c = NULL;
+        //free_type(type_a); type_a = NULL;
+        //free_type(type_b); type_b = NULL;
+        //free_type(type_c); type_c = NULL;
     }
 
     // -- Realizar typecheck a lista de declaraciones

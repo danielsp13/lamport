@@ -1,10 +1,10 @@
 # ----- Etapa de construccion
-FROM alpine:latest as builder
+FROM alpine:3.16 as builder
 
 LABEL maintainer="danielperezruiz.10@gmail.com" \
       version="0.0.9"
 
-RUN apk add --no-cache bash make sudo libc-dev flex-dev
+RUN apk add --no-cache bash make sudo libc-dev flex-dev libexecinfo-dev
 
 SHELL ["/bin/bash", "-c"]
 
@@ -30,7 +30,7 @@ RUN rm -r ./include/* &&\
 	rm -r ./obj/*
 
 # ----- Etapa final
-FROM alpine:latest
+FROM alpine:3.16
 
 RUN apk add bash flex-dev bison
 
