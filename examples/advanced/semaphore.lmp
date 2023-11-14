@@ -7,7 +7,7 @@ program Semaphore
 
 procedure Increment();
 begin
-    for i := 1 to 5 do
+    for i := 1 to 100 do
     begin
         WAIT sem;
         print("Incrementando x, que vale ahora: ", x);
@@ -18,7 +18,7 @@ end
 
 procedure Decrement();
 begin
-    for i := 1 to 5 do
+    for i := 1 to 100 do
     begin
         WAIT sem;
         print("Decrementando x, que vale ahora: ", x);
@@ -31,10 +31,7 @@ process Main;
 begin
     fork Increment;
     fork Decrement;
-    join Increment;
-    print("INCREMENT TERMINADO");
-    join Decrement;
-    print("DECREMENT TERMINADO");
+    join;
     
     print("x vale: ", x);
 end

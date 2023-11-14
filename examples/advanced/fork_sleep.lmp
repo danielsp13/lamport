@@ -1,0 +1,29 @@
+{Programa: semaphore.lmp}
+{Autor: Daniel Perez Ruiz}
+
+program Semaphore
+    var x : integer := 2;
+    var sem : semaphore := 1;
+
+procedure ProcA();
+begin
+    << print("ProcA: Durmiendo 1 segundo");
+    sleep 1000;
+    print("ProcA: Hecho"); >>
+end
+
+procedure ProcB();
+begin
+    << print("ProcB: Durmiendo 2 segundos");
+    sleep 2000;
+    print("ProcB: Hecho"); >>
+end
+
+process Main;
+begin
+    fork ProcA;
+    fork ProcB;
+    join;
+    
+    print("MAIN: Procesos terminados");
+end
