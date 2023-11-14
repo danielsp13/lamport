@@ -6,7 +6,7 @@
 # Autor: Daniel Perez Ruiz
 # Tutor: Carlos Ureña Almagro
 # ========================================================================================
-# Version: 0.1.0-alpha
+# Version: 1.0.0-alpha
 # ========================================================================================
 
 # -- Definicion del shell a utilizar
@@ -457,7 +457,7 @@ author:
 	@echo " -- Nombre de proyecto: Lamport. Simulador de Sistemas Concurrentes y Distribuidos"
 	@echo " -- Autor: Daniel Pérez Ruiz"
 	@echo " -- Tutor: Carlos Ureña Almagro"
-	@echo " -- Version: 0.1.0-alpha"
+	@echo " -- Version: 1.0.0-alpha"
 	@echo "$(COLOR_RESET)"
 
 # -- Muestra las diferentes opciones de Makefile
