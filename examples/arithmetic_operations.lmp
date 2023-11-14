@@ -1,7 +1,7 @@
 {Programa: arithmetic_operations.lmp}
 {Autor: Daniel Pérez Ruiz}
 
-program Operaciones
+program Operaciones;
 	var num1 : integer := (-4 + 6) * 10 - 2;
 	var num2 : real := 3.0;
 

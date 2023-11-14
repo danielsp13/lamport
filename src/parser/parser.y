@@ -239,23 +239,55 @@
 
 program:
     // ===== CORRECTO: Programa lamport completo
-    S_PROGRAM program-name list-declarations list-subprograms list-process{
+    S_PROGRAM program-name DELIM_PC list-declarations list-subprograms list-process{
+        // -- Crear AST (solo si no hay errores sintacticos)
+        if(!have_syntax_errors())
+            AST_program = create_program($2,$4,$5,$6);
+    }
+    | S_PROGRAM program-name list-declarations list-subprograms list-process{
         // -- Crear AST (solo si no hay errores sintacticos)
         if(!have_syntax_errors())
             AST_program = create_program($2,$3,$4,$5);
     }
+    | error S_PROGRAM program-name DELIM_PC list-declarations list-subprograms list-process{
+        mark_error_syntax_program_unexpected_literal_in_header();
+        // -- Abortar inmediatamente el analisis
+        YYABORT;
+    }
+    | S_PROGRAM error list-process{
+        mark_error_syntax_program_unexpected_literal_in_header();
+        // -- Abortar inmediatamente el analisis
+        YYABORT;
+    }
     // <-> ERROR: Falta 'program' al comienzo del programa
+    /*| program-name DELIM_PC list-declarations list-subprograms list-process{
+        mark_error_syntax_program_expected_program($1);
+        // -- Abortar inmediatamente el analisis
+        //YYABORT;
+    }
     | program-name list-declarations list-subprograms list-process{
         mark_error_syntax_program_expected_program($1);
         // -- Abortar inmediatamente el analisis
         //YYABORT;
     }
-    // <--> ERROR : Nombre de programa incorrecto
-    | S_PROGRAM error list-declarations list-subprograms list-process{
-        mark_error_syntax_program_expected_identifier();
+    | program-name DELIM_PC literal list-declarations list-subprograms list-process{
+        mark_error_syntax_program_unexpected_literal();
         // -- Abortar inmediatamente el analisis
         //YYABORT;
     }
+    | program-name literal list-declarations list-subprograms list-process{
+        mark_error_syntax_program_unexpected_literal();
+        // -- Abortar inmediatamente el analisis
+        //YYABORT;
+    }
+
+    // <--> ERROR : Nombre de programa incorrecto
+    | S_PROGRAM error DELIM_PC list-declarations list-subprograms list-process{
+        mark_error_syntax_program_expected_identifier();
+        // -- Abortar inmediatamente el analisis
+        //YYABORT;
+    }*/
+    
     ;
 
 program-name:
@@ -336,10 +368,19 @@ declaration:
         //YYABORT;
     }
     // <-> ERROR: se esperaba ';'
-    | S_VAR IDENT DELIM_2P type OP_ASSIGN expression error{
+    | S_VAR IDENT DELIM_2P type OP_ASSIGN expression{
         mark_error_syntax_declaration_expected_delimpc($2);
         //YYABORT;
     }
+    | S_VAR IDENT DELIM_2P type OP_ASSIGN expression DELIM_PC error{
+        mark_error_syntax_program_unexpected_literal_in_decl($2);
+        YYABORT;
+    }
+    | S_VAR IDENT DELIM_2P type DELIM_PC error{
+        mark_error_syntax_program_unexpected_literal_in_decl($2);
+        YYABORT;
+    }
+    
     ;
 
 // ----/////----------------------------------------------------------
@@ -422,6 +463,14 @@ subprogram-procedure:
         free_AST_parameter_register();
         //YYABORT;
     } 
+    | S_PROCEDURE subprogram-procedure-name PAR_IZDO list-parameters PAR_DCHO DELIM_PC error{
+        mark_error_syntax_program_unexpected_literal_in_decl($2);
+        YYABORT;
+    }
+    | S_PROCEDURE subprogram-procedure-name PAR_IZDO PAR_DCHO DELIM_PC error{
+        mark_error_syntax_program_unexpected_literal_in_decl($2);
+        YYABORT;
+    }
     ;
 
 subprogram-procedure-name:
@@ -511,6 +560,14 @@ subprogram-function:
         mark_error_syntax_subprogram_function_expected_delimpc($2);
         free_AST_parameter_register();
         //YYABORT;
+    }
+    | S_FUNCTION subprogram-function-name PAR_IZDO list-parameters PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC error{
+        mark_error_syntax_program_unexpected_literal_in_decl($2);
+        YYABORT;
+    }
+    | S_FUNCTION subprogram-function-name PAR_IZDO PAR_DCHO DELIM_2P basic-or-array-type DELIM_PC error{
+        mark_error_syntax_program_unexpected_literal_in_decl($2);
+        YYABORT;
     }
     ;
 
@@ -619,6 +676,10 @@ process-def:
         mark_error_syntax_process_expected_delimpc($2);
         //YYABORT;
     }
+    | S_PROCESS process-name DELIM_PC error{
+        mark_error_syntax_program_unexpected_literal_in_proc($2);
+        YYABORT;
+    }
     ;
 
 process-def-array:
@@ -647,6 +708,10 @@ process-def-array:
     | S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression error expression CORCH_DCHO DELIM_PC list-declarations block-statements-begin-end{
         mark_error_syntax_process_expected_delimarr($2);
         //YYABORT;
+    }
+    | S_PROCESS process-name CORCH_IZDO IDENT DELIM_2P expression DELIM_ARR expression CORCH_DCHO DELIM_PC error{
+        mark_error_syntax_program_unexpected_literal_in_proc($2);
+        YYABORT;
     }
     ;
 
@@ -780,6 +845,10 @@ block-statements-begin-end:
         mark_error_syntax_statement_empty_block();
         //YYABORT;
     }
+    | B_BEGIN error{
+        mark_error_syntax_program_unexpected_literal();
+        YYABORT;
+    }
     ;
 
 block-statements-cobegin-coend:
@@ -911,9 +980,6 @@ statement:
     }
     | block-statements-cobegin-coend{
         $$ = $1;
-    }
-    | error block-statements-begin-end{
-        mark_error_syntax_statement_expected_statement();
     }
     ;
 
@@ -1676,4 +1742,20 @@ void mark_error_syntax_program_expected_program(char *id){
 void mark_error_syntax_program_expected_identifier(){
     // -- Crear error sintactico e incluir en la lista de errores sintacticos
     create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_PROGRAM, "unknown", yylineno, ERR_SYNTAX_PROGRAM_EXPECTED_IDENTIFIER_AFTER_PROGRAM_MSG);
+}
+
+void mark_error_syntax_program_unexpected_literal_in_header(){
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_PROGRAM, "unknown", yylineno-1, ERR_PROGRAM_UNEXPECTED_TOKEN_IN_HEADER);
+}
+
+void mark_error_syntax_program_unexpected_literal_in_decl(char * id){
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_DECLARATION, id, yylineno-1, ERR_PROGRAM_UNEXPECTED_TOKEN_IN_DECL);
+}
+
+void mark_error_syntax_program_unexpected_literal(){
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IN_STATEMENT, "unknown", yylineno-1, ERR_PROGRAM_UNEXPECTED_TOKEN);
+}
+
+void mark_error_syntax_program_unexpected_literal_in_proc(char *id){
+    create_and_add_error_syntax_to_list(ERR_SYNTAX_IDENT_IN_PROCESS, id, yylineno-1, ERR_PROGRAM_UNEXPECTED_TOKEN_IN_PROC);
 }
