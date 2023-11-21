@@ -9,7 +9,7 @@
 \documentclass[11pt, a4paper]{book}
 \usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
 \usepackage[utf8]{inputenc}
-\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+%\usepackage{mathptmx} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
 \usepackage{listings} % para insertar código con formato similar al editor
 \usepackage{color}  % si quieres usar colores en tu código
 \usepackage[spanish, es-tabla]{babel} % Selecciona el español para palabras introducidas automáticamente, p.ej. "septiembre" en la fecha y especifica que se use la palabra Tabla en vez de Cuadro
@@ -18,13 +18,18 @@
 \usepackage[gen]{eurosym} %para incluir el símbolo del euro
 \usepackage{cite} %para incluir citas del archivo <nombre>.bib
 \usepackage{enumerate}
+\usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{textcomp}
 \usepackage{adjustbox}
 \usepackage{geometry}
 \usepackage{amsmath}
+\usepackage{amsthm} % Añadir este paquete
+\usepackage{amsfonts}
+\usepackage{amssymb}
 \usepackage{subfigure}
 \usepackage{textcomp}
 \usepackage{longtable}
@@ -94,7 +99,7 @@
 	linkcolor=black,	% color of internal links
 	urlcolor=cyan		% color of external links
 }
-\renewcommand{\familydefault}{\sfdefault}
+%\renewcommand{\familydefault}{\sfdefault}
 \usepackage{fancyhdr} % Custom headers and footers
 \pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
 \fancyhead[L]{} % Empty left header
@@ -114,12 +119,20 @@
 \setcounter{secnumdepth}{4}
 \usepackage[Lenny]{fncychap}
 
+
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
 
 \renewcommand{\lstlistingname}{Programa}
 \newcommand{\code}[1]{\lstinline[style=myInlineCode]!#1!}
 
+\newtheorem{teorema}{Teorema}[section]
+\newtheorem{definicion}[teorema]{Definición}
+\newtheorem{corolario}[teorema]{Corolario}
+\newtheorem{proposicion}[teorema]{Proposición}
+\newtheorem{observacion}[teorema]{Observación}
 
+\newcommand{\squareDiamond}{%
+\tikz [x=1.2ex,y=1.2ex,line width=.1ex] \draw (0,0) -- (1,1) -- (0,2) -- (-1,1) -- cycle;}
 
 \begin{document}
 
@@ -144,30 +157,32 @@
 	% Introducción 
 	\input{secciones/01_introduccion}
 
-        
-
 	% Descripción del problema y hasta donde se llega
-	\input{secciones/03_descripcion}
+	\input{secciones/02_descripcion}
 
 	% Estado del arte
-	\input{secciones/04_estado_del_arte}
+	\input{secciones/03_estado_del_arte}
 
-        \input{secciones/02_planificacion}
+        % Planificación
+        \input{secciones/04_planificacion}
 
-	% Análisis del problema
-	\input{secciones/05_analisis}
+	% Análisis del problema (TLA)
+	\input{secciones/05_tla}
+
+        % Análisis del problema (Lenguajes y compiladores)
+        \input{secciones/06_lenguajes}
 
         % Desarrollo bajo sprints: 
-	\input{secciones/06_espec_lenguaje}
+	\input{secciones/07_espec_lenguaje}
 
 	% Desarrollo bajo sprints: 
-	\input{secciones/07_implementacion}
+	\input{secciones/08_implementacion}
 
 	% Conclusiones
-	\input{secciones/08_programas}
+	\input{secciones/09_programas}
 
 	% Conclusiones
-	\input{secciones/09_conclusiones}
+	\input{secciones/10_conclusiones}
 
 	% Trabajos futuros
 

@@ -1,0 +1,346 @@
+\chapter{\textbf{Descripción del problema}}\label{chapter:problema}
+
+\textit{"La inteligencia consiste no sólo en el conocimiento, sino también en la destreza de aplicarlos en la práctica"}, sostenía el célebre filósofo Aristóteles hace más de dos milenios. Aunque han pasado muchos años desde entonces, su reflexión mantiene un profundo significado que podría ser clave en el día a día para aspirar a ser mejores versiones de nosotros mismos. Este pensamiento es el hilo conductor del presente proyecto. Todo el trabajo realizado aquí busca responder a las dos siguientes preguntas: ¿cómo se puede optimizar, a nivel teórico y práctico, el estudio e implementación de los conceptos de diseño y desarrollo de programas concurrentes? ¿Qué métodos existen para verificar formalmente las propiedades de dichos programas? Aunque existen innumerables maneras de abordar estos desafíos planteados, sólo el uso de una metodología clara, segura y correcta resulta verdaderamente adecuado.
+
+\section{Metodología: Desarrollo Ágil}
+La siguiente frase de Siegbert Tarrasch, quien fue uno de los mejores jugadores de ajedrez de todos los tiempos, también es digna de mención: \textit{"La belleza de un movimiento no se refleja sólo en su apariencia, sino en el pensamiento detrás de él"}. No basta con tener acciones o hechos; es esencial que detrás de ellos exista una \textbf{idea}, un \textbf{problema} o simplemente una \textbf{pregunta} que sirva de base para construir paso a paso todos los objetivos que se deseen alcanzar. Del mismo modo que en el ajedrez cada movimiento es estratégico y sigue una lógica o un plan, en un proyecto que precise de la ingeniería informática cada paso dado debe estar fundamentado y orientado hacia la resolución del problema central.
+
+En un proyecto de ingeniería informática, es esencial identificar claramente el problema que se desea resolver y la razón subyacente. Una vez definido, es importante garantizar que el proyecto en cuestión realmente aborde dicho problema \cite{jj-agile-objetivos}. La estrategia más efectiva consiste en dividir el problema en segmentos más manejables, a los que podemos referirnos como \textit{objetivos}. La recurrente mención de la palabra \textbf{"problema"} subraya su importancia central en la metodología, pues no se espera otra cosa que \textit{solucionar dicho problema}.
+
+El desarrollo ágil surgió tras la redacción y firma del \textit{Manifiesto por el Desarrollo Ágil de Software} \cite{agile-manifest} por diecisiete expertos en programación. Con el término \textit{ágil} no se alude únicamente a una metodología para el desarrollo de proyectos que precisan de rapidez y flexibilidad, sino también una filosofía que implica una forma distinta de trabajar y de organizarse a la que predominaba anteriormente, denominada \textit{metodología en cascada}. Así pues, por \textit{ágil} se entiende una mentalidad que se aplica a todo el ciclo de vida del desarrollo de software, centrada en el cliente y en la mejora continua de productos mínimamente viables cada vez más complejos \cite{jj-agile-manifesto}.
+
+Todo proyecto debe nacer de una motivación inicial, respondiendo a interrogantes como \textit{``por qué''}, \textit{``para qué''}, \textit{``para quién''} y \textit{``cómo''}. Si bien todas estas cuestiones son importantes, la penúltima destaca particularmente porque el éxito radica en satisfacer los \textit{deseos} y \textit{necesidades} de un grupo específico de clientes o usuarios unidos por una característica común: un \textit{problema}. 
+Resolverlo implica practicar la \textbf{empatía} con ellos, esforzándose por comprender profundamente sus necesidades y determinar cómo satisfacerlas de manera óptima, aportando \textbf{valor} con los recursos disponibles. Las entrevistas personales o el seguimiento de las tendencias actuales pueden proporcionar la perspectiva adecuada.
+
+De ahí surgen las \textbf{Historias de Usuario}, que proporcionan una explicación informal desde el punto de vista del usuario final y siempre situadas dentro del dominio del problema, de una funcionalidad del software que principalmente tendrá que ver con la lógica de negocio del proyecto.\cite{jj-design-thinking}. Una vez definidas, lo que queda es especificar los productos que se entregarán a los clientes, descritos a través de una secuencia de \textbf{hitos} o \textbf{milestones}. La esencia del desarrollo ágil radica en efectuar mejoras iterativas sobre el producto, contando siempre con la aprobación del usuario. En consecuencia, el avance del proyecto no es lineal, sino un proceso incremental.
+
+En resumen, el desarrollo ágil supuso un gran cambio en el paradigma de la organización y planificación de proyectos de ingeniería informática, colocando al usuario y sus necesidades en el centro del proceso, guiando cada paso a través de la empatía y una comprensión profunda del problema. Con herramientas como las Historias de Usuario y la propia naturaleza de la metodología basada en un proceso iterativo e incremental, se busca proporcionar soluciones más adaptadas y flexibles de la ingeniería moderna, puesto que las necesidades de los clientes pueden ir variando con el tiempo. Es un enfoque que valora la colaboración y la resiliencia, con el objetivo de siempre aportar valor, abordando así los actuales y futuros desafíos del mundo tecnológico.
+
+\section{Clientes}
+Tras haber explorado la esencia del desarrollo ágil y su prioridad hacia el usuario y sus deseos, ahora se profundizará en el concepto de \textbf{cliente}. Los problemas y expectativas de los clientes o usuarios son lo que impulsan las decisiones y acciones del equipo de desarrollo. 
+
+Para identificar y comprender los distintos usuarios del compilador de código, se empleó una metodología centrada en las personas. Se llevaron a cabo entrevistas individuales a dos grupos de personas \textit{reales} \footnote{Aunque no es estrictamente necesario utilizar personas reales para el análisis de un problema en el desarrollo de un proyecto, hacerlo añade una dimensión \textit{humana} que, en mi experiencia con otros proyectos, aumenta considerablemente las probabilidades de éxito.} vinculadas a la asignatura de \textit{Sistemas Concurrentes y Distribuidos}: estudiantes y profesorado. A ambos grupos se les formuló una serie de preguntas, que se presentan a continuación.
+
+\noindent
+Las preguntas planteadas al alumnado de la asignatura fueron:
+\begin{itemize}
+    \item \textit{¿Te resulta complicado entender los conceptos o fundamentos teóricos de la asignatura?}
+    \item \textit{¿Eres capaz de resolver un problema que involucre concurrencia sin programarlo explícitamente?}
+    \item \textit{¿Notas una diferencia significativa entre la teoría y práctica de la asignatura?}
+    \item \textit{¿Crees que programar en el pseudocódigo específico de la asignatura te facilitaría su aprendizaje?}
+\end{itemize}
+
+\noindent
+Las preguntas planteadas al profesorado fueron:
+\begin{itemize}
+    \item \textit{¿Consideras que la asignatura es difícil para los estudiantes?}
+    \item \textit{¿Ves una diferencia significativa entre la teoría y la práctica de la asignatura?}
+    \item \textit{¿Piensas que programar en el pseudocódigo específico de la asignatura ayudaría a los alumnos durante el curso? ¿Facilitaría tu labor docente al explicar los conceptos?}
+\end{itemize}
+
+Las dos últimas preguntas de cada grupo son similares, buscando comprobar la concordancia entre ambos puntos de vista. Las respuestas de los estudiantes indican que, aunque la asignatura posee una complejidad relativa en comparación con otras del grado, los conceptos en sí no son difíciles de asimilar. La verdadera barrera surge al aplicar estos conceptos en el diseño de sistemas concurrentes o al tratar de resolver problemas sin recurrir a un lenguaje de alto nivel, como C++. Los estudiantes generalmente consideran que se desenvuelven mejor en la práctica que en la teoría. Esta preferencia puede deberse a su familiaridad con el enfoque práctico adoptado en los primeros años del grado, con este lenguaje en particular. Por tanto, la respuesta a la última pregunta suele ser un \textit{sí} rotundo.
+
+El profesorado, por su parte, no ve a su asignatura como particularmente complicada y no percibe una gran diferencia entre la teoría y práctica. Sin embargo, muestran empatía hacia los estudiantes, entendiendo que ellos puedan sentir una mayor complejidad. Coinciden en que disponer de un lenguaje de programación con la sintaxis propuesta en la asignatura podría facilitar una enseñanza más didáctica y accesible.
+
+Con esta información no sólo obtenemos la motivación mencionada en la sección anterior, sino que también podemos identificar a los dos usuarios potenciales del compilador a desarrollar. A continuación, se describirá detalladamente el perfil de cada tipo de usuario.
+
+\subsection{Tipo de usuario 1: Estudiante}
+Se proporciona una descripción detallada de un perfil de usuario de tipo estudiante:
+
+\begin{description}
+    \item[Nombre:] Luis Martínez
+    \item[Características Demográficas:] \hfill
+        \begin{itemize}
+            \item Edad: 19 años.
+            \item Estudiante universitario de ingeniería informática, actualmente cursando la asignatura de \textit{Sistemas Concurrentes y Distribuidos}.
+        \end{itemize}
+    \item[Necesidades y Objetivos:] Luis aspira a aprobar la asignatura de \textit{Sistemas Concurrentes y Distribuidos} para avanzar en sus estudios. Además, busca comprender conceptos que sean importantes en futuras asignaturas relacionadas con su grado.
+    
+    \item[Habilidades Técnicas:] Posee habilidades de programación de nivel principiante a intermedio. Es probable que esta sea su primera experiencia con la implementación de programas no secuenciales.
+    
+    \item[Escenarios de Uso Comunes:] Luis utiliza el compilador para validar ejercicios específicos de la clase sobre sincronización de hebras o procesos.
+    
+    \item[Limitaciones:] Aunque Luis se siente cómodo programando en lenguajes de alto nivel como C++, enfrenta dificultades al comprender la sintaxis del pseudocódigo. Esto puede dificultar su capacidad para traducir rápidamente los conceptos teóricos en implementaciones prácticas utilizando pseudocódigo.
+    
+    \item[Expectativas:] Espera poder disponer de un lenguaje de pseudocódigo funcional, pudiendo añadir comentarios explicativos a cada línea de código para facilitar su comprensión. Además, desea que las ejecuciones de los programas se visualicen de forma clara, permitiéndole seguir el proceso paso a paso para consolidar su entendimiento de los conceptos teóricos.
+\end{description}
+
+\subsection{Tipo de usuario 2: Profesor}
+Se proporciona una descripción detallada de un posible perfil de usuario de tipo profesor:
+
+\begin{description}
+    \item[Nombre:] Laura Ruiz
+    \item[Características Demográficas:] \hfill
+        \begin{itemize}
+            \item Edad: 42 años.
+            \item Profesora titular de la asignatura \textit{Sistemas Concurrentes y Distribuidos} en la facultad de Ingeniería Informática.
+            \item Más de 10 años de experiencia docente en el campo de la informática.
+        \end{itemize}
+    \item[Necesidades y Objetivos:] Desea que sus estudiantes comprendan a fondo los conceptos y aplicaciones de los sistemas concurrentes y distribuidos. Busca herramientas y métodos que puedan hacer que la enseñanza sea más interactiva y efectiva.
+    
+    \item[Habilidades Técnicas:] Amplios conocimientos en programación, sistemas concurrentes, y pedagogía. Familiarizada con varios lenguajes de programación, incluido C++.
+    
+    \item[Escenarios de Uso Comunes:] Utilizar el compilador para demostrar ejemplos en clase, proponer ejercicios prácticos a los estudiantes y evaluar soluciones propuestas por ellos. Puede usarlo también para simular escenarios concurrentes y mostrar visualmente a los estudiantes cómo funcionan.
+    
+    \item[Limitaciones:] Prefiere que la herramienta tenga una interfaz amigable y sea intuitiva, ya que no desea invertir mucho tiempo en aprender a usarla. 
+    
+    \item[Expectativas:] Espera que el compilador permita explicaciones paso a paso y que pueda integrarse fácilmente con otros recursos didácticos. Le interesa que el pseudocódigo esté alineado con el contenido teórico de la asignatura, facilitando la transición entre teoría y práctica.
+\end{description}
+
+\newpage
+
+\section{Historias de Usuario}
+
+A través de las \textbf{Historias de Usuario}, se busca no solo definir qué es lo que el software debe hacer, sino también por qué es relevante hacerlo y cuál es el valor que se ofrece al usuario final. A continuación, se presentarán las Historias de Usuario identificadas para el desarrollo del compilador de código y cómo estas sientan las bases para los \textit{milestones} y Productos Mínimamente Viables del proyecto.
+
+\begin{itemize}
+    \item \textbf{Historia de usuario 1 (HU1):} Como estudiante de la asignatura, Luis quiere disponer de un compilador para escribir y ejecutar programas en el lenguaje de pseudocódigo propuesto en las transparencias, con el objetivo de practicar y verificar el funcionamiento de las soluciones a los ejercicios planteados.
+    \item \textbf{Historia de usuario 2 (HU2):} Como profesora de la asignatura, Laura quiere contar con un compilador del lenguaje de las transparencias para poder explicar de forma más práctica los conceptos teóricos sin requerir un lenguaje de programación estándar como puede ser C++ o Java, además de poder revisar y analizar el código fuente desarrollado eventualmente por sus alumnos, y proporcionarles retroalimentación personalizada a los mismos.
+\end{itemize}
+
+\section{Milestones del proyecto: Productos Mínimamente Viables (PMV)}
+
+Siguiendo la línea de las \textit{Historias de Usuario} y la importancia de establecer una comunicación efectiva con el usuario final, es el momento de definir productos entregables concretos que materialicen estas historias en el transcurso del desarrollo, que comúnmente se denomina \textbf{Productos Mínimamente Viables (PMV)}. Están diseñados no solo como representaciones tangibles del progreso, sino también como puntos de revisión donde se puede evaluar y adaptar el proyecto basándose en la retroalimentación aportada o por el propio cliente o por otro equipo de desarrollo. Los \textbf{milestones} o \textbf{hitos} sirven para secuenciar y organizar estos PMV en el ámbito del desarrollo ágil. A continuación, se enumeran los \textit{milestones} establecidos para este proyecto y cómo cada uno aporta al objetivo final del compilador de código.
+
+\subsection{Milestone 0: Infraestructura del proyecto y definición del lenguaje.}
+El objetivo de este milestone es definir adecuadamente el problema que sustenta el proyecto, realizar las configuraciones y elegir las herramientas más óptimas para su desarrollo, y finalmente, realizar una primera descripción del lenguaje. En resumen, se realizan estas tareas:
+\newpage
+\begin{itemize}
+    \item \textbf{Definición del problema y organización del proyecto:}
+    \begin{itemize}
+        \item Realizar entrevistas personales a los posibles clientes interesados con las preguntas destinadas a la detección del problema.
+        \item Formular el problema de interés relacionado con la asignatura en detalle utilizando la información recopilada de las entrevistas.
+        \item Perfilar los usuarios y sus Historias de Usuario.
+        \item Describir el resto de Milestones que siguen a este.
+    \end{itemize}
+    
+    \item \textbf{Estudio y definición de la gramática del lenguaje de pseudocódigo:}
+    \begin{itemize}
+        \item Realizar un análisis de las componentes del lenguaje de pseudocódigo propuesto en la asignatura de \textit{Sistemas Concurrentes y Distribuidos} a partir de ejemplos que aparezcan en sus apuntes.
+        \item Realizar una descripción de la sintaxis del lenguaje, utilizando la notación de Backus-Naur (BNF en inglés).
+    \end{itemize}
+    
+    \item \textbf{Infraestructura del proyecto:}
+    \begin{itemize}
+        \item Elegir el lenguaje de programación utilizado para la implementación del compilador, y seleccionar un compilador adecuado para los ficheros fuente desarollados.
+        \item Elegir un Sistema de Control de Versiones (VCS en inglés) para llevar un registro histórico de los cambios y facilitar la colaboración y configurarlo.
+        \item Elegir una licencia adecuada para el proyecto, considerando las necesidades y derechos de los usuarios y desarrolladores.
+        \item Elegir un Gestor de Dependencias para gestionar adecuadamente todas las dependencias del resto de herramientas del proyecto. Esto incluye la instalación, desinstalación y control de las versiones de estas dependencias.
+        \item Elegir un Gestor de Tareas para la descripción y automatización de tareas repetitivas en el proyecto, como la compilación o la ejecución de tests.
+        \item Elegir una herramienta de linting para asegurar un código limpio, legible y que sigue las mejores prácticas del lenguaje elegido.
+        \item Elegir una herramienta de ejecución de tests, preferiblemente en paralelo para reducir el tiempo de obtención de resultados.
+        \item Configurar tareas de instalación, desinstalación y comprobación de versiones de dependencias.
+        \item Configurar tareas de comprobación de sintaxis de ficheros fuente para asegurar la calidad y coherencia del código.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Milestone 1: Implementación del Analizador Léxico.}
+El objetivo de este milestone es construir y validar la fase inicial del proceso de interpretación: la conversión de una cadena de entrada en una serie de tokens identificables y procesables por las etapas posteriores del compilador.
+
+\begin{itemize}
+    \item \textbf{Desarrollo del Analizador Léxico:}
+    \begin{itemize}
+        \item Elegir una herramienta generadora de analizadores léxicos apropiada para el lenguaje de programación seleccionado y que cumpla con las necesidades del proyecto.
+        \item Definir los tokens del lenguaje, incluyendo palabras reservadas, identificadores, operadores y otros símbolos, así como los patrones de reconocimiento asociados a cada uno.
+        \item Implementar el analizador léxico utilizando la herramienta seleccionada, garantizando que pueda reconocer y clasificar adecuadamente cada token definido.
+        \item Definir una tarea de generación/compilación del analizador léxico que facilite su construcción y posterior integración con el resto del sistema.
+    \end{itemize}
+
+    \item \textbf{Infraestructura del proyecto:}
+    \begin{itemize}
+        \item Definir tarea de limpieza de código objeto generado y de ficheros compilados.
+    \end{itemize}
+
+\end{itemize}
+
+\subsection{Milestone 2: Implementación del Analizador Sintáctico.}
+El objetivo de este milestone es diseñar e implementar el analizador sintáctico que será responsable de verificar la correcta estructura del código fuente escrito en el lenguaje de pseudocódigo, de acuerdo a la gramática previamente definida.
+
+\begin{itemize}
+    \item \textbf{Definición del lenguaje:}
+    \begin{itemize}
+        \item Definir operadores del lenguaje, su ariedad, asociatividad y su orden de precedencia.
+    \end{itemize}
+    
+    \item \textbf{Desarrollo del Analizador Sintáctico:}
+    \begin{itemize}
+        \item Elegir una herramienta generadora de analizadores sintácticos apropiada.
+        \item Validar y ajustar la gramática del lenguaje.
+        \item Implementar el analizador sintáctico.
+        \item Definir estrategia de recuperación ante errores sintácticos.
+        \item Definir una tarea de generación/compilación del analizador sintáctico.
+    \end{itemize}
+    
+    \item \textbf{Desarrollo del Árbol Sintáctico Abstracto (AST, en inglés):}
+    \begin{itemize}
+        \item Implementar estructuras y funciones para el AST.
+        \item Definir tarea de compilación de API de gestión de AST.
+        \item Integrar AST con el Analizador Sintáctico.
+    \end{itemize}
+
+    \item \textbf{Pruebas:}
+    \begin{itemize}
+        \item Realizar pruebas de integración del analizador sintáctico.
+    \end{itemize}
+
+    \item \textbf{Errores:}
+    \begin{itemize}
+        \item Implementar estructuras y funciones para gestión de errores sintácticos.
+        \item Definir tarea de compilación de API de gestión de errores sintácticos.
+        \item Integrar API de errores sintácticos con el Analizador Sintáctico.
+    \end{itemize}
+
+    \item \textbf{Desarrollo del compilador:}
+    \begin{itemize}
+        \item Implementar el programa principal (compilador).
+        \item Habilitar lectura de ficheros de texto plano. Procesar los ficheros correctos escritos en el lenguaje de pseudocódigo y gestionar los errores en caso de argumentos incorrectos.
+        \item Habilitar análisis sintáctico.
+        \item Imprimir el AST generado si el análisis sintáctico fue superado con éxito o, en caso contrario, imprimir los errores sintácticos detectados para que el usuario pueda corregirlos.
+        \item Definir tarea de compilación de compilador.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Milestone 3: Implementación del Analizador Semántico.}
+El objetivo de este milestone es diseñar e implementar el analizador semántico que se encargará de verificar que el código fuente escrito en el lenguaje de pseudocódigo no solo tiene una estructura correcta (como verificó el analizador sintáctico) sino que también tiene un significado lógico y coherente, basándose en la semántica del lenguaje definido.
+
+\begin{itemize}
+    \item \textbf{Definición del lenguaje:}
+    \begin{itemize}
+        \item Descripción semántica del lenguaje de pseudocódigo.
+    \end{itemize}
+    
+    \item \textbf{Desarrollo del Analizador Semántico:}
+    \begin{itemize}
+        \item Implementación de Tabla de Símbolos para gestionar la información sobre identificadores y sus propiedades en el código.
+        \item Implementación del algoritmo de resolución de nombres para garantizar que cada identificador utilizado haya sido declarado y se use de manera coherente.
+        \item Implementación del algoritmo de comprobación de tipos para verificar la correcta asignación y operación entre variables de diferentes tipos.
+        \item Definir una tarea de compilación de la API del Analizador Semántico que facilite su integración con otras partes del proyecto.
+        \item Integrar el analizador semántico con el resto de componentes del compilador, como el léxico y el sintáctico.
+    \end{itemize}
+
+    \item \textbf{Pruebas:}
+    \begin{itemize}
+        \item Realizar pruebas de integración del analizador semántico para garantizar su correcto funcionamiento ante diferentes situaciones y tipos de código.
+    \end{itemize}
+
+    \item \textbf{Errores:}
+    \begin{itemize}
+        \item Implementar estructuras y funciones para la gestión y reporte de errores semánticos.
+        \item Definir una tarea de compilación de la API de gestión de errores semánticos.
+        \item Integrar la API de errores semánticos con el Analizador Semántico para ofrecer retroalimentación específica al usuario.
+    \end{itemize}
+
+    \item \textbf{Desarrollo del compilador:}
+    \begin{itemize}
+        \item Habilitar la función de análisis semántico dentro del flujo del compilador.
+        \item Mostrar un mensaje indicando si el análisis semántico fue superado con éxito o, en caso contrario, imprimir los errores semánticos detectados para que el usuario pueda corregirlos.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Milestone 4: Análisis e implementación de la fase de generación de código intermedio.}
+El objetivo de este milestone es diseñar e implementar la fase de generación de código intermedio, que traduce el árbol de análisis sintáctico producido por las fases anteriores en una representación intermedia que es más cercana a código máquina,  que será interpretada por el simulador que se implemente en próximas fases.
+
+\begin{itemize}
+    \item \textbf{Definición del lenguaje:}
+    \begin{itemize}
+        \item Elección de una representación intermedia adecuada para el lenguaje desarrollado.
+        \item Definición y descripción de las instrucciones de representación intermedia, especificando sus operandos y su uso.
+    \end{itemize}
+    
+    \item \textbf{Desarrollo del Generador de Código Intermedio:}
+    \begin{itemize}
+        \item Definición de tablas encargadas de mapear variables, etiquetas y literales mediante direcciones.
+        \item Definición e implementación del controlador encargado de la generación de código intermedio.
+        \item Definición e implementación del controlador encargado de la optimización de código intermedio.
+        \item Definir una tarea de compilación de la API del generador de código intermedio que facilite su integración con otras partes del proyecto.
+        \item Integrar el generador de código intermedio con el resto de componentes del compilador.
+    \end{itemize}
+
+    \item \textbf{Desarrollo de manejador de registros de eventos:}
+    \begin{itemize}
+        \item Implementación del controlador encargado de imprimir en ficheros los resultados de las fases de análisis del compilador: análisis sintáctico, semántico, código intermedio, etc. El objetivo es ofrecer más transparencia al usuario y un mejor acceso al proceso de interpretación.
+        \item Realizar registros de eventos de Analizador Sintáctico. En caso de análisis correcto, imprimir AST en un fichero. En otro caso, imprimir los errores sintácticos en un fichero.
+        \item Realizar registros de eventos del Analizador Semántico. En caso de análisis fallido, imprimir los errores semánticos en un fichero.
+        \item Realizar registros de eventos de la generación de código intermedio. Imprimir la secuencia de instrucciones de la representación intermedia generada.
+    \end{itemize}
+
+    \item \textbf{Pruebas:}
+    \begin{itemize}
+        \item Realizar pruebas de integración del módulo de generación de código intermedio.
+    \end{itemize}
+
+    \item \textbf{Desarrollo del compilador:}
+    \begin{itemize}
+        \item Habilitar la función de generación de código intermedio dentro del flujo del compilador.
+        \item Habilitar la función de generación de ficheros de registro de eventos en las fases de análisis del compilador.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Milestone 5: Análisis e implementación del compilador de código intermedio o máquina virtual}
+El objetivo de este milestone es diseñar e implementar un compilador para el código intermedio generado en las fases anteriores, actuando como una máquina virtual. Esta máquina virtual debe ser capaz de ejecutar la representación intermedia, proporcionando un entorno controlado que imita las operaciones de una máquina real, pero de manera abstracta e independiente de la arquitectura específica del hardware.
+
+\begin{itemize}
+    \item \textbf{Desarrollo de la Máquina Virtual:}
+    \begin{itemize}
+        \item Implementación de esquema de traducción de direcciones virtuales a direcciones físicas.
+        \item Implementación de abstracción de bloque de memoria.
+        \item Implementación de memoria de máquina virtual.
+        \item Implementación de vector de registros de CPU.
+        \item Implementación de CPU de máquina virtual.
+        \item Implementación de SO de máquina virtual.
+        \item Tratamiento de excepciones: ZeroDivision, IndexOutOfBounds.
+    \end{itemize}
+    \item \textbf{Pruebas:}
+    \begin{itemize}
+        \item Realizar pruebas de integración del módulo de máquina virtual.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Milestone 6: Estudio de la verificación formal de sistemas concurrentes. Lógica Temporal de Acciones}
+El objetivo de este milestone es profundizar en el entendimiento y aplicación de técnicas de verificación formal específicas para sistemas concurrentes. Se busca estudiar cómo se pueden modelar, analizar y verificar sistemas que tienen múltiples entidades ejecutándose simultáneamente y que interactúan entre sí. Un enfoque particular será la Lógica Temporal de Acciones (LTA), que proporciona herramientas y métodos para razonar sobre el comportamiento de sistemas a lo largo del tiempo y en presencia de acciones concurrentes.
+
+\section{Herramientas utilizadas}
+Una vez se ha descrito el problema adecuadamente y se ha explicado cómo se solucionará y por qué, sólo queda definir \textit{con qué}. En esta sección se desglosan todas las herramientas utilizadas para el desarrollo de este proyecto:
+
+\subsection{GitHub}
+
+GitHub es una plataforma de alojamiento de código fuente basada en la herramienta de control de versiones Git, que es uno de los mayores repositorios de código del mundo, con millones de proyectos alojados en ella.
+
+
+
+Más allá de ser simplemente un servicio de alojamiento, GitHub proporciona una serie de herramientas y funcionalidades que facilitan el trabajo colaborativo y la gestión de proyectos. Algunas de estas características incluyen la revisión de código, seguimiento de problemas \textbf{issues}, \textbf{integración continua}, o división del trabajo en \textbf{ramas}. Estas tres últimas características se usarán para los siguientes fines:
+
+\begin{itemize}
+    \item \textbf{Issues}: Se utilizarán para destacar problemas surgidos de la comprensión de las Historias de Usuario, o simplemente, tareas dentro del repositorio. Los issues pueden ser categorizados, etiquetados y asignados a miembros específicos del proyecto, permitiendo un seguimiento organizado de todas las tareas pendientes.
+    
+    \item \textbf{Integración continua}: Es una práctica de desarrollo que consiste en integrar automáticamente el código de distintas contribuciones en un proyecto. Con la integración continua, cada vez que se realiza un cambio en el código, este se prueba automáticamente, lo que permite detectar errores o incompatibilidades de forma temprana. GitHub ofrece herramientas y servicios, como GitHub Actions, que facilitan la implementación de la integración continua en los proyectos alojados en su plataforma.
+    
+    \item \textbf{Ramas (Pull Requests)}: Las ramas son versiones paralelas de un repositorio que permiten trabajar en diferentes características o pruebas sin afectar el código principal. Cuando un desarrollador quiere proponer cambios realizados en una rama al código principal (generalmente la rama ``master'' o ``main''), crea un Pull Request (PR). Este PR es una solicitud para revisar y eventualmente incorporar esos cambios en el código principal. Otros colaboradores pueden revisar, comentar y sugerir modificaciones en un PR antes de que sea fusionado con el código base.
+\end{itemize}
+
+\subsection{Lenguajes de programación: C y C++}
+Puesto que el problema descrito se resuelve \textit{desarrollando código}, es natural decidir antes de empezar en qué lenguaje se va a dar solución a las historias de usuario mencionadas.
+
+
+Los lenguajes C y C++ son elecciones prominentes cuando se busca eficiencia y rendimiento en un sistema. Estos lenguajes ofrecen un control cercano al hardware, permitiendo optimizaciones a nivel de memoria y ejecución. Además, la naturaleza compilada de sendos lenguajes asegura que el código se ejecuta directamente en la máquina anfitriona sin la necesidad de un intérprete intermedio, garantizando tiempos de respuesta rápidos. El compilador, al requerir análisis y ejecución eficiente del código fuente, se beneficia significativamente de estas características. Adicionalmente, la extensa biblioteca estándar y la amplia disponibilidad de bibliotecas de terceros en ambos lenguajes facilitan la implementación de funcionalidades complejas. Por estas razones, la decisión de utilizar C y C++ para definir el compilador garantiza un balance óptimo entre rendimiento y flexibilidad.
+
+\subsection{Gestor de tareas y dependencias: Make}
+Make es una herramienta de construcción automatizada que permite a los desarrolladores definir tareas y las dependencias entre ellas. Se utiliza ampliamente en programación para automatizar la compilación, pruebas, y otras tareas relacionadas con el ciclo de vida del software. Un archivo denominado `Makefile` contiene un conjunto de directivas y reglas que especifican cómo derivar los archivos objetivo a partir de archivos fuente. Al ejecutar la orden `make`, la herramienta lee el archivo `Makefile`, evalúa las dependencias y ejecuta las reglas necesarias en el orden adecuado.
+
+
+\noindent
+En este proyecto se usará para las siguientes tareas:
+\begin{itemize}
+    \item Gestión de las dependencias del proyecto. El Makefile debe contener reglas que permitan instalar, desinstalar y comprobar la versión de las dependencias del compilador.
+    \item Compilación del compilador. Debe contener las reglas para generar código objeto de todos los módulos implementados y compilarlos en un único ejecutable binario final.
+\end{itemize}
+
+\subsection{Valgrind}
+Valgrind es una herramienta de programación para la detección de errores en memoria y análisis de rendimiento. Permite a los desarrolladores identificar problemas relacionados con la gestión de memoria, como fugas de memoria y acceso a punteros no válidos, entre otros problemas comunes en C y C++. Al ejecutar programas bajo el control de Valgrind, se pueden detectar estos problemas en tiempo real, lo que facilita la identificación y corrección de errores en las etapas tempranas del desarrollo.
+
+\subsection{Contenedores virtuales: Docker}
+Docker es una plataforma de que permite a los desarrolladores empaquetar aplicaciones y sus dependencias en contenedores. Estos contenedores pueden ser ejecutados de manera consistente en cualquier entorno que tenga Docker instalado, independientemente de las diferencias en ese entorno con respecto al entorno original donde se desarrolló la aplicación. En generación de contenedores, a diferencia de la virtualización tradicional, no se crea una máquina virtual completa para cada aplicación, sino que comparte el mismo núcleo del sistema operativo y aisla la aplicación en un contenedor. Esto hace que Docker sea más ligero, más rápido y más eficiente en términos de recursos que las máquinas virtuales tradicionales.
+
+
+En este proyecto se utilizará para aislar el compilador del lenguaje en un entorno donde ya disponga de todas las dependencias necesarias para funcionar, aprovechando todas las ventajas anteriormente mencionadas.
+
