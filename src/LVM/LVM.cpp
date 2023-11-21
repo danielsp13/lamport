@@ -19,7 +19,7 @@ bool LVM::check_initialize_global_vars(){
     IR_Instruction_Table& instructions = IR_Instruction_Table::get_instance();
 
     for(int i=0; i<instructions.size(); i++){
-        if(instructions[i].get_code_instr() == IR_INITIALIZE_GLOBAL_VAR)
+        if(instructions[i].get_code_instr() == IR_START_INIT_GLOBAL_VAR)
             return true;
         else if(instructions[i].get_code_instr() == IR_START_PROCESS)
             return false;

@@ -89,7 +89,7 @@ typedef enum{
 
     // -- Definicion de instrucciones de inicio y fin de proceso
     IR_START_PROCESS,           ///< Instruccion de comienzo de proceso
-    IR_START_DYNAMIC_PROCESS,   ///< Instruccion de comienzo de proceso dinamico
+    IR_START_DPROCESS,          ///< Instruccion de comienzo de proceso dinamico
     IR_WAIT_PROCESS,            ///< Instruccion de bloqueo de proceso
     IR_END_PROCESS,             ///< Instruccion de fin de proceso
     IR_SLEEP_PROCESS,           ///< Instruccion de dormir proceso
@@ -105,8 +105,8 @@ typedef enum{
     // ----------------------------------------------------
 
     // -- Definicion de instrucciones de inicializacion de variables globales
-    IR_INITIALIZE_GLOBAL_VAR,   ///< Instruccion que indica inicio de seccion de inicializacion de variables globales
-    IR_END_INITIALIZE_GLOBAL_VAR, ///< Instruccion de indica el fin de seccion de inicializacion de variables globales
+    IR_START_INIT_GLOBAL_VAR,   ///< Instruccion que indica inicio de seccion de inicializacion de variables globales
+    IR_END_INIT_GLOBAL_VAR, ///< Instruccion de indica el fin de seccion de inicializacion de variables globales
 
 } IR_instruction_type_t;
 
@@ -147,14 +147,14 @@ const std::unordered_map<IR_instruction_type_t, std::string> instructions_str = 
     {IR_OP_PUSH,"IR_OP_PUSH"},
     {IR_OP_POP,"IR_OP_POP"},
     {IR_START_PROCESS,"IR_START_PROCESS"},
-    {IR_START_DYNAMIC_PROCESS,"IR_START_DYNAMIC_PROCESS"},
+    {IR_START_DPROCESS,"IR_START_DPROCESS"},
     {IR_WAIT_PROCESS,"IR_WAIT_PROCESS"},
     {IR_END_PROCESS,"IR_END_PROCESS"},
     {IR_SLEEP_PROCESS,"IR_SLEEP_PROCESS"},
     {IR_START_PROGRAM,"IR_START_PROGRAM"},
     {IR_END_PROGRAM,"IR_END_PROGRAM"},
-    {IR_INITIALIZE_GLOBAL_VAR, "IR_INITIALIZE_GLOBAL_VAR"},
-    {IR_END_INITIALIZE_GLOBAL_VAR, "IR_END_INITIALIZE_GLOBAL_VAR"},
+    {IR_START_INIT_GLOBAL_VAR, "IR_START_INIT_GLOBAL_VAR"},
+    {IR_END_INIT_GLOBAL_VAR, "IR_END_INIT_GLOBAL_VAR"},
     {IR_LABEL," "},
     {IR_OP_ATOMIC_BEGIN," -->-- ATOMIC_BEGIN --<--"},
     {IR_OP_ATOMIC_END," -->-- ATOMIC_END --<--"},

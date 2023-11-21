@@ -31,7 +31,7 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
 
         struct statement *current_stmt = stmt->stmt.statement_block.body;
         while(current_stmt != NULL){
-            instructions.emit_instruction(IR_START_DYNAMIC_PROCESS);
+            instructions.emit_instruction(IR_START_DPROCESS);
             // -- Traducir sentencia
             this->translate_statement_to_ir_instructions(current_stmt,from_subprogram);
             instructions.emit_instruction(IR_END_PROCESS);
@@ -443,7 +443,7 @@ void IR_Translator_Statement::translate_statement_fork_to_ir_instructions(struct
     IR_operand op_2 = instructions.emit_operand_label(index_label_in_table);
 
     // -- 4. Emitir instruccion
-    instructions.emit_instruction(IR_START_DYNAMIC_PROCESS,false,op_1,op_2);
+    instructions.emit_instruction(IR_START_DPROCESS,false,op_1,op_2);
 }
         
 void IR_Translator_Statement::translate_statement_join_to_ir_instructions(struct statement * stmt, bool from_subprogram){

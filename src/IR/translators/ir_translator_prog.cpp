@@ -28,10 +28,10 @@ void IR_Translator_Program::translate_program_to_ir_instructions(struct program 
     
     // -- Comprobar las declaraciones globales del programa
     if(prog->declarations){
-        instructions.emit_instruction(IR_INITIALIZE_GLOBAL_VAR);
+        instructions.emit_instruction(IR_START_INIT_GLOBAL_VAR);
         // -- Traducir lista de declaraciones
         decl_translator.translate(prog->declarations);
-        instructions.emit_instruction(IR_END_INITIALIZE_GLOBAL_VAR);
+        instructions.emit_instruction(IR_END_INIT_GLOBAL_VAR);
     }
 
     // -- Comprobar los subprogramas del programa

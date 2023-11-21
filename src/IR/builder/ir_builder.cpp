@@ -52,7 +52,7 @@ void IR_Builder::reparse_dynamic_process(){
         }
 
         // -- Comprobar si el codigo de instruccion es START_DYNAMIC_PROCESS
-        if(instr.get_code_instr() != IR_START_DYNAMIC_PROCESS)
+        if(instr.get_code_instr() != IR_START_DPROCESS)
             continue;
         
         // -- Definir nuevo id para thread
@@ -62,11 +62,11 @@ void IR_Builder::reparse_dynamic_process(){
         for(int j=i+1; j<instructions.size(); j++){
             IR_instruction fwrd_instr = instructions[j];
             // -- Buscar otro START_DYNAMIC_PROCESS
-            if(fwrd_instr.get_code_instr() == IR_START_DYNAMIC_PROCESS){
+            if(fwrd_instr.get_code_instr() == IR_START_DPROCESS){
                 // -- Modificar instruccion START_DYNAMIC_PROCESS
                 jmp_addr = instructions.emit_operand_direct_jmp(j);
 
-                instructions[i] = IR_instruction(IR_START_DYNAMIC_PROCESS,jmp_addr,id_op,instr.get_operand_2().value());
+                instructions[i] = IR_instruction(IR_START_DPROCESS,jmp_addr,id_op,instr.get_operand_2().value());
                 pc_found = true;
                 break;
             }
@@ -80,7 +80,7 @@ void IR_Builder::reparse_dynamic_process(){
                     // -- Modificar instruccion START_DYNAMIC_PROCESS
                     jmp_addr = instructions.emit_operand_direct_jmp(j+1);
 
-                    instructions[i] = IR_instruction(IR_START_DYNAMIC_PROCESS,jmp_addr,id_op);
+                    instructions[i] = IR_instruction(IR_START_DPROCESS,jmp_addr,id_op);
                     pc_found = true;
                 }
                 break;
@@ -90,7 +90,7 @@ void IR_Builder::reparse_dynamic_process(){
         if(!pc_found){
             // -- Modificar instruccion START_DYNAMIC_PROCESS
             jmp_addr = instructions.emit_operand_direct_jmp(i+1);
-            instructions[i] = IR_instruction(IR_START_DYNAMIC_PROCESS,jmp_addr,id_op,instr.get_operand_2().value());
+            instructions[i] = IR_instruction(IR_START_DPROCESS,jmp_addr,id_op,instr.get_operand_2().value());
         }
     }
 }

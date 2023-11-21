@@ -324,7 +324,7 @@ void LVM_Initializer::create_threads(){
     // -- Crear hebra maestra
     int pc_mth;
     for(int i=1; i<instructions.size(); i++){
-        if(instructions[i].get_code_instr() == IR_END_INITIALIZE_GLOBAL_VAR){
+        if(instructions[i].get_code_instr() == IR_END_INIT_GLOBAL_VAR){
             pc_mth = i;
             break;
         }
@@ -352,7 +352,7 @@ void LVM_Initializer::create_threads(){
             IR_instruction frwd_instr = instructions[j];
 
             // -- Comprobar si hay una hebra dinamica
-            if(frwd_instr.get_code_instr() == IR_START_DYNAMIC_PROCESS){
+            if(frwd_instr.get_code_instr() == IR_START_DPROCESS){
                 child_counter++;
             }
 

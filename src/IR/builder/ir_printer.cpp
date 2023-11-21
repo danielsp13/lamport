@@ -91,7 +91,7 @@ std::string IR_Printer::ir_instruction_to_string(IR_instruction instr){
     if(instr_op_destiny.has_value()){
         instr_op_destiny_str = this->ir_operand_instruction_to_string(instr_op_destiny.value());
 
-        if(instr.get_code_instr() != IR_START_DYNAMIC_PROCESS){
+        if(instr.get_code_instr() != IR_START_DPROCESS){
             instr_op_destiny_str += " <--- ";
         }
         else{

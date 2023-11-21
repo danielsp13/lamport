@@ -340,7 +340,7 @@ void LVM_CPU_CU::manage_system_call(){
 
         break;
     }
-    case IR_START_DYNAMIC_PROCESS:
+    case IR_START_DPROCESS:
     {
         int jmp_addr = get_value_from_operand(0);
         int id = get_value_from_operand(1);

@@ -38,7 +38,7 @@ inline void LVM_CPU_CU_Checker::check_end_program(IR_instruction_type_t instr_co
 
 inline void LVM_CPU_CU_Checker::check_initalize_var_global(IR_instruction_type_t instr_code){
     if(!instr_decoded){
-        start_initialize_global_var = instr_code == IR_INITIALIZE_GLOBAL_VAR;
+        start_initialize_global_var = instr_code == IR_START_INIT_GLOBAL_VAR;
         
         instr_decoded = start_initialize_global_var;
     }
@@ -46,7 +46,7 @@ inline void LVM_CPU_CU_Checker::check_initalize_var_global(IR_instruction_type_t
 
 inline void LVM_CPU_CU_Checker::check_end_initialize_var_global(IR_instruction_type_t instr_code){
     if(!instr_decoded){
-        end_initialize_global_var = instr_code == IR_END_INITIALIZE_GLOBAL_VAR;
+        end_initialize_global_var = instr_code == IR_END_INIT_GLOBAL_VAR;
         
         instr_decoded = end_initialize_global_var;
     }
@@ -165,7 +165,7 @@ inline void LVM_CPU_CU_Checker::check_system_call(IR_instruction_type_t instr_co
         || instr_code == IR_OP_ATOMIC_END
         || instr_code == IR_OP_COBEGIN
         || instr_code == IR_OP_COEND
-        || instr_code == IR_START_DYNAMIC_PROCESS
+        || instr_code == IR_START_DPROCESS
         || instr_code == IR_WAIT_PROCESS
         || instr_code == IR_SLEEP_PROCESS
         || instr_code == IR_OP_SEM_WAIT
