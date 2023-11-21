@@ -256,7 +256,7 @@ endef
 define compile_lamport_skeleton
 	@{ \
 		N_FILES_EXPECTED=$(words $(2)) ; \
-		echo "$(COLOR_BOLD)>>> Verificando dependencias de modulos para construir compilador: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED modulos requeridos] ... $(COLOR_RESET)" ;\
+		echo "$(COLOR_BOLD)>>> Verificando dependencias de modulos para construir intérprete: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED modulos requeridos] ... $(COLOR_RESET)" ;\
 		N_FILES_CHECKED=0 ;\
 		for FILE in $(2); do \
 			if [ -f $(OBJ_DIR)/$$FILE ]; then \
@@ -267,19 +267,19 @@ define compile_lamport_skeleton
 		done; \
 		if [ $${N_FILES_CHECKED} -lt $${N_FILES_EXPECTED} ]; then \
 			echo ; \
-			echo "$(COLOR_RED) ---> [ERROR] No se puede construir el compilador de LAMPORT: Faltan dependencias de codigo objeto. $(COLOR_RESET)" ; \
+			echo "$(COLOR_RED) ---> [ERROR] No se puede construir el intérprete de LAMPORT: Faltan dependencias de codigo objeto. $(COLOR_RESET)" ; \
 			echo "$(COLOR_RED) ---> [ERROR] Se esperaban $(COLOR_RESET_BOLD)[$$N_FILES_EXPECTED] modulos $(COLOR_RED), se encontraron $(COLOR_RESET_BOLD)[$$N_FILES_CHECKED] modulos$(COLOR_RESET)." ; \
 			exit 1; \
 		else \
 			echo "$(COLOR_GREEN) ---> Todas las dependencias de modulos se han verificado exitosamente. $(COLOR_RESET)" ; \
 		fi; \
 		echo ;\
-		echo "$(COLOR_BOLD)>>> Construyendo compilador: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
+		echo "$(COLOR_BOLD)>>> Construyendo intérprete: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) ... $(COLOR_RESET)" ;\
 		$(1) $(INCLUDE_FLAGS) $(OBJ_DIR)/* $(SOURCE_DIR)/$(3)$(SOURCE_CPLUS_EXT) -o $(BIN_DIR)/$(3) $(LDFLEX); \
 		if [ -f $(BIN_DIR)/$(3) ]; then \
-			echo "$(COLOR_GREEN) ---> Compilador $(COLOR_BLUE)$(3)$(COLOR_GREEN) construido exitosamente!! $(COLOR_RESET)" ; \
+			echo "$(COLOR_GREEN) ---> Intérprete $(COLOR_BLUE)$(3)$(COLOR_GREEN) construido exitosamente!! $(COLOR_RESET)" ; \
 		else \
-			echo "$(COLOR_RED) ---> [ERROR] El compilador $(COLOR_BLUE)$(3)$(COLOR_RED) NO se ha podido construir!! $(COLOR_RESET)" ; \
+			echo "$(COLOR_RED) ---> [ERROR] El intérprete $(COLOR_BLUE)$(3)$(COLOR_RED) NO se ha podido construir!! $(COLOR_RESET)" ; \
 			exit 1; \
 		fi ; \
 	}
@@ -381,7 +381,7 @@ endef
 make: make_compile_msg compile
 	
 make_compile_msg:
-	@echo "$(COLOR_BLUE)CONSTRUYENDO COMPILADOR DE LAMPORT...$(COLOR_RESET)" && echo
+	@echo "$(COLOR_BLUE)CONSTRUYENDO INTÉRPRETE DE LAMPORT...$(COLOR_RESET)" && echo
 	
 parallel: compile_parallel
 
@@ -464,20 +464,20 @@ author:
 help:
 	@echo "$(COLOR_BOLD)"
 	@echo "-- TAREAS DE MAKEFILE --"
-	@printf "%-30s %s\n" "make" "Constuye el compilador de lamport"
-	@printf "%-30s %s\n" "make parallel" "Constuye el compilador de lamport en paralelo"
+	@printf "%-30s %s\n" "make" "Constuye el intérprete de lamport"
+	@printf "%-30s %s\n" "make parallel" "Constuye el intérprete de lamport en paralelo"
 	@printf "%-30s %s\n" "make author" "Muestra informacion acerca del TFG (autoria)."
 	@printf "%-30s %s\n" "make help" "Muestra este menu de opciones."
-	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, compilador, tests, contenedor virtual)."
-	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, compilador, tests, contenedor virtual)."
+	@printf "%-30s %s\n" "make install_dependencies" "Instala todas las dependencias del proyecto (TeX, intérprete, tests, contenedor virtual)."
+	@printf "%-30s %s\n" "make uninstall_dependencies" "Desinstala todas las dependencias del proyecto (TeX, intérprete, tests, contenedor virtual)."
 	@printf "%-30s %s\n" "make version_dependencies" "Muestra la versión de las dependencias instaladas."
 	@printf "%-30s %s\n" "make compile" "Compila todos los fuentes del proyecto."
 	@printf "%-30s %s\n" "make check" "Analiza el codigo de los fuentes comprobando errores de sintaxis, warnings de estilo, etc."
-	@printf "%-30s %s\n" "make tests" "Ejecuta tests automaticos de fugas de memoria en compilador utilizando ficheros de prueba."
+	@printf "%-30s %s\n" "make tests" "Ejecuta tests automaticos de fugas de memoria en intérprete utilizando ficheros de prueba."
 	@printf "%-30s %s\n" "make tests_parallel" "Ejecuta los mismos tests que la orden anterior pero en paralelo."
-	@printf "%-30s %s\n" "make build_docker" "Construye el compilador y crea un contenedor virtual."
-	@printf "%-30s %s\n" "make rmi_docker" "Elimina el contenedor virtual del compilador lamport."
-	@printf "%-30s %s\n" "make run_docker" "Ejecuta el compilador lamport en un contenedor virtual."
+	@printf "%-30s %s\n" "make build_docker" "Construye el intérprete y crea un contenedor virtual."
+	@printf "%-30s %s\n" "make rmi_docker" "Elimina el contenedor virtual del intérprete lamport."
+	@printf "%-30s %s\n" "make run_docker" "Ejecuta el intérprete lamport en un contenedor virtual."
 	@printf "%-30s %s\n" "make clean" "Elimina todos los ficheros binarios compilados o generados por el Makefile."
 	@echo "$(COLOR_RESET)"
 
@@ -511,29 +511,29 @@ version_tex_dependencies:
 
 # ----------------------------------------------------------------------------------------
 
-# -- Instala todas las dependencias relacionadas con el compilador
+# -- Instala todas las dependencias relacionadas con el intérprete
 install_compiler_dependencies:
-	$(call install_dependencies_skeleton,"construccion de compilador",$(compiler_dependencies),CHECK_PACKAGES_V2)	
+	$(call install_dependencies_skeleton,"construccion de intérprete",$(compiler_dependencies),CHECK_PACKAGES_V2)	
 
 uninstall_compiler_dependencies:
-	$(call uninstall_dependencies_skeleton,"construccion de compilador",$(compiler_dependencies),CHECK_PACKAGES_V2)	
+	$(call uninstall_dependencies_skeleton,"construccion de intérprete",$(compiler_dependencies),CHECK_PACKAGES_V2)	
     
 version_compiler_dependencies:
-	$(call version_dependencies_skeleton,"construccion de compilador",$(compiler_dependencies),CHECK_PACKAGES_V2)
+	$(call version_dependencies_skeleton,"construccion de intérprete",$(compiler_dependencies),CHECK_PACKAGES_V2)
     
 # ----------------------------------------------------------------------------------------
 
-# -- Instala todas las dependencias relacionadas con los tests del compilador
+# -- Instala todas las dependencias relacionadas con los tests del intérprete
 install_tests_dependencies:
-	$(call install_dependencies_skeleton,"tests sobre compilador",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
+	$(call install_dependencies_skeleton,"tests sobre intérprete",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
 	
-# -- Desinstala todas las dependencias relacionadas con el compilador
+# -- Desinstala todas las dependencias relacionadas con el intérprete
 uninstall_tests_dependencies:
-	$(call uninstall_dependencies_skeleton,"tests sobre compilador",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
+	$(call uninstall_dependencies_skeleton,"tests sobre intérprete",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
 
-# -- Muestra la versión de todas las dependencias relacionadas con el compilador
+# -- Muestra la versión de todas las dependencias relacionadas con el intérprete
 version_tests_dependencies:
-	$(call version_dependencies_skeleton,"tests sobre compilador",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
+	$(call version_dependencies_skeleton,"tests sobre intérprete",$(TEST_DEPENDENCIES),CHECK_PACKAGES_V2)
 	
 # ----------------------------------------------------------------------------------------
 
@@ -549,11 +549,11 @@ install_virtualenv_dependencies:
 	sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 	$(call install_dependencies_skeleton,"contenedores virtuales",$(VIRTUALENV_DEPENDENCIES),CHECK_PACKAGES_V1)
 	
-# -- Desinstala todas las dependencias relacionadas con el compilador
+# -- Desinstala todas las dependencias relacionadas con el intérprete
 uninstall_virtualenv_dependencies:
 	$(call uninstall_dependencies_skeleton,"contenedores virtuales",$(VIRTUALENV_DEPENDENCIES),CHECK_PACKAGES_V1)
 
-# -- Muestra la versión de todas las dependencias relacionadas con el compilador
+# -- Muestra la versión de todas las dependencias relacionadas con el intérprete
 version_virtualenv_dependencies:
 	$(call version_dependencies_skeleton,"contenedores virtuales",$(VIRTUALENV_DEPENDENCIES),CHECK_PACKAGES_V1)
     
@@ -628,7 +628,7 @@ compile: compile_sources compile_lamport
 	@echo
 	
 compile_parallel:
-	@echo "$(COLOR_BLUE)CONSTRUYENDO COMPILADOR DE LAMPORT [EN PARALELO]...$(COLOR_RESET)" && echo
+	@echo "$(COLOR_BLUE)CONSTRUYENDO INTÉRPRETE DE LAMPORT [EN PARALELO]...$(COLOR_RESET)" && echo
 	@make -s compile_sources_parallel
 	@make -s compile_lamport
 
@@ -685,12 +685,12 @@ compile_error: $(INDEX_SOURCE_ERROR_FILES) compile_error_msg $(addprefix $(OBJ_D
 	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)gestor de errores de análisis$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
 	@echo
 	
-# -- Genera codigo objeto para las dependencias del compilador Lamport
+# -- Genera codigo objeto para las dependencias del intérprete Lamport
 compile_lmp_utils_msg:
-	$(call compile_module_msg_skeleton,$(INDEX_LMP_UTILS_FILES),"utilidades de compilador lamport")
+	$(call compile_module_msg_skeleton,$(INDEX_LMP_UTILS_FILES),"utilidades de intérprete lamport")
 
 compile_lmp_utils: $(INDEX_SOURCE_LMP_UTILS_FILES) compile_lmp_utils_msg $(addprefix $(OBJ_DIR)/, $(INDEX_OBJ_LMP_UTILS_FILES))
-	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)utilidades de compilador lamport$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
+	@echo "$(COLOR_BOLD)>>> Compilación de módulo: $(COLOR_BLUE)utilidades de intérprete lamport$(COLOR_RESET_BOLD) terminada. $(COLOR_RESET)"
 	@echo
 	
 # -- Genera codigo objeto para el modulo de gestion de representacion intermedia de codigo
@@ -719,16 +719,16 @@ check:
 	
 # -- Ejecuta tests automaticos de valgrind utilizando ficheros de prueba
 tests:
-	@echo "$(COLOR_BLUE)Realizando testeo de compilador usando ficheros lamport correctos...$(COLOR_RESET)"
+	@echo "$(COLOR_BLUE)Realizando testeo de intérprete usando ficheros lamport correctos...$(COLOR_RESET)"
 	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples && echo
-	@echo "$(COLOR_BLUE)Realizando testeo de compilador usando ficheros lamport con errores sintacticos...$(COLOR_RESET)"
+	@echo "$(COLOR_BLUE)Realizando testeo de intérprete usando ficheros lamport con errores sintacticos...$(COLOR_RESET)"
 	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples/errores/sintacticos && echo
-	@echo "$(COLOR_BLUE)Realizando testeo de compilador usando ficheros lamport con errores semanticos...$(COLOR_RESET)"
+	@echo "$(COLOR_BLUE)Realizando testeo de intérprete usando ficheros lamport con errores semanticos...$(COLOR_RESET)"
 	@./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) examples/errores/semanticos && echo
 
 # -- Ejecuta tests automaticos de valgrind utilizando ficheros de prueba (ejecucion en paralelo)	
 tests_parallel:
-	@echo "$(COLOR_BLUE)Realizando testeo de compilador usando ficheros lamport...$(COLOR_RESET)"
+	@echo "$(COLOR_BLUE)Realizando testeo de intérprete usando ficheros lamport...$(COLOR_RESET)"
 	@parallel ./$(TEST_DIR)/$(TEST_VALGRIND_SCRIPT) ::: examples examples/errores/sintacticos examples/errores/semanticos
 
 # -- Ejecuta valgrind para realizar test de fugas de memoria utilizando un fichero
