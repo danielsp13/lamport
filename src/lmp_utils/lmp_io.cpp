@@ -11,14 +11,14 @@
 
 // ----- IMPLEMENTACION DE METODOS PRIVADOS [IO MANAGER] -----
 
-void LMP_IO_Manager::print_header(char *interpreter){
-    std::cout << interpreter << " : Un interprete del lenguaje lamport." << std::endl;
-    std::cout << "Version de interprete: " << this->INTERPRETER_VERSION << std::endl;
+void LMP_IO_Manager::print_header(char *compiler){
+    std::cout << compiler << " : Un compilador hibrido del lenguaje lamport." << std::endl;
+    std::cout << "Version de compilador: " << this->COMPILER_VERSION << std::endl;
     std::cout << "Autor: " << this->AUTHOR << std::endl << std::endl;
 }
 
-void LMP_IO_Manager::print_help(char *interpreter){
-    std::cout << "Uso de interprete: " << interpreter << " <fichero.lmp>" << std::endl;
+void LMP_IO_Manager::print_help(char *compiler){
+    std::cout << "Uso de compilador: " << compiler << " <fichero.lmp>" << std::endl;
 }
 
 bool LMP_IO_Manager::abrir_fichero(){
@@ -81,8 +81,8 @@ std::string LMP_IO_Manager::start(int nargs, char *argv[]){
         exit(EXIT_FAILURE);
     }
 
-    // -- Asignar nombre de interprete
-    this->interpreter = std::string(argv[0]);
+    // -- Asignar nombre de compilador
+    this->compiler = std::string(argv[0]);
     this->lmp_file_name = std::string(argv[1]);
 
     // -- Abrir fichero

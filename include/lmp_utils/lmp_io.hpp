@@ -31,12 +31,12 @@
 class LMP_IO_Manager{
     private:
         // -- Nombre de interprete
-        std::string interpreter;
+        std::string compiler;
         // -- Nombre de fichero lamport
         std::string lmp_file_name;
 
         // -- Version de interprete
-        const std::string INTERPRETER_VERSION = "1.0.1-alpha";
+        const std::string COMPILER_VERSION = "1.0.1-alpha";
         // -- Autor de interprete
         const std::string AUTHOR = "Daniel Perez Ruiz";
 
@@ -51,15 +51,15 @@ class LMP_IO_Manager{
 
         /**
          * @brief Imprime la cabecera del interprete
-         * @param interpreter : nombre de interprete
+         * @param compiler : nombre de interprete
          */
-        void print_header(char *interpreter);
+        void print_header(char *compiler);
 
         /**
          * @brief Imprime la ayuda de uso de interprete
-         * @param interpreter : nombre de interprete
+         * @param compiler : nombre de interprete
          */
-        void print_help(char *interpreter);
+        void print_help(char *compiler);
 
         /**
          * @brief Abre el fichero de codigo lamport

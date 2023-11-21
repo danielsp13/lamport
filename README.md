@@ -15,8 +15,8 @@ En el siguiente índice se resumen los contenidos principales de este README:
 * :question: **[Resumen del proyecto](#lamport-resume)** : Describe los objetivos y el propósito de este proyecto.
 * :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX.
 * :shell: **[Instalación de dependencias y verificación](#lamport-install)** : Indica cómo se realiza la gestión de dependencias del proyecto mediante el `Makefile` implementado para ello.
-* :building_construction: **[Construcción del intérprete](#lamport-compile)** : Indica cómo construir el proyecto completo para su uso.
-*  :whale2: **[Uso del intérprete en contenedor Docker](#lamport-docker)** : Indica cómo ejecutar el intérprete utilizando el contenedor Docker que lo contiene.
+* :building_construction: **[Construcción del compilador](#lamport-compile)** : Indica cómo construir el proyecto completo para su uso.
+*  :whale2: **[Uso del compilador en contenedor Docker](#lamport-docker)** : Indica cómo ejecutar el compilador utilizando el contenedor Docker que lo contiene.
 * :white_check_mark: **[Testeo de módulos](#lamport-test)** : Indica cómo realizar pruebas sobre el código implementado.
 
 ****
@@ -27,7 +27,7 @@ En el siguiente índice se resumen los contenidos principales de este README:
 
 Su nombre es en honor al informático Leslie Lamport, una de las mayores eminencias en el campo de la programación concurrente, y que dentro de las muchas contribuciones que realizó uno muy notorio es la introducción de un sistema lógico formal para la verificación de las propiedades de los sistemas concurrentes, denominado: **Lógica Temporal de Acciones.**
 
-En este repositorio se encuentra el código fuente del intérprete desarrollado, así como el estudio teórico del trabajo de Lamport en la materia de verificación.
+En este repositorio se encuentra el código fuente del compilador desarrollado, así como el estudio teórico del trabajo de Lamport en la materia de verificación.
 
 ****
 
@@ -61,7 +61,7 @@ $ make clean_tex
 
 ### :shell: <a name="lamport-install"></a> Instalación y verificación de dependencias
 
-En este proyecto hay diferentes bibliotecas y programas que son necesarias para poder construir el intérprete adecuadamente. Para ello, se han definido reglas en el `Makefile` que permiten la gestión de dichas dependencias:
+En este proyecto hay diferentes bibliotecas y programas que son necesarias para poder construir el compilador adecuadamente. Para ello, se han definido reglas en el `Makefile` que permiten la gestión de dichas dependencias:
 
 Si desea instalar todas las dependencias del proyecto:
 
@@ -128,13 +128,13 @@ $ make version_tests_dependencies
 
 ****
 
- ### :building_construction: <a name="lamport-compile"></a> Construcción del intérprete
+ ### :building_construction: <a name="lamport-compile"></a> Construcción del compilador
 
-Para poder utilizar el intérprete desarrollado para el lenguaje de lamport, hay que compilar todos los módulos implementados.
+Para poder utilizar el compilador desarrollado para el lenguaje de lamport, hay que compilar todos los módulos implementados.
 
 
 
-Para constuir el intérprete completo:
+Para constuir el compilador completo:
 
 ~~~bash
 $ make compile
@@ -166,9 +166,9 @@ $ make clean
 
 ****
 
- ### :whale2: <a name="lamport-docker"></a> Uso del intérprete en contenedor Docker
+ ### :whale2: <a name="lamport-docker"></a> Uso del compilador en contenedor Docker
 
-Este proyecto dispone  de un `Dockerfile` que construye un contenedor virtual con todas las dependencias necesarias para el funcionamiento del intérprete, aislándolo del SO por completo.
+Este proyecto dispone  de un `Dockerfile` que construye un contenedor virtual con todas las dependencias necesarias para el funcionamiento del compilador, aislándolo del SO por completo.
 
 
 
@@ -180,13 +180,13 @@ $ make install_virtualenv_dependencies
 
 
 
-Para construir y ejecutar el intérprete dockerizado, utilice el script de la siguiente forma:
+Para construir y ejecutar el compilador dockerizado, utilice el script de la siguiente forma:
 
 ~~~bash
 $ ./lmp_docker.sh <fichero_lamport.lmp>
 ~~~
 
-Esto hará que se ejecute directamente el intérprete desde el contenedor de la misma manera que si se compilara de la forma tradicional.
+Esto hará que se ejecute directamente el compilador desde el contenedor de la misma manera que si se compilara de la forma tradicional.
 
 
 
