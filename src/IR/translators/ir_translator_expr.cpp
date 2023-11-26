@@ -243,6 +243,8 @@ int IR_Translator_Expression::translate_expression_identifier_to_ir_instructions
     if(id_variable_in_table == -1)
         id_variable_in_table = tables.get_index_from_global_variable(var_name);
 
+    //std::cout << "precedence: " << precedence << "; var_name: " << var_name << "; id_variable_in_table: " << id_variable_in_table << std::endl; std::cout.flush();
+
     // -- Realizar carga del valor de variable en un registro
     const int reg_assigned = this->reg_manager.get_next_general_purpose_register();
 

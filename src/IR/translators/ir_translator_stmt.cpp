@@ -66,6 +66,8 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
     // ---- SENTENCIA IF/ELSE
     case STMT_IF_ELSE:
     {
+        expr_translator.set_precedence(precedence);
+
         this->translate_statement_ifelse_to_ir_instructions(stmt,from_subprogram);
         // -- Resetear registros
         reg_manager.reset_general_purpose_register_counter();
@@ -82,6 +84,8 @@ void IR_Translator_Statement::translate_statement_to_ir_instructions(struct stat
     // ---- SENTENCIA FOR
     case STMT_FOR:
     {
+        expr_translator.set_precedence(precedence);
+        
         this->translate_statement_for_to_ir_instructions(stmt,from_subprogram);
         // -- Resetear registros
         reg_manager.reset_general_purpose_register_counter();
@@ -205,6 +209,7 @@ void IR_Translator_Statement::translate_statement_assignment_to_ir_instructions(
 }
 
 void IR_Translator_Statement::translate_statement_ifelse_to_ir_instructions(struct statement * stmt, bool from_subprogram){
+
     // ---- 0. Emitir instrucciones para condicion de if/else
     int reg_if_else_condition = expr_translator.translate(stmt->stmt.statement_if_else.condition,from_subprogram);
 
@@ -219,9 +224,10 @@ void IR_Translator_Statement::translate_statement_ifelse_to_ir_instructions(stru
 
     // ---- 4. Generar mas instrucciones si hay bloque else
     int id_label_in_table = 0; const std::string id_label_block = instructions.get_next_label_id();
-    if(stmt->stmt.statement_if_else.else_body){
-        // -- Obtener total de instrucciones tras generacion de bloque if
-        const int total_instr_now = instructions.size()+2;
+    // -- Obtener total de instrucciones tras generacion de bloque if
+    const int total_instr_now = instructions.size()+2;
+    IR_operand op_end_if;
+    if(stmt->stmt.statement_if_else.else_body){    
 
         // -- Generar instruccion de salto condicional
         id_label_in_table = tables.add_entry_label(std::string("else_block(") + id_label_block + ")",total_instr_now+1);
@@ -236,16 +242,31 @@ void IR_Translator_Statement::translate_statement_ifelse_to_ir_instructions(stru
 
         // -- Generar instrucciones para bloque else
         this->translate_list_statements_to_ir_instructions(stmt->stmt.statement_if_else.else_body,from_subprogram);
-    }
 
-    // ---- 5. Generar instruccion de etiqueta de fin de bloque else
-    id_label_in_table = tables.add_entry_label(std::string("end_if(") + id_label_block + ")",instructions.size()+1);
-    IR_operand op_end_if = instructions.emit_operand_label(id_label_in_table);
-    instructions.emit_instruction(IR_LABEL,op_end_if);
+        // ---- 5. Generar instruccion de etiqueta de fin de bloque else
+        id_label_in_table = tables.add_entry_label(std::string("end_if(") + id_label_block + ")",instructions.size()+2);
+        op_end_if = instructions.emit_operand_label(id_label_in_table);
+        instructions.emit_instruction(IR_LABEL,op_end_if);
+    }
+    else{
+        id_label_in_table = tables.add_entry_label(std::string("end_if(") + id_label_block + ")",instructions.size()+3);
+        IR_operand op_expr_cmp = instructions.emit_operand_register(reg_if_else_condition);
+        IR_operand op_jmp = instructions.emit_operand_label(id_label_in_table);
+        IR_instruction instr_jmp_false(IR_OP_JMP_FALSE,false,op_expr_cmp,op_jmp);
+
+        instructions.add_instruction_to_list_in_position(instr_jmp_false,total_instr_before_if);
+
+        op_end_if = instructions.emit_operand_label(id_label_in_table);
+        instructions.emit_instruction(IR_LABEL,op_end_if);
+    }
 
     // ---- 6. Emitir instruccion de salto incondicional a fin de etiqueta en la posicion after if
     IR_instruction instr_jmp_end_if(IR_OP_JMP,op_end_if);
-    instructions.add_instruction_to_list_in_position(instr_jmp_end_if,total_instr_after_if);
+    if(stmt->stmt.statement_if_else.else_body)
+        instructions.add_instruction_to_list_in_position(instr_jmp_end_if,total_instr_after_if);
+    else{
+        instructions.add_instruction_to_list_in_position(instr_jmp_end_if,total_instr_after_if);
+    }
 }
 
 void IR_Translator_Statement::translate_statement_for_to_ir_instructions(struct statement * stmt, bool from_subprogram){

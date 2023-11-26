@@ -1,0 +1,73 @@
+{Programa: prodcons_multiple.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripción: Productor/Consumidor}
+
+program ProdConsV2;
+
+{ ---- VARIABLES GLOBALES ---- }
+	var buffTam : integer := 1;
+	var buffer : array [1] integer;
+	
+	var buffLibre : semaphore := 1;
+	var buffOcupada : semaphore := 0;
+	var buffGestor : semaphore := 1;
+	
+	var contador : integer := 0;
+	
+	var sleepCount : integer := 50;
+	
+{ ---- PROCEDIMIENTOS DE HEBRAS ---- }
+
+{Procedimiento productor}
+procedure productor();
+	var dato : integer;
+begin
+	while(true) do
+	begin
+		WAIT buffLibre;
+		
+		WAIT buffGestor;
+		dato := contador;
+		contador := contador+1;
+		buffer[0] := dato;
+		print("producido: ",buffer[0]);
+		SIGNAL buffGestor;
+		
+		SIGNAL buffOcupada;
+		
+		sleep sleepCount;
+	end
+end
+
+{Procedimiento consumidor}
+procedure consumidor();
+	var dato : integer;
+begin
+	while(true) do
+	begin
+		WAIT buffOcupada;
+		
+		WAIT buffGestor;
+		print("       consumido: ",buffer[0]);
+		buffer[0] := 0;
+		SIGNAL buffGestor;
+		
+		SIGNAL buffLibre;
+	
+		sleep sleepCount;
+	end
+end
+
+{ ---- PROCESO PRINCIPAL ---- }
+process Main;
+begin
+	fork productor;
+	fork productor;
+	fork consumidor;
+	fork consumidor;
+	fork consumidor;
+	join;
+	
+	print("");
+	print("Fin de simulacion");
+end

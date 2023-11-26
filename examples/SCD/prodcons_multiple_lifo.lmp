@@ -1,0 +1,117 @@
+{Programa: prodcons_multiple_lifo.lmp}
+{Autor: Daniel Perez Ruiz}
+{Descripción: Productor/Consumidor}
+
+program ProdConsV3;
+
+{ ---- VARIABLES GLOBALES ---- }
+	var BUFFSIZE : integer := 10;
+	var buffer : array [10] integer;
+	
+	var primeraLibre : integer := 0;
+	
+	var totalItems : integer := 40;
+	var nProds : integer := 4;
+	var nCons : integer := 1;
+	var totalProdsHebra : integer := totalItems / nProds;
+	var totalConsHebra : integer := totalItems / nCons;
+	
+	var buffLibre : semaphore := 10;
+	var buffOcupada : semaphore := 0;
+	var buffGestor : semaphore := 1;
+	
+	var contador : integer := 0;
+	
+	var sleepCount : integer := 50;
+	
+	var contProd : array [40] integer;
+	var contCons : array [40] integer;
+	
+{ ---- PROCEDIMIENTOS DE HEBRAS ---- }
+
+{Procedimiento productor}
+procedure productor();
+	var dato : integer;
+begin
+	for i:=1 to totalProdsHebra do
+	begin
+		WAIT buffLibre;
+		
+		WAIT buffGestor;
+		dato := contador;
+		contador := contador+1;
+		buffer[primeraLibre] := dato;
+		primeraLibre := primeraLibre+1;
+		print("producido: ",buffer[primeraLibre-1]);
+		contProd[dato] := contProd[dato]+1;
+		SIGNAL buffGestor;
+		
+		SIGNAL buffOcupada;
+		
+		sleep sleepCount;
+	end
+end
+
+{Procedimiento consumidor}
+procedure consumidor();
+	var dato : integer;
+begin
+	for i:=1 to totalConsHebra do
+	begin
+		WAIT buffOcupada;
+		
+		WAIT buffGestor;
+		dato := buffer[primeraLibre-1];
+		primeraLibre := primeraLibre-1;
+		print("       consumido: ",dato);
+		contCons[dato] := contCons[dato]+1;
+		SIGNAL buffGestor;
+		
+		SIGNAL buffLibre;
+	
+		sleep sleepCount;
+	end
+end
+
+{Procedimiento de testeo}
+procedure testContadores();
+	var ok : boolean := true;
+begin
+	for i := 0 to totalItems-1 do
+	begin
+		if(contProd[i] != 1) then
+		begin
+			print("error: item [", i, "] producido ", contProd[i], " veces");
+			ok := false;
+		end
+		
+		if(contCons[i] != 1) then
+		begin
+			print("error: item [", i, "] consumido ", contCons[i], " veces");
+			ok := false;
+		end
+	end
+	
+	if(ok) then
+	begin
+		print("Solucion (aparentemente) correcta.");
+	end
+end
+
+{ ---- PROCESO PRINCIPAL ---- }
+process Main;
+begin
+	fork productor;
+	fork productor;
+	fork productor;
+	fork productor;
+		
+	fork consumidor;
+	join;
+	
+	print("");
+	testContadores();
+	
+	print("");
+	print("Fin de simulacion");
+end

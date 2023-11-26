@@ -1,0 +1,51 @@
+{Programa: array_v2.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program Arrays;
+	var tam : integer := 5;
+	var numeros : array [5] integer;
+	
+procedure inicializa();
+begin
+	for i:=0 to tam-1 do
+	begin
+		numeros[i] := i;
+	end
+end
+
+procedure printArr();
+begin
+	for i:=0 to tam-1 do
+	begin
+		print(" --> numeros ", i,": ", numeros[i]);
+	end
+end
+
+procedure checkArr();
+	var ok : boolean := true;
+	var v : integer;
+begin
+	for i:=0 to tam-1 do
+	begin
+		if(i != numeros[i]) then
+		begin
+			print("posicion: ", i, " no esperada.");
+			ok := false;
+		end
+	end
+	
+	if(ok == true) then
+	begin
+		print("Array verificado");
+	end
+end
+
+
+process main;
+begin
+	inicializa();
+	printArr();
+	
+	print("");
+	checkArr();
+end

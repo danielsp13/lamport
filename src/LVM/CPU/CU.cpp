@@ -27,7 +27,13 @@ int LVM_CPU_CU::get_segment(IR_operand_t type, int virtual_dir, int offset_dir){
             break;
         }
 
-        return LVM_Segment_Table::SEGMENT_FOR_GLOBAL_VARIABLES;
+        if(memory_manager.check_phisical_addr(LVM_Segment_Table::SEGMENT_FOR_GLOBAL_VARIABLES,virtual_dir))
+            return LVM_Segment_Table::SEGMENT_FOR_GLOBAL_VARIABLES;
+        
+        if(memory_manager.check_phisical_addr(LVM_Segment_Table::SEGMENT_FOR_INDEXES,virtual_dir))
+            return LVM_Segment_Table::SEGMENT_FOR_INDEXES;
+
+        return -1;
 
         break;
     }
@@ -41,6 +47,11 @@ int LVM_CPU_CU::get_segment(IR_operand_t type, int virtual_dir, int offset_dir){
 
         return LVM_Segment_Table::SEGMENT_FOR_GLOBAL_VARIABLES;
 
+        break;
+    }
+    case IR_OPERAND_VARIABLE_INDEX:
+    {
+        return LVM_Segment_Table::SEGMENT_FOR_INDEXES;
         break;
     }
     case IR_OPERAND_LABEL:

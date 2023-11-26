@@ -246,6 +246,10 @@ struct type * typecheck_expression_identifier(struct expression *expr){
     if(expr->expr.expression_identifier.symb->type)
         result = copy_type(expr->expr.expression_identifier.symb->type);
 
+    if(expr->expr.expression_identifier.index_expr){
+        typecheck_expression(expr->expr.expression_identifier.index_expr);
+    }
+
     // -- retornar resultado
     return result;
 }
@@ -381,6 +385,22 @@ struct type * typecheck_expression_binary_comparison(char *action, struct type *
             return create_basic_type(TYPE_BOOLEAN);
         }
     }
+    // -- Caso 1.B: El operando izquierdo es un array
+    else if(type_left->kind == TYPE_ARRAY){
+        if(type_left->subtype->kind == type_right->kind){
+            if(type_right->kind == TYPE_INTEGER || type_right->kind == TYPE_REAL){
+                return create_basic_type(TYPE_BOOLEAN);
+            }
+        }
+    }
+    // -- Caso 1.C: El operando derecho es un array
+    else if(type_right->kind == TYPE_ARRAY){
+        if(type_left->kind == type_right->subtype->kind){
+            if(type_left->kind == TYPE_INTEGER || type_left->kind == TYPE_REAL){
+                return create_basic_type(TYPE_BOOLEAN);
+            }
+        }
+    }
 
     // -- Caso 2: Error de tipos, incluir error semantico
     struct error * err = create_error_semantic_unmatched_types_expression_binary(line,type_left->kind_str,type_right->kind_str,action);
@@ -394,6 +414,18 @@ struct type * typecheck_expression_binary_comparison_equality(char *action, stru
     // -- Caso 1: Ambos tipos son iguales
     if(type_left->kind == type_right->kind){
         return create_basic_type(TYPE_BOOLEAN);
+    }
+    // -- Caso 1.B: El operando izquierdo es un array
+    else if(type_left->kind == TYPE_ARRAY){
+        if(type_left->subtype->kind == type_right->kind){
+            return create_basic_type(TYPE_BOOLEAN);
+        }
+    }
+    // -- Caso 1.C: El operando derecho es un array
+    else if(type_right->kind == TYPE_ARRAY){
+        if(type_left->kind == type_right->subtype->kind){
+            return create_basic_type(TYPE_BOOLEAN);
+        }
     }
 
     // -- Caso 2: Error de tipos, incluir error semantico
@@ -458,7 +490,7 @@ void typecheck_declaration(struct declaration *decl){
 
         // -- Comprobar si la expresion de size de array es entera
         struct type * type_size_arr = typecheck_expression(decl->type->size);
-        struct type * expected_type = create_basic_type(TYPE_INTEGER);
+        struct type * expected_type = create_basic_type(TYPE_INTEGER); reg_type(expected_type);
 
         if(!equals_type(expected_type,type_size_arr)){
             // -- Incluir error en la lista de errores semanticos

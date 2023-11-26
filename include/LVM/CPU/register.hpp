@@ -20,6 +20,8 @@
 
 #include <variant>
 
+#include "LVM/tracker/tracker.hpp"      ///< Gestor de eventos de LVM
+
 // ===============================================================
 
 // ----- DEFINICION DE CONTENIDO DE REGISTRO -----

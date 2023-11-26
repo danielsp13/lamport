@@ -53,7 +53,10 @@ void LVM_CPU_Registers::operator()(int i, const LVM_Memory_Block& mem_block){
         break;
     }
     default:
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
         throw std::invalid_argument("ALMACENAMIENTO A REGISTRO DE UN BLOQUE DE MEMORIA INVALIDO.");
+        
         break;
     }
 

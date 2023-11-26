@@ -128,11 +128,15 @@ LVM_Register LVM_Register::operator+(const LVM_Register& otro) const{
         break;
     }
     
-    default:
+    default:{
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         std::string MSG = "OPERACIÓN DE REGISTRO (+) NO SOPORTADA ";
         MSG += ": suma de (" + get_type_of_alloc_str() + ") con (" + otro.get_type_of_alloc_str() + ").";
         throw std::invalid_argument(MSG);
         break;
+    }
     }
 }
 
@@ -150,9 +154,14 @@ LVM_Register LVM_Register::operator-(const LVM_Register& otro) const{
         break;
     }
     
-    default:
+    default:{
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (-) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -171,8 +180,14 @@ LVM_Register LVM_Register::operator*(const LVM_Register& otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (*) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -197,8 +212,13 @@ LVM_Register LVM_Register::operator/(const LVM_Register& otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (/) NO SOPORTADA.");
         break;
+    }
     }
 }
 
@@ -212,8 +232,14 @@ LVM_Register LVM_Register::operator%(const LVM_Register & otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+        
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (%) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -232,8 +258,14 @@ LVM_Register LVM_Register::operator-() const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (- unary) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -272,8 +304,14 @@ LVM_Register LVM_Register::operator<=(const LVM_Register & otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (<=) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -291,9 +329,15 @@ LVM_Register LVM_Register::operator>(const LVM_Register & otro) const{
         break;
     }
     
-    default:
+    default: 
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+        
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (>) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -312,8 +356,14 @@ LVM_Register LVM_Register::operator>=(const LVM_Register & otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (>=) NO SOPORTADA.");
         break;
+    }
+        
     } 
 }
 
@@ -347,8 +397,14 @@ LVM_Register LVM_Register::operator==(const LVM_Register & otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (==) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -382,8 +438,14 @@ LVM_Register LVM_Register::operator!=(const LVM_Register & otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (!=) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -397,8 +459,14 @@ LVM_Register LVM_Register::operator&&(const LVM_Register & otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (&& and) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -412,8 +480,14 @@ LVM_Register LVM_Register::operator||(const LVM_Register & otro) const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (|| or) NO SOPORTADA.");
         break;
+    }
+        
     }
 }
 
@@ -427,7 +501,13 @@ LVM_Register LVM_Register::operator!() const{
     }
     
     default:
+    {
+        LVM_Tracker::get_instance().print_trace();
+        LVM_Tracker::get_instance().print_cpu_cycle_trace();
+
         throw std::invalid_argument("OPERACIÓN DE REGISTRO (! not) NO SOPORTADA.");
         break;
+    }
+        
     }
 }

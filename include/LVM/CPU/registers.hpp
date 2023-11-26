@@ -18,6 +18,7 @@
 
 #include "register.hpp"                 ///< Registros de LVM
 #include "LVM/memory/memory.hpp"        ///< Bloque
+#include "LVM/tracker/tracker.hpp"      ///< Tracker de LVM
 
 // ===============================================================
 

@@ -1,0 +1,16 @@
+{Programa: if.lmp}
+{Autor: Daniel Pérez Ruiz}
+
+program CompruebaSemirrecta;
+	var numero : integer := 1;
+	
+process main;
+	var minimo : integer := 5;
+begin
+	if(minimo <= numero) then
+	begin
+		print("el valor: ", numero, " esta dentro de la semirrecta [",minimo,",+oo)");
+	end
+	
+	print("Fin de programa");
+end
