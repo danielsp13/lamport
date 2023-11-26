@@ -94,6 +94,13 @@ class IR_Instruction_Table{
         IR_operand emit_operand_variable_array(int id_var, int offset);
 
         /**
+         * @brief Crea un operando de tipo variable indice de for
+         * @param id_var : identificador de variable
+         * @return operando
+         */
+        IR_operand emit_operand_variable_index(int id_var);
+
+        /**
          * @brief Crea un operando de tipo etiqueta
          * @param id_label : identificador de etiqueta
          * @return operando

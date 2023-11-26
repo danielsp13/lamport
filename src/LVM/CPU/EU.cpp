@@ -197,7 +197,7 @@ void LVM_CPU_EU::execute_call(int label_dir_op_1){
 
 void LVM_CPU_EU::execute_ret(){
     // -- Registrar en traza de ejecucion
-    std::string tracker_msg = TRACKER_HEADER + "realizando retorno de subprograma. ";
+    std::string tracker_msg = TRACKER_HEADER + "realizando retorno de subprograma.";
     
     LVM_Block return_dir = thread_manager.get_current_thread()->get_stack().top_and_pop();
     
@@ -209,8 +209,8 @@ void LVM_CPU_EU::execute_ret(){
     // --- Obtener la direccion de retorno
     registers.set_pc(return_dir.get_value<long>() + 1);
 
-    tracker_msg += "Instruccion de regreso: " + registers.get_pc();
-    tracker.track(tracker_msg);
+    //tracker_msg += "Instruccion de regreso: " + registers.get_pc();
+    //tracker.track(tracker_msg);
 
     
 }

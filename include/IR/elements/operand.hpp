@@ -33,6 +33,7 @@ typedef enum {
     IR_OPERAND_LABEL,           ///< El operando es una etiqueta
     IR_OPERAND_VARIABLE,        ///< El operando es una variable
     IR_OPERAND_VARIABLE_ARRAY,  ///< El operando es una variable de tipo array
+    IR_OPERAND_VARIABLE_INDEX,  ///< El operando es una variable de tipo indice
     IR_OPERAND_THREAD_ID,       ///< El operando es un id de thread
     IR_OPERAND_DIRECT_JMP,      ///< El operando es un salto directo a instruccion
 } IR_operand_t;
@@ -46,6 +47,7 @@ const std::unordered_map<IR_operand_t, std::string> IR_operand_t_str = {
     {IR_OPERAND_LABEL,"IR_OPERAND_LABEL"},
     {IR_OPERAND_VARIABLE,"IR_OPERAND_VARIABLE"},
     {IR_OPERAND_VARIABLE_ARRAY,"IR_OPERAND_VARIABLE_ARRAY"},
+    {IR_OPERAND_VARIABLE_INDEX,"IR_OPERAND_VARIABLE_INDEX"},
     {IR_OPERAND_THREAD_ID,"IR_OPERAND_THREAD_ID"},
     {IR_OPERAND_DIRECT_JMP,"IR_OPERAND_DIRECT_JMP"},
 };

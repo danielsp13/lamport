@@ -256,7 +256,7 @@ endef
 define compile_lamport_skeleton
 	@{ \
 		N_FILES_EXPECTED=$(words $(2)) ; \
-		echo "$(COLOR_BOLD)>>> Verificando dependencias de modulos para construir intérprete: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED modulos requeridos] ... $(COLOR_RESET)" ;\
+		echo "$(COLOR_BOLD)>>> Verificando dependencias de modulos para construir intérprete: $(COLOR_BLUE)$(3)$(COLOR_RESET_BOLD) [$$N_FILES_EXPECTED ficheros requeridos] ... $(COLOR_RESET)" ;\
 		N_FILES_CHECKED=0 ;\
 		for FILE in $(2); do \
 			if [ -f $(OBJ_DIR)/$$FILE ]; then \

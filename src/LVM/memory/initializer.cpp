@@ -97,8 +97,13 @@ LVM_Memory_Block LVM_Initializer::initialize_mem_block(int content_type, const m
             mem_block.allocate_value<int>(var.get_initial_value<int>());
             break;
         }
-        
+        case IR_VAR_TYPE_INDEX:
+        {
+            mem_block.allocate_value<int>(var.get_initial_value<int>());
+            break;
+        }
         default:
+            
             break;
         }
         break;

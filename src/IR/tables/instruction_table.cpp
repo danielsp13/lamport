@@ -42,6 +42,11 @@ IR_operand IR_Instruction_Table::emit_operand_variable_array(int id_var, int off
     return op;
 }
 
+IR_operand IR_Instruction_Table::emit_operand_variable_index(int id_var){
+    IR_operand op(IR_OPERAND_VARIABLE_INDEX,id_var);
+    return op;
+}
+
 IR_operand IR_Instruction_Table::emit_operand_label(int id_label){
     IR_operand op(IR_OPERAND_LABEL,id_label);
     return op;
