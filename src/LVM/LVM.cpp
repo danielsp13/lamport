@@ -104,7 +104,7 @@ bool LVM::preload_lvm(bool verbose_avaiable){
 bool LVM::run(){
     if(this->state == LVM_STATE_PREPARED){
         // -- Cambiar estado a ejecutandose
-        this->state == LVM_STATE_RUNNING;
+        this->state = LVM_STATE_RUNNING;
 
         // -- Inicializar el manejador de signals LINUX
         LVM_Linux_Posix_Signals_Manager::init_signal_handlers();
