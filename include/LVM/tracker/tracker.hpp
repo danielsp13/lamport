@@ -36,6 +36,11 @@ class LVM_Tracker{
         // -- Cronometro
         LVM_Tracker_Chronometer& chrono = LVM_Tracker_Chronometer::get_instance();
 
+        // -- Flag que indica si el modo resumido esta activado
+        const bool RESUMED_MODE = true;
+        // -- Flag que indica si el modo full esta activado
+        const bool FULL_MODE = false;
+
         /**
          * @brief Constructor de clase. Inicializa el cronometro
          */
@@ -71,8 +76,9 @@ class LVM_Tracker{
         /**
          * @brief Inserta un nuevo mensaje en la traza de ejecucion (junto a su timestamp)
          * @param msg : mensaje
+         * @param resumed : flag que indica si se debe incluir el mensaje o no
          */
-        void track(std::string msg);
+        void track(std::string msg, bool resumed = false);
 
         /**
          * @brief Confirma la traza de ejecucion de un ciclo de CPU

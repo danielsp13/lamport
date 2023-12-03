@@ -131,8 +131,6 @@
 \newtheorem{proposicion}[teorema]{Proposición}
 \newtheorem{observacion}[teorema]{Observación}
 
-\newcommand{\squareDiamond}{%
-\tikz [x=1.2ex,y=1.2ex,line width=.1ex] \draw (0,0) -- (1,1) -- (0,2) -- (-1,1) -- cycle;}
 
 \begin{document}
 
@@ -154,37 +152,35 @@
 	\listoftables 
 	\newpage
 
-	% Introducción 
-	\input{secciones/01_introduccion}
+        % Primera parte : introduccion
+        \part{Introducción y motivación}
+        \include{secciones/01_introduccion}
+        \include{secciones/02_descripcion}
+        \include{secciones/03_planificacion}
 
-	% Descripción del problema y hasta donde se llega
-	\input{secciones/02_descripcion}
+        % Segunda parte : estado del arte
+        \part{Estado del arte}
+        \include{secciones/04_estado_del_arte}
 
-	% Estado del arte
-	\input{secciones/03_estado_del_arte}
+        % Tercera parte : fundamentos teoricos
+        \part{Fundamentos teóricos y matemáticos}
+        \include{secciones/05_concurrencia}
+        \include{secciones/06_ptla}
+        \include{secciones/07_pl}
 
-        % Planificación
-        \input{secciones/04_planificacion}
+        % Cuarta parte : Diseño e implementación del lenguaje Lamport
+        \part{Diseño e implementación del lenguaje de programación Lamport}
+        %\include{secciones/02_descripcion}
+        %\include{secciones/03_estado_del_arte}
+        %\include{secciones/04_planificacion}
+        \include{secciones/08_herramientas}
+	\include{secciones/09_espec_lenguaje}
+	\include{secciones/10_implementacion}
+	\include{secciones/11_programas}
 
-	% Análisis del problema (TLA)
-	\input{secciones/05_tla}
-
-        % Análisis del problema (Lenguajes y compiladores)
-        \input{secciones/06_lenguajes}
-
-        % Desarrollo bajo sprints: 
-	\input{secciones/07_espec_lenguaje}
-
-	% Desarrollo bajo sprints: 
-	\input{secciones/08_implementacion}
-
-	% Conclusiones
-	\input{secciones/09_programas}
-
-	% Conclusiones
-	\input{secciones/10_conclusiones}
-
-	% Trabajos futuros
+        % Quinta parte : Conclusiones
+        \part{Conclusiones}
+	\include{secciones/12_conclusiones}
 
 
 	

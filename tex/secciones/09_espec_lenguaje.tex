@@ -1,14 +1,10 @@
-\chapter{Estudio y diseño del lenguaje Lamport}
-El lenguaje \textit{Lamport}, nombrado en honor al renombrado informático Leslie Lamport por sus destacadas contribuciones al estudio de sistemas distribuidos, emerge como una herramienta didáctica y a la vez completamente funcional. Su propósito es modelar, diseñar y simular sistemas concurrentes y distribuidos.
-
-\vspace{0.5cm}
+\chapter{\textbf{Estudio y diseño del lenguaje Lamport}}\label{chapter:lamportDesign}
+El lenguaje \textit{Lamport}, nombrado en honor al renombrado informático Leslie Lamport, emerge como una herramienta didáctica y a la vez completamente funcional. Su propósito es modelar, diseñar y simular sistemas concurrentes y distribuidos.
 
 En este capítulo, se llevará a cabo un estudio detallado sobre el pseudocódigo propuesto en la asignatura \textit{Sistemas Concurrentes y Distribuidos}, que sustentará la base del lenguaje destino \textit{Lamport}. Se discutirán sus objetivos de diseño, principales características y cómo estas contribuyen a abordar los desafíos de modelar y simular sistemas concurrentes. Se profundizará en aspectos como la sintaxis, semántica y otras características esenciales. Finalmente, se presentará una definición formal de la gramática del lenguaje Lamport, orientada a ser un recurso valioso para quienes aspiren a aprender o instruir sobre sistemas concurrentes, e incluso utilizarlo como un lenguaje de programación más.
 
 \section{Análisis del pseudocódigo base}\label{sec:pseudoAnalisis}
-El pseudocódigo, una representación abstracta y simplificada de la lógica de programación, es un elemento crucial en la fase de diseño de sistemas informáticos. En la asignatura \textit{Sistemas Concurrentes y Distribuidos}, se propone un pseudocódigo específico que sienta las bases para la concepción del lenguaje \textit{Lamport}. Analizar este pseudocódigo nos permite entender su estructura, características y potenciales áreas de mejora o adaptación.
-
-\vspace{0.5cm}
+El pseudocódigo, una representación abstracta y simplificada de la lógica de programación, es un elemento crucial en la fase de diseño de sistemas informáticos. En la asignatura \textit{Sistemas Concurrentes y Distribuidos} \cite{capel2020sistemas}, se propone un pseudocódigo específico que sienta las bases para la concepción del lenguaje \textit{Lamport}. Analizar este pseudocódigo nos permite entender su estructura, características y potenciales áreas de mejora o adaptación.
 
 A continuación se presentarán una serie de ejemplos representativos del pseudocódigo, ilustrando sus principales componentes. Posteriormente, se desglosarán sus elementos fundamentales y se considerará su relación con lenguajes de programación más convencionales, permitiendo así contextualizar su diseño y utilidad.
 
@@ -336,6 +332,8 @@ En esta subsección, se abordará una de las partes importantes en la definició
 \hline
 \code{JOIN} & Palabra reservada para sincronización de dprocess & ``\code{join}'' & join \\
 \hline
+\code{SLEEP} & Palabra reservada para dormir proceso & ``\code{sleep}'' & sleep \\
+\hline
 \code{IF} & Palabra reservada para estructura de control if. & ``\code{if}'' & if \\
 \hline
 \code{THEN} & Palabra reservada para condición then de if. & ``\code{then}'' & then \\
@@ -416,11 +414,13 @@ En esta subsección, se abordará una de las partes importantes en la definició
 \hline
 \code{ATOM_FIN} & Delimitador fin sección atómica & ``$>$$>$'' & $>$$>$ \\
 \hline
+\code{SEM_WAIT} & Indica operación wait sobre semáforo & ``\code{WAIT}'' & WAIT \\
+\hline
+\code{SEM_SIGNAL} & Indica operación signal sobre semáforo & ``\code{SIGNAL}'' & SIGNAL \\
+\hline
 
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
-
-\newpage
 
 Para la designación de las clases de los tokens, se ha decidido utilizar un convenio en el prefijo donde:
 
@@ -437,7 +437,7 @@ Para la designación de las clases de los tokens, se ha decidido utilizar un con
 
 La notación Backus-Naur Form (BNF), inventada por John Backus y Peter Naur, proporciona una forma concisa y comprensible de definir la gramática de un lenguaje, permitiendo a los desarrolladores y analistas de lenguajes comprender rápidamente su estructura. Al describir la gramática de Lamport mediante BNF, se ofrece una visión clara y detallada de cómo se estructura este lenguaje y cómo pueden formarse instrucciones válidas dentro de él.
 
-\vspace{0.5cm}
+
 
 A continuación, se presentan una serie de reglas y tokens definidos con la notación BNF para el lenguaje Lamport, con base en los ejemplos mencionados en la sección anterior. Estas reglas servirán como una guía para aquellos interesados en profundizar en la programación o análisis de este lenguaje, facilitando su aprendizaje y evitando ambigüedades en su interpretación.
 
@@ -445,7 +445,7 @@ A continuación, se presentan una serie de reglas y tokens definidos con la nota
 
 \begin{BNFCode}
 # Definicion de reglas de sintaxis de creacion de programas
-<program> ::= "program" <identifier> [<declarations>] 
+<program> ::= "program" <identifier> [";"] [<declarations>] 
     (<subprogram>)* <process>+
 
 # Definion de reglas de sintaxis de creacion de declaraciones de variable
@@ -503,7 +503,7 @@ A continuación, se presentan una serie de reglas y tokens definidos con la nota
 #   --- Vectorizados. Definen una serie de procesos con base en un indexador
 <process> ::= "process" <identifier> [ "[" <identifier> : 
     <expression> ".." <expression> "]" ] ";" 
-    [<declarations>] <block-statements-process>
+    [<declarations>] <block-statements-begin-end>
 
 
 # Definicion de reglas de sintaxis de sentencias
@@ -517,16 +517,17 @@ A continuación, se presentan una serie de reglas y tokens definidos con la nota
 #   --- If/else
 #   --- Fork
 #   --- Join
+#   --- Sleep
 #   --- Llamada a procedimiento
 #   --- Impresion de contenido (print)
+#   --- Operacion wait sobre semaforo
+#   --- Operacion signal sobre semaforo
 <block-statements-begin-end> ::= "begin" (<statement>)+ "end"
 <block-statements-cobegin-coend> ::= "cobegin" 
     (<statement>)+ "coend"
 <block-statements-atomic> ::= "<<" (statement)+ ">>"
 <block-statements-function> ::= "begin" (<statement>)+ 
     <return-statement> "end"
-<block-statements-process> ::= <block-statements-begin-end>
-    | <block-statements-cobegin-coend>
 	
 <statement> ::= <assignment-statement>
     | <while-statement>
@@ -534,9 +535,13 @@ A continuación, se presentan una serie de reglas y tokens definidos con la nota
     | <if-statement>
     | <procedure-call-statement>
     | <block-statements-atomic>
+    | <block-statements-cobegin-coend>
     | <fork-statement>
     | <join-statement>
+    | <sleep-statement>
     | <print-statement>
+    | <sem-wait-statement>
+    | <sem-signal-statement>
 	
 <assignment-statement> ::= <identifier> ["[" <expression> "]"] 
     ":=" <expression> ";"
@@ -555,12 +560,17 @@ A continuación, se presentan una serie de reglas y tokens definidos con la nota
 
 <fork-statement> ::= "fork" <identifier> ";"
 
-<join-statement> ::= "join" <identifier> ";"
+<join-statement> ::= "join" ";"
+
+<sleep-statement> ::= "sleep" <expression> ";"
 
 <print-statement> ::= "print" "(" <print-list> ")" ";"
 <print-list> ::= <expression> ("," <expression>)*
 
 <return-statement> ::= "return" <expression> ";"
+
+<sem-wait-statement> ::= "WAIT" <identifier> ";"
+<sem-signal-statement> ::= "SIGNAL" <identifier> ";"
 
 # Definicion de reglas de sintaxis de expresiones
 # Las diferentes expresiones disponibles para el lenguaje son:
@@ -606,8 +616,6 @@ A continuación, se presentan una serie de reglas y tokens definidos con la nota
 <arguments> ::= [<expression> ["," <arguments>]]
 \end{BNFCode}
 
-\newpage
-
 \noindent
 Sobre las características del metalenguaje de BNF hay que destacar que:
 \begin{itemize}
@@ -628,11 +636,9 @@ Y sobre la descrición del lenguaje Lamport, es importante notar que:
 \subsubsection{Ambigüedades en la gramática}\label{subsubsec:gramaticaAmbiguaLamport}
 Al definir la gramática del lenguaje Lamport utilizando la notación BNF, hay que identificar y resolver cualquier ambigüedad que pueda surgir. Una gramática ambigua es aquella en la que una cadena puede tener más de un árbol de derivación, lo que lleva a diferentes interpretaciones de la cadena. En el contexto de los lenguajes de programación, esto puede ser problemático ya que diferentes interpretaciones pueden llevar a diferentes comportamientos del programa. Es por ello por lo que la pregunta que cabe hacerse ahora es: \textit{¿Presenta esta gramática ambigüedades?}
 
-\vspace{0.5cm}
+
 
 La respuesta es \textbf{sí}, y a continuación, se discuten algunas áreas en la gramática presentada donde podrían surgir ambigüedades y se proporcionan soluciones o aclaraciones para las mismas.
-
-\newpage
 
 \noindent
 \textbf{Expresiones Binarias y Precedencia de Operadores:}
@@ -647,11 +653,11 @@ La regla:
 | <term>
 \end{BNFCode}
 
-\vspace{0.5cm}
+
 
 Puede dar lugar a ambigüedades en expresiones como ``\code{a + b * c}''. Sin una clarificación sobre la precedencia de los operadores, no está claro si se debe interpretar como ``\code{(a + b) * c}'' o como ``\code{a + (b * c)}''.
 
-\vspace{0.5cm}
+
 
 \textbf{Solución:} Establecer reglas separadas para cada nivel de precedencia o modificar la gramática para que refleje explícitamente la precedencia.
 
@@ -699,7 +705,7 @@ Finalmente, con respecto a las reglas de validación de operaciones:
     \item El operador aritmético \code{\%} sólo acepta números enteros \code{integer}.
 \end{itemize}
 
-\vspace{0.5cm}
+
 
 Es necesario indicar al final de esta lista de restricciones semánticas que hay un par de restricciones adicionales que no son motivo intrínseco del lenguaje en sí, sino por cuestiones de implementación, y son:
 
@@ -757,14 +763,14 @@ La correcta definición de la precedencia y la asociatividad de los operadores e
 
 La enumeración en la primera columna sirve para indicar el orden de análisis de los operadores, en el que un número más pequeño implica una mayor prioridad o importancia. Esto significa que, en una expresión que involucra múltiples operadores, los operadores con menor número se evaluarán antes que aquellos con números mayores. Por ejemplo, en una expresión como \code{2 + 3 * 4}, debido a que la multiplicación tiene una mayor prioridad (2) que la suma (3), se evaluará primero \code{3 * 4} y luego se sumará \code{2} al resultado.
 
-\vspace{0.5cm}
+
 
 La columna de asociatividad informa sobre cómo se evalúan los operadores cuando aparecen varios del mismo tipo en una secuencia sin paréntesis claros para determinar el orden. La asociatividad ``\textit{Izquierda a Derecha}'' indica que, en caso de una secuencia de operadores con la misma precedencia, se comenzará a evaluar desde el operador más a la izquierda y se procederá hacia la derecha. Por ejemplo, en la expresión \code{5 - 3 - 2}, se evaluará primero \code{5-3} debido a esta asociatividad, y luego se restará \code{2} al resultado. Por otro lado, la asociatividad ``\textit{Derecha a Izquierda} implica que la evaluación comienza con el operador más a la derecha y procede hacia la izquierda. Este tipo de asociatividad es menos común y generalmente se encuentra en operadores unarios, como el operador negativo unario mostrado en la tabla.
 
 \section{Conclusiones del estudio}
 A lo largo de este capítulo, se ha llevado a cabo un estudio detallado y sistemático del lenguaje Lamport, desde su concepción mediante el análisis del pseudocódigo base propuesto en la asignatura \textit{Sistemas Concurrentes y Distribuidos} hasta su posterior diseño. Se ha descrito la estructura gramatical, que es el núcleo de cualquier lenguaje, proporcionando una visión clara y concisa de cómo se construyen y analizan las sentencias en Lamport.
 
-\vspace{0.5cm}
+
 \noindent
 Ahora, podemos definir formalmente la gramática de Lamport como la cuádrupla:
 
@@ -784,10 +790,11 @@ donde:
 
 Además, se ha discutido acerca de la ambigüedad de la gramática en la subsección ~\ref{subsubsec:gramaticaAmbiguaLamport}, donde se han proporcionado algunas soluciones para la resolución de dichas ambigüedades, como en el caso de evaluación de expresiones utilizando una tabla de precedencia de operadores, definida en la subsección ~\ref{subsec:precOperadoresLamport}.
 
-\vspace{0.5cm}
 
-Para finalizar, podemos concluir que la gramática definida siguiendo la Jerarquía de Chomsky es de \textbf{tipo 2}, o en otras palabras, es una \textbf{gramática independiente del contexto}, y genera el lenguaje Lamport, denotado como $\mathscr{L}$.
 
-\vspace{0.5cm}
+Para finalizar, se puede concluir que la gramática definida siguiendo la Jerarquía de Chomsky es de \textbf{tipo 2} (~\ref{section:chomsky} ), o en otras palabras, es una \textbf{gramática independiente del contexto}, y genera el lenguaje Lamport, denotado como $\mathscr{L}$.
 
-En el siguiente capítulo, comprobaremos que aplicando algunas modificaciones a las reglas y eliminando las ambigüedades, la gramática es \code{LALR(1)}, puesto que el generador de analizadores sintácticos Bison, es capaz de procesar la gramática sin notificar ningún de conflicto de tipo reducción o desplazamiento.
+
+
+En el siguiente capítulo, se comprueba que aplicando algunas modificaciones a las reglas y eliminando las ambigüedades, la gramática es \code{LALR(1)} \cite{aho1990compiladores} (sección 4.7.4), puesto que el generador de analizadores sintácticos Bison, es capaz de procesar la gramática sin notificar ningún de conflicto de tipo reducción o desplazamiento.
+

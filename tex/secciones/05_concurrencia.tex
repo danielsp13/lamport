@@ -1,0 +1,50 @@
+\chapter{\textbf{Fundamentos de los sistemas concurrentes}}
+Este capítulo se enfoca en los fundamentos esenciales de los sistemas concurrentes (\cite{burns1998concurrency}, \cite{capel2020sistemas} ). Se abordarán los conceptos fundamentales que definen la programación concurrente, desde la distinción entre programas secuenciales y concurrentes hasta las complejidades del entrelazamiento y la exclusión mutua, así como las propiedades que un sistema de estas características puede poseer. El objetivo es ofrecer una base sólida para comprender los principios de la programación concurrente e introducir al lector con la teoría necesaria para los posteriores capítulos.
+
+En primer lugar, debe quedar claro lo que es un programa secuencial. Un \textbf{programa secuencial} consta de un conjunto de declaraciones de datos más un conjunto de instrucciones sobre dichos datos que se ejecutan en secuencia. Ahora, se puede definir un \textbf{programa concurrente} como el conjunto de programas secuenciales ordinarios que se pueden ejecutar \textit{lógicamente} en paralelo, y cada programa secuencial es ejecutado por un \textbf{proceso}. Además, se entiende por \textbf{programación concurrente} al conjunto de notaciones y técnicas de programación utilizas para expresar paralelismo potencial y resolver problemas de sincronización y comunicación.
+
+\section{Modelos de arquitecturas de programación concurrente}\label{subsec:concurrentarch}
+De la definición anterior de programa concurrente, cabe destacar la importancia de decir que los programas pueden ejecutarse \textit{lógicamente} en paralelo. Esto quiere decir que la concurrencia en un sistema se puede gestionar de diversas maneras, dando lugar a un paralelismo real o ilusorio. Es por ello que se se disponen de tres modelos diferentes de concurrencia basados en la arquitectura hardware:
+
+\begin{itemize}
+    \item \textbf{Concurrencia en sistemas monoprocesador}: Puesto que sólo hay una CPU disponible, se trabaja sobre un sistema operativo multiprogramación, gestionando cómo múltiples procesos se reparten ciclos de procesador. Los mecanismos de sincronización y comunicación se hace mediante variables compartidas.
+    \item \textbf{Concurrencia en sistemas multiprocesador de memoria compartida}: Los procesadores pueden compartir o no físicamente la misma memoria, pero sí disponen de un espacio de direcciones compartido. La interacción de los procesos en este modelo también se realiza mediante variables compartidas.
+    \item \textbf{Concurrencia en sistemas distribuidos}: Aquí también hay múltiples procesadores. No existe una memoria común, cada procesador tiene su espacio de direcciones privado. La interacción se realiza transfiriendo datos entre procesos a través de una red de interconexión (paso de mensajes).
+\end{itemize}
+
+\section{Estados, instrucciones atómicas y entrelazamiento}\label{subsec:concurrentatomic}
+El \textbf{estado} de un programa concurrente se define por los valores de sus variables en un momento dado. Comenzando desde un \textbf{estado inicial}, cada proceso ejecuta una serie de instrucciones atómicas, que son acciones indivisibles y pueden alterar el estado del programa. Las instrucciones máquina de un procesador, como las de carga (\code{LOAD}) y almacenamiento (\code{STORE}), son ejemplos típicos de instrucciones atómicas. En contraste, operaciones como \code{x = x+1} se consideran no atómicas, ya que implican varias acciones subyacentes: cargar el valor de \code{x}, incrementarlo y almacenar el resultado. La interacción entre estas instrucciones no atómicas de diferentes procesos puede llevar a la \textit{indeterminación}, donde el resultado final del programa no se puede predecir a partir de su estado inicial.
+
+El \textbf{entrelazamiento} en un programa concurrente ocurre cuando las instrucciones atómicas de diferentes procesos se ejecutan de manera intercalada, lo que afecta la secuencia global y los resultados. Aunque los procesos parecen avanzar en paralelo, en realidad sus instrucciones se ejecutan de forma intercalada por el procesador. Este fenómeno introduce un nivel significativo de no determinismo, especialmente cuando los procesos interactúan con variables compartidas sin una sincronización adecuada. El entrelazamiento puede ser la fuente de condiciones de carrera y otros desafíos relacionados con la sincronización en sistemas concurrentes.
+
+Cada ejecución de un programa concurrente puede entenderse como una secuencia de estados, donde cada transición entre estados es provocada por la ejecución de instrucciones atómicas. Esta conceptualización es crucial, ya que tanto las ejecuciones paralelas como las secuenciales pueden modelarse como secuencias lineales de estados, lo que subraya la equivalencia de su impacto en el programa, independientemente del orden de ejecución.
+
+Comprender estos conceptos es esencial no solo para garantizar la corrección y estabilidad de los sistemas concurrentes, sino también para preparar el terreno para la aplicación de la Lógica Temporal de Acciones (TLA). Los estados, instrucciones atómicas y transiciones entre estados forman la base sobre la cual TLA opera, proporcionando un marco para describir y verificar formalmente las propiedades y el comportamiento de los sistemas concurrentes a lo largo del tiempo.
+
+\section{Independencia del entorno de ejecución: Hipótesis del progreso finito}\label{subsec:concurrentprogfinit}
+El modelo basado en el estudio de todas las posibles secuencias de los procesos de un programa concurrente constituye una \textbf{abstracción}, donde se consideran sólo las características relevantes que determinan el resultado final del programa, ignorando otras como el estado de la memoria asignado a cada proceso, los registros particulares a los que accederá cada uno, el costo de cambios de contexto entre procesos que hace el sistema operativo, la política de planificación y las diferencias de velocidad entre entornos multiprocesador y monoprocesador. Además, el entrelazamiento de instrucciones atómicas preserva la consistencia de los resultados, pues en caso contrario, sería imposible poder razonar sobre las propiedades de corrección de los programas concurrentes que se hablarán más adelante. Es por ello que, para esa corrección de los programas concurrentes, se utiliza la hipótesis siguiente.
+
+\subsection{Hipótesis del progreso finito}\label{subsubsec:concurrentprogfinithip}
+El enunciado de la hipótesis es: \textit{No se puede hacer ninguna suposición acerca de las velocidades absolutas o relativas de ejecución de los procesos, salvo que es mayor que cero. Un programa concurrente se entiende sólo con base en sus componentes (procesos) y sus interacciones, sin tener en cuenta el entorno de ejecución.} Si se hicieran suposiciones que dependiesen del tiempo o de la velocidad de ejecución de los procesos, sería difícil detectar y corregir fallos y además, la corrección dependería de la configuración de ejecución, que puede cambiar.
+
+\subsection{Exclusión mutua y sincronización}\label{subsec:concurrentexclusion}
+No todas las secuencias de entrelazamiento de las instrucciones de los procesos que pueden producirse en un programa concurrente son posibles en la realidad, pues los procesos no suelen ejecutarse de una forma totalmente independiente, sino que colaboran entre ellos. Se denomina \textbf{condición de sincronización} a la restricción en el orden en que se pueden entremezclar las instrucciones que generan los procesos de un programa. Cuando se impone una condición de sincronización, uno o varios procesos deben esperar a que se cumpla una determinada condición global que depende de varios procesos. Un ejemplo de condición de sincronización sencillo puede ser el de observar el valor de una variable global compartida entre varios procesos.
+
+\subsection{Sección crítica y exclusión mutua}\label{subsubsec:concurrentsc}
+Al conjunto de secuencias comunes de instrucciones consecutivas que aparecen en varios procesos de un programa concurrente se denomina \textbf{sección crítica} (SC). Además, se dice que ocurre \textbf{exclusión mutua} (EM) cuando los procesos sólo funcionan correctamente si, en cada instante de tiempo, hay como mucho uno de ellos ejecutando cualquier instrucción de la sección crítica.
+
+\section{Corrección y propiedades de los sistemas concurrentes}\label{subsec:concurrentproperties}
+Esta subsección es imprescindible para el propósito del siguiente capítulo, pues el objetivo es ofrecer un razonamiento preciso y eficaz sobre las propiedades que cumple un programa concurrente, utilizando para ello la Lógica Temporal de Acciones. Se entiende por \textbf{propiedad} a un atributo de un programa concurrente que es cierto para todas las posibles secuencias de entrelazamiento. Hay dos principales tipos de propiedades:
+
+\begin{enumerate}[label=P\arabic*]
+    \item \textbf{Propiedad de seguridad (safety)}: ``\textit{Nunca pasará nada malo}''. Son condiciones que deben cumplirse \textit{siempre}. Ejemplos de propiedades de seguridad son:
+    \begin{enumerate}[label=P1.\arabic*]
+        \item \textit{Exclusión Mutua (Mutual Exclusion)}: Dos procesos nunca entrelazan ciertas subsecuencias de operaciones.
+        \item \textit{Ausencia de Interbloqueo (Deadlock-freedom)}: Nunca ocurrirá que los procesos se encuentren esperando algo que nunca sucederá.
+    \end{enumerate}
+    \item \textbf{Propiedad de vivacidad (liveness)}: ``\textit{Realmente sucede algo bueno}''. Son condiciones que deben cumplirse \textit{eventualmente}. Ejemplos de propiedades de vivacidad son:
+    \begin{enumerate}[label=P2.\arabic*]
+        \item \textit{Ausencia de inanición (starvation-freedom)}: Un proceso o grupo de procesos no puede ser indefinidamente pospuesto. En algún momento, podrá avanzar.
+        \item \textit{Equidad (fairness)}: Tipo particular de propiedad de vivacidad. Un proceso que desee progresar debe hacerlo con justicia relativa con respecto a los demás.
+    \end{enumerate}
+\end{enumerate}
