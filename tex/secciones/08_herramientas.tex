@@ -1,0 +1,66 @@
+\chapter{\textbf{Infraestructura tecnológica}}
+Tras haber definido en el capítulo ~\ref{chapter:problema} el problema que aborda este proyecto y la motivación que lo impulsa, es clave considerar un aspecto clave en el desarrollo de cualquier iniciativa tecnológica: \textit{las herramientas utilizadas}. Mientras que las preguntas \textit{¿qué?}, \textit{¿por qué?}, \textit{¿para quién?} y \textit{¿cómo?} han guiado la formulación y la estructuración del proyecto, la pregunta \textit{¿con qué?} se centra en los recursos y tecnologías que hacen posible su realización. Este capítulo se dedica a explorar las diversas herramientas y plataformas seleccionadas para el desarrollo del compilador del lenguaje Lamport, detallando cómo cada una contribuye a las distintas facetas del proyecto.
+
+\section{Licencia del Proyecto: GPL v3.0}
+La licencia escogida para este proyecto es la \textit{General Public License versión 3.0} (GPL v3.0) \cite{gplv3}, una de las licencias de software libre más populares y respetadas. Esta licencia es fundamental para definir las condiciones de uso, modificación y distribución del software desarrollado. La GPL v3.0 es conocida por promover la libertad de uso y la colaboración abierta, al tiempo que protege los derechos de autor. Sus características clave incluyen:
+
+\begin{itemize}
+    \item \textbf{Libertad para ejecutar el programa}: Los usuarios tienen libertad para ejecutar el software para cualquier propósito.
+    \item \textbf{Libertad para estudiar y modificar el programa}: El acceso al código fuente permite a los usuarios estudiar cómo funciona el programa y adaptarlo a sus necesidades.
+    \item \textbf{Libertad para redistribuir copias}: Los usuarios pueden copiar y distribuir el software en su forma original.
+    \item \textbf{Libertad para distribuir versiones modificadas}: Los usuarios pueden modificar el software y distribuir sus propias versiones, lo que fomenta la innovación y la mejora continua.
+    \item \textbf{Protección de derechos}: La licencia asegura que el software permanezca libre y que cualquier trabajo derivado también esté protegido bajo los mismos términos.
+\end{itemize}
+
+\section{GitHub: Plataforma de Control de Versiones y Colaboración}
+GitHub, basado en la herramienta de control de versiones Git, es mucho más que un simple repositorio de código fuente. Es una de las plataformas de control de versiones y colaboración más grandes y populares del mundo, albergando millones de proyectos.
+
+Esta plataforma integral no solo facilita la gestión de versiones de código, sino que también potencia el trabajo colaborativo y la administración de proyectos mediante una variedad de herramientas y funcionalidades. Estas incluyen:
+
+\begin{itemize}
+    \item \textbf{Issues}: Esenciales para destacar problemas o tareas dentro del repositorio, permitiendo un seguimiento organizado y asignación de responsabilidades a los miembros del equipo.
+    \item \textbf{Integración continua}: Práctica fundamental en el desarrollo moderno, que integra y prueba automáticamente el código a medida que se desarrolla, facilitada por herramientas como GitHub Actions.
+    \item \textbf{Ramas y Pull Requests}: Permiten el desarrollo paralelo de características o pruebas y la propuesta de cambios al código principal, posibilitando una revisión y colaboración detallada en cada cambio propuesto.
+\end{itemize}
+
+\section{Lenguajes de programación: C y C++}
+Puesto que el problema descrito se resuelve \textit{desarrollando código}, es natural decidir antes de empezar en qué lenguaje se va a dar solución a las historias de usuario mencionadas.
+
+
+Los lenguajes C y C++ son elecciones prominentes cuando se busca eficiencia y rendimiento en un sistema. Estos lenguajes ofrecen un control cercano al hardware, permitiendo optimizaciones a nivel de memoria y ejecución. Además, la naturaleza compilada de sendos lenguajes asegura que el código se ejecuta directamente en la máquina anfitriona sin la necesidad de un intérprete intermedio, garantizando tiempos de respuesta rápidos. El compilador, al requerir análisis y ejecución eficiente del código fuente, se beneficia significativamente de estas características. Adicionalmente, la extensa biblioteca estándar y la amplia disponibilidad de bibliotecas de terceros en ambos lenguajes facilitan la implementación de funcionalidades complejas. Por estas razones, la decisión de utilizar C y C++ para definir el compilador garantiza un balance óptimo entre rendimiento y flexibilidad.
+
+\section{Gestor de tareas y dependencias: Make}
+Make es una herramienta de construcción automatizada que permite a los desarrolladores definir tareas y las dependencias entre ellas. Se utiliza ampliamente en programación para automatizar la compilación, pruebas, y otras tareas relacionadas con el ciclo de vida del software. Un archivo denominado `Makefile` contiene un conjunto de directivas y reglas que especifican cómo derivar los archivos objetivo a partir de archivos fuente. Al ejecutar la orden `make`, la herramienta lee el archivo `Makefile`, evalúa las dependencias y ejecuta las reglas necesarias en el orden adecuado.
+
+
+\noindent
+En este proyecto se usará para las siguientes tareas:
+\begin{itemize}
+    \item Gestión de las dependencias del proyecto. El Makefile debe contener reglas que permitan instalar, desinstalar y comprobar la versión de las dependencias del compilador.
+    \item Compilación del compilador. Debe contener las reglas para generar código objeto de todos los módulos implementados y compilarlos en un único ejecutable binario final.
+\end{itemize}
+
+\section{Análisis y Depuración de Memoria: Valgrind}
+Valgrind es una herramienta de programación para la detección de errores en memoria y análisis de rendimiento. Permite a los desarrolladores identificar problemas relacionados con la gestión de memoria, como fugas de memoria y acceso a punteros no válidos, entre otros problemas comunes en C y C++. Al ejecutar programas bajo el control de Valgrind, se pueden detectar estos problemas en tiempo real, lo que facilita la identificación y corrección de errores en las etapas tempranas del desarrollo.
+
+\section{Contenedores virtuales: Docker}
+Docker es una plataforma de que permite a los desarrolladores empaquetar aplicaciones y sus dependencias en contenedores. Estos contenedores pueden ser ejecutados de manera consistente en cualquier entorno que tenga Docker instalado, independientemente de las diferencias en ese entorno con respecto al entorno original donde se desarrolló la aplicación. En generación de contenedores, a diferencia de la virtualización tradicional, no se crea una máquina virtual completa para cada aplicación, sino que comparte el mismo núcleo del sistema operativo y aísla la aplicación en un contenedor. Esto hace que Docker sea más ligero, más rápido y más eficiente en términos de recursos que las máquinas virtuales tradicionales.
+
+
+En este proyecto se utilizará para aislar el compilador del lenguaje en un entorno donde ya disponga de todas las dependencias necesarias para funcionar, aprovechando todas las ventajas anteriormente mencionadas.
+
+\section{Generación de analizadores léxicos: Flex}
+La generación de analizadores léxicos es un imprescindible en el análisis de lenguajes de programación, donde las expresiones regulares y los autómatas juegan un papel importantísimo. Estos analizadores, diseñados para reconocer patrones léxicos en el código fuente, son a menudo construidos utilizando herramientas como Flex, que convierte expresiones regulares en autómatas finitos. Flex simplifica este proceso al permitir la definición de patrones léxicos a través de expresiones regulares, que luego son automáticamente transformadas en un AFND y posteriormente en un AFD para el análisis eficiente del texto de entrada. Este enfoque aprovecha la teoría de autómatas y las propiedades de las expresiones regulares para crear sistemas capaces de descomponer y entender la estructura léxica de los lenguajes de programación.
+
+
+\section{Generación de analizadores sintácticos: Bison}
+La utilidad de los autómatas con pila se extiende más allá de la teoría y encuentra una aplicación práctica significativa en la generación de analizadores sintácticos. El proceso de análisis sintáctico implica reconocer patrones y estructuras sintácticas más complejas, una tarea para la cual los autómatas con pila están especialmente equipados. Gracias a su capacidad de almacenar y manejar información contextual en la pila, pueden eficientemente analizar gramáticas independientes del contexto, que son típicas en la mayoría de los lenguajes de programación modernos.
+
+Herramientas como Bison, utilizan la teoría de los autómatas con pila para generar analizadores sintácticos. Estas herramientas toman una especificación de gramática y producen un analizador que puede descomponer y analizar estructuras lingüísticas complejas, siguiendo las reglas definidas en la gramática. Al igual que con los analizadores léxicos, el uso de autómatas con pila simplifica enormemente el proceso de desarrollo de software, permitiendo a los programadores y desarrolladores de lenguajes centrarse en la definición de reglas gramaticales, mientras la herramienta maneja los detalles del análisis sintáctico.
+
+\subsection{Gramáticas LALR(1) y su Aplicación en Bison}
+Las gramáticas LALR(1), o "Look-Ahead LR(1)", son un tipo de gramática utilizada en la generación de analizadores sintácticos, especialmente en herramientas como Bison. Estas gramáticas son una variante de las gramáticas LR(1), que son un tipo de gramática independiente del contexto.
+
+La característica distintiva de las gramáticas LALR(1) es su capacidad para considerar un ``look-ahead'' de un símbolo al tomar decisiones de análisis. Esto significa que el analizador revisa el símbolo actual y el siguiente para determinar la acción a realizar. Este enfoque ayuda a manejar conflictos de análisis que podrían surgir en gramáticas más simples.
+
+Bison utiliza gramáticas LALR(1) debido a su eficiencia en el manejo de la mayoría de las construcciones de lenguajes de programación, mientras que mantiene un equilibrio entre la complejidad del analizador y su capacidad para manejar gramáticas amplias. Al emplear LALR(1), Bison es capaz de generar analizadores eficientes y potentes que pueden procesar gramáticas complejas con un buen rendimiento y precisión.
