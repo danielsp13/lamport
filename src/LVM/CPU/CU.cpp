@@ -442,7 +442,7 @@ void LVM_CPU_CU::fetch(){
     else{
         tracker_msg +=  "; instr. captada: " + fetched_instr->get_code_instr_str();
     }
-    tracker.track(tracker_msg);
+    tracker.track(tracker_msg,true);
 
     // -- Decodificar
     decode();
@@ -452,7 +452,7 @@ void LVM_CPU_CU::fetch(){
 
     // -- Registrar en traza de ejecucion
     tracker_msg = TRACKER_HEADER + "instruccion ejecutada";
-    tracker.track(tracker_msg);
+    tracker.track(tracker_msg,true);
 
     // -- Actualizar contador de programa (si procede)
     update_pc();

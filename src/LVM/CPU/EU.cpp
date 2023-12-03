@@ -25,7 +25,7 @@ LVM_CPU_EU& LVM_CPU_EU::get_instance(){
 void LVM_CPU_EU::execute_start_program(){
     // -- Registrar en traza de ejecucion
     std::string tracker_msg = TRACKER_HEADER + "inicio de programa";
-    tracker.track(tracker_msg);
+    tracker.track(tracker_msg,true);
 
 
 }
@@ -33,7 +33,7 @@ void LVM_CPU_EU::execute_start_program(){
 void LVM_CPU_EU::execute_end_program(){
     // -- Registrar en traza de ejecucion
     std::string tracker_msg = TRACKER_HEADER + "fin de programa";
-    tracker.track(tracker_msg);
+    tracker.track(tracker_msg,true);
 }
 
 void LVM_CPU_EU::execute_initialize_global_var(){
@@ -61,7 +61,7 @@ void LVM_CPU_EU::execute_end_process(){
 void LVM_CPU_EU::execute_load(int reg_dest, int segment_op_1, int virt_dir_op_1, int offset_op_1){
     // -- Registrar en traza de ejecucion
     std::string tracker_msg = TRACKER_HEADER + "cargando contenido de memoria (segmento " + std::to_string(segment_op_1) + " -> " + std::to_string(virt_dir_op_1) + "+" + std::to_string(offset_op_1) + ") " + "en registro " + "%r" + std::to_string(reg_dest);
-    tracker.track(tracker_msg);
+    tracker.track(tracker_msg,true);
 
     // -- Obtener bloque de memoria
     const LVM_Memory_Block& mem_block = memory_manager.mem_access(segment_op_1,virt_dir_op_1,offset_op_1);
@@ -73,7 +73,7 @@ void LVM_CPU_EU::execute_load(int reg_dest, int segment_op_1, int virt_dir_op_1,
 void LVM_CPU_EU::execute_store(int reg_dest, int reg_op_1){
     // -- Registrar en traza de ejecucion
     std::string tracker_msg = TRACKER_HEADER + "guardando contenido de registro " + "%r" + std::to_string(reg_dest) + " en registro " + "%r" + std::to_string(reg_op_1);
-    tracker.track(tracker_msg);
+    tracker.track(tracker_msg,true);
 
     registers[reg_dest] = registers[reg_op_1];
 }

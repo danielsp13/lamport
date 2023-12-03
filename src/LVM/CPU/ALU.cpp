@@ -173,7 +173,7 @@ void LVM_CPU_ALU::execute_binary_operation(IR_instruction_type_t instr_code, int
         break;
     }
 
-    tracker.track(tracker_msg);
+    tracker.track(tracker_msg,true);
 }
 
 
@@ -212,5 +212,5 @@ void LVM_CPU_ALU::execute_unary_operation(IR_instruction_type_t instr_code, int 
         break;
     }
 
-    tracker.track(tracker_msg);
+    tracker.track(tracker_msg,true);
 }

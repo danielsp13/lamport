@@ -113,13 +113,13 @@ bool LVM::run(){
         tracker.activate();
 
         // -- Indicar inicio de maquina virtual
-        tracker.track(TRACKER_HEADER + "inicio de Maquina Virtual de Lamport");
+        tracker.track(TRACKER_HEADER + "inicio de Maquina Virtual de Lamport",true);
         
         // -- Seguir ejecutando maquina virtual ...
         while(!CPU.program_terminated() && !check_posix_interrupt_signals_received()){
             int actual_cycle = CPU.get_cycle();
             // -- Registrar nuevo ciclo de CPU
-            tracker.track(TRACKER_HEADER + "Nuevo ciclo de CPU. Ciclo: " + std::to_string(actual_cycle));
+            tracker.track(TRACKER_HEADER + "Nuevo ciclo de CPU. Ciclo: " + std::to_string(actual_cycle),true);
 
             // -- Obtener una nueva planificacion y obtener nueva hebra a ejecutar
             thread_manager.schedule();
@@ -140,8 +140,8 @@ bool LVM::run(){
             // -- Ejecutar 
             CPU.execute_next_instruction(current_thread);
 
-            tracker.track(TRACKER_HEADER + "Fin de ciclo de CPU. Ciclo: " + std::to_string(actual_cycle));
-            tracker.track("\n");
+            tracker.track(TRACKER_HEADER + "Fin de ciclo de CPU. Ciclo: " + std::to_string(actual_cycle),true);
+            tracker.track("\n",true);
 
             // --- COUT
             //tracker.print_cpu_cycle_trace();
@@ -158,7 +158,7 @@ bool LVM::run(){
             }
             else if(SIGINT_received.load()){
                 std::cout << " SIGINT detectado: Ctrl+C. Terminando LVM." << std::endl; std::cout.flush();
-                tracker.track(TRACKER_HEADER + "Ctrl+C producido. Captada signal SIGINT. Terminando maquina...");
+                tracker.track(TRACKER_HEADER + "Ctrl+C producido. Captada signal SIGINT. Terminando maquina...",true);
             }
             else if(SIGABRT_received.load()){
                 std::cout << " SIGABRT detectado: Fallo irrecuperable. Terminando LVM." << std::endl; std::cout.flush();
@@ -166,7 +166,7 @@ bool LVM::run(){
             }
         }
 
-        tracker.track(TRACKER_HEADER + "fin de Maquina Virtual de Lamport");
+        tracker.track(TRACKER_HEADER + "fin de Maquina Virtual de Lamport",true);
         tracker.confirm_track_cycle();
 
         return true;

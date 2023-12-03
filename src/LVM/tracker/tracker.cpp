@@ -28,8 +28,8 @@ void LVM_Tracker::activate(){
     }
 }
 
-void LVM_Tracker::track(std::string msg){
-    if(activated){
+void LVM_Tracker::track(std::string msg, bool resumed){
+    if(activated && (resumed == RESUMED_MODE || FULL_MODE)){
         if(msg == "\n"){
             CPU_cycle_trace.push_back(msg + "\n");
             return;            
