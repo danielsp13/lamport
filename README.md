@@ -34,7 +34,7 @@ En este repositorio se encuentra el código fuente del compilador en tiempo de e
 
 ### :book: <a name="lamport-doc"></a> Documentación del proyecto
 
-:star: *Novedad:* Ahora puede acceder directamente a la documentación final del proyecto en el PDF del directorio `tex/`. 
+:star: *Novedad:* Ahora puede acceder directamente a la documentación final del proyecto en el PDF en [este enlace](tex/TFG_DanielPerezRuiz.pdf). 
 
 La documentación **completa** de este proyecto está redactada en `LaTeX`, en el directorio `tex/`. Para poder recuperar el informe, es necesario instalar el paquete `texlive` en la distribución donde se clone este repositorio.
 

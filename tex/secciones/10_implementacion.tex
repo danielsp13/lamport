@@ -2264,8 +2264,10 @@ Finalmente, se describe el esquema de planificación Round-Robin definido para l
     \item \textbf{Selección de Hebras}:
     \begin{enumerate}
         \item Si hay, se añaden hebras nuevas a la cola de listas.
-        \item Si una hebra termina, se mueve a la cola de terminadas y notifica a su hebra padre si es aplicable.
-        \item Si una hebra excede su quantum, se reubica al final de la cola de listas y se selecciona la siguiente hebra para ejecución. En caso contrari, si todavía dispone de tiempo en CPU, sigue controlándola.
+        \item Si la hebra actual excede su quantum, se reubica al final de la cola de listas y se selecciona la siguiente hebra para ejecución. En caso contrario, si todavía dispone de tiempo en CPU, sigue controlándola.
+        \item Si la hebra actual se encuentra ejecutando una sección atómica, continua con el control de la CPU hasta que salga. Esto se hará independientemente de si ha excedido su quantum o no.
+        \item Si la hebra actual termina, se mueve a la cola de terminadas y notifica a su hebra padre si es aplicable. En ese caso, se selecciona otra hebra a ejecutar.
+        \item Si la hebra actual es bloqueada, se mueve a la cola de bloqueadas y se selecciona otra hebra a ejecutar.
     \end{enumerate}
 
 \end{enumerate}
@@ -2308,7 +2310,7 @@ El resultado de la ejecución es el siguiente:
   \begin{minipage}{\linewidth}
     \centering
     \includegraphics[width=\linewidth]{images/implementacion/ejecucion/lmp_hola_mundo.png}
-    \caption{Ejecución de ``HolaMundo'' en el intérprete.}
+    \caption{Ejecución de ``HolaMundo'' en el compilador.}
     \label{fig:ejecucionHolaMundo}
   \end{minipage}
   \vspace{10pt} 

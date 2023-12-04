@@ -1,10 +1,10 @@
-\chapter{\textbf{Fundamentos del procesamiento de lenguajes}}
-Este capítulo profundiza en los fundamentos teóricos de los lenguajes y gramáticas \cite{aho1990compiladores}, \cite{hopcroft2010introduccion}, cruciales para el análisis y construcción de lenguajes de programación, constituyendo la piedra angular de este proyecto para la parte práctica. Se explorarán también conceptos básicos de modelos de computación, que proporcionan un marco teórico para entender el procesamiento de información y la ejecución de tareas en sistemas computacionales. Estos modelos son esenciales para comprender la implementación e interpretación de lenguajes en entornos computacionales, incluyendo el papel de intérpretes y compiladores.
+\chapter{\textbf{Fundamentos del procesamiento de lenguajes formales}}
+Este capítulo profundiza en los fundamentos teóricos de los lenguajes formales y gramáticas \cite{aho1990compiladores}, \cite{hopcroft2010introduccion}, cruciales para el análisis y construcción de lenguajes de programación, constituyendo la piedra angular de este proyecto para la parte práctica. Se explorarán también conceptos básicos de modelos de computación, que proporcionan un marco teórico para entender el procesamiento de información y la ejecución de tareas en sistemas computacionales. Estos modelos son esenciales para comprender la implementación e interpretación de lenguajes en entornos computacionales, incluyendo el papel de intérpretes y compiladores.
 
-\section{Lenguajes}\label{section:languages}
+\section{Lenguajes formales}\label{section:languages}
 Los lenguajes en el contexto de la teoría de la computación y los lenguajes de programación se construyen a partir de conjuntos básicos de símbolos conocidos como \textbf{alfabetos}. Un \textbf{alfabeto} es un conjunto finito de símbolos o letras, y la combinación de estos símbolos forma \textbf{palabras} o \textbf{cadenas}. Por ejemplo, un alfabeto puede ser $A = \left\lbrace a, b, 0, 1 \right\rbrace$, y una cadena formada por este alfabeto podría ser $u = 001abb1$.
 
-Un \textbf{lenguaje} sobre un alfabeto $A$ es un subconjunto de todas las posibles cadenas que se pueden formar con los símbolos de $A$, es decir, $L \subseteq A^*$. Aquí, $A^*$ representa el conjunto de todas las palabras o cadenas que se pueden formar con el alfabeto $A$. Por ejemplo:
+Un \textbf{lenguaje formal} (o simplemente lenguaje) sobre un alfabeto $A$ es un subconjunto de todas las posibles cadenas que se pueden formar con los símbolos de $A$, es decir, $L \subseteq A^*$. Aquí, $A^*$ representa el conjunto de todas las palabras o cadenas que se pueden formar con el alfabeto $A$, incluyendo la cadena vacía, denotada normalmente por $\epsilon$. Por ejemplo:
 
 \begin{itemize}
 \item $L_1 = \left\lbrace 0^i 1^i : i = 0,1,2,\ldots \right\rbrace$ denota un lenguaje de cadenas con secuencias iguales de ceros seguidas de unos.
@@ -62,12 +62,12 @@ La Jerarquía de Chomsky, propuesta por Noam Chomsky en 1956, es un marco teóri
     \begin{align*}
         \alpha_1 A \alpha_2 \rightarrow \alpha_1 \beta \alpha_2
     \end{align*}
-    donde $\alpha_1,\alpha_2,\beta \in (V \cup T)^*, A \in V, \beta \neq \epsilon$, exceptuando la regla $S \rightarrow \epsilon$, en cuyo caso $S$ no aparece a la derecha de las reglas. Esto da lugar a \textbf{lenguajes dependientes del contexto}.
+    donde $\alpha_1,\alpha_2,\beta \in (V \cup T)^*, A \in V, \beta \neq \epsilon$, exceptuando la regla $S \rightarrow \epsilon$, en cuyo caso $S$ no aparece a la derecha de las reglas. Esto da lugar a \textbf{lenguajes dependientes del contexto}, ya que $A$ se sustituye por $\beta$, pero únicamente en un contexto determinado, es decir, cuando aparece entre $\alpha_1$ y $\alpha_2$.
     \item \textbf{Tipo 2}: Cualquier producción tiene la forma:
     \begin{align*}
         A \rightarrow \alpha
     \end{align*}
-    donde $A \in V, \alpha \in (V \cup T)^*$. Esto da lugar a \textbf{lenguajes independientes del contexto}.
+    donde $A \in V, \alpha \in (V \cup T)^*$. Esto da lugar a \textbf{lenguajes independientes del contexto}, ya que $A$ se sustituye por $\alpha$ independientemente del contexto en el que aparece A, es decir, independientemente de lo que precede o lo que sigue a $A$.
     \item \textbf{Tipo 3}: Toda regla tiene la forma:
     \begin{align*}
         A \rightarrow uB \hspace{0.2cm} \text{ó} \hspace{0.2cm} A \rightarrow u
@@ -81,7 +81,7 @@ La clase o familia de lenguajes de los tipos anteriormente mencionados se denota
     \mathcal{L}_3 \subseteq \mathcal{L}_2 \subseteq \mathcal{L}_1 \subseteq \mathcal{L}_0
 \end{align*}
 
-Para este proyecto es crucial considerar los lenguajes independientes de contexto, que son los que constituyen lenguajes de progamación. También los lenguajes regulares, útiles para el reconocimiento de cadenas.
+Para este proyecto es crucial considerar los lenguajes independientes de contexto, que son los que constituyen lenguajes de programación. También los lenguajes regulares, útiles para el reconocimiento de cadenas.
 
 \section{Expresiones regulares}\label{section:expr}
 Las expresiones regulares son una herramienta teórica fundamental en el estudio de los lenguajes formales, específicamente los lenguajes regulares. Se utilizan para describir de manera sintética y precisa los patrones y estructuras que conforman estos lenguajes. A través de una serie de símbolos y operadores, las expresiones regulares permiten representar conjuntos infinitos de cadenas y facilitan el análisis y clasificación de estos lenguajes en la teoría de la computación. Su estudio es esencial para comprender cómo se pueden definir y reconocer los lenguajes regulares, que son la base de modelos más complejos en la informática y la lingüística teórica.
@@ -123,8 +123,8 @@ Algunos ejemplos de expresiones regulares son los siguientes:
 
 
 
-\section{Computación de lenguajes. Autómatas}\label{section:automat}
-Los autómatas finitos y con pila nos permiten entender cómo las máquinas procesan y reconocen lenguajes, desde los patrones simples de los lenguajes regulares hasta las estructuras más complejas de los lenguajes independientes del contexto. Aquí se exploran cómo estos modelos computacionales simplificados sirven como la herramienta clave para el análisis y procesamiento de lenguajes en la informática.
+\section{Análisis de lenguajes formales: Autómatas}\label{section:automat}
+Los autómatas finitos y con pila permiten entender cómo las máquinas procesan y reconocen lenguajes, desde los patrones simples de los lenguajes regulares hasta las estructuras más complejas de los lenguajes independientes del contexto. Aquí se exploran cómo estos modelos computacionales simplificados sirven como la herramienta clave para el análisis y procesamiento de lenguajes en la informática.
 
 \subsection{Autómatas finitos}\label{subsection:AF}
 Los autómatas finitos (AF) son fundamentales para reconocer patrones en lenguajes de programación. Existen dos tipos principales: los Autómatas Finitos no Deterministas (AFND), que admiten múltiples transiciones para un mismo símbolo, y los Autómatas Finitos Deterministas (AFD), que tienen una única transición por símbolo y estado. Un AF se define formalmente como una quíntupla que incluye un conjunto de estados, un alfabeto de entrada, una función de transición, un estado inicial y un conjunto de estados finales.
@@ -176,7 +176,7 @@ donde:
 \end{itemize}
 
 \section{Herramientas de procesamiento de lenguajes. Compiladores e intérpretes}\label{section:compiladores}
-Lo acontecido en secciones anteriores en este capítulo ofrecen un marco teórico más que suficiente para el desarrollo de los siguientes capítulos que se centran en la parte práctica del proyecto. En esta última sección se hablará de herramientas prácticas para el procesamiento de lenguajes: los \textit{compiladores} e \textit{intérpretes}. Estas herramientas tienen como objetivo convertir el código fuente escrito en un lenguaje de programación a un formático que la máquina pueda ejecutar o interpretar directamente.
+Lo acontecido en secciones anteriores en este capítulo ofrecen un marco teórico más que suficiente para el desarrollo de los siguientes capítulos que se centran en la parte práctica del proyecto. En esta última sección se hablará de herramientas prácticas para el procesamiento de lenguajes: los \textit{compiladores} e \textit{intérpretes}. Estas herramientas tienen como objetivo convertir el código fuente escrito en un lenguaje de programación a un formato que la máquina pueda ejecutar o interpretar directamente.
 
 Un \textbf{compilador} es un programa que traduce código fuente escrito en lenguaje de alto nivel a lenguaje máquina o a un código intermedio. El proceso de compilación consta de varias fases:
 

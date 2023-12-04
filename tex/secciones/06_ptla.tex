@@ -62,7 +62,7 @@ La lógica proposicional, como punto de partida en el estudio de las lógicas fo
 
 
 \subsection{El lenguaje proposicional}\label{subsection:lproplenguaje}
-El lenguaje proposicional contiene los elementos con los que trabaja la lógica proposicional. Formalmente, un \textbf{lenguaje proposicional} $\mathcal{L}$ es una dupla $(O,P)$ tal que $O,P \neq \emptyset$ y $O \cap P = \emptyset$. Al conjunto $O$ se le llama ``conjunto de conectivas u operadores lógicos'', mientras que a $P$ se le denota por ``conjunto de proposiciones''. La unión de estos dos conjuntos incluyendo a los paréntesis $\lbrace (,) \rbrace$, $O \cup P \cup \lbrace (,) \rbrace$, es el ``conjunto de \textbf{símbolos}'' de $\mathcal{L}$. A los elementos de $P$ convendrá escribirlos con letras del abecedario minúsculas, incluyendo eventualmente subíndices: $a,b,c,a_0,a_1,a_2$, etc.
+El lenguaje proposicional (\cite{miranda2023logica},\cite[Capítulo 8]{monk1976mathematical} ) contiene los elementos con los que trabaja la lógica proposicional. Formalmente, un \textbf{lenguaje proposicional} $\mathcal{L}$ es una dupla $(O,P)$ tal que $O,P \neq \emptyset$ y $O \cap P = \emptyset$. Al conjunto $O$ se le llama ``conjunto de conectivas u operadores lógicos'', mientras que a $P$ se le denota por ``conjunto de proposiciones''. La unión de estos dos conjuntos incluyendo a los paréntesis $\lbrace (,) \rbrace$, $O \cup P \cup \lbrace (,) \rbrace$, es el ``conjunto de \textbf{símbolos}'' de $\mathcal{L}$. A los elementos de $P$ convendrá escribirlos con letras del abecedario minúsculas, incluyendo eventualmente subíndices: $a,b,c,a_0,a_1,a_2$, etc.
 
 Esta definición formal de lenguaje permite definir con libertad el repertorio de operadores lógicos a utilizar, es decir, el conjunto $O$. Dependiendo de sus elementos, se tiene un lenguaje proposicional diferente. La lógica proposicional tradicional puede utilizar varios conjuntos de conectivas, aunque en este estudio se opta por utilizar estas cinco citadas a continuación:
 
@@ -126,16 +126,31 @@ Es decir, si $\alpha$ es una fórmula atómica, su única subfórmula es ella mi
 Una observación importante con respecto a lo comentado en los ejemplos de fórmulas anteriores es que no hay que confundir el hecho de que dos fórmulas diferentes puedan tener una misma escritura con que, sea cual sea la fórmula $\alpha$ a considerar, sólo existe una única forma de escribirla, lo que se conoce como \textit{principio de lectura única}.
 
 \begin{teorema}
-    \textbf{Principio de lectura única}. Sea $\mathcal{L} = (O,P)$ un lenguaje proposicional y $Form_{\mathcal{L}}$ el conjunto de fórmulas proposicionales del lenguaje. Entonces:
+    \textbf{Principio de lectura única} \cite[Capítulo 8]{monk1976mathematical}. Sea $\mathcal{L} = (O,P)$ un lenguaje proposicional y $Form_{\mathcal{L}}$ el conjunto de fórmulas proposicionales del lenguaje. Entonces:
     \begin{enumerate}[label=\Roman*.]
         \item Toda fórmula es de longitud positiva.
         \item Si $\phi \in Form_{\mathcal{L}}$, entonces o $\phi = p$ con $p \in P$, o $\phi = \neg \alpha$ con $\alpha \in Form_{\mathcal{L}}$, o $\phi = \alpha \land \beta$, o $\phi = \alpha \lor \beta$, $\phi = \alpha \rightarrow \beta$, $\phi = \alpha \leftrightarrow \beta$, con $\alpha,\beta \in Form_{\mathcal{L}}$.
-        \item Si $\phi = \langle \phi_0,\ldots,\phi_{m-1} \rangle \in Form_{\mathcal{L}}$ y además $i < m-1$, entonces $\langle \phi_0,\ldots,\phi_{i} \rangle \not \in Form_{\mathcal{L}}$.
+        \item Si $\phi = \langle \phi_0,\ldots,\phi_{m-1} \rangle \in Form_{\mathcal{L}}$, donde $\langle \phi_0, \phi_1 \ldots, \phi_{m-1} \rangle$ es una sucesión de expresiones, y además $i < m-1$. Entonces $\langle \phi_0,\ldots,\phi_{i} \rangle \not \in Form_{\mathcal{L}}$.
         \item En (II), las posibilidades mencionadas son mutuamente excluyentes, y las fórmulas $\alpha,\beta$ están unívocamente determinadas por $\phi$.
     \end{enumerate}
 \end{teorema}
 
-Este teorema formaliza el hecho de que las fórmulas son un tipo particular de expresiones (I), e indica las reglas de construcción de las fórmulas ya mencionadas (II). Además, en (IV) se precisa que no hay ambigüedad en la descomposición de $\phi$ en sus componentes: cada fórmula compleja tiene una única estructura definida por sus subfórmulas inmediatas. Por otra parte, en (III) se está indicando la propiedad de unicidad de las subfórmulas dentro de una fórmula dada. La notación $\phi = \langle \phi_0,\ldots,\phi_{m-1} \rangle$ sugiere que una fórmula $\phi$ en el lenguaje $\mathcal{L}$ se puede ver como una secuencia de subfórmulas, donde $\phi_0$ hasta $\phi_{m-1}$ son estas subfórmulas, y sugiere que cualquier parte de $\phi$ que no incluya todos los elementos hasta el último, no es en sí misma una fórmula del lenguaje $\mathcal{L}$, asegurando que cada fórmula es una construcción única y no puede ser confundida con una subsecuencia parcial de sí misma.
+\noindent
+La interpretación al teorema anterior se desglosa en los siguientes puntos:
+\begin{itemize}
+    \item[(i)] Cada fórmula en la lógica proposicional es una secuencia finita de símbolos de longitud positiva. Esto garantiza que no existen fórmulas sin contenido.
+
+    \item[(ii)] Toda fórmula es o bien una proposición atómica, o bien el resultado de aplicar una operación lógica, como la negación o la conjunción, a otras fórmulas. Esto establece las formas básicas que las fórmulas pueden tomar.
+
+    \item[(iii)] Si se considera cualquier fórmula compleja como una secuencia de subfórmulas, entonces cualquier subsecuencia que no abarque la totalidad de la fórmula no constituye una fórmula válida en sí misma. Esto asegura que las fórmulas no pueden ser ambiguas al ser descompuestas en sus componentes.
+
+    \item[(iv)] En el caso de una fórmula formada por operaciones lógicas, las subfórmulas afectadas por estas operaciones están unívocamente determinadas. Por lo tanto, no existe ambigüedad en la descomposición de una fórmula compleja en sus subfórmulas.
+\end{itemize}
+
+Por ejemplo, aplicando el punto (ii) del teorema, la fórmula $((p \land q) \rightarrow r)$ se interpreta de manera única como una implicación donde el antecedente es la conjunción $(p \land q)$ y el consecuente es $r$. No es posible interpretar la fórmula de otra manera sin violar las reglas de formación de fórmulas, lo que se alinea con el punto (iv), que indica que la estructura de las fórmulas complejas está unívocamente determinada por sus subfórmulas.
+
+Se considera también la subsecuencia $(p \land q)$ extraída de la fórmula anterior. Aunque $(p \land q)$ es una fórmula válida y bien formada por sí misma, reflejando el punto (i) que establece que cada fórmula es una secuencia finita de símbolos de longitud positiva, no representa la estructura completa de la fórmula original $((p \land q) \rightarrow r)$. La lectura única, según lo indicado en el punto (iii), afirma que dentro del contexto de la fórmula más grande, $(p \land q)$ es solo una parte de la estructura total y no puede ser interpretada independientemente sin perder el significado completo que se establece en la fórmula original.
+
 
 \subsection{Semántica}\label{subsection:lpropsemantic}
 Si bien las fórmulas proposicionales de un lenguaje proposicional $\mathcal{L}$ están bien definidas en términos de su sintaxis, como se discutió anteriormente, por sí solas no poseen \textbf{significado} inherente. Es por ello por lo que a cada fórmula del lenguaje se le dotará de significado, que posteriormente servirá para definir deducciones o razonamientos correctos.
@@ -184,7 +199,7 @@ $\cdot$ & 0 & 1 \\
 
 \vspace{0.2cm}
 
-La motivación detrás de esta definición de valor de verdad para las fórmulas del lenguaje se resume a continuación. En primer lugar, la disyunción será verdadera si al menos una de las dos fórmulas es evaluada como verdadera, y no habría problema en que las dos lo fuesen al mismo tiempo debido a la forma de operar en $\mathbb{Z}_2$. Para la conjunción, solo se evaluará como verdadera si ambas componentes también lo son. En el caso de la implicación, se evalúa como verdadera en todos los casos excepto cuando $\alpha$ es verdadera y $\beta$ es falsa. Esto es, si $\alpha$ es falsa, la implicación es verdadera independientemente del valor de $\beta$ \footnote{De manera informal, este concepto puede entenderse como un aspecto peculiar de la lógica: si el punto de partida (en este caso, $\alpha$) es falso, entonces cualquier afirmación que se derive de él (como en una implicación) se considera verdadera, independientemente de su contenido específico. Este principio se sostiene en la lógica formal para evitar inconsistencias y no implica que las afirmaciones derivadas sean verdaderas en un sentido realista, sino que se sigue una regla lógica para mantener la coherencia en el razonamiento.}. En cuanto a la equivalencia, esta se evaluará como verdadera solo si ambos componentes tienen el mismo valor de verdad. Finalmente, la negación invierte el valor de verdad de la fórmula.
+La motivación detrás de esta definición de valor de verdad para las fórmulas del lenguaje se resume a continuación. En primer lugar, la disyunción será verdadera si al menos una de las dos fórmulas es evaluada como verdadera, y no habría problema en que las dos lo fuesen al mismo tiempo debido a la forma de operar en $\mathbb{Z}_2$ y la definición de la función de interpretación sobre este operador lógico. Para la conjunción, solo se evaluará como verdadera si ambas componentes también lo son. En el caso de la implicación, se evalúa como verdadera en todos los casos excepto cuando $\alpha$ es verdadera y $\beta$ es falsa. Esto es, si $\alpha$ es falsa, la implicación es verdadera independientemente del valor de $\beta$ \footnote{De manera informal, este concepto puede entenderse como un aspecto peculiar de la lógica: si el punto de partida (en este caso, $\alpha$) es falso, entonces cualquier afirmación que se derive de él (como en una implicación) se considera verdadera, independientemente de su contenido específico. Este principio se sostiene en la lógica formal para evitar inconsistencias y no implica que las afirmaciones derivadas sean verdaderas en un sentido realista, sino que se sigue una regla lógica para mantener la coherencia en el razonamiento.}. En cuanto a la equivalencia, esta se evaluará como verdadera solo si ambos componentes tienen el mismo valor de verdad. Finalmente, la negación invierte el valor de verdad de la fórmula.
 
 \subsubsection{Clasificación de fórmulas}\label{subsubsection:lpropclassify}
 Teniendo en cuenta que ahora las fórmulas ya disponen de un sentido, se puede establecer una clasificación considerando sus diferentes interpretaciones. Sea $\phi \in Form_{\mathcal{L}}$. Se dice que $\phi$ es:
@@ -197,7 +212,27 @@ Teniendo en cuenta que ahora las fórmulas ya disponen de un sentido, se puede e
     \item \textbf{contradicción}, si y sólo si $\neg\phi$ es una tautología.
 \end{itemize}
 
-Las tautologías son cruciales para establecer principios lógicos universales y leyes invariables, mientras que las contradicciones, que son falsas en todas las interpretaciones, ayudan a identificar y evitar errores en razonamientos. Por otra parte las fórmulas contingentes, que pueden ser verdaderas o falsas dependiendo de la interpretación, reflejan la complejidad y variabilidad de situaciones reales. 
+Las tautologías son cruciales para establecer principios lógicos universales y leyes invariables, mientras que las contradicciones, que son falsas en todas las interpretaciones, ayudan a identificar y evitar errores en razonamientos. Por otra parte las fórmulas contingentes, que pueden ser verdaderas o falsas dependiendo de la interpretación, reflejan la complejidad y variabilidad de situaciones reales. Aquí se presentan algunos ejemplos básicos:
+
+\begin{itemize}
+  \item \textbf{Tautología:}
+    \begin{itemize}
+      \item Ejemplo: $ p \vee \neg p $
+      \item Explicación: Esta fórmula es una tautología porque siempre es verdadera, independientemente del valor de verdad (es decir, su interpretación) de $ p $. Representa el principio del tercero excluido, que afirma que una proposición o es verdadera o su negación es verdadera.
+    \end{itemize}
+
+  \item \textbf{Contradicción:}
+    \begin{itemize}
+      \item Ejemplo: $ p \wedge \neg p $
+      \item Explicación: Esta fórmula es una contradicción porque siempre es falsa, sin importar el valor de verdad de $ p $. Representa una situación imposible en la que una proposición y su negación serían ambas verdaderas al mismo tiempo.
+    \end{itemize}
+
+  \item \textbf{Fórmula Contingente:}
+    \begin{itemize}
+      \item Ejemplo: $ p \rightarrow q $
+      \item Explicación: Esta fórmula es contingente porque su valor de verdad depende de los valores de verdad de $ p $ y $ q $. Por ejemplo, si $ p $ es verdadera y $ q $ es falsa, entonces la fórmula es falsa. En otras combinaciones de valores de verdad para $ p $ y $ q $, la fórmula puede ser verdadera. Refleja situaciones reales donde las condiciones pueden variar.
+    \end{itemize}
+\end{itemize}
 
 \subsubsection{Equivalencia lógica}\label{subsubsection:lpropequivalency}
 Este es uno de los conceptos más importantes de la lógica, que aquí se definirá en términos del significado de las fórmulas, aunque se puede realizar también de forma sintáctica. Sean $\alpha,\beta \in Form_{\mathcal{L}}$. Se dice que son \textbf{lógicamente equivalentes} si para cualquier interpretación $I$ se tiene que $I(\alpha) = I(\beta)$. Cuando esto sucede, se escribe $\alpha \equiv \beta$.
@@ -255,7 +290,7 @@ Un \textbf{lenguaje modal proposicional} $\mathcal{L}_{\mathcal{M}}$ es un tripl
     O = \lbrace \neg, \rightarrow, \land, \lor, \leftrightarrow, \square, \diamondsuit \rbrace
     $$
 
-    Las dos nuevas conectivas añadidas a la lógica proposicional tradicional, $\square$ y $\diamondsuit$, se leen como ``es necesario'' y ``es posible'', respectivamente.
+    Las dos nuevas conectivas añadidas a la lógica proposicional tradicional, $\square$ y $\diamondsuit$, se leen como ``es necesario'' y ``es posible'', respectivamente. Cuando se habla de \textbf{operadores modales} se hace referencia a estas dos conectivas.
 \end{itemize}
 
 También se tendrán en cuenta el uso de paréntesis como símbolos auxiliares si son necesarios. Por otra parte, las definiciones de \textit{expresiones}, \textit{fórmulas} y \textit{subfórmulas} de la lógica proposicional se mantienen, aunque ahora hay que considerar nuevas fórmulas para la lógica modal:
@@ -268,7 +303,9 @@ También se tendrán en cuenta el uso de paréntesis como símbolos auxiliares s
 y se denota por $Form_{\mathcal{L}_{\mathcal{M}}}$ al conjunto de fórmulas de la lógica modal. Naturalmente, las fórmulas de la lógica modal verifican el \textit{principio de lectura única}, comentado en la sección anterior.
 
 \subsubsection{Instancias de sustitución}
-Dada una fórmula $\alpha \in Form_{\mathcal{L}_{\mathcal{M}}}$, una \textbf{instancia de sustitución} es otra fórmula resultante de reemplazar simultáneamente alguna o todas las variables proposicionales de $\alpha$ por fórmulas. Por ejemplo, si $(p\land q) \rightarrow r$ es una instancia de sustitución de $\alpha = p \rightarrow q$.
+
+En la lógica modal, una \textbf{instancia de sustitución} de una fórmula $\alpha \in \text{Form}_{\mathcal{L}_{\mathcal{M}}}$ se obtiene al reemplazar simultáneamente una o más variables proposicionales en $\alpha$ por otras fórmulas. Este proceso implica la sustitución de cada ocurrencia de las variables seleccionadas en la fórmula original. Por ejemplo, se considera la fórmula $\alpha = p \rightarrow q$. Una instancia de sustitución válida puede ser obtenida al reemplazar $p$ con una fórmula compuesta, digamos $(r \land s)$, y $q$ con otra variable proposicional, por ejemplo, $t$. La instancia de sustitución resultante sería $(r \land s) \rightarrow t$. Este método es fundamental en la lógica modal para explorar las variaciones en las relaciones lógicas de las fórmulas al alterar sus componentes básicos, especialmente en el contexto de operadores modales como $\Box$ (necesidad) y $\Diamond$ (posibilidad).
+
 
 \subsection{Semántica relacional. La verdad entre mundos}\label{subsection:lmodalsemantic}
 Esta semántica, también conocida como \textbf{semántica de Kripke}, proporciona un marco para interpretar las proposiciones modales a través de la noción de mundos posibles y las relaciones entre ellos. Se aborda cómo se evalúan las proposiciones bajo diferentes condiciones, profundizando en la comprensión de los nuevos conceptos modales de necesidad y posibilidad.
@@ -296,7 +333,7 @@ Ahora, un \textbf{modelo} de Kripke es una estructura $\mathcal{M} = \langle W,R
 
 La función de valoración en otras palabras funciona de una manera que en la lógica proposicional tradicional, con la diferencia de que se asocian ``mundos'' en vez de $1$ y $0$. Esto tiene la ventaja de que así se puede contemplar cuándo una proposición atómica es verdadera, en vez de sólo distinguir entre una interpretación verdadera o falsa.
 
-Dado un modelo $\mathcal{M} = \langle W,R,V \rangle$, la definición de fórmula \textbf{verdadera en un mundo $w \in W$} de un lenguaje modal $\mathcal{L}_{\mathcal{M}}$ se realiza inductivamente \footnote{Con ``inductivamente'' se refiere a que se realiza a partir de sus componentes, esto es, a partir de sus subfórmulas} como sigue:
+Dado un modelo $\mathcal{M} = \langle W,R,V \rangle$, la definición de fórmula \textbf{verdadera en un mundo $w \in W$} de un lenguaje modal $\mathcal{L}_{\mathcal{M}}$ se realiza inductivamente \footnote{Con ``inductivamente'' se refiere a que se realiza a partir de sus componentes, esto es, a partir de sus subfórmulas} \footnotemark{} como sigue:
 
 \begin{align*}
     \mathcal{M},w &\models p, p \in P \Leftrightarrow w \in V(p) \\
@@ -308,10 +345,11 @@ Dado un modelo $\mathcal{M} = \langle W,R,V \rangle$, la definición de fórmula
     \mathcal{M},w &\models \square \phi \Leftrightarrow \forall v \in W : wRv, \mathcal{M}; v \models \phi\\
     \mathcal{M},w &\models \diamondsuit \phi \Leftrightarrow \exists v \in W : wRv, \mathcal{M}; v \models \phi
 \end{align*}
+\footnotetext{El símbolo $\models$ denota la relación de satisfacción en la lógica modal. Se utiliza para indicar que una fórmula $\phi$ es verdadera en un mundo $w$ dado un modelo $\mathcal{M}$.}
 
 Al igual que con la lógica proposicional, también se puede hacer una clasificación de las fórmulas mediante sus valoraciones dentro de un modelo $\mathcal{M}$. Concretamente, se dirá que $\phi$ es una \textit{fórmula satisfacible} en el mundo $w \in W$ cuando es verdadera en dicho mundo. Se denota por $V(\phi)$ al conjunto de todos los mundos donde $\phi$ es verdadera. Si $V(\phi) = W$, entonces se dice que la fórmula es \textbf{válida}, o en otras palabras, es verdadera en todos los mundos del modelo $\mathcal{M}$. Se denota por $Val(\mathcal{M})$ al conjunto de todas las fórmulas válidas del modelo $\mathcal{M}$.
 
-La verdad de las fórmulas de un modelo $\mathcal{M}$ se puede determinar apoyándose de una representación gráfica de los mundos y sus relaciones mediante un diagrama, como en el siguiente ejemplo:
+La verdad de las fórmulas de un modelo $\mathcal{M}$ se puede determinar apoyándose de una representación gráfica de los mundos y sus relaciones mediante un diagrama, como en el siguiente ejemplo (~\ref{fig:lmodalimg1} ):
 
 \begin{figure}[h]
     \centering
@@ -319,6 +357,13 @@ La verdad de las fórmulas de un modelo $\mathcal{M}$ se puede determinar apoyá
     \caption{Un modelo $\mathcal{M}$.}
     \label{fig:lmodalimg1}
 \end{figure}
+
+Lo primero a destacar, es el conjunto de mundos que representan en el ejemplo, $W = \lbrace 1,2,3 \rbrace$. A continuación, se establecen las siguientes relaciones de accesibilidad entre mundos, donde la relación entre cada par sigue el camino de la flecha desde su inicio hasta la punta, quedando el conjunto $R = \lbrace (1,1), (2,1), (2,3), (3,1) \rbrace$. Para finalizar, sobre cada mundo se indica las proposiciones atómicas y su veracidad. En el caso del mundo 1 y 2, $p$ y $q$ son verdad, mientras que en el mundo 3 sólo lo es $q$. Finalmente, el modelo de Kripke para este ejemplo sería $\mathcal{M} = \langle W,R,V \rangle$, donde $V$ es la función de valoración presentada anteriormente, que explícitamente en este contexto quedaría definida de la siguiente manera:
+
+\begin{align*}
+    V(p) &= \lbrace 1,2 \rbrace \\
+    V(q) &= \lbrace 1,2,3 \rbrace
+\end{align*}
 
 Algunos ejemplos de fórmulas interesantes y su verdad sobre el modelo de la figura ~\ref{fig:lmodalimg1} son las siguientes:
 \begin{itemize}
@@ -345,14 +390,14 @@ Sean $\phi$ una fórmula modal y $\Sigma$ un conjunto de fórmulas modales. Se d
 Sean $\phi$ una fórmula modal y $\Sigma$ un conjunto de fórmulas modales. Se dice que $\phi$ es \textbf{consecuencia global} de $\Sigma$, si para todo modelo $\mathcal{M} = \langle W,R,V \rangle$ y para todo $w \in W$ tal que para cada $\psi \in \Sigma$, $\mathcal{M} \models \psi$, ocurre que $\mathcal{M} \models \phi$. Cuando esto sucede, se escribe $\Sigma \models_g \phi$.
 
 \vspace{0.5cm}
-Una particularidad de las definiciones anteriores, es que cuando $\Sigma = \emptyset$, entonces se tiene que ambas consecuencias son equivalentes, es decir, para toda fórmmula $\phi \in Form_{\mathcal{L}_{\mathcal{M}}}$:
+Una particularidad de las definiciones anteriores, es que cuando $\Sigma = \emptyset$, entonces se tiene que ambas consecuencias son equivalentes, es decir, para toda fórmula $\phi \in Form_{\mathcal{L}_{\mathcal{M}}}$:
 
 \begin{align*}
     \models_l \phi \hspace{0.3cm} \Leftrightarrow \hspace{0.3cm} \models_g \phi
 \end{align*}
 
 \subsection{Sistemas lógicos modales}\label{subsection:lmodalsystems}
-Dependiendo de las propiedades de la relación binaria escogida para los modelos $\mathcal{M}$, se tiene un sistema lógico formal modal diferente, es decir, se definen diferentes axiomatizaciones. Aquí se realiza una clasificación de algunas de las que existen, dependiendo de las condiciones del marco $\mathcal{F}$:
+Dependiendo de las propiedades de la relación binaria escogida (véase ~\ref{subsection:binaryrel} ) para los modelos $\mathcal{M}$, se tiene un sistema lógico formal modal diferente, es decir, se definen diferentes axiomatizaciones. Aquí se realiza una clasificación de algunas de las que existen, dependiendo de las condiciones del marco $\mathcal{F}$:
 
 \begin{itemize}
     \item \textbf{K}: no hay condiciones en el marco.
@@ -367,9 +412,15 @@ Dependiendo de las propiedades de la relación binaria escogida para los modelos
 \subsection{Lógica modal y TLA}\label{subsection:lmodalTLA}
 La relación de la Lógica Temporal de Acciones (TLA) que se presentará en la sección ~\ref{section:TLA} con la lógica modal, se manifiesta en cómo TLA incorpora y extiende los principios de la semántica de Kripke. En TLA, los ``mundos'' de la lógica modal se corresponden con ``estados'' en un sistema, y las ``relaciones de acceso'' se transforman en ``transiciones'' entre estos estados. Estas transiciones representan cambios o acciones en el sistema, permitiendo modelar el comportamiento dinámico de sistemas complejos a lo largo del tiempo.
 
-Un aspecto clave a destacar es que la axiomatización considerada para TLA se basará en el sistema modal D, cuya relación de acceso es ``serial'', lo que significa que para cada mundo (o estado en TLA), existe al menos un mundo accesible (o estado siguiente). Esta característica es particularmente relevante en TLA, donde cada estado tiene un sucesor, reflejando la naturaleza continua y progresiva del tiempo y las acciones en sistemas dinámicos. 
+Un aspecto clave a destacar es que la axiomatización considerada para TLA se basará en el sistema modal D, cuya relación de acceso es ``serial'', lo que significa que para cada mundo (o estado en TLA), existe al menos un mundo accesible (o estado siguiente). Concretamente, esto se puede visualizar a través de este axioma del sistema lógico D modal:
 
-En definitiva, en la siguiente sección se abordará con mayor rigor todos estos conceptos propios de TLA.
+\begin{align*}
+    \square F \Rightarrow \diamondsuit F
+\end{align*}
+
+
+
+Esta característica es particularmente relevante en TLA, donde cada estado tiene un sucesor, reflejando la naturaleza continua y progresiva del tiempo y las acciones en sistemas dinámicos. En definitiva, en la siguiente sección se abordará con mayor rigor todos estos conceptos propios de TLA.
 
 \section{Lógica Temporal de Acciones Proposicional (PTLA)}\label{section:TLA}
 En esta sección se aborda el objetivo principal del capítulo: la Lógica Temporal de Acciones (TLA). Tras establecer las bases con la lógica proposicional, que simboliza el razonamiento humano en su forma más fundamental, se ha profundizado en la lógica modal, expandiendo el razonamiento a través de conceptos de \textit{necesidad} y \textit{posibilidad}. Esta extensión incluye la consideración de diversos mundos posibles, un aspecto esencial para entender la rica estructura de la TLA. Este marco conceptual sienta las bases para una comprensión integral de las lógicas temporales y se centra específicamente en la Lógica Temporal de Acciones, resaltando su capacidad para modelar dinámicas complejas a través de diferentes escenarios o ``mundos'', que serán nombrados como \textit{estados}.
@@ -382,17 +433,17 @@ La naturaleza propia de la Lógica Temporal de Acciones está basada en la lógi
 La Lógica Temporal de Acciones es \textbf{temporal} \cite{Pnueli1977TheTL}, \cite{gorankoRumberg2020temporal}. Eso quiere decir que los razonamientos realizados dependerán del \textbf{tiempo}. La primera cuestión a tratar es: ¿qué se entiende por \textit{tiempo}? ¿Qué ``tipo'' de tiempo se considera? La última pregunta se puede concretar y desglosar en otras varias: ¿Es un tiempo basado en \textit{intervalos} o en \textit{instantes}? ¿Es ese tiempo \textit{discreto}, \textit{denso}, o \textit{continuo}? ¿Hay \textit{principio}? ¿Y \textit{final}? Antes de poder hablar de PTLA, se muestran los dos tipos más básicos de modelos formales de tiempo, indicando al final cuál de los dos se escogerá para esta lógica particular.
 
 \subsubsection{Modelos de tiempo basados en instantes}\label{subsubsection:TLAtimeinstant}
-En estos modelos las entidades más primitivas son los \textbf{instantes de tiempo}, o también llamados \textbf{puntos en el tiempo}. Además, también se considera una relación binaria, escrita como $<$, para relacionar dichos puntos de tiempo. Por lo tanto, considerando $T$ como un conjunto no vacío de puntos temporales y $<$ una relación binaria sobre $T$, llamada \textbf{de precedencia}, el flujo temporal se puede representar como $\mathcal{T} = \langle T, <\rangle$. Esta relación de precedencia normalmente requiere que sea un \textbf{orden parcial}, esto es, es una relación irreflexiva, transitiva, y asimétrica (véase ~\ref{subsection:binaryrel}). 
+En estos modelos las entidades más primitivas son los \textbf{instantes de tiempo}, o también llamados \textbf{puntos en el tiempo}. Además, también se considera una relación binaria, escrita como $<$, para relacionar dichos puntos de tiempo. Considerando $t_a,t_b$  instantes de tiempo, se interpreta $t_a < t_b$ diciendo que $t_a$ es un instante de previo anterior a $t_b$. Por lo tanto, considerando $T$ como un conjunto no vacío de puntos temporales y $<$ una relación binaria sobre $T$, llamada \textbf{de precedencia}, el flujo temporal se puede representar como $\mathcal{T} = \langle T, <\rangle$. Sin embargo, es importante destacar que esta relación de precedencia no puede ser total. Esto se debe a la naturaleza discreta y secuencial de los modelos de tiempo basados en instantes, donde no todos los pares de instantes de tiempo pueden tener una relación directa de precedencia $<$ entre ellos. En lugar de ser total, la relación $<$ en estos modelos cumple con propiedades específicas de un \textbf{orden parcial}, como la irreflexividad, transitividad y asimetría (véase ~\ref{subsection:binaryrel}). Estas propiedades son esenciales para mantener la coherencia en la representación del flujo temporal.
 
-Sin embargo, hay muchos modelos formales de tiempo basados en instantes. Los \textbf{modelos lineales} representan los instantes de tiempo como una linea, mientras que los \textbf{modelos lineales hacia atrás} permiten una representación ramificada, notando que el pasado es fijo (una linea), y el futuro es abierto (ramificándose en múltiples futuros posibles). Además, el ordenamiento temporal puede contener o no elementos mínimos o máximos, referentes al primer y último instante de tiempo, respectivamente.
+Por otro lado, hay muchos modelos formales de tiempo basados en instantes. Los \textbf{modelos lineales} representan los instantes de tiempo como una linea, mientras que los \textbf{modelos lineales hacia atrás} permiten una representación ramificada, notando que el pasado es fijo (una linea), y el futuro es abierto (ramificándose en múltiples futuros posibles). Además, el ordenamiento temporal puede contener o no elementos mínimos o máximos, referentes al primer y último instante de tiempo, respectivamente.
 
-Otra clasificación importante es la que se produce entre \textbf{modelos discretos}, \textbf{densos}, y \textbf{continuos}. Los modelos discretos \textit{hacia delante} indican que, cada instante de tiempo que tiene un sucesor, éste siempre tiene un sucesor inmediato correspondiente. En los modelos densos, por el contrario, entre dos instantes de tiempo subsiguientes cualesquiera, hay otro instante. Por otra parte, en los modelos continuos el orden temporal no sólo debe ser denso, sino que además, todo conjunto no vacío de instantes de tiempo que tiene un límite superior tiene un límite superior mínimo.
+Otra clasificación importante es la que se produce entre \textbf{modelos discretos}, \textbf{densos}, y \textbf{continuos}. Los modelos discretos \textit{hacia adelante} indican que, cada instante de tiempo que tiene un sucesor, éste siempre tiene un sucesor inmediato correspondiente. Formalmente, $\forall t \in T, \exists t' \in T \text{ tal que } t < t'$. En los modelos densos, por el contrario, entre dos instantes de tiempo subsiguientes cualesquiera, hay otro instante. Por otra parte, en los modelos continuos el orden temporal no sólo debe ser denso, sino que además, todo conjunto no vacío de instantes de tiempo que tiene un límite superior tiene un límite superior mínimo.
 
 \subsubsection{Modelos de tiempo basados en intervalos}\label{subsubsection:TLAtimeinterval}
 Este tipo de modelos aparecen cuando se necesita realizar razonamientos sobre eventos con duración. En este caso, las entidades primitivas son los \textbf{intervalos}. En estos modelos se presupone un tiempo lineal, aunque a diferencia de los modelos basados en instantes, aquí se pueden definir muchas más relaciones. Por todo ello, formalmente se define este flujo temporal como $\mathcal{T} = \langle T,<,\subset,O \rangle$, donde se tienen las relaciones binarias de precedencia $<$, inclusión $\subset$, y superposición $O$. No se entrará en más detalles acerca de este tipo de modelos.
 
 \subsubsection{El modelo de tiempo de PTLA}\label{subsubsection:TLAtimedecision}
-El modelo de tiempo considerado para la lógica temporal de acciones tendrá las siguientes características:
+El modelo de tiempo $\mathcal{T} = \langle T, < \rangle$ considerado para la lógica temporal de acciones tendrá las siguientes características:
 \begin{enumerate}
     \item \textbf{Basado en instantes}: En muchos sistemas, especialmente en informática y sistemas distribuidos, es crucial modelar y razonar sobre eventos en momentos específicos. Un modelo basado en instantes permite la representación precisa de cuándo ocurren acciones o cambios de estado. Este enfoque facilita el análisis preciso de secuencias de eventos y la sincronización entre acciones. Permite establecer relaciones causales y temporales claras entre eventos individuales.
     \item \textbf{Lineal}: Un modelo temporal lineal implica que para cualquier momento dado, hay un único ``futuro'' y un único ``pasado''. La linealidad simplifica el razonamiento sobre secuencias de eventos. Facilita la comprensión de las relaciones temporales, como ``antes'' y ``después'', y es más intuitiva para modelar muchos tipos de sistemas.
@@ -431,7 +482,13 @@ La relación de transición entre estados es no determinista en general (es deci
 Para referirse al estado concreto de un comportamiento de un sistema, $\sigma \in S^\infty$, en un instante de tiempo $t$ concreto, se escribe $\sigma_t = s_t$. También, para referirse a la secuencia de estados que siguen al estado del sistema en el instante $t$, se escribe $\sigma^{+t} = \langle s_{t+1}, s_{t+2}, \ldots \rangle$. Se dice que un comportamiento $\sigma$ de un sistema está \textbf{detenido} cuando $\sigma_t = \sigma_0$, para todo instante de tiempo $t$. En caso contrario, se denota por $\mu(\sigma)$ como al primer instante de tiempo $t$ donde $\sigma_t \neq \sigma_0$.
 
 \subsection{Acciones}\label{subsection:TLAactions}
-La Lógica Temporal de Acciones basa sus principios en \textit{acciones}. En el contexto proposicional de esta lógica, una \textbf{acción} es un tipo especial de proposición que involucra al estado actual de una variable, y su estado siguiente. Un ejemplo de acción puede ser $A_0 := ``x' = x+1''$. $x$ es una variable que tiene un determinado valor actual, y $x'$ denota al estado de la variable en el instante de tiempo inmediatamente posterior. El operador $'$ juega un papel crucial en la definición sintáctica de PTLA, permitiendo formular afirmaciones sobre los estados futuros de las variables. En definitiva, la lectura de la acción puede hacerse como sigue: ``en el estado siguiente, el valor de $x$ será incrementado en una unidad con respecto a su valor actual''. 
+La Lógica Temporal de Acciones se basa en el concepto de \textit{acciones}. En el contexto proposicional de esta lógica, una \textbf{acción} se define como una proposición $A$ que relaciona el estado actual de una variable con su estado siguiente. En una proposición $A$, se establece una relación entre los valores de las variables en el estado $s$ y los valores correspondientes en el estado $t$ (indicados por la prima). Esta relación puede cumplirse o no cumplirse para cualquier par de estados $s$ y $t$.
+
+Por ejemplo, se considera la acción $A_0 := $``$x' = x+1$''. Aquí, $x$ es una variable que tiene un valor actual en el estado $s$, y $x'$ denota el estado de la variable en el instante de tiempo inmediatamente posterior, que es el estado $t$. El operador $'$ desempeña un papel crucial en la definición sintáctica de PTLA, ya que permite formular afirmaciones sobre los estados futuros de las variables.
+
+La lectura de la acción se puede realizar de la siguiente manera: ``en el estado siguiente ($t$), el valor de $x$ será incrementado en una unidad con respecto a su valor actual ($s$)''.
+
+Es importante destacar que una acción $A$ puede ser verdadera para diferentes pares de estados $s$ y $t$, dependiendo de la acción específica. Por ejemplo, en el caso de la acción ``$x \text{ es par} \Rightarrow x' \text{ es par}$'', cualquier estado $t$ donde $x$ también sea par satisfaldrá la acción, lo que significa que hay múltiples estados posibles posteriores a $s$ una vez que se ejecuta la acción $A$. En resumen, una acción puede definirse como una proposición que relaciona el estado actual con el estado siguiente, y esta relación puede variar según el contexto de la acción.
 
 
 \subsection{El lenguaje PTLA}\label{subsection:TLAlanguage}
@@ -619,7 +676,7 @@ Algunas consecuencias de los axiomas presentados para la lógica temporal de acc
     Esta fórmula es el dual del Axioma 16. En otras palabras, mientras que el Axioma 16 se enfoca en la persistencia de una condición y su impacto en otra, esta fórmula considera las condiciones necesarias para que dos propiedades se cumplan eventualmente en el futuro.
 \end{enumerate}
 
-\subsection{Solvencia y complitud}\label{subsection:TLAcompleteness}
+\subsection{Solvencia y completitud}\label{subsection:TLAcompleteness}
 En el estudio de cualquier sistema lógico, dos propiedades fundamentales a considerar son la solvencia (o corrección) y la completitud. Estos conceptos son cruciales para evaluar la robustez y confiabilidad del sistema lógico, especialmente en un contexto como el de PTLA, donde se trata de capturar y razonar sobre el comportamiento de sistemas concurrentes y distribuidos.
 
 La \textbf{solvencia} de un sistema lógico se refiere a la garantía de que todas las fórmulas que pueden ser deducidas dentro del sistema son verdaderas en todos los modelos del sistema. En el contexto de PTLA, esto significa que si una fórmula $F$ puede ser deducida $\vdash F $, entonces $F$ debe ser verdadera en cada modelo de PTLA $ \mathcal{M} \models F $ para todo modelo $\mathcal{M}$. La solvencia asegura que el sistema no permite derivar conclusiones falsas o inconsistentes a partir de sus axiomas y reglas de inferencia.
@@ -713,7 +770,7 @@ En particular, es algo que siempre ocurre en todos los estados a partir del esta
 
 Así, se indica que la ejecución de la acción se satisface en todos los subsiguientes estados después del inicio, sin excepción. La fórmula $\Phi$ ya presenta una propiedad para el programa, concretamente la \textit{propiedad de seguridad}, garantizando que nunca ocurrirán otras acciones no especificadas, lo que podría ser considerado como un ``comportamiento malo''. En otras palabras, el programa está restringido a comportarse de manera segura tal como se ha definido por las acciones.
 
-\textbf{Otros sistemas lógicos para verificación de sistemas}\label{section:otherlogics}
+\section{Otros sistemas lógicos para verificación de sistemas}\label{section:otherlogics}
 La Lógica Temporal de Acciones en definitiva es un excelente sistema lógico formal para razonar sobre las propiedades de los sistemas concurrentes. Sin embargo, no es el único sistema lógico formal que se utiliza, sino que hay una gran variedad de ellos que pueden ser utilizados para ese mismo fin. A continuación, se mencionan brevemente comparando sus enfoques con el de TLA:
 
 \begin{itemize}
