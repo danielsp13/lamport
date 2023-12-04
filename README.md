@@ -12,6 +12,8 @@
 
 En el siguiente índice se resumen los contenidos principales de este README:
 
+* :tada: **[Uso del repositorio](#lamport-init)** : Describe cómo utilizar el repositorio GitHub del proyecto.
+
 * :question: **[Resumen del proyecto](#lamport-resume)** : Describe los objetivos y el propósito de este proyecto.
 * :book: **[Documentación del proyecto](#lamport-doc)** : Resume cómo obtener la documentación del proyecto en TeX.
 * :star: **[Recomendaciones](#lamport-recommends)** : Algunas indicaciones y sugerencias para una mejor experiencia.
@@ -19,6 +21,30 @@ En el siguiente índice se resumen los contenidos principales de este README:
 * :building_construction: **[Construcción del compilador](#lamport-compile)** : Indica cómo construir el proyecto completo para su uso.
 *  :whale2: **[Uso del compilador en contenedor Docker](#lamport-docker)** : Indica cómo ejecutar el compilador utilizando el contenedor Docker que lo contiene.
 * :white_check_mark: **[Testeo de módulos](#lamport-test)** : Indica cómo realizar pruebas sobre el código implementado.
+
+****
+
+### :tada: <a name="lamport-init"></a> Uso del repositorio
+
+***GitHub*** es un cliente de Git. Para poder descargar el contenido completo del repositorio, en primer lugar debe instalar `git` en su sistema. Para sistemas Linux que usen APT como gestor de paquetes, esto se puede hacer con la siguiente orden:
+
+
+
+~~~bash
+$ sudo apt install git
+~~~
+
+
+
+Y a continuación, para **clonar** el repositorio y acceder a todos los fuentes, puede usar la siguiente orden:
+
+~~~bash
+$ git clone https://github.com/danielsp13/lamport.git
+~~~
+
+La orden anterior generará una carpeta en el directorio donde ejecutó la orden con todo el proyecto.
+
+
 
 ****
 
