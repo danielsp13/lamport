@@ -5,8 +5,8 @@
  * @brief Cabecera puente entre implementaciones C y C++
  */
 
-#ifndef _LMP_INTERPRETER_C_ANALYSIS_BRIDGE_DPR_
-#define _LMP_INTERPRETER_C_ANALYSIS_BRIDGE_DPR_
+#ifndef _LMP_COMPILER_C_ANALYSIS_BRIDGE_DPR_
+#define _LMP_COMPILER_C_ANALYSIS_BRIDGE_DPR_
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,4 +46,4 @@ extern int yyparse(void);
 }
 #endif
 
-#endif //_LMP_INTERPRETER_C_ANALYSIS_BRIDGE_DPR_
+#endif //_LMP_COMPILER_C_ANALYSIS_BRIDGE_DPR_

@@ -2,7 +2,7 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file lmp_ir.cpp
  * @author Daniel Perez Ruiz
- * @brief Gestor de codigo intermedio de interprete lamport
+ * @brief Gestor de codigo intermedio de compilador lamport
  */
 
 #include "lmp_utils/lmp_ir.hpp"

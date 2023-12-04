@@ -2,11 +2,11 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file lmp_lvm_launcher.hpp
  * @author Daniel Perez Ruiz
- * @brief Gestor de maquina virtual de interprete lamport
+ * @brief Gestor de maquina virtual de compilador lamport
  */
 
-#ifndef _LMP_INTERPRETER_LVM_LAUNCHER_DPR_
-#define _LMP_INTERPRETER_LVM_LAUNCHER_DPR_
+#ifndef _LMP_COMPILER_LVM_LAUNCHER_DPR_
+#define _LMP_COMPILER_LVM_LAUNCHER_DPR_
 
 // ===============================================================
 
@@ -52,4 +52,4 @@ class LMP_LVM_Launcher{
         int start();
 };
 
-#endif //_LMP_INTERPRETER_LVM_LAUNCHER_DPR_
+#endif //_LMP_COMPILER_LVM_LAUNCHER_DPR_

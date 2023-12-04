@@ -5,8 +5,8 @@
  * @brief Gestor de registro de eventos de lamport
  */
 
-#ifndef _LMP_INTERPRETER_LOGGING_DPR_
-#define _LMP_INTERPRETER_LOGGING_DPR_
+#ifndef _LMP_COMPILER_LOGGING_DPR_
+#define _LMP_COMPILER_LOGGING_DPR_
 
 // ===============================================================
 
@@ -81,7 +81,7 @@ class LMP_Logging{
         LMP_Tasker& tasker = LMP_Tasker::get_instance();
 
         /**
-         * @brief Procesa el fichero a analizar por el interprete, dejando solo su nombre y eliminando rutas
+         * @brief Procesa el fichero a analizar por el compilador, dejando solo su nombre y eliminando rutas
          * @param lmp_file : ruta de fichero lamport
          */
         void parse_lmp_file(std::string lmp_file);
@@ -225,7 +225,7 @@ class LMP_Logging{
 
         /**
          * @brief Realiza el log del analisis de codigo
-         * @param lmp_file : fichero analizado por el interprete
+         * @param lmp_file : fichero analizado por el compilador
          */
         void log_analysis(std::string lmp_file);
 
@@ -256,4 +256,4 @@ class LMP_Logging{
 };
 
 
-#endif //_LMP_INTERPRETER_LOGGING_DPR_
+#endif //_LMP_COMPILER_LOGGING_DPR_

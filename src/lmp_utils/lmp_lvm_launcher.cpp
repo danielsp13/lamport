@@ -2,7 +2,7 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file lmp_lvm_launcher.cpp
  * @author Daniel Perez Ruiz
- * @brief Implementacion de gestor de maquina virtual de interprete lamport
+ * @brief Implementacion de gestor de maquina virtual de compilador lamport
  */
 
 #include "lmp_utils/lmp_lvm_launcher.hpp"

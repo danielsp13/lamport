@@ -2,11 +2,11 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file lmp_ir.hpp
  * @author Daniel Perez Ruiz
- * @brief Gestor de codigo intermedio de interprete lamport
+ * @brief Gestor de codigo intermedio de compilador lamport
  */
 
-#ifndef _LMP_INTERPRETER_IR_DPR_
-#define _LMP_INTERPRETER_IR_DPR_
+#ifndef _LMP_COMPILER_IR_DPR_
+#define _LMP_COMPILER_IR_DPR_
 
 // ===============================================================
 
@@ -59,4 +59,4 @@ class LMP_IR_Manager{
         void operator=(const LMP_IR_Manager&) = delete;
 };
 
-#endif //_LMP_INTERPRETER_IR_DPR_
+#endif //_LMP_COMPILER_IR_DPR_

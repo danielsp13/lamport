@@ -5,8 +5,8 @@
  * @brief Gestor de analisis de ficheros de lenguaje lamport
  */
 
-#ifndef _LMP_INTERPRETER_ANALYSIS_DPR_
-#define _LMP_INTERPRETER_ANALYSIS_DPR_
+#ifndef _LMP_COMPILER_ANALYSIS_DPR_
+#define _LMP_COMPILER_ANALYSIS_DPR_
 
 // ===============================================================
 
@@ -78,4 +78,4 @@ class LMP_Analyzer{
         void operator=(const LMP_Analyzer&) = delete;
 };
 
-#endif //_LMP_INTERPRETER_ANALYSIS_DPR_
+#endif //_LMP_COMPILER_ANALYSIS_DPR_

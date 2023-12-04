@@ -2,11 +2,11 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file lmp_io.h
  * @author Daniel Perez Ruiz
- * @brief Gestor de entrada/salida de interprete lamport
+ * @brief Gestor de entrada/salida de compilador lamport
  */
 
-#ifndef _LMP_INTERPRETER_IO_DPR_
-#define _LMP_INTERPRETER_IO_DPR_
+#ifndef _LMP_COMPILER_IO_DPR_
+#define _LMP_COMPILER_IO_DPR_
 
 // ===============================================================
 
@@ -24,23 +24,23 @@
 // ----- DEFINICION DE CLASE MANEJADORA DE FLUJO DE I/O -----
 
 /**
- * @brief Clase que maneja los flujos de entrada/salida con el interprete
+ * @brief Clase que maneja los flujos de entrada/salida con el compilador
  * Se encarga de abrir el fichero pasado como argumento y asignarlo al
  * puntero de entrada de bison para poder realizar posteriormente el analisis
  */
 class LMP_IO_Manager{
     private:
-        // -- Nombre de interprete
-        std::string interpreter;
+        // -- Nombre de compilador
+        std::string compiler;
         // -- Nombre de fichero lamport
         std::string lmp_file_name;
 
-        // -- Version de interprete
-        const std::string INTERPRETER_VERSION = "1.0.1-alpha";
-        // -- Autor de interprete
+        // -- Version de compilador
+        const std::string COMPILER_VERSION = "1.0.1-alpha";
+        // -- Autor de compilador
         const std::string AUTHOR = "Daniel Perez Ruiz";
 
-        // -- Numero de argumentos requeridos para ejecucion de interprete
+        // -- Numero de argumentos requeridos para ejecucion de compilador
         const unsigned int N_ARGUMENTS_REQUIRED = 2;
 
         // -- Comprueba estado de flujo I/O
@@ -50,16 +50,16 @@ class LMP_IO_Manager{
         LMP_Tasker& tasker = LMP_Tasker::get_instance();
 
         /**
-         * @brief Imprime la cabecera del interprete
-         * @param interpreter : nombre de interprete
+         * @brief Imprime la cabecera del compilador
+         * @param compiler : nombre de compilador
          */
-        void print_header(char *interpreter);
+        void print_header(char *compiler);
 
         /**
-         * @brief Imprime la ayuda de uso de interprete
-         * @param interpreter : nombre de interprete
+         * @brief Imprime la ayuda de uso de compilador
+         * @param compiler : nombre de compilador
          */
-        void print_help(char *interpreter);
+        void print_help(char *compiler);
 
         /**
          * @brief Abre el fichero de codigo lamport
@@ -114,4 +114,4 @@ class LMP_IO_Manager{
         void operator=(const LMP_IO_Manager&) = delete;
 };
 
-#endif //_LMP_INTERPRETER_IO_DPR_
+#endif //_LMP_COMPILER_IO_DPR_

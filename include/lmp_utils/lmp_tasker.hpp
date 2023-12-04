@@ -2,11 +2,11 @@
  * LAMPORT. Simulador de Sistemas Concurrentes y Distribuidos
  * @file lmp_tasker.hpp
  * @author Daniel Perez Ruiz
- * @brief Impresor de tareas de interprete lamport
+ * @brief Impresor de tareas de compilador lamport
  */
 
-#ifndef _LMP_INTERPRETER_TASKER_DPR_
-#define _LMP_INTERPRETER_TASKER_DPR_
+#ifndef _LMP_COMPILER_TASKER_DPR_
+#define _LMP_COMPILER_TASKER_DPR_
 
 // ===============================================================
 
@@ -22,7 +22,7 @@
 // ----- DEFINICION DE CLASE GESTORA DE TAREAS -----
 
 /**
- * @brief Clase notificadora de eventos en el interprete
+ * @brief Clase notificadora de eventos en el compilador
  * Se encarga de producir mensajes al usuario sobre lo que se esta
  * realizando en un momento determinado
  */
@@ -39,6 +39,7 @@ class LMP_Tasker{
         const std::string ANSI_COLOR_BOLD = "\033[1m";
 
         const bool COLORS_AVAIABLE = true;
+        const bool TASKER_AVAIABLE = true;
 
         const int TASK_DELAY = 200;
         const int TASK_EXECUTION_DELAY = 400;
@@ -208,4 +209,4 @@ class LMP_Tasker{
         void task_nop();
 };
 
-#endif //_LMP_INTERPRETER_TASKER_DPR_
+#endif //_LMP_COMPILER_TASKER_DPR_
