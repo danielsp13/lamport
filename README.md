@@ -26,9 +26,7 @@ En el siguiente índice se resumen los contenidos principales de este README:
 
 ### :tada: <a name="lamport-init"></a> Uso del repositorio
 
-***GitHub*** es un cliente de Git. Para poder descargar el contenido completo del repositorio, en primer lugar debe instalar `git` en su sistema. Para sistemas Linux que usen APT como gestor de paquetes, esto se puede hacer con la siguiente orden:
-
-
+***GitHub*** es un cliente de Git. Una de las formas para poder descargar el contenido completo del repositorio es instalando `git` en su sistema. Para sistemas Linux que usen APT como gestor de paquetes, esto se puede hacer con la siguiente orden:
 
 ~~~bash
 $ sudo apt install git
@@ -45,6 +43,8 @@ $ git clone https://github.com/danielsp13/lamport.git
 La orden anterior generará una carpeta en el directorio donde ejecutó la orden con todo el proyecto.
 
 
+
+Otra opción de descarga es pulsando **[este enlace](https://github.com/danielsp13/lamport/archive/refs/heads/main.zip)**, que descargará un `zip` con la rama principal del proyecto.
 
 ****
 
