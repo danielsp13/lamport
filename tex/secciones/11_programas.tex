@@ -1,5 +1,5 @@
 \chapter{\textbf{Programas escritos en Lamport}}
-En este capítulo se definen algunos ejemplos de programas escritos en el lenguaje Lamport y su resultado de ejecución, con el objetivo de mostrar el correcto funcionamiento del intérprete:
+En este capítulo se definen algunos ejemplos de programas escritos en el lenguaje Lamport y su resultado de ejecución, con el objetivo de mostrar el correcto funcionamiento del compilador:
 
 \section{Ejemplos secuenciales}
 Los siguientes ejemplos mostrados aquí no necesitan de concurrencia para funcionar, pues siguen la estructura y sintaxis básica de cualquier otro programa desarrollado en cualquier lenguaje de alto nivel convencional:
@@ -291,7 +291,7 @@ end
 \end{figure}
 
 \section{Ejemplos concurrentes}
-Para finalizar, ha llegado el momento de verificar si se ha solucionado el problema que se planteó en el capítulo ~\ref{chapter:problema}, que es el de \textit{disponer de un lenguaje que permita simular sistemas concurrentes}. A continuación, se presenta una serie de ejemplos detallados que requiere de uso de concurrencia en el intérprete:
+Para finalizar, ha llegado el momento de verificar si se ha solucionado el problema que se planteó en el capítulo ~\ref{chapter:problema}, que es el de \textit{disponer de un lenguaje que permita simular sistemas concurrentes}. A continuación, se presenta una serie de ejemplos detallados que requiere de uso de concurrencia en el compilador:
 
 \subsection{Ejemplo 1: Múltiples procesos estáticos}
 En este ejemplo se dispone de 3 procesos estáticos cuyo propósito es imprimir un mensaje por pantalla que consta de dos elementos: un mensaje de saludo seguido de una variable entera que actúa a modo de identificador de proceso. Estos mensajes están dentro de un bucle infinito, por lo que cada proceso se ejecutará indefinidamente:
