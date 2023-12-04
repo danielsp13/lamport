@@ -1,6 +1,6 @@
-\chapter{\textbf{Implementación del intérprete de Lamport}}
+\chapter{\textbf{Implementación del compilador de Lamport}}
 
-En el capítulo anterior se formalizó y delineó el diseño del lenguaje Lamport, sentando las bases teóricas y estructurales para su desarrollo. Sin embargo, la existencia de un lenguaje de manera teórica no garantiza su aplicabilidad práctica. Es en la implementación donde un lenguaje realmente cobra vida, transformándose de una serie de reglas y definiciones a una herramienta computacional utilizable. En este capítulo, se aborda una de las fases más cruciales y desafiantes del desarrollo: la implementación de un \textit{intérprete} que reconozca el lenguaje y la creación de una \textit{máquina virtual} que permita ejecutarlo. Se discutirán las decisiones técnicas tomadas, los desafíos encontrados y las soluciones propuestas para llevar a Lamport desde el ámbito teórico al práctico.
+En el capítulo anterior se formalizó y delineó el diseño del lenguaje Lamport, sentando las bases teóricas y estructurales para su desarrollo. Sin embargo, la existencia de un lenguaje de manera teórica no garantiza su aplicabilidad práctica. Es en la implementación donde un lenguaje realmente cobra vida, transformándose de una serie de reglas y definiciones a una herramienta computacional utilizable. En este capítulo, se aborda una de las fases más cruciales y desafiantes del desarrollo: la implementación de un \textit{compilador} que reconozca el lenguaje y la creación de una \textit{máquina virtual} que permita ejecutarlo. Se discutirán las decisiones técnicas tomadas, los desafíos encontrados y las soluciones propuestas para llevar a Lamport desde el ámbito teórico al práctico.
 
 \section{El gran desafío: ejecutar el programa ``\textit{¡Hola Mundo!}''}
 En el mundo de la programación, hay una tradición que ha perdurado a través de los años, independientemente del lenguaje o plataforma: el programa ``\textbf{¡Hola mundo!}''. Es un simple programa que imprime un saludo básico en la pantalla, y sirve como una primera prueba de éxito al aprender un nuevo lenguaje o tecnología. El verdadero reto es este: llevar el diseño de Lamport a la realidad y demostrar su funcionalidad.
@@ -68,12 +68,12 @@ Se observan los siguientes elementos:
     \end{enumerate}
 \end{itemize}
 
-\section{Visión general del intérprete de Lamport}
-En esta sección, se proporciona una visión panorámica de la arquitectura y los componentes del intérprete de Lamport. A continuación, se presenta un esquema de los principales módulos y sus conexiones, seguido de una breve descripción de la función de cada módulo.
+\section{Visión general del compilador de Lamport}
+En esta sección, se proporciona una visión panorámica de la arquitectura y los componentes del compilador de Lamport. A continuación, se presenta un esquema de los principales módulos y sus conexiones, seguido de una breve descripción de la función de cada módulo.
 
 \begin{figure}[h]
     \includegraphics[width=\linewidth]{images/lmp/lmp_resume.png}
-    \caption{Esquemático del intérprete de Lamport}
+    \caption{Esquemático del compilador de Lamport}
     \label{fig:lmpresume}
 \end{figure}
 
@@ -92,9 +92,9 @@ En esta sección, se proporciona una visión panorámica de la arquitectura y lo
     
     \item \textbf{IR (~\ref{sec:implementacionError} ):} Representa la Representación Intermedia. Es una versión intermedia del código fuente que se utiliza para optimizaciones y para la generación final de código.
     
-    \item \textbf{LVM (~\ref{sec:implementacionLVM} ):} Se refiere a la Máquina Virtual de Lamport. Este módulo ejecuta el código representado en IR, actuando como el intérprete final que produce los resultados deseados.
+    \item \textbf{LVM (~\ref{sec:implementacionLVM} ):} Se refiere a la Máquina Virtual de Lamport. Este módulo ejecuta el código representado en IR, actuando como el compilador final que produce los resultados deseados.
     
-    \item \textbf{LMP\_Utils (~\ref{sec:implementacionLMPUtils} ):} Consiste en una serie de controladores que coordinan y facilitan la interacción entre los diferentes módulos del intérprete.
+    \item \textbf{LMP\_Utils (~\ref{sec:implementacionLMPUtils} ):} Consiste en una serie de controladores que coordinan y facilitan la interacción entre los diferentes módulos del compilador.
     
 \end{itemize}
 
@@ -116,9 +116,9 @@ La interdependencia entre el Lexer y el Parser, especialmente en la definición 
 \subsection{Generación del Lexer}
 El contenido del fichero \texttt{lexer.l} es procesado por Flex para generar un archivo de código C funcional. Este proceso incluye el manejo detallado de tipos de tokens y cadenas, así como la configuración para el seguimiento preciso de errores por línea. La función \texttt{yylex()} actúa como el núcleo del analizador léxico, proporcionando una interfaz esencial con el analizador sintáctico.
 
-Este enfoque integrado asegura que el Lexer no solo tokenice eficientemente el código fuente de Lamport, sino que también se coordine de manera efectiva con el proceso de análisis sintáctico, contribuyendo así al funcionamiento general del intérprete.
+Este enfoque integrado asegura que el Lexer no solo tokenice eficientemente el código fuente de Lamport, sino que también se coordine de manera efectiva con el proceso de análisis sintáctico, contribuyendo así al funcionamiento general del compilador.
 \subsection{Procesamiento de ``Hola Mundo'' utilizando el ``Lexer''}
-Ya se dispone de la primera unidad operativa del intérprete, por ello, ya se puede realizar la primera interpretación del programa ``Hola Mundo'' (~\ref{fig:lamportHolaMundo} ). Habilitando un código que permita leer flujos de entrada, y pasando como argumento el fichero donde se encuentra el programa en Lamport, el resultado que muestra el analizador léxico es la siguiente lista:
+Ya se dispone de la primera unidad operativa del compilador, por ello, ya se puede realizar la primera interpretación del programa ``Hola Mundo'' (~\ref{fig:lamportHolaMundo} ). Habilitando un código que permita leer flujos de entrada, y pasando como argumento el fichero donde se encuentra el programa en Lamport, el resultado que muestra el analizador léxico es la siguiente lista:
 
 \begin{figure}[h]
 \begin{verbatim}
@@ -564,7 +564,7 @@ Con respecto a la comprobación de tipos \textit{per se} no hay ninguna dificult
 \end{enumerate}
 
 \subsection{Procesamiento de ``Hola Mundo'' utilizando el ``Semantic''}
-Ahora ya se dispone de todos los analizadores posibles para un lenguaje de programación cualquiera, en particular para el lenguaje Lamport. Adaptando el código del intérprete ahora cuando se supere la fase del analizador sintáctico, se recorrerá el AST generado analizando semánticamente el programa. Primero se aplica resolución de nombres y posteriormente la comprobación de tipos. Si el procesamiento de ``Hola Mundo'' (~\ref{fig:lamportHolaMundo} ) se ha superado, se verá un mensaje de éxito en pantalla. En caso contrario se mostrarán todos los errores semánticos emitidos:
+Ahora ya se dispone de todos los analizadores posibles para un lenguaje de programación cualquiera, en particular para el lenguaje Lamport. Adaptando el código del compilador ahora cuando se supere la fase del analizador sintáctico, se recorrerá el AST generado analizando semánticamente el programa. Primero se aplica resolución de nombres y posteriormente la comprobación de tipos. Si el procesamiento de ``Hola Mundo'' (~\ref{fig:lamportHolaMundo} ) se ha superado, se verá un mensaje de éxito en pantalla. En caso contrario se mostrarán todos los errores semánticos emitidos:
 
 
 
@@ -1902,7 +1902,7 @@ o lo que es lo mismo, el valor \code{18}. El trozo de AST correspondiente a esta
 |                  VALOR DE LITERAL: [2]
 \end{verbatim}
 
-Visualmente ya es demasiado grande, por lo que evidentemente si se procesa esta declaración la cantidad de instrucciones a definir sólo para esta operación de asignación será absurdamente elevada. No obstante, el motivo por lo que se muestra así al usuario es para que aprenda el funcionamiento de un intérprete en cualquier fase del mismo, aunque internamente opere con optimizaciones.
+Visualmente ya es demasiado grande, por lo que evidentemente si se procesa esta declaración la cantidad de instrucciones a definir sólo para esta operación de asignación será absurdamente elevada. No obstante, el motivo por lo que se muestra así al usuario es para que aprenda el funcionamiento de un compilador en cualquier fase del mismo, aunque internamente opere con optimizaciones.
 
 
 
@@ -1921,7 +1921,7 @@ Sin embargo, si se imprime el AST justo después de aplicar el algoritmo de ``Co
 puesto que ha evaluado la expresión justo antes de generar instrucciones y se ha reducido al máximo el tamaño de la expresión, donde ahora sólo será necesaria una instrucción de carga.
 
 \subsection{Asignación de registros}\label{subsec:asignacionRegIR}
-La asignación de registros es una técnica fundamental en la fase de generación de código de un intérprete. Su objetivo principal es mapear variables y resultados intermedios a registros de la máquina objetivo con el propósito de maximizar la eficiencia en la ejecución del código.
+La asignación de registros es una técnica fundamental en la fase de generación de código de un compilador. Su objetivo principal es mapear variables y resultados intermedios a registros de la máquina objetivo con el propósito de maximizar la eficiencia en la ejecución del código.
 
 
 Puesto que la representación intermedia elegida es \textit{basada en registros}, es evidente que es necesario en este punto definir una estrategia para la asignación de los mismos, y hay dos formas de implementarlo:
@@ -2033,7 +2033,7 @@ Aquí hay algunas cuestiones que comentar, como por ejemplo, en la instrucción 
 Por otra parte, se ha optado por una representación \textit{human readable} de las instrucciones bastante sensible, para que el usuario siempre pueda saber cómo funcionan y qué se está haciendo.
 
 \section{Máquina Virtual de Lamport: ``LVM''}\label{sec:implementacionLVM}
-La Máquina Virtual de Lamport (LVM) es una abstracción crucial en el proceso de interpretación del lenguaje Lamport, diseñada para simular una máquina física y aumentar la portabilidad del intérprete.
+La Máquina Virtual de Lamport (LVM) es una abstracción crucial en el proceso de interpretación del lenguaje Lamport, diseñada para simular una máquina física y aumentar la portabilidad del compilador.
 
 \subsection{Arquitectura de la Máquina Virtual de Lamport}\label{subsec:archLVM}
 En esta sección, se proporciona una visión genérica de la arquitectura de la Máquina Virtual de Lamport mediante un esquema de sus principales componentes:
@@ -2281,15 +2281,15 @@ La interrupción Ctrl+C es una señal común en los entornos de sistemas operati
 
 La implementación de este mecanismo de gestión de señales no solo mejora la robustez de la Máquina Virtual de Lamport, sino que también enriquece la experiencia del usuario al proporcionar una forma efectiva y segura de manejar situaciones inesperadas durante la ejecución del programa. Además, alinea la máquina virtual con las prácticas estándar en entornos UNIX, facilitando su integración y uso en estos sistemas.
 
-\section{Interfaces de control de intérprete: ``LMP Utils``}\label{sec:implementacionLMPUtils}
-Hasta ahora se han definido y desarrollado una gran cantidad de módulos que se comunican entre sí de varias formas. Es por ello por lo que es necesario establecer una vía de control de forma sencilla y unificada entre cada módulo y la función principal del intérprete que es quien ejecuta todos los analizadores y clases en el orden que corresponde. En total se han definido un total de 5 controladores diferentes:
+\section{Interfaces de control de compilador: ``LMP Utils``}\label{sec:implementacionLMPUtils}
+Hasta ahora se han definido y desarrollado una gran cantidad de módulos que se comunican entre sí de varias formas. Es por ello por lo que es necesario establecer una vía de control de forma sencilla y unificada entre cada módulo y la función principal del compilador que es quien ejecuta todos los analizadores y clases en el orden que corresponde. En total se han definido un total de 5 controladores diferentes:
 
 \begin{itemize}
     \item \textbf{Controlador de flujos de E/S:} Es el encargado de realizar el tratamiento de apertura y cierre del fichero de código Lamport a ejecutar.
-    \item \textbf{Controlador de Análisis:} Es el encargado de ejecutar los analizadores sintáctico y semántico, y de mantener el AST del programa, enviando al intérprete los errores en caso de que se produzcan.
+    \item \textbf{Controlador de Análisis:} Es el encargado de ejecutar los analizadores sintáctico y semántico, y de mantener el AST del programa, enviando al compilador los errores en caso de que se produzcan.
     \item \textbf{Controlador de IR:} Es el encargado de llamar al optimizadador de AST y constructor de instrucciones de código intermedio.
     \item \textbf{Controlador de LVM:} Es el encargado de lanzar la máquina virtual cuando se ha generado el código intermedio.
-    \item \textbf{Controlador de registros de eventos (logging):} Este controlador es especial y extremadamente útil para el usuario del intérprete. Su función es registrar todos los eventos que se han producido en el intérprete, desde el análisis sintáctico pasando a la generación de código intermedio, estado de la memoria de la LVM y traza de ejecución, o la generación de errores.
+    \item \textbf{Controlador de registros de eventos (logging):} Este controlador es especial y extremadamente útil para el usuario del compilador. Su función es registrar todos los eventos que se han producido en el compilador, desde el análisis sintáctico pasando a la generación de código intermedio, estado de la memoria de la LVM y traza de ejecución, o la generación de errores.
 
     Genera un directorio denominado \code{log/} que contiene los ficheros de logging siguientes:
     \begin{itemize}
@@ -2335,15 +2335,15 @@ Al finalizar la máquina virtual, se genera un fichero de registro con todas las
 \end{figure}
 
 \newpage
-\section{Dockerización del intérprete}
+\section{Dockerización del compilador}
 Con la evolución constante de la tecnología y las infraestructuras de software, la necesidad de crear aplicaciones portables y escalables ha cobrado mayor importancia. Docker, una herramienta que permite la creación de contenedores, surge como una solución a esta demanda. Un contenedor Docker encapsula una aplicación junto con todas sus dependencias en una unidad estándar de software, garantizando que la aplicación se ejecute de la misma manera sin importar dónde se despliegue. 
 
 
 
-En el contexto del intérprete desarrollado, la dockerización ofrece ventajas significativas en términos de portabilidad, aislamiento y replicabilidad. Esta sección detallará el proceso y las consideraciones adoptadas al dockerizar el intérprete, permitiendo su distribución y ejecución de manera homogénea en diferentes entornos.
+En el contexto del compilador desarrollado, la dockerización ofrece ventajas significativas en términos de portabilidad, aislamiento y replicabilidad. Esta sección detallará el proceso y las consideraciones adoptadas al dockerizar el compilador, permitiendo su distribución y ejecución de manera homogénea en diferentes entornos.
 
 \subsection{Construcción del contenedor}
-Para construir el contenedor Docker que encapsulará el intérprete junto con todas sus dependencias, se han realizado las siguientes tareas:
+Para construir el contenedor Docker que encapsulará el compilador junto con todas sus dependencias, se han realizado las siguientes tareas:
 
 \begin{enumerate}
     \item Elección de una imagen base. Ésta debe ser del menor tamaño posible para que sólo contenga lo imprescindible, además de ser una imagen que reciba constantes actualizaciones de seguridad y mantenimiento. En el caso de este proyecto, \textbf{alpine} es una excelente elección por cumplir estas dos características.
@@ -2351,7 +2351,7 @@ Para construir el contenedor Docker que encapsulará el intérprete junto con to
     \item Definir script de ejecución utilizando el contenedor virtual. Para hacer aún más fácil el uso de esta herramienta se definió un script denominado \code{./lmp_docker.sh} que ejecuta el contenedor utilizando como argumento el fichero de código Lamport indicado.
 \end{enumerate}
 
-\subsection{Compilación estática del intérprete}
+\subsection{Compilación estática del compilador}
 La compilación estática se refiere al proceso de integrar todas las bibliotecas y dependencias requeridas por una aplicación directamente en el binario ejecutable, en lugar de depender de bibliotecas compartidas en el sistema en tiempo de ejecución. Este método tiene varias ventajas, especialmente en el contexto que concierne a esta sección:
 
 \begin{itemize}
@@ -2360,7 +2360,7 @@ La compilación estática se refiere al proceso de integrar todas las biblioteca
 \item \textbf{Seguridad mejorada}: Al reducir el número de componentes en el contenedor, se disminuye la superficie de ataque potencial, al eliminar software adicional que no es esencial para la aplicación pero que podría presentar vulnerabilidades.
 \end{itemize}
 
-Para lograr la compilación estática del intérprete, se utilizaron las herramientas gcc y g++ con las opciones de enlazado estático. Además, se aprovechó el enfoque de construcción multi-etapa en Docker, donde la primera etapa incluye todas las herramientas y dependencias necesarias para la compilación, y la segunda etapa simplemente copia el binario resultante, resultando en una imagen Docker final limpia y optimizada.
+Para lograr la compilación estática del compilador, se utilizaron las herramientas gcc y g++ con las opciones de enlazado estático. Además, se aprovechó el enfoque de construcción multi-etapa en Docker, donde la primera etapa incluye todas las herramientas y dependencias necesarias para la compilación, y la segunda etapa simplemente copia el binario resultante, resultando en una imagen Docker final limpia y optimizada.
 
 \begin{figure}[h]
     \begin{adjustbox}{center}
